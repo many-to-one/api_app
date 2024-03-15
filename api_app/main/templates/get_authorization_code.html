@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    <h1>Authorization Code</h1>
+    <a href="{{ authorization_redirect_url }}">authorization_redirect_url</a>
+
+    <!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        function sendAuthorizationCode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            if (code) {
+                // Get CSRF token from cookies
+                const csrftoken = getCookie('csrftoken');
+
+                // Set CSRF token in Axios headers
+                axios.defaults.headers.common['X-CSRFToken'] = csrftoken;
+
+                // Send POST request with CSRF token included
+                axios.post('http://localhost:8000/get_access_token', { code: code })
+                    .then(response => {
+                        console.log(response.data);
+                        // Handle response if needed
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        // Handle error if needed
+                    });
+            }
+        }
+
+        // Function to get CSRF token from cookies
+        function getCookie(name) {
+            const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return cookieValue ? cookieValue.pop() : '';
+        }
+
+        // Automatically send authorization code when the page loads
+        window.onload = function() {
+            sendAuthorizationCode();
+        };
+    </script> -->
+
+</body>
+</html>

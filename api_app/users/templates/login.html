@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    .container form{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+    }
+</style>
+<body>
+    <h1>Registration page</h1>
+    <div class="container">
+        <form id="loginForm">
+            {% csrf_token %}
+            <label for="Email">Email</label>
+            <input name="email" type="email">
+
+            <label for="Hasło">Hasło</label>
+            <input name="password" type="password">
+
+            <button type="submit">Dalej</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        // Get form data
+        const formData = new FormData(event.target);
+
+        // Send POST request using Axios
+        axios.post('', formData)
+            .then(function(response) {
+                console.log(response.data.message);
+                
+                window.location.href = 'http://127.0.0.1:8000/'; 
+            })
+            .catch(function(error) {
+                console.error(error);
+                alert(error)
+            });
+        });
+
+    </script>
+</body>
+</html>

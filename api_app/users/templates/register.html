@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    .container form{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+    }
+</style>
+<body>
+    <h1>Registration page</h1>
+    <div class="container">
+        <div id="success"></div>
+        <form id="registerForm">
+            {% csrf_token %}
+            <label for="Email">Email</label>
+            <input name="email" type="email">
+
+            <label for="Username">Użytkownik</label>
+            <input name="username" type="username">
+
+            <label for="password">Hasło</label>
+            <input name="password" type="password">
+
+            <label for="CLIENT_ID">CLIENT_ID</label>
+            <input name="CLIENT_ID" type="text">
+
+            <label for="CLIENT_SECRET">CLIENT_SECRET</label>
+            <input name="CLIENT_SECRET" type="text">
+
+            <button type="submit">Dalej</button>
+        </form>
+    </div>
+    <button id="okButton" style="display: none;">Dalej</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        // Get form data
+        const formData = new FormData(event.target);
+
+        // Send POST request using Axios
+        axios.post('', formData)
+            .then(function(response) {
+                console.log(response.data.message);
+                
+                document.getElementById('success').innerHTML = `Witaj, ${response.data.username}!`;
+                document.getElementById('okButton').style.display = 'block';
+                document.getElementById('registerForm').style.display = 'none';
+            })
+            .catch(function(error) {
+                console.error(error);
+                alert(error)
+            });
+        });
+
+
+        document.getElementById('okButton').addEventListener('click', function() {
+            // Redirect to the home page
+            window.location.href = 'http://127.0.0.1:8000/'; 
+        });
+    </script>
+</body>
+</html>
