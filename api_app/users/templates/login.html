@@ -15,7 +15,7 @@
     }
 </style>
 <body>
-    <h1>Registration page</h1>
+    <h1>Login page</h1>
     <div class="container">
         <form id="loginForm">
             {% csrf_token %}
@@ -26,6 +26,9 @@
             <input name="password" type="password">
 
             <button type="submit">Dalej</button>
+            <div>Don't have an account?
+                <a href="{% url 'register' %}">Register</a>
+            </div>
         </form>
     </div>
 
@@ -38,7 +41,7 @@
         const formData = new FormData(event.target);
 
         // Send POST request using Axios
-        axios.post('', formData)
+        axios.post('users/login_user/', formData)
             .then(function(response) {
                 console.log(response.data.message);
                 

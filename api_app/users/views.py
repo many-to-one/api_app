@@ -58,9 +58,6 @@ def login_user(request):
         else:
             # User authentication failed, return an error message
             return JsonResponse({'error': 'Invalid credentials'}, status=400)
-    # else:
-    #     # If the request method is not POST, return an error message
-    #     return JsonResponse({'error': 'Method not allowed'}, status=405)
 
     return render(request, 'login.html')
 
