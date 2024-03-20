@@ -37,18 +37,34 @@
             <tr>
                 <th>ID</th>
                 <th>Status</th>
-                <th>Total To Pay</th>
-                <th>Buyer Email</th>
-                <th>Delivery Address</th>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Ilość</th>
+                <th>Cena</th>
+                <th>Koszty wysyłki</th>
+                <th>Razem</th>
+                <th>Klient</th>
+                <th>Login</th>
+                <th>Wysyłka</th>
+                <th>Adres wysyłki</th>
             </tr>
         </thead>
         <tbody>
             {% for order in result.checkoutForms %}
             <tr>
-                <td>{{ order.id }}</td>
-                <td>{{ order.status }}</td>
+                <td>{{ order.id }}</td>  <!-- ID -->
+                <td>{{ order.fulfillment.status }}</td>
+                {% for item in order.lineItems %}
+                    <td>{{ item.offer.name }}</td> <!-- Product -->
+                    <td>{{ item.offer.external.id }}</td> <!-- SKU -->
+                    <td>{{ item.quantity }}</td> <!-- Ilość -->
+                    <td>{{ item.originalPrice.amount }} {{ item.offer.originalPrice.currency }}</td> <!-- Cena -->
+                {% endfor %}
+                <td>{{ order.delivery.cost.amount }} {{ order.delivery.cost.currency }}</td>
                 <td>{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</td>
                 <td>{{ order.buyer.firstName }} {{ order.buyer.lastName }}</td>
+                <td>{{ order.buyer.login }}</td>
+                <td>{{ order.delivery.method.name }}</td>
                 <td>
                     {% if order.delivery.address %}
                         {{ order.delivery.address.street }},
