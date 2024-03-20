@@ -3,9 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <!-- <link rel="stylesheet" href="get_orders.css"> -->
+    <title>Zamówienia</title>
+    <style>
+        table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  th {
+    background-color: #f2f2f2;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  tr:hover {
+    background-color: #ddd;
+  }
+    </style>
 </head>
 <body>
-    orders
+    <h1>Zamówienia:</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Status</th>
+                <th>Total To Pay</th>
+                <th>Buyer Email</th>
+                <th>Delivery Address</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in result.checkoutForms %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.status }}</td>
+                <td>{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</td>
+                <td>{{ order.buyer.firstName }} {{ order.buyer.lastName }}</td>
+                <td>
+                    {% if order.delivery.address %}
+                        {{ order.delivery.address.street }},
+                        {{ order.delivery.address.city }},
+                        {{ order.delivery.address.postCode }},
+                        {{ order.delivery.address.countryCode }}
+                    {% else %}
+                        Not specified
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+   
 </body>
 </html>
