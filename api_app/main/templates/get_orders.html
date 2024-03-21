@@ -1,3 +1,6 @@
+{% extends 'base.html' %}
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,6 +33,7 @@
   }
     </style>
 </head>
+{% block content %}
 <body>
     <h1>Zamówienia:</h1>
     <table>
@@ -82,4 +86,5 @@
 
    
 </body>
+{% endblock %}
 </html>

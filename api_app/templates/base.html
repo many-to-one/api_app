@@ -1,0 +1,22 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <link rel="stylesheet" href="{% static 'css/get_orders.css' %}">
+    <title>{% block title %}My Site{% endblock %}</title>
+</head>
+<body>
+    {% block header %}
+    {% include 'header.html' %}
+    {% endblock %}
+    
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+    
+</body>
+</html>
