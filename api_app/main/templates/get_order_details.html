@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Szczegóły zamówienia</title>
+</head>
+<body>
+    
+    {% block content %}
+    <h1>Zamówienia ID: {{ order.id }}</h1>
+
+    <div class="container">
+        <div class="order__details">
+            <div class="line">
+                <p>ID:</p>
+                <p>{{ order.id }}</p>
+            </div>
+            <div class="line">
+                <p>STATUS:</p>
+                <p>{{ order.fulfillment.status }}</p>
+            </div>
+            <div class="line">
+                {% if order.status == 'FILLED_IN' %}
+                        <p>Zamówienie:</p>
+                        <p>PŁATNOŚĆ ROZPOCZĘTA</p>
+                    {% elif order.status == 'READY_FOR_PROCESSING' %}
+                        <p>Zamówienie:</p>
+                        <p>OPŁACONE</p>
+                    {% endif %}
+            </div>
+            {% for item in order.lineItems %}
+                <div class="line">
+                    <p>Product:</p>
+                    <p>{{ item.offer.name }}</p>
+                </div>
+                <div class="line">
+                    <p>SKU:</p>
+                    <p>{{ item.offer.external.id }}</p>
+                </div>
+                <div class="line">
+                    <p>Ilość:</p>
+                    <p>{{ item.quantity }}</p>
+                </div>
+                <div class="line">
+                    <p>Cena:</p>
+                    <p>{{ item.originalPrice.amount }} {{ item.offer.originalPrice.currency }}</p>
+                </div>
+            {% endfor %}
+            <div class="line">
+                <p>Koszt wysyłki:</p>
+                <p>{{ order.delivery.cost.amount }} {{ order.delivery.cost.currency }}</p>
+            </div>
+            <div class="line">
+                <p>Razem:</p>
+                <p>{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</p>
+            </div>
+            <div class="line">
+                <p>Klient:</p>
+                <p>{{ order.buyer.firstName }} {{ order.buyer.lastName }}</p>
+            </div>
+            <div class="line">
+                <p>Login:</p>
+                <p>{{ order.buyer.login }}</p>
+            </div>
+            <div class="line">
+                <p>Wysyłka:</p>
+                <p>{{ order.delivery.method.name }}</p>
+            </div>
+            {% if order.delivery.address %}
+            <div class="line">
+                <p>Ulica:</p>
+                <p>{{ order.delivery.address.street }}</p>
+            </div>
+            <div class="line">
+                <p>Miasto:</p>
+                <p>{{ order.delivery.address.city }}</p>
+            </div>
+            <div class="line">
+                <p>Kod pocztowy:</p>
+                <p>{{ order.delivery.address.zipCode }}</p>
+            </div>
+            <div class="line">
+                <p>Kraj:</p>
+                <p>{{ order.delivery.address.countryCode }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endblock %}
+</body>
+</html>

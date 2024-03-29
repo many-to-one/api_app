@@ -41,16 +41,13 @@
             <tr>
                 <th>ID</th>
                 <th>Status</th>
+                <th>Zamówienie</th>
                 <th>Product</th>
                 <th>SKU</th>
                 <th>Ilość</th>
-                <th>Cena</th>
-                <th>Koszty wysyłki</th>
-                <th>Razem</th>
+                <th>Koszty</th>
                 <th>Klient</th>
-                <th>Login</th>
                 <th>Wysyłka</th>
-                <th>Adres wysyłki</th>
             </tr>
         </thead>
         <tbody>
@@ -58,27 +55,23 @@
             <tr>
                 <td>{{ order.id }}</td>  <!-- ID -->
                 <td>{{ order.fulfillment.status }}</td>
+                {% if order.status == 'FILLED_IN' %}
+                    <td>PŁATNOŚĆ ROZPOCZĘTA</td>
+                {% elif order.status == 'READY_FOR_PROCESSING' %}
+                    <td>OPŁACONE</td>
+                {% else %}
+                    <td></td>
+                {% endif %}
                 {% for item in order.lineItems %}
                     <td>{{ item.offer.name }}</td> <!-- Product -->
                     <td>{{ item.offer.external.id }}</td> <!-- SKU -->
                     <td>{{ item.quantity }}</td> <!-- Ilość -->
-                    <td>{{ item.originalPrice.amount }} {{ item.offer.originalPrice.currency }}</td> <!-- Cena -->
                 {% endfor %}
-                <td>{{ order.delivery.cost.amount }} {{ order.delivery.cost.currency }}</td>
                 <td>{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</td>
-                <td>{{ order.buyer.firstName }} {{ order.buyer.lastName }}</td>
                 <td>{{ order.buyer.login }}</td>
                 <td>{{ order.delivery.method.name }}</td>
-                <td>
-                    {% if order.delivery.address %}
-                        {{ order.delivery.address.street }},
-                        {{ order.delivery.address.city }},
-                        {{ order.delivery.address.postCode }},
-                        {{ order.delivery.address.countryCode }}
-                    {% else %}
-                        Not specified
-                    {% endif %}
-                </td>
+                <td><a href="{% url 'get_order_details' order.id %}">Go</a></td>
+
             </tr>
             {% endfor %}
         </tbody>
