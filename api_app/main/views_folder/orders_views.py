@@ -61,3 +61,36 @@ def get_order_details(request, id):
         return render(request, 'get_order_details.html', context)
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
+    
+
+
+def change_status(request, id):
+
+    user = get_user(request)
+
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}/fulfillment"
+        headers = {'Authorization': f'Bearer {user.access_token}', 'Content-Type': 'application/vnd.allegro.public.v1+json'}
+         
+        data = {
+                "status": "SENT",
+                "shipmentSummary": {
+                "lineItemsSent": "SOME"
+                }
+            }
+        
+        response = requests.put(url, headers=headers, json=data)
+        result = response.json()
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                print('ERROR RESULT @@@@@@@@@', error_code)
+                return redirect('invalid_token')
+
+        print('RESULT @@@@@@@@@', json.dumps(result, indent=4))
+        # context = {
+        #     'order': response.json()
+        # }
+        return redirect('get_orders')
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)

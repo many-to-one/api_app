@@ -54,6 +54,7 @@
             {% for order in result.checkoutForms %}
             <tr>
                 <td>{{ order.id }}</td>  <!-- ID -->
+                <td><a href="{% url 'change_status' order.id %}">Change</a></td>
                 <td>{{ order.fulfillment.status }}</td>
                 {% if order.status == 'FILLED_IN' %}
                     <td>PŁATNOŚĆ ROZPOCZĘTA</td>
