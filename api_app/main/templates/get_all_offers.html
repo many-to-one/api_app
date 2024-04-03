@@ -18,6 +18,9 @@
             <div class="offers__line">
                 <img src="{{offer.primaryImage.url}}" alt="" width="100" height="100">
                 <p>{{ offer.name }}</p>
+                <p>{{ offer.stock.available }}</p>
+                <p>{{ offer.stock.sold }}</p>
+                <a href="{% url 'get_one_offer' offer.id %}">Więcej</a>
             </div>
 
         {% endfor %}

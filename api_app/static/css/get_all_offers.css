@@ -8,3 +8,8 @@
     align-items: center;
     gap: 2vw;
 }
+
+.offers__line img {
+    width: 100px;
+    height: auto;
+}

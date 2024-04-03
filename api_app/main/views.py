@@ -176,25 +176,6 @@ def post_product(request):
 
     return redirect('index')
 
-
-
-def get_one_product(request):
-
-    user = get_user(request)
-
-    try:
-        url = "https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/7751136519"
-        # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
-        headers = {'Authorization': f'Bearer {user.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-        product_result = requests.get(url, headers=headers, verify=True)
-        # return main_categories_result
-        print('RESULT @@@@@@@@@', product_result.json())
-        context = {
-            'result': product_result.json()
-        }
-        return render(request, 'get_one_product.html', context)
-    except requests.exceptions.HTTPError as err:
-        raise SystemExit(err)
     
 
 def get_ids_all_categories(request):

@@ -13,4 +13,5 @@ urlpatterns = [
     path('change_status/<uuid:id>', orders_views.change_status, name='change_status'),
     path('invalid_token', errors_views.invalid_token, name='invalid_token'),
     path('get_all_offers', offer_views.get_all_offers, name='get_all_offers'),
+    path('get_one_offer/<str:id>', offer_views.get_one_offer, name='get_one_offer'),
 ] 
