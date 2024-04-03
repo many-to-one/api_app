@@ -1,6 +1,6 @@
 from django.urls import include, path
 from .views import *
-from .views_folder import errors_views, orders_views
+from .views_folder import errors_views, orders_views, offer_views
 
 urlpatterns = [
     path('', index, name='index'),
@@ -12,4 +12,5 @@ urlpatterns = [
     path('get_order_details/<uuid:id>', orders_views.get_order_details, name='get_order_details'),
     path('change_status/<uuid:id>', orders_views.change_status, name='change_status'),
     path('invalid_token', errors_views.invalid_token, name='invalid_token'),
+    path('get_all_offers', offer_views.get_all_offers, name='get_all_offers'),
 ] 

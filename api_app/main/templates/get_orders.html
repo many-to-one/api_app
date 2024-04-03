@@ -39,23 +39,30 @@
     <table>
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Status</th>
-                <th>Zamówienie</th>
-                <th>Product</th>
+                <th>Produkt</th>
                 <th>SKU</th>
                 <th>Ilość</th>
                 <th>Koszty</th>
+                <th>Status</th>
                 <th>Klient</th>
                 <th>Wysyłka</th>
+                <th>Zamówienie</th>
+                <th>Szczegóły</th>
             </tr>
         </thead>
         <tbody>
             {% for order in result.checkoutForms %}
             <tr>
-                <td>{{ order.id }}</td>  <!-- ID -->
-                <td><a href="{% url 'change_status' order.id %}">Change</a></td>
-                <td>{{ order.fulfillment.status }}</td>
+                <!-- <td><a href="{% url 'change_status' order.id %}">Change</a></td> -->
+                
+                {% for item in order.lineItems %}
+                    <td>{{ item.offer.name }}</td> <!-- Product -->
+                    <td>{{ item.offer.external.id }}</td> <!-- SKU -->
+                    <td>{{ item.quantity }}</td> <!-- Ilość -->
+                {% endfor %}
+
+                <td>{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</td> <!-- Koszty -->
+
                 {% if order.status == 'FILLED_IN' %}
                     <td>PŁATNOŚĆ ROZPOCZĘTA</td>
                 {% elif order.status == 'READY_FOR_PROCESSING' %}
@@ -63,14 +70,18 @@
                 {% else %}
                     <td></td>
                 {% endif %}
-                {% for item in order.lineItems %}
-                    <td>{{ item.offer.name }}</td> <!-- Product -->
-                    <td>{{ item.offer.external.id }}</td> <!-- SKU -->
-                    <td>{{ item.quantity }}</td> <!-- Ilość -->
-                {% endfor %}
-                <td>{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</td>
+
                 <td>{{ order.buyer.login }}</td>
                 <td>{{ order.delivery.method.name }}</td>
+
+                {% if order.fulfillment.status == 'SENT' %}
+                    <td>WYSŁANE</td>
+                {% elif order.fulfillment.status == 'NEW' %}
+                    <td>NOWE</td>
+                {% else %}
+                    <td>{{ order.fulfillment.status }}</td>
+                {% endif %}
+
                 <td><a href="{% url 'get_order_details' order.id %}">Go</a></td>
 
             </tr>

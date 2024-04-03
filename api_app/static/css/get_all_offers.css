@@ -1,0 +1,10 @@
+.offers__cont {
+    margin: 10vh 1vw;
+}
+
+.offers__line {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 2vw;
+}
