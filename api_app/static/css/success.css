@@ -1,5 +1,6 @@
 .success__cont {
-    margin: 10vh 1vw;
+    margin: 10vh;
+    padding: 20px;
     width: 100%;
     text-align: center;
     background-color: rgb(129, 224, 129);

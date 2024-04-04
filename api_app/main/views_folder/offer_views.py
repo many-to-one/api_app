@@ -3,16 +3,18 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from ..utils import *
 import requests
+from ..models import *
 
 
 def get_all_offers(request):
 
-    user = get_user(request)
+    account = Allegro.objects.get(user=request.user)
+    secret = Secret.objects.get(account=account)
 
     try:
         url = "https://api.allegro.pl.allegrosandbox.pl/sale/offers"
         # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
-        headers = {'Authorization': f'Bearer {user.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
         product_result = requests.get(url, headers=headers, verify=True)
         result = product_result.json()
         if 'error' in result:
@@ -32,12 +34,13 @@ def get_all_offers(request):
 
 def get_one_offer(request, id):
 
-    user = get_user(request)
+    account = Allegro.objects.get(user=request.user)
+    secret = Secret.objects.get(account=account)
 
     try:
         url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
         # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
-        headers = {'Authorization': f'Bearer {user.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
         product_result = requests.get(url, headers=headers, verify=True)
         result = product_result.json()
         if 'error' in result:

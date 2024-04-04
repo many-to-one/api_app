@@ -9,8 +9,8 @@ def register(request):
         email = request.POST.get('email')
         username = request.POST.get('username')
         password = request.POST.get('password')
-        CLIENT_ID = request.POST.get('CLIENT_ID')
-        CLIENT_SECRET = request.POST.get('CLIENT_SECRET')
+        # CLIENT_ID = request.POST.get('CLIENT_ID')
+        # CLIENT_SECRET = request.POST.get('CLIENT_SECRET')
 
 
         try:
