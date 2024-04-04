@@ -15,6 +15,12 @@ def get_all_offers(request):
         headers = {'Authorization': f'Bearer {user.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
         product_result = requests.get(url, headers=headers, verify=True)
         result = product_result.json()
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                print('ERROR RESULT @@@@@@@@@', error_code)
+                return redirect('invalid_token')
+            
         print('RESULT - get_all_offers - @@@@@@@@@', json.dumps(result, indent=4))
         context = {
             'result': product_result.json()
@@ -34,6 +40,12 @@ def get_one_offer(request, id):
         headers = {'Authorization': f'Bearer {user.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
         product_result = requests.get(url, headers=headers, verify=True)
         result = product_result.json()
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                print('ERROR RESULT @@@@@@@@@', error_code)
+                return redirect('invalid_token')
+            
         print('RESULT - get_one_offer - @@@@@@@@@', json.dumps(result, indent=4))
         context = {
             'result': product_result.json()

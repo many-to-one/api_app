@@ -24,16 +24,21 @@ def get_code(request):
 
 def get_authorization_code(request):
 
-    REDIRECT_URI_ =' http://localhost:8000/get_code'   
+    REDIRECT_URI_ =' http://localhost:8000/get_code'  
 
-    user = get_user(request)
+    try: 
 
-    authorization_redirect_url = AUTH_URL + '?response_type=code&client_id=' + user.CLIENT_ID + \
+        user = get_user(request)
+
+        authorization_redirect_url = AUTH_URL + '?response_type=code&client_id=' + user.CLIENT_ID + \
                                  '&redirect_uri=' + REDIRECT_URI_
-    # print("Zaloguj do Allegro - skorzystaj z url w swojej przeglądarce oraz wprowadź authorization code ze zwróconego url: ")
-    # print("---  " + authorization_redirect_url + "  ---")
+        # print("Zaloguj do Allegro - skorzystaj z url w swojej przeglądarce oraz wprowadź authorization code ze zwróconego url: ")
+        # print("---  " + authorization_redirect_url + "  ---")
 
-    return redirect(authorization_redirect_url)
+        return redirect(authorization_redirect_url)
+    except Exception as e:
+        print("An error occurred:", e)
+        return redirect('logout_user')
         
     
 def get_access_token(request, authorization_code):
@@ -55,7 +60,45 @@ def get_access_token(request, authorization_code):
                })
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
+
     
+
+def get_refresh_token(request, authorization_code):
+
+    user = get_user(request)
+
+    try:
+        data = {'grant_type': 'authorization_code', 'code': authorization_code, 'redirect_uri': 'http://localhost:8000/get_code'}
+        access_token_response = requests.post(TOKEN_URL, data=data, verify=False,
+                                              allow_redirects=True, auth=(user.CLIENT_ID, user.CLIENT_SECRET))
+        print("RESPONSE CONTENT:", access_token_response.status_code)
+        tokens = json.loads(access_token_response.text)
+        access_token = tokens['refresh_token']
+        get_next_token(access_token)
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+    
+
+def get_next_token(request, access_token):
+    user = get_user(request)
+    try:
+        data = {'grant_type': 'refresh_token', 'refresh_token': access_token, 'redirect_uri': 'http://localhost:8000/get_code'}
+        access_token_response = requests.post(TOKEN_URL, data=data, verify=False,
+                                              allow_redirects=True, auth=(user.CLIENT_ID, user.CLIENT_SECRET))
+        print("RESPONSE CONTENT:", access_token_response.status_code)
+        tokens = json.loads(access_token_response.text)
+        access_token = tokens['access_token']
+        if access_token:
+            user.access_token = access_token
+            user.save()
+            print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {tokens}')
+            return JsonResponse({
+                   'message': tokens,
+               })
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+
+
 
 #################################################################################################################################################
 ############################################################################ POST NEW PRODUCT ###################################################
