@@ -1,0 +1,17 @@
+.accounts__cont {
+    margin-top: 10vh;
+    display: flex;
+    justify-content: center;
+}
+
+
+.accounts__cont form{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.accounts__cont form input, button{
+    width: 20vw;
+    height: 30px;
+}

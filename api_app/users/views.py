@@ -17,8 +17,8 @@ def register(request):
             user = CustomUser.objects.create(
                 email=email,
                 username=username,
-                CLIENT_ID=CLIENT_ID,
-                CLIENT_SECRET=CLIENT_SECRET,
+                # CLIENT_ID=CLIENT_ID,
+                # CLIENT_SECRET=CLIENT_SECRET,
             )
             user.set_password(password)
             user.save()

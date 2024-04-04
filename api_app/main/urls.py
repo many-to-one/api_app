@@ -1,9 +1,11 @@
 from django.urls import include, path
 from .views import *
-from .views_folder import errors_views, orders_views, offer_views
+from .views_folder import errors_views, orders_views, offer_views, accounts_views
 
 urlpatterns = [
     path('', index, name='index'),
+    path('success/<str:text>', success, name='success'),
+    path('add_account', accounts_views.add_account, name='add_account'),
     path('get_code', get_code, name='get_code'),
     path('get_authorization_code', get_authorization_code, name='get_authorization_code'),
     path('get_access_token/<str:authorization_code>', get_access_token, name='get_access_token'),

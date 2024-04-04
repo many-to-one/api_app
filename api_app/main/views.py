@@ -19,6 +19,11 @@ def index(request):
     else:
         return render(request, 'login.html')
     
+def success(request, text):
+    context = {'text': f'{text}',}
+    return render(request, 'success.html', context)
+
+    
 def get_code(request):
     return render(request, 'get_code.html')
 
@@ -71,6 +76,7 @@ def get_refresh_token(request, authorization_code):
         data = {'grant_type': 'authorization_code', 'code': authorization_code, 'redirect_uri': 'http://localhost:8000/get_code'}
         access_token_response = requests.post(TOKEN_URL, data=data, verify=False,
                                               allow_redirects=True, auth=(user.CLIENT_ID, user.CLIENT_SECRET))
+        print("RESPONSE ******* get_refresh_token ******* :", access_token_response)
         print("RESPONSE CONTENT:", access_token_response.status_code)
         tokens = json.loads(access_token_response.text)
         access_token = tokens['refresh_token']

@@ -1,41 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>add_account</title>
 </head>
-<style>
-    .container form{
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 20px;
-    }
-</style>
+
+{% block content %}
 <body>
-    <h1>Registration page</h1>
-    <div class="container">
-        <div id="success"></div>
+    <!-- <div class="accounts__cont"> -->
+        <h1>Dodaj Konto</h1>
+    <div class="accounts__cont">
+        <!-- <div id="success"></div> -->
         <form id="registerForm">
             {% csrf_token %}
-            <label for="Email">Email</label>
-            <input name="email" type="email">
 
-            <label for="Username">Użytkownik</label>
-            <input name="username" type="username">
+            <label for="NAME">Nazwa Konta</label>
+            <input name="NAME" type="text" required>
 
-            <label for="password">Hasło</label>
-            <input name="password" type="password">
-
-            <!-- <label for="CLIENT_ID">CLIENT_ID</label>
-            <input name="CLIENT_ID" type="text">
+            <label for="CLIENT_ID">CLIENT_ID</label>
+            <input name="CLIENT_ID" type="password" required>
 
             <label for="CLIENT_SECRET">CLIENT_SECRET</label>
-            <input name="CLIENT_SECRET" type="text"> -->
+            <input name="CLIENT_SECRET" type="password" required>
 
-            <button type="submit">Dalej</button>
+            <button type="submit">Dodaj</button>
         </form>
     </div>
     <button id="okButton" style="display: none;">Dalej</button>
@@ -53,9 +45,14 @@
             .then(function(response) {
                 console.log(response.data.message);
                 
-                document.getElementById('success').innerHTML = `Witaj, ${response.data.username}!`;
+                // document.getElementById('success').innerHTML = `Witaj, ${response.data.username}!`;
                 document.getElementById('okButton').style.display = 'block';
                 document.getElementById('registerForm').style.display = 'none';
+                if (response.data.message == 'success'){
+                    window.location.href = `http://127.0.0.1:8000/success/${response.data.text}`;
+
+                }
+        
             })
             .catch(function(error) {
                 console.error(error);
@@ -64,10 +61,13 @@
         });
 
 
-        document.getElementById('okButton').addEventListener('click', function() {
-            // Redirect to the home page
-            window.location.href = 'http://127.0.0.1:8000/'; 
-        });
+        // document.getElementById('okButton').addEventListener('click', function() {
+        //     // Redirect to the home page
+        //     window.location.href = 'http://127.0.0.1:8000/add_account'; 
+        // });
     </script>
+
 </body>
+{% endblock %}
+
 </html>
