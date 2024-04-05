@@ -166,21 +166,21 @@ def post_product(request):
     'productSet': [{
         'product': {
             'category': {
-                'id': '112627'
+                'id': '112627' #'112627'
             },
-            'name': 'Fajny product',
+            'name': 'Fajny product 7',
             'images': ['https://inoxtrade.com.pl/AfterBuy/ats/1.jpg'],
             'parameters': [{
                 'name': 'EAN (GTIN)',
-                'values': ['8032942644327']
+                'values': ['5904659189510']
             },
             {
                 'name': 'Kod producenta',
-                'values': ['123']
+                'values': ['007']
             },
             {
                 'name': 'Marka',
-                'values': ['Testowa superMARKA']
+                'values': ['DK']
             },
             {
                 'name': 'Nazwa handlowa',
@@ -195,26 +195,42 @@ def post_product(request):
                 'values': ['glutenu']
             }
 ]}}],
-        'images': ['https://inoxtrade.com.pl/AfterBuy/ats/1.jpg', 
+
+        'external': {
+                'id': '007' #sygnatura
+            },
+
+        'images': [ #'https://inoxtrade.com.pl/AfterBuy/ats/1.jpg', 
                    'https://inoxtrade.com.pl/AfterBuy/ats/2.jpg', 'https://inoxtrade.com.pl/AfterBuy/ats/3.jpg'], 
         'description': {
             'sections': [{
                 'items': [{
                     'type': 'IMAGE',
-                    'url': 'https://inoxtrade.com.pl/AfterBuy/ats/1.jpg'
-                }]}, {
-                'items': [{
-                    'type': 'TEXT',
-                    'content': '<p> Pierwszy blok opisu</p>'
+                    'url': 'https://inoxtrade.com.pl/AfterBuy/ats/2.jpg'
+                }]
+                }, 
+                {
+                    'items': [{
+                        'type': 'TEXT',
+                        'content': '<p> Pierwszy blok opisu</p>'
+                    },
+                    {
+                        'type': 'IMAGE',
+                        'url': 'https://inoxtrade.com.pl/AfterBuy/ats/3.jpg'
+                    }]
+                }, 
+                {
+                    'items': [{
+                        'type': 'TEXT',
+                        'content': '<p> Drugi blok opisu</p>'
+                    }]
                 },
                 {
-                    'type': 'IMAGE',
-                    'url': 'https://inoxtrade.com.pl/AfterBuy/ats/2.jpg'
-                }]}, {
-                'items': [{
-                    'type': 'TEXT',
-                    'content': '<p> Drugi blok opisu</p>'
-                }]}
+                    'items': [{
+                        'type': 'IMAGE',
+                        'url': 'https://inoxtrade.com.pl/AfterBuy/ats/1.jpg'
+                    }]
+                }
             ]},
     'location': {
         'countryCode': 'PL',
@@ -228,11 +244,21 @@ def post_product(request):
     'sellingMode': {
         'format': 'BUY_NOW',
         'price': {
-            'amount': '27.43',
+            'amount': '37.90',
             'currency': 'PLN'
         }},
     'payments': {
         'invoice': 'VAT'
+    },
+    "taxSettings": {
+    "rates": [
+            {
+                "rate": "23.00",
+                "countryCode": "PL"
+            }
+        ],
+        "subject": "GOODS",
+        # "exemption": "MONEY_EQUIVALENT"
     },
     'delivery': {
         'shippingRates': {
@@ -242,6 +268,16 @@ def post_product(request):
     },
     'afterSalesServices': {
         'id': 'standard'
+    },
+    "discounts": {
+        "wholesalePriceList": {
+            # "id": "Hurtowy min",
+            "name": "Hurtowy min"
+        }
+    },
+    "messageToSellerSettings": {
+        "mode": "OPTIONAL",
+        "hint": "Wybierz wzór"
     }
 }
 
