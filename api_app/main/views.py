@@ -87,8 +87,10 @@ def get_access_token(request, authorization_code):
         print("RESPONSE CONTENT:", access_token_response.status_code)
         tokens = json.loads(access_token_response.text)
         access_token = tokens['access_token']
+        refresh_token = tokens['refresh_token']
         if access_token:
             secret.access_token = access_token
+            secret.refresh_token = refresh_token
             secret.save()
             print(f'@#@#@#@# tokens #@#@#@# --------- {tokens}')
             return JsonResponse({

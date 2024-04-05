@@ -20,10 +20,14 @@ def get_all_offers(request):
         if 'error' in result:
             error_code = result['error']
             if error_code == 'invalid_token':
-                print('ERROR RESULT @@@@@@@@@', error_code)
-                return redirect('invalid_token')
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    get_next_token(secret.refresh_token)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    return redirect('invalid_token')
             
-        print('RESULT - get_all_offers - @@@@@@@@@', json.dumps(result, indent=4))
+        # print('RESULT - get_all_offers - @@@@@@@@@', json.dumps(result, indent=4))
         context = {
             'result': product_result.json()
         }
@@ -46,10 +50,14 @@ def get_one_offer(request, id):
         if 'error' in result:
             error_code = result['error']
             if error_code == 'invalid_token':
-                print('ERROR RESULT @@@@@@@@@', error_code)
-                return redirect('invalid_token')
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    get_next_token(secret.refresh_token)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    return redirect('invalid_token')
             
-        print('RESULT - get_one_offer - @@@@@@@@@', json.dumps(result, indent=4))
+        # print('RESULT - get_one_offer - @@@@@@@@@', json.dumps(result, indent=4))
         context = {
             'result': product_result.json()
         }

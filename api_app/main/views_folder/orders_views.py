@@ -6,6 +6,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 from ..models import *
+from ..utils import *
 
 REDIRECT_URI = os.getenv('REDIRECT_URI')      # wprowadź redirect_uri
 AUTH_URL = os.getenv('AUTH_URL')
@@ -28,10 +29,14 @@ def get_orders(request):
         if 'error' in result:
             error_code = result['error']
             if error_code == 'invalid_token':
-                print('ERROR RESULT @@@@@@@@@', error_code)
-                return redirect('invalid_token')
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    get_next_token(secret.refresh_token)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    return redirect('invalid_token')
 
-        print('RESULT @@@@@@@@@', json.dumps(result, indent=4))
+        # print('RESULT @@@@@@@@@', json.dumps(result, indent=4))
         context = {
             'result': product_result.json()
         }
@@ -53,10 +58,14 @@ def get_order_details(request, id):
         if 'error' in result:
             error_code = result['error']
             if error_code == 'invalid_token':
-                print('ERROR RESULT @@@@@@@@@', error_code)
-                return redirect('invalid_token')
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    get_next_token(secret.refresh_token)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    return redirect('invalid_token')
 
-        print('RESULT @@@@@@@@@', json.dumps(result, indent=4))
+        # print('RESULT @@@@@@@@@', json.dumps(result, indent=4))
         context = {
             'order': product_result.json()
         }
@@ -87,13 +96,15 @@ def change_status(request, id):
         if 'error' in result:
             error_code = result['error']
             if error_code == 'invalid_token':
-                print('ERROR RESULT @@@@@@@@@', error_code)
-                return redirect('invalid_token')
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    get_next_token(secret.refresh_token)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    return redirect('invalid_token')
 
-        print('RESULT @@@@@@@@@', json.dumps(result, indent=4))
-        # context = {
-        #     'order': response.json()
-        # }
+        # print('RESULT @@@@@@@@@', json.dumps(result, indent=4))
+
         return redirect('get_orders')
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)

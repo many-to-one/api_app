@@ -28,6 +28,10 @@ class Secret(models.Model):
         null=True,
         max_length=999,
         )
+    refresh_token = models.CharField(
+        null=True,
+        max_length=999,
+        )
     account = models.ForeignKey(
         Allegro,
         on_delete=models.CASCADE
