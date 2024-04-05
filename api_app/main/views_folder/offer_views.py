@@ -57,10 +57,43 @@ def get_one_offer(request, id):
                     print('Exception @@@@@@@@@', e)
                     return redirect('invalid_token')
             
-        # print('RESULT - get_one_offer - @@@@@@@@@', json.dumps(result, indent=4))
+        print('RESULT - get_one_offer - @@@@@@@@@', json.dumps(result, indent=4))
         context = {
             'result': product_result.json()
         }
+        post_product_from_lister(request, result)
         return render(request, 'get_one_offer.html', context)
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
+    
+
+def post_product_from_lister(request, post_data):
+
+    account = Allegro.objects.get(user=request.user)
+    secret = Secret.objects.get(account=account)
+    
+    url = f'https://api.allegro.pl.allegrosandbox.pl/sale/product-offers'
+
+    headers = {
+        'Authorization': f'Bearer {secret.access_token}',
+        'Accept': 'application/vnd.allegro.public.v1+json',
+        'Content-Type': 'application/vnd.allegro.public.v1+json'
+    }
+
+    response = requests.post(url, headers=headers, json=post_data)
+
+    # print(response.status_code)
+    # print(response.json())
+
+    try:
+        response_json = response.json()
+        print("Response JSON:")
+        print(response_json)
+    except requests.exceptions.JSONDecodeError:
+        print("No JSON response")
+
+    # Additional error handling based on specific use case
+    if response.status_code != 200:
+        print(f"Error: {response.text}")
+
+    return redirect('index')
