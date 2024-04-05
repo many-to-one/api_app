@@ -6,6 +6,7 @@ urlpatterns = [
     path('', index, name='index'),
     path('success/<str:text>', success, name='success'),
     path('add_account', accounts_views.add_account, name='add_account'),
+    # path('get_accounts', orders_views.get_accounts, name='get_accounts'),
     path('get_new_code', get_new_code, name='get_new_code'),
     path('get_new_authorization_code', get_new_authorization_code, name='get_new_authorization_code'),
     path('get_code', get_code, name='get_code'),

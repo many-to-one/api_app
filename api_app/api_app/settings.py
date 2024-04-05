@@ -72,6 +72,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'utilsy.context_processors.get_accounts', # to use data(context) from any view in any template
             ],
         },
     },

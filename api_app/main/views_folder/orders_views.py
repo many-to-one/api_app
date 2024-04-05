@@ -15,6 +15,15 @@ CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 
 
+# def get_accounts(request):
+#     accounts = Allegro.objects.filter(user=request.user).all()
+#     context = {
+#         'accounts': accounts,
+#     }
+
+#     return render(request, 'get_accounts.html', context)
+
+
 def get_orders(request):
 
     account = Allegro.objects.get(user=request.user)

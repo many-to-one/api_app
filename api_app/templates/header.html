@@ -1,5 +1,6 @@
 {% load static %}
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +15,14 @@
             <ul>
                 <li><a href="{% url 'index' %}">Home</a></li>
                 <li><a href="{% url 'add_account' %}">Dodaj Konto</a></li>
-                <li><a href="{% url 'get_all_offers' %}">Oferty Allegro</a></li>
+                <li class="dropdown">
+                    <span>Oferty</span>
+                    <div class="dropdown-content">
+                        {% for name in accounts  %}
+                        <a href="{% url 'get_all_offers' %}">{{ name }}</a>
+                        {% endfor %}
+                    </div>
+                </li>
                 <li><a href="{% url 'get_new_authorization_code' %}">Nowy Kod</a></li>
                 <li><a href="{% url 'post_product' %}">Wystaw product</a></li>
                 <li><a href="{% url 'get_orders' %}">Zamówienia</a></li>
