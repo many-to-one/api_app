@@ -47,7 +47,7 @@ def get_orders(request):
                     print('Exception @@@@@@@@@', e)
                     return redirect('invalid_token')
 
-        print('RESULT @@@@@@@@@', json.dumps(result, indent=4))
+        # print('RESULT @@@@@@@@@', json.dumps(result, indent=4))
         context = {
             'result': product_result.json()
         }
@@ -94,34 +94,46 @@ def change_status(request, id):
     account = Allegro.objects.get(user=request.user)
     secret = Secret.objects.get(account=account)
 
+    data = json.loads(request.body.decode('utf-8'))
+    new_status = data.get('status')
+
+    print('*********** new_status ***********', new_status)
+
     try:
         url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}/fulfillment"
-        headers = {'Authorization': f'Bearer {secret.access_token}', 'Content-Type': 'application/vnd.allegro.public.v1+json'}
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': 'application/vnd.allegro.public.v1+json', 'Content-Type': 'application/vnd.allegro.public.v1+json'}
          
         data = {
-                "status": "SENT",
-                "shipmentSummary": {
-                "lineItemsSent": "SOME"
-                }
+                "status": "CANCELLED",
+                # "shipmentSummary": {
+                # "lineItemsSent": "SOME"
+                # }
             }
         
         response = requests.put(url, headers=headers, json=data)
-        result = response.json()
-        if 'error' in result:
-            error_code = result['error']
-            if error_code == 'invalid_token':
-                # print('ERROR RESULT @@@@@@@@@', error_code)
-                try:
-                    # Refresh the token
-                    new_token = get_next_token(request, secret.refresh_token)
-                    # Retry fetching orders with the new token
-                    return change_status(request, id)
-                except Exception as e:
-                    print('Exception @@@@@@@@@', e)
-                    return redirect('invalid_token')
+        print('*********** change_status ***********', response)
+        # result = response.json()
+        # if 'error' in result:
+        #     error_code = result['error']
+        #     if error_code == 'invalid_token':
+        #         # print('ERROR RESULT @@@@@@@@@', error_code)
+        #         try:
+        #             # Refresh the token
+        #             new_token = get_next_token(request, secret.refresh_token)
+        #             # Retry fetching orders with the new token
+        #             return change_status(request, id)
+        #         except Exception as e:
+        #             print('Exception @@@@@@@@@', e)
+        #             return redirect('invalid_token')
 
-        # print('RESULT @@@@@@@@@', json.dumps(result, indent=4))
+        # print('*********** change_status ***********', json.dumps(result, indent=4))
 
-        return redirect('get_orders')
+        return JsonResponse(
+                {
+                    'message': 'Stock updated successfully',
+                    'newStatus': new_status,
+                }, 
+                status=200,
+            )
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)

@@ -22,7 +22,10 @@ def get_all_offers(request):
             if error_code == 'invalid_token':
                 # print('ERROR RESULT @@@@@@@@@', error_code)
                 try:
-                    get_next_token(secret.refresh_token)
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token)
+                    # Retry fetching orders with the new token
+                    return get_all_offers(request)
                 except Exception as e:
                     print('Exception @@@@@@@@@', e)
                     return redirect('invalid_token')
@@ -52,7 +55,10 @@ def get_one_offer(request, id):
             if error_code == 'invalid_token':
                 # print('ERROR RESULT @@@@@@@@@', error_code)
                 try:
-                    get_next_token(secret.refresh_token)
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token)
+                    # Retry fetching orders with the new token
+                    return get_one_offer(request, id)
                 except Exception as e:
                     print('Exception @@@@@@@@@', e)
                     return redirect('invalid_token')

@@ -1,0 +1,22 @@
+.icon {
+    width: 25px;
+    height: auto;
+    cursor: pointer;
+}
+
+#edit {
+    display: block;
+}
+
+.loading {
+    animation: rotate 2s linear infinite; /* Adjust duration and timing function as needed */
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
