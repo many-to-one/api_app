@@ -31,7 +31,6 @@ def get_orders(request):
 
     try:
         url = "https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms"
-        # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
         headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
         product_result = requests.get(url, headers=headers, verify=True)
         result = product_result.json()
@@ -40,7 +39,10 @@ def get_orders(request):
             if error_code == 'invalid_token':
                 # print('ERROR RESULT @@@@@@@@@', error_code)
                 try:
-                    get_next_token(secret.refresh_token)
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token)
+                    # Retry fetching orders with the new token
+                    return get_orders(request)
                 except Exception as e:
                     print('Exception @@@@@@@@@', e)
                     return redirect('invalid_token')
@@ -69,7 +71,10 @@ def get_order_details(request, id):
             if error_code == 'invalid_token':
                 # print('ERROR RESULT @@@@@@@@@', error_code)
                 try:
-                    get_next_token(secret.refresh_token)
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token)
+                    # Retry fetching orders with the new token
+                    return get_order_details(request, id)
                 except Exception as e:
                     print('Exception @@@@@@@@@', e)
                     return redirect('invalid_token')
@@ -107,7 +112,10 @@ def change_status(request, id):
             if error_code == 'invalid_token':
                 # print('ERROR RESULT @@@@@@@@@', error_code)
                 try:
-                    get_next_token(secret.refresh_token)
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token)
+                    # Retry fetching orders with the new token
+                    return change_status(request, id)
                 except Exception as e:
                     print('Exception @@@@@@@@@', e)
                     return redirect('invalid_token')

@@ -15,6 +15,8 @@ def get_user(request):
 
 
 def get_next_token(request, access_token):
+
+    print(f'@#@#@#@# get_next_token access_token #@#@#@# --------- {access_token}')
     
     account = Allegro.objects.get(user=request.user)
     secret = Secret.objects.get(account=account)
