@@ -47,7 +47,7 @@ def get_orders(request):
                     print('Exception @@@@@@@@@', e)
                     return redirect('invalid_token')
 
-        # print('RESULT @@@@@@@@@', json.dumps(result, indent=4))
+        print('RESULT @@@@@@@@@', json.dumps(result, indent=4))
         context = {
             'result': product_result.json()
         }

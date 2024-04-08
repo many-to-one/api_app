@@ -97,3 +97,54 @@ def post_product_from_lister(request, post_data):
         print(f"Error: {response.text}")
 
     return redirect('index')
+
+
+def edit_offer_stock(request, id):
+
+    account = Allegro.objects.get(user=request.user)
+    secret = Secret.objects.get(account=account)
+
+    data = json.loads(request.body.decode('utf-8'))
+    new_stock = data.get('stock')
+
+    print('**************new_stock**************', new_stock)
+    patch_data = {
+        "stock": {
+        "available": new_stock,
+        "unit": "UNIT"
+        },
+    }
+
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
+        # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
+        headers = {
+        'Authorization': f'Bearer {secret.access_token}',
+        'Accept': 'application/vnd.allegro.public.v1+json',
+        'Content-Type': 'application/vnd.allegro.public.v1+json'
+    }
+        product_result = requests.patch(url, headers=headers, json=patch_data)
+        result = product_result.json()
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token)
+                    # Retry fetching orders with the new token
+                    return edit_offer_stock(request, id)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    return redirect('invalid_token')
+            
+        print('RESULT - get_one_offer - @@@@@@@@@', json.dumps(result, indent=4))
+        return JsonResponse(
+                {
+                    'message': 'Stock updated successfully',
+                    'newValue': new_stock,
+                }, 
+                status=200,
+            )
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)

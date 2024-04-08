@@ -52,39 +52,85 @@
         </thead>
         <tbody>
             {% for order in result.checkoutForms %}
+
+            {% if order.delivery.calculatedNumberOfPackages == 2 %}
+                    <tr>
+                        {% for item in order.lineItems %}
+                            <tr class="double">
+                                <td>{{ item.offer.name }}</td> <!-- Product -->
+                                <td>{{ item.offer.external.id }}</td> <!-- SKU -->
+                                <td>{{ item.quantity }}</td> <!-- Ilość -->
+
+
+                                {% if forloop.counter == 1 %}
+
+                                    <td>{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</td> <!-- Koszty -->
+
+                                    {% if order.status == 'FILLED_IN' %}
+                                        <td>PŁATNOŚĆ ROZPOCZĘTA</td>
+                                    {% elif order.status == 'READY_FOR_PROCESSING' %}
+                                        <td>OPŁACONE</td>
+                                    {% else %}
+                                        <td></td>
+                                    {% endif %}
+
+                                    <td>{{ order.buyer.login }}</td>
+                                    <td>{{ order.delivery.method.name }}</td>
+                                    {% if order.fulfillment.status == 'SENT' %}
+                                        <td>WYSŁANE</td>
+                                    {% elif order.fulfillment.status == 'NEW' %}
+                                        <td>NOWE</td>
+                                    {% else %}
+                                        <td>{{ order.fulfillment.status }}</td>
+                                    {% endif %}
+
+                                    <td><a href="{% url 'get_order_details' order.id %}">Go</a></td>
+
+
+                                {% else %}
+                                    <td></td> <!-- Set to null or empty for non-first items -->
+                                    <td></td>
+                                    <td>{{ order.buyer.login }}</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tr>
+                {% else %}
+
             <tr>
                 <!-- <td><a href="{% url 'change_status' order.id %}">Change</a></td> -->
-                
-                {% for item in order.lineItems %}
-                    <td>{{ item.offer.name }}</td> <!-- Product -->
-                    <td>{{ item.offer.external.id }}</td> <!-- SKU -->
-                    <td>{{ item.quantity }}</td> <!-- Ilość -->
-                {% endfor %}
 
-                <td>{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</td> <!-- Koszty -->
+                    {% for item in order.lineItems %}
+                        <td>{{ item.offer.name }}</td> <!-- Product -->
+                        <td>{{ item.offer.external.id }}</td> <!-- SKU -->
+                        <td>{{ item.quantity }}</td> <!-- Ilość -->
+                    {% endfor %}
 
-                {% if order.status == 'FILLED_IN' %}
-                    <td>PŁATNOŚĆ ROZPOCZĘTA</td>
-                {% elif order.status == 'READY_FOR_PROCESSING' %}
-                    <td>OPŁACONE</td>
-                {% else %}
-                    <td></td>
-                {% endif %}
+                    <td>{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</td> <!-- Koszty -->
 
-                <td>{{ order.buyer.login }}</td>
-                <td>{{ order.delivery.method.name }}</td>
+                    {% if order.status == 'FILLED_IN' %}
+                        <td>PŁATNOŚĆ ROZPOCZĘTA</td>
+                    {% elif order.status == 'READY_FOR_PROCESSING' %}
+                        <td>OPŁACONE</td>
+                    {% else %}
+                        <td></td>
+                    {% endif %}
 
-                {% if order.fulfillment.status == 'SENT' %}
-                    <td>WYSŁANE</td>
-                {% elif order.fulfillment.status == 'NEW' %}
-                    <td>NOWE</td>
-                {% else %}
-                    <td>{{ order.fulfillment.status }}</td>
-                {% endif %}
+                    <td>{{ order.buyer.login }}</td>
+                    <td>{{ order.delivery.method.name }}</td>
 
-                <td><a href="{% url 'get_order_details' order.id %}">Go</a></td>
+                    {% if order.fulfillment.status == 'SENT' %}
+                        <td>WYSŁANE</td>
+                    {% elif order.fulfillment.status == 'NEW' %}
+                        <td>NOWE</td>
+                    {% else %}
+                        <td>{{ order.fulfillment.status }}</td>
+                    {% endif %}
 
+                    <td><a href="{% url 'get_order_details' order.id %}">Go</a></td>
             </tr>
+            
+            {% endif %}
             {% endfor %}
         </tbody>
     </table>
