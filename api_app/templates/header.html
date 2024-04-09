@@ -19,11 +19,18 @@
                     <span>Oferty</span>
                     <div class="dropdown-content">
                         {% for name in accounts  %}
-                        <a href="{% url 'get_all_offers' %}">{{ name }}</a>
+                        <a href="{% url 'get_all_offers' name %}">{{ name }}</a>
                         {% endfor %}
                     </div>
                 </li>
-                <li><a href="{% url 'get_new_authorization_code' %}">Nowy Kod</a></li>
+                <li class="dropdown">
+                    <span>Allegro Kod</span>
+                    <div class="dropdown-content">
+                        {% for name in accounts  %}
+                        <a href="{% url 'get_new_authorization_code' name %}">{{ name }}</a>
+                        {% endfor %}
+                    </div>
+                </li>
                 <li><a href="{% url 'post_product' %}">Wystaw product</a></li>
                 <li><a href="{% url 'get_orders' %}">Zamówienia</a></li>
                 {% if request.user.is_authenticated %}

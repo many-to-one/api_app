@@ -25,15 +25,19 @@ def success(request, text):
     return render(request, 'success.html', context)
 
 
-def get_new_authorization_code(request):
+def get_new_authorization_code(request, name):
+    account = Allegro.objects.get(name=name)
+    secret = Secret.objects.get(account=account)
+    # print('******************* name ***********************', secret.CLIENT_ID)
+    # return HttpResponse('name', name)
 
-    REDIRECT_URI_ =' http://localhost:8000/get_new_code'  
+    REDIRECT_URI_ =f' http://localhost:8000/get_new_code/{name}'  
 
     try: 
 
         user = get_user(request)
 
-        authorization_redirect_url = AUTH_URL + '?response_type=code&client_id=' + user.CLIENT_ID + \
+        authorization_redirect_url = AUTH_URL + '?response_type=code&client_id=' + secret.CLIENT_ID + \
                                  '&redirect_uri=' + REDIRECT_URI_
         # print("Zaloguj do Allegro - skorzystaj z url w swojej przeglądarce oraz wprowadź authorization code ze zwróconego url: ")
         # print("---  " + authorization_redirect_url + "  ---")
@@ -44,8 +48,11 @@ def get_new_authorization_code(request):
         return redirect('logout_user')
 
 
-def get_new_code(request):
-    return render(request, 'get_new_code.html')
+def get_new_code(request, name):
+    context = {
+        'name': name
+    }
+    return render(request, 'get_new_code.html', context)
 
     
 def get_code(request):
@@ -71,19 +78,19 @@ def get_authorization_code(request):
         return redirect('logout_user')
         
     
-def get_access_token(request, authorization_code):
+def get_access_token(request, authorization_code, name):
  
-    user = get_user(request)
+    # user = get_user(request)
 
-    account = Allegro.objects.get(user=user)
+    account = Allegro.objects.get(name=name)
     secret = Secret.objects.get(account=account)
 
     print('************SECRETS************', secret.CLIENT_ID)
 
     try:
-        data = {'grant_type': 'authorization_code', 'code': authorization_code, 'redirect_uri': 'http://localhost:8000/get_new_code'}
-        access_token_response = requests.post(TOKEN_URL, data=data, verify=False,
-                                              allow_redirects=True, auth=(user.CLIENT_ID, user.CLIENT_SECRET))
+        data = {'grant_type': 'authorization_code', 'code': authorization_code, 'redirect_uri': f'http://localhost:8000/get_new_code/{name}'}
+        access_token_response = requests.post(TOKEN_URL, data=data, verify=True,
+                                              allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
         print("RESPONSE CONTENT:", access_token_response.status_code)
         tokens = json.loads(access_token_response.text)
         access_token = tokens['access_token']
