@@ -27,11 +27,12 @@ def get_next_token(request, access_token):
                                               allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
         # print("RESPONSE CONTENT:", access_token_response.status_code)
         tokens = json.loads(access_token_response.text)
+        print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {tokens}')
         access_token = tokens['access_token']
         if access_token:
             secret.access_token = access_token
             secret.save()
-            # print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {tokens}')
+            # print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {access_token}')
             print(' ************* NEXT TOKEN WAS CREATED ************* ')
             return access_token
     except requests.exceptions.HTTPError as err:

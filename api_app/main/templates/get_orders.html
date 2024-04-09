@@ -32,6 +32,7 @@
     background-color: #ddd;
   }
     </style>
+
 </head>
 {% block content %}
 <body>
@@ -70,19 +71,28 @@
                                         <td>PŁATNOŚĆ ROZPOCZĘTA</td>
                                     {% elif order.status == 'READY_FOR_PROCESSING' %}
                                         <td>OPŁACONE</td>
+                                    {% elif order.status == 'CANCELLED' %}
+                                        <td>ANULOWANE</td>
                                     {% else %}
                                         <td></td>
                                     {% endif %}
 
                                     <td>{{ order.buyer.login }}</td>
                                     <td>{{ order.delivery.method.name }}</td>
-                                    {% if order.fulfillment.status == 'SENT' %}
-                                        <td>WYSŁANE</td>
-                                    {% elif order.fulfillment.status == 'NEW' %}
-                                        <td>NOWE</td>
-                                    {% else %}
-                                        <td>{{ order.fulfillment.status }}</td>
-                                    {% endif %}
+
+                                    <!-- {% if order.fulfillment.status %} -->
+                                        <td>
+                                            <select id="status_select_{{ order.id }}">
+                                                <option id="status_{{ order.id }}" value="FILLED_IN" {% if order.fulfillment.status == 'SENT' %} selected {% endif %}>WYSŁANE</option>
+                                                <option id="status_{{ order.id }}" value="READY_FOR_PROCESSING" {% if order.fulfillment.status == 'NEW' %} selected {% endif %}>NOWE</option>
+                                                <option id="status_{{ order.id }}" value="CANCELLED" {% if order.fulfillment.status == 'CANCELLED' %} selected {% endif %}>ANULOWANE</option>
+                                                <!-- Add more options for other statuses if needed -->
+                                            </select>
+                                            <img class="icon" id="edit_{{ order.id }}" onclick="updateOrderStatus('{{ order.id }}', 'status_select_{{ order.id }}')" src="{% static 'icons/edit.png' %}" alt="">
+                                        </td>
+                                    <!-- {% else %}
+                                        <td></td>
+                                    {% endif %} -->
 
                                     <td><a href="{% url 'get_order_details' order.id %}">Go</a></td>
 
@@ -112,6 +122,8 @@
                         <td>PŁATNOŚĆ ROZPOCZĘTA</td>
                     {% elif order.status == 'READY_FOR_PROCESSING' %}
                         <td>OPŁACONE</td>
+                    {% elif order.status == 'CANCELLED' %}
+                        <td>ANULOWANE</td>
                     {% else %}
                         <td></td>
                     {% endif %}
@@ -119,27 +131,19 @@
                     <td>{{ order.buyer.login }}</td>
                     <td>{{ order.delivery.method.name }}</td>
 
-                    <!-- {% if order.fulfillment.status == 'SENT' %}
-                        <td>WYSŁANE</td>
-                    {% elif order.fulfillment.status == 'NEW' %}
-                        <td>NOWE</td>
-                    {% else %}
-                        <td>{{ order.fulfillment.status }}</td>
-                    {% endif %} -->
-
-                    {% if order.fulfillment.status %}
+                    <!-- {% if order.fulfillment.status %} -->
                         <td>
-                            <select id="status_select_{{ offer.id }}">
-                                <option id="status_{{ offer.id }}" value="FILLED_IN" {% if order.status == 'SENT' %} selected {% endif %}>WYSŁANE</option>
-                                <option id="status_{{ offer.id }}" value="READY_FOR_PROCESSING" {% if order.status == 'NEW' %} selected {% endif %}>NOWE</option>
-                                <option id="status_{{ offer.id }}" value="READY_FOR_SHIPMENT" {% if order.status == 'CANCELLED' %} selected {% endif %}>ANULACJA</option>
+                            <select id="status_select_{{ order.id }}">
+                                <option id="status_{{ order.id }}" value="FILLED_IN" {% if order.fulfillment.status == 'SENT' %} selected {% endif %}>WYSŁANE</option>
+                                <option id="status_{{ order.id }}" value="READY_FOR_PROCESSING" {% if order.fulfillment.status == 'NEW' %} selected {% endif %}>NOWE</option>
+                                <option id="status_{{ order.id }}" value="CANCELLED" {% if order.fulfillment.status == 'CANCELLED' %} selected {% endif %}>ANULOWANE</option>
                                 <!-- Add more options for other statuses if needed -->
                             </select>
-                            <img class="icon" id="edit_{{ offer.id }}" onclick="updateOrderStatus('{{ order.id }}', 'status_select_{{ offer.id }}')" src="{% static 'icons/edit.png' %}" alt="">
+                            <img class="icon" id="edit_{{ order.id }}" onclick="updateOrderStatus('{{ order.id }}', 'status_select_{{ order.id }}')" src="{% static 'icons/edit.png' %}" alt="">
                         </td>
-                    {% else %}
+                    <!-- {% else %}
                         <td></td>
-                    {% endif %}
+                    {% endif %} -->
 
                     <td><a href="{% url 'get_order_details' order.id %}">Go</a></td>
             </tr>
@@ -151,6 +155,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
+
         function getCSRFToken() {
             const cookieValue = document.cookie.match(/csrftoken=([^ ;]+)/)[1];
             return cookieValue;
@@ -161,6 +166,8 @@
         axios.defaults.xsrfHeaderName = 'X-CSRFToken';
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
+
+
         function updateOrderStatus(offerId, selectId) {
 
             console.log('updateOrderStatus offerId clicked', offerId)
@@ -170,31 +177,30 @@
             // const edit = document.getElementById('edit_' + offerId);
             // load.style.display = 'block';
             // edit.style.display = 'none';
-        // Get the value from the input field
-        var selectElement = document.getElementById(selectId);
-        var selectedStatus = selectElement.value;
-        console.log('Selected status:', selectedStatus);
+            // Get the value from the input field
+            var selectElement = document.getElementById(selectId);
+            var selectedStatus = selectElement.value;
+            console.log('Selected status:', selectedStatus);
 
-        // Make an AJAX request to update the stock value
-        axios.put('/change_status/' + offerId + '/', { status: selectedStatus })
-            .then(function(response) {
-                console.log('status', response.data.newStatus)
-                if(response.status == 200) {
-                    // document.getElementById('load_'+ offerId).style.display = 'none';
-                    // load.style.display = 'none';
-                    // edit.style.display = 'block';
-                    // document.getElementById('stock_' + offerId).value = response.data.newValue;
-                    // location.reload();
-                    console.log('Success', response.data.message)
-                }
-            })
-            .catch(function(error) {
-                // Handle error
-                console.error('Error updating stock:', error);
-            });
-    }
+            // Make an AJAX request to update the stock value
+            axios.put('/change_status/' + offerId + '/', { status: selectedStatus })
+                .then(function(response) {
+                    console.log('status', response.data.newStatus)
+                    if(response.status == 200) {
+                        // document.getElementById('load_'+ offerId).style.display = 'none';
+                        // load.style.display = 'none';
+                        // edit.style.display = 'block';
+                        // document.getElementById('stock_' + offerId).value = response.data.newValue;
+                        // location.reload();
+                        console.log('Success', response.data.message)
+                    }
+                })
+                .catch(function(error) {
+                    // Handle error
+                    console.error('Error updating stock:', error);
+                });
+        }
     </script>
-
    
 </body>
 {% endblock %}

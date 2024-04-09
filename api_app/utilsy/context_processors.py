@@ -3,7 +3,7 @@ from main.models import *
 
 
 def get_accounts(request):
-    accounts = Allegro.objects.filter(user=request.user).all()
+    accounts = Allegro.objects.filter(user=request.user.id).all()
     return {
         'accounts': accounts,
     }

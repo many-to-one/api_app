@@ -47,7 +47,7 @@ def get_orders(request):
                     print('Exception @@@@@@@@@', e)
                     return redirect('invalid_token')
 
-        # print('RESULT @@@@@@@@@', json.dumps(result, indent=4))
+        print('RESULT @@@@@@@@@', json.dumps(result, indent=4))
         context = {
             'result': product_result.json()
         }
@@ -104,7 +104,7 @@ def change_status(request, id):
         headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': 'application/vnd.allegro.public.v1+json', 'Content-Type': 'application/vnd.allegro.public.v1+json'}
          
         data = {
-                "status": "CANCELLED",
+                "status": new_status,
                 # "shipmentSummary": {
                 # "lineItemsSent": "SOME"
                 # }
@@ -113,6 +113,7 @@ def change_status(request, id):
         response = requests.put(url, headers=headers, json=data)
         print('*********** change_status ***********', response)
         # result = response.json()
+        print('*********** response.json() ***********', response)
         # if 'error' in result:
         #     error_code = result['error']
         #     if error_code == 'invalid_token':
