@@ -56,12 +56,14 @@
             {% for result in all_results %}
             {% for order in result.checkoutForms %}
 
+
+
             {% if order.delivery.calculatedNumberOfPackages == 2 %}
                     <tr>
                         {% for item in order.lineItems %}
                             <tr class="double">
                                 <td>{{ item.offer.name }}</td> <!-- Product -->
-                                <td id="name" value="{{ result.name }}">{{ result.name }}</td> <!-- Konto -->
+                                <td id="name_{{ order.id }}" value="{{ result.name }}">{{ result.name }}</td> <!-- Konto -->
                                 <td>{{ item.offer.external.id }}</td> <!-- SKU -->
                                 <td>{{ item.quantity }}</td> <!-- Ilość -->
 
@@ -92,6 +94,7 @@
                                                 <!-- Add more options for other statuses if needed -->
                                             </select>
                                             <img class="icon" id="edit_{{ order.id }}" onclick="updateOrderStatus('{{ order.id }}', 'status_select_{{ order.id }}')" src="{% static 'icons/edit.png' %}" alt="">
+                                            <img style="display: none;" class="icon" id="load_{{ order.id }}"  src="{% static 'icons/load.png' %}" alt="">
                                         </td>
                                     <!-- {% else %}
                                         <td></td>
@@ -108,13 +111,16 @@
                             </tr>
                         {% endfor %}
                     </tr>
-                {% else %}
+                    
+            {% else %}
+
+            
 
             <tr>
 
                     {% for item in order.lineItems %}
                         <td>{{ item.offer.name }}</td> 
-                        <td id="name" value="{{ result.name }}">{{ result.name }}</td> <!-- Konto -->
+                        <td id="name_{{ order.id }}" value="{{ result.name }}">{{ result.name }}</td> <!-- Konto -->
                         <td>{{ item.offer.external.id }}</td> 
                         <td>{{ item.quantity }}</td> 
                     {% endfor %}
@@ -136,11 +142,15 @@
 
                         <td>
                             <select id="status_select_{{ order.id }}">
-                                <option id="status_{{ order.id }}" value="FILLED_IN" {% if order.fulfillment.status == 'SENT' %} selected {% endif %}>WYSŁANE</option>
+                                <option id="status_{{ order.id }}" value="SENT" {% if order.fulfillment.status == 'SENT' %} selected {% endif %}>WYSŁANE</option>
                                 <option id="status_{{ order.id }}" value="READY_FOR_PROCESSING" {% if order.fulfillment.status == 'NEW' %} selected {% endif %}>NOWE</option>
                                 <option id="status_{{ order.id }}" value="CANCELLED" {% if order.fulfillment.status == 'CANCELLED' %} selected {% endif %}>ANULOWANE</option>
+                                <option id="status_{{ order.id }}" value="PICKED_UP" {% if order.fulfillment.status == 'PICKED_UP' %} selected {% endif %}>DOSTARCZONE</option>
                             </select>
+
                             <img class="icon" id="edit_{{ order.id }}" onclick="updateOrderStatus('{{ order.id }}', 'status_select_{{ order.id }}')" src="{% static 'icons/edit.png' %}" alt="">
+                            <img style="display: none;" class="icon" id="load_{{ order.id }}"  src="{% static 'icons/load.png' %}" alt="">
+
                         </td>
 
                     <td><a href="{% url 'get_order_details' order.id %}">Go</a></td>
@@ -174,10 +184,18 @@
             // console.log('updateOrderStatus offerId clicked', offerId)
             // console.log('updateOrderStatus selectId clicked', selectId)
 
+            const load = document.getElementById('load_'+ offerId)
+            const edit = document.getElementById('edit_' + offerId);
+            load.style.display = 'block';
+            edit.style.display = 'none';
+
             // Get the value from the input field
-            var nameId = document.getElementById('name');
-            var name = nameId.getAttribute('value');
+            // var nameId = document.getElementById('name');
+            // var name = nameId.getAttribute('value');
             // console.log('updateOrderStatus name clicked', name)
+            var nameId = document.getElementById('name_' + offerId);
+            var name = nameId.getAttribute('value');
+            console.log('updateOrderStatus name clicked', name);
 
             var selectElement = document.getElementById(selectId);
             var selectedStatus = selectElement.value;
@@ -189,11 +207,12 @@
                 .then(function(response) {
                     console.log('status', response.data.newStatus)
                     if(response.status == 200) {
-                        // document.getElementById('load_'+ offerId).style.display = 'none';
-                        // load.style.display = 'none';
-                        // edit.style.display = 'block';
-                        // document.getElementById('stock_' + offerId).value = response.data.newValue;
+                        document.getElementById('load_'+ offerId).style.display = 'none';
+                        load.style.display = 'none';
+                        edit.style.display = 'block';
+                        document.getElementById('stock_' + offerId).value = response.data.newValue;
                         // location.reload();
+                        // window.location.href = '/get_orders';
                         console.log('Success', response.data.message)
                     }
                 })
