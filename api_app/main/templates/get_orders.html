@@ -41,6 +41,7 @@
         <thead>
             <tr>
                 <th>Produkt</th>
+                <th>Konto</th>
                 <th>SKU</th>
                 <th>Ilość</th>
                 <th>Koszty</th>
@@ -52,6 +53,7 @@
             </tr>
         </thead>
         <tbody>
+            {% for result in all_results %}
             {% for order in result.checkoutForms %}
 
             {% if order.delivery.calculatedNumberOfPackages == 2 %}
@@ -59,6 +61,7 @@
                         {% for item in order.lineItems %}
                             <tr class="double">
                                 <td>{{ item.offer.name }}</td> <!-- Product -->
+                                <td id="name" value="{{ result.name }}">{{ result.name }}</td> <!-- Konto -->
                                 <td>{{ item.offer.external.id }}</td> <!-- SKU -->
                                 <td>{{ item.quantity }}</td> <!-- Ilość -->
 
@@ -100,7 +103,7 @@
                                 {% else %}
                                     <td></td> <!-- Set to null or empty for non-first items -->
                                     <td></td>
-                                    <td>{{ order.buyer.login }}</td>
+                                    <!-- <td>{{ order.buyer.login }}</td> -->
                                 {% endif %}
                             </tr>
                         {% endfor %}
@@ -108,15 +111,15 @@
                 {% else %}
 
             <tr>
-                <!-- <td><a href="{% url 'change_status' order.id %}">Change</a></td> -->
 
                     {% for item in order.lineItems %}
-                        <td>{{ item.offer.name }}</td> <!-- Product -->
-                        <td>{{ item.offer.external.id }}</td> <!-- SKU -->
-                        <td>{{ item.quantity }}</td> <!-- Ilość -->
+                        <td>{{ item.offer.name }}</td> 
+                        <td id="name" value="{{ result.name }}">{{ result.name }}</td> <!-- Konto -->
+                        <td>{{ item.offer.external.id }}</td> 
+                        <td>{{ item.quantity }}</td> 
                     {% endfor %}
 
-                    <td>{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</td> <!-- Koszty -->
+                    <td>{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</td> 
 
                     {% if order.status == 'FILLED_IN' %}
                         <td>PŁATNOŚĆ ROZPOCZĘTA</td>
@@ -131,24 +134,22 @@
                     <td>{{ order.buyer.login }}</td>
                     <td>{{ order.delivery.method.name }}</td>
 
-                    <!-- {% if order.fulfillment.status %} -->
                         <td>
                             <select id="status_select_{{ order.id }}">
                                 <option id="status_{{ order.id }}" value="FILLED_IN" {% if order.fulfillment.status == 'SENT' %} selected {% endif %}>WYSŁANE</option>
                                 <option id="status_{{ order.id }}" value="READY_FOR_PROCESSING" {% if order.fulfillment.status == 'NEW' %} selected {% endif %}>NOWE</option>
                                 <option id="status_{{ order.id }}" value="CANCELLED" {% if order.fulfillment.status == 'CANCELLED' %} selected {% endif %}>ANULOWANE</option>
-                                <!-- Add more options for other statuses if needed -->
                             </select>
                             <img class="icon" id="edit_{{ order.id }}" onclick="updateOrderStatus('{{ order.id }}', 'status_select_{{ order.id }}')" src="{% static 'icons/edit.png' %}" alt="">
                         </td>
-                    <!-- {% else %}
-                        <td></td>
-                    {% endif %} -->
 
                     <td><a href="{% url 'get_order_details' order.id %}">Go</a></td>
+
+
             </tr>
             
             {% endif %}
+            {% endfor %}
             {% endfor %}
         </tbody>
     </table>
@@ -170,20 +171,21 @@
 
         function updateOrderStatus(offerId, selectId) {
 
-            console.log('updateOrderStatus offerId clicked', offerId)
-            console.log('updateOrderStatus selectId clicked', selectId)
+            // console.log('updateOrderStatus offerId clicked', offerId)
+            // console.log('updateOrderStatus selectId clicked', selectId)
 
-            // const load = document.getElementById('load_'+ offerId)
-            // const edit = document.getElementById('edit_' + offerId);
-            // load.style.display = 'block';
-            // edit.style.display = 'none';
             // Get the value from the input field
+            var nameId = document.getElementById('name');
+            var name = nameId.getAttribute('value');
+            // console.log('updateOrderStatus name clicked', name)
+
             var selectElement = document.getElementById(selectId);
             var selectedStatus = selectElement.value;
+
             console.log('Selected status:', selectedStatus);
 
             // Make an AJAX request to update the stock value
-            axios.put('/change_status/' + offerId + '/', { status: selectedStatus })
+            axios.put('/change_status/' + offerId + '/' + name + '/', { status: selectedStatus })
                 .then(function(response) {
                     console.log('status', response.data.newStatus)
                     if(response.status == 200) {

@@ -156,13 +156,15 @@ def get_next_token(request, access_token):
 
 def post_product(request):
 
-    account = Allegro.objects.get(user=request.user)
-    secret = Secret.objects.get(account=account)
+    # account = Allegro.objects.get(user=request.user)
+    # secret = Secret.objects.get(account=account)
+    token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiIxMDY5NzQ5NzgiLCJzY29wZSI6WyJhbGxlZ3JvOmFwaTpvcmRlcnM6cmVhZCIsImFsbGVncm86YXBpOmZ1bGZpbGxtZW50OnJlYWQiLCJhbGxlZ3JvOmFwaTpwcm9maWxlOndyaXRlIiwiYWxsZWdybzphcGk6c2FsZTpvZmZlcnM6d3JpdGUiLCJhbGxlZ3JvOmFwaTpmdWxmaWxsbWVudDp3cml0ZSIsImFsbGVncm86YXBpOmJpbGxpbmc6cmVhZCIsImFsbGVncm86YXBpOmNhbXBhaWducyIsImFsbGVncm86YXBpOmRpc3B1dGVzIiwiYWxsZWdybzphcGk6c2FsZTpvZmZlcnM6cmVhZCIsImFsbGVncm86YXBpOmJpZHMiLCJhbGxlZ3JvOmFwaTpzaGlwbWVudHM6d3JpdGUiLCJhbGxlZ3JvOmFwaTpvcmRlcnM6d3JpdGUiLCJhbGxlZ3JvOmFwaTphZHMiLCJhbGxlZ3JvOmFwaTpwYXltZW50czp3cml0ZSIsImFsbGVncm86YXBpOnNhbGU6c2V0dGluZ3M6d3JpdGUiLCJhbGxlZ3JvOmFwaTpwcm9maWxlOnJlYWQiLCJhbGxlZ3JvOmFwaTpyYXRpbmdzIiwiYWxsZWdybzphcGk6c2FsZTpzZXR0aW5nczpyZWFkIiwiYWxsZWdybzphcGk6cGF5bWVudHM6cmVhZCIsImFsbGVncm86YXBpOnNoaXBtZW50czpyZWFkIiwiYWxsZWdybzphcGk6bWVzc2FnaW5nIl0sImFsbGVncm9fYXBpIjp0cnVlLCJpc3MiOiJodHRwczovL2FsbGVncm8ucGwuYWxsZWdyb3NhbmRib3gucGwiLCJleHAiOjE3MTI3NzE0OTAsImp0aSI6IjE2MzYxYmMyLTA1Y2MtNGM3OC1hNmY4LWQ5MTJlZjA5MWU2MyIsImNsaWVudF9pZCI6IjBhMTU2NjVmNjI1MjQwMmVhNGVlN2ZiZjU3ZTk4YjlhIn0.Ie44lhvsqJPL_4JkAtV0IVQ8KOpau4j5mDit_kIgduXWb7hnEUT9yZXvSPEjkGvjbSvBXyV0sNVvpur4MmxR0TZBn4TY0i7lr0eDc8C8Fw1SHULsTEwuKZSWbQ7HRvLUp6yMRIfcZRI__RlFE39Z2tQrhfCQSF-bJWqpEgoIMHNi0AfQMU1la-Uz_AXO-aabHFGFUuH-JD-bZWSTM3cpZdjW3VN1nD-A-S261kAYy4DEQO512UN67Q7sjmEuUsoqKbq8JXQoigH8szPSDWamNi83MwwaG_Zz5atJ_z19euiPDEuyHkKXedgki0vXGWeKuI_lGS-sEbdSZJGPhX6JWXMQTtKuYjRjMy7vMYcZaDx7pNnXNo8BskqGgOdNoyhdOik0yGK7UhnP_z7yLmQpgFxegiXShhIg_ouXNWzj4GMcN8BYfOomiLqR0_trFWqeko6uUNagBUqunrIlnwiVmpPfL888DHehAZd8XDkFuWzBASD029IPULxIyBBUOJvOWj7QBis2fH6lMNbUem4-RYyaOE9DcYuymkKdp8QGIzMAlocV2uegqiQaUweaxoDRnE2jjYFRfRd65bwOh-8kgMCUI23kCQR24KZImsUJ_vh1xxXhIq-7SR7fBvUWyEeQ2UHkLIYefh9ucKgWut3ZrWJukfYYogIMtP78kIa8h68'
     
     url = f'https://api.allegro.pl.allegrosandbox.pl/sale/product-offers'
 
     headers = {
-        'Authorization': f'Bearer {secret.access_token}',
+        # 'Authorization': f'Bearer {secret.access_token}',
+        'Authorization': f'Bearer {token}',
         'Accept': 'application/vnd.allegro.public.v1+json',
         'Content-Type': 'application/vnd.allegro.public.v1+json'
     }
@@ -175,15 +177,15 @@ def post_product(request):
             'category': {
                 'id': '112627' #'112627'
             },
-            'name': 'Fajny product 7',
+            'name': 'Fajny product 8',
             'images': ['https://inoxtrade.com.pl/AfterBuy/ats/1.jpg'],
             'parameters': [{
                 'name': 'EAN (GTIN)',
-                'values': ['5904659189510']
+                'values': ['5904659181460']
             },
             {
                 'name': 'Kod producenta',
-                'values': ['007']
+                'values': ['008']
             },
             {
                 'name': 'Marka',

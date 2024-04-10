@@ -26,15 +26,27 @@ CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 
 def get_orders(request):
 
+    all_results = []
+    result_with_name = {}
     accounts = Allegro.objects.filter(user=request.user)
     for account in accounts:
         secret = Secret.objects.get(account=account)
+        # print('*********************** NAME **********************', secret.account.name)
 
         try:
             url = "https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms"
             headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+            # print('***********************secret.access_token**********************', secret.access_token)
             product_result = requests.get(url, headers=headers, verify=True)
             result = product_result.json()
+            print('************* TYPE *************', type(result))
+            # result_with_name = {
+            #     all_results: result,
+            #     'name': secret.account.name
+            # }
+            result.update({'name': secret.account.name})
+            all_results.append(result)
+            # all_results.append(result)
             if 'error' in result:
                 error_code = result['error']
                 if error_code == 'invalid_token':
@@ -47,14 +59,15 @@ def get_orders(request):
                     except Exception as e:
                         print('Exception @@@@@@@@@', e)
                         return redirect('invalid_token')
-
-            print('RESULT @@@@@@@@@', json.dumps(result, indent=4))
-            context = {
-                'result': product_result.json()
-            }
-            return render(request, 'get_orders.html', context)
+            print('*********************** result **********************', json.dumps(result, indent=4))
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
+
+    context = {
+        'all_results': all_results
+    }
+    # print('*********************** all_results **********************', all_results)
+    return render(request, 'get_orders.html', context)
     
 
 def get_order_details(request, id):

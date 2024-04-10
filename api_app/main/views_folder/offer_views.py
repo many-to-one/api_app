@@ -28,9 +28,9 @@ def get_all_offers(request, name):
                 # print('ERROR RESULT @@@@@@@@@', error_code)
                 try:
                     # Refresh the token
-                    new_token = get_next_token(request, secret.refresh_token)
+                    new_token = get_next_token(request, secret.refresh_token, name)
                     # Retry fetching orders with the new token
-                    return get_all_offers(request)
+                    return get_all_offers(request, name)
                 except Exception as e:
                     print('Exception @@@@@@@@@', e)
                     return redirect('invalid_token')
