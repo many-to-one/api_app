@@ -36,7 +36,8 @@ def get_all_offers(request, name):
                     return redirect('invalid_token')
         # print('RESULT - get_all_offers - @@@@@@@@@', json.dumps(result, indent=4))
         context = {
-            'result': product_result.json()
+            'result': product_result.json(),
+            'name': name,
         }
         return render(request, 'get_all_offers.html', context)
     except requests.exceptions.HTTPError as err:
@@ -113,19 +114,24 @@ def post_product_from_lister(request, post_data):
 
 def edit_offer_stock(request, id):
 
-    account = Allegro.objects.get(user=request.user)
-    secret = Secret.objects.get(account=account)
-
     data = json.loads(request.body.decode('utf-8'))
     new_stock = data.get('stock')
+    name = data.get('name')
 
     print('**************new_stock**************', new_stock)
+    print('**************name**************', name)
+
+    account = Allegro.objects.get(name=name)
+    secret = Secret.objects.get(account=account)
+    print('**************secret_access_token**************', secret.access_token)
     patch_data = {
         "stock": {
         "available": new_stock,
         "unit": "UNIT"
         },
     }
+
+    # return HttpResponse('ok')
 
     try:
         url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"

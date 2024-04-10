@@ -14,6 +14,8 @@
     
     <div class="offers__cont">
 
+        <h1 id="name" value="{{ name }}">{{ name }}</h1>
+
         {% for offer in result.offers %}
 
             <div class="offers__line">
@@ -50,12 +52,17 @@
             const edit = document.getElementById('edit_' + offerId);
             load.style.display = 'block';
             edit.style.display = 'none';
+
+            var nameId = document.getElementById('name');
+            var name = nameId.getAttribute('value');
+            console.log('editStock name clicked', name);
+
         // Get the value from the input field
         var newStock = document.getElementById('stock_' + offerId).value;
         console.log('newStock', newStock)
 
         // Make an AJAX request to update the stock value
-        axios.patch('/edit_offer_stock/' + offerId + '/', { stock: newStock })
+        axios.patch('/edit_offer_stock/' + offerId + '/', { stock: newStock, name: name })
             .then(function(response) {
                 console.log('status', response.data.newValue)
                 if(response.status == 200) {
