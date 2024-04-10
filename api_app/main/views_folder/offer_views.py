@@ -47,37 +47,52 @@ def get_all_offers(request, name):
 
 def get_one_offer(request, id):
 
-    accounts = Allegro.objects.filter(user=request.user)
-    for account in accounts:
-        secret = Secret.objects.get(account=account)
+    data = json.loads(request.body.decode('utf-8'))
+    name = data.get('name')
 
-        try:
-            url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
-            # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
-            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-            product_result = requests.get(url, headers=headers, verify=True)
-            result = product_result.json()
-            if 'error' in result:
-                error_code = result['error']
-                if error_code == 'invalid_token':
-                    # print('ERROR RESULT @@@@@@@@@', error_code)
-                    try:
-                        # Refresh the token
-                        new_token = get_next_token(request, secret.refresh_token)
-                        # Retry fetching orders with the new token
-                        return get_one_offer(request, id)
-                    except Exception as e:
-                        print('Exception @@@@@@@@@', e)
-                        return redirect('invalid_token')
+    print('**************name**************', name)
 
-                print('RESULT - get_one_offer - @@@@@@@@@', json.dumps(result, indent=4))
-                context = {
-                    'result': product_result.json()
-                }
-                # post_product_from_lister(request, result)
-                return render(request, 'get_one_offer.html', context)
-        except requests.exceptions.HTTPError as err:
-            raise SystemExit(err)
+    account = Allegro.objects.get(name=name)
+    secret = Secret.objects.get(account=account)
+    print('**************secret**************', secret.access_token)
+    
+    # return HttpResponse('ok')
+
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
+        # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+        product_result = requests.get(url, headers=headers, verify=True)
+        result = product_result.json()
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token)
+                    # Retry fetching orders with the new token
+                    return get_one_offer(request, id)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    return redirect('invalid_token')
+            print('RESULT - get_one_offer - @@@@@@@@@', json.dumps(result, indent=4))
+            context = {
+                'result': product_result.json()
+            }
+            # post_product_from_lister(request, result)
+
+            # return render(request, 'get_one_offer.html', context)
+            return JsonResponse(
+                {
+                    'message': 'Stock updated successfully',
+                    'context': context,
+                }, 
+                status=200,
+            )
+        
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
     
 
 def post_product_from_lister(request, post_data):
