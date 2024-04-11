@@ -21,4 +21,5 @@ urlpatterns = [
     path('get_all_offers/<str:name>/', offer_views.get_all_offers, name='get_all_offers'),
     path('get_one_offer/<str:id>/', offer_views.get_one_offer, name='get_one_offer'),
     path('edit_offer_stock/<str:id>/', offer_views.edit_offer_stock, name='edit_offer_stock'),
+    path('post_new_offer/<str:id>/', offer_views.post_new_offer, name='post_new_offer'),
 ] 
