@@ -166,12 +166,12 @@
         console.log('lister chacked', lister);
 
         console.log('postOffer clicked', offerId);
-        var name2 = 'alfapro'
+        var name2 = 'alfapro';
         console.log('account clicked', name);
         var ean = document.getElementById('ean_' + offerId);
 
         // Make an AJAX request to update the stock value
-        axios.post('/post_new_offer/' + offerId + '/', { name: name, lister: lister, ean: ean.value })
+        axios.post('/post_new_offer/' + offerId + '/', { name: name2, lister: lister, ean: ean.value })
             .then(function(response) {
                 console.log('status', response.data)
                 if(response.status == 200) {

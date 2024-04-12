@@ -188,13 +188,37 @@ def post_product_from_lister(request, secret, ean, post_data):
             # print('************** delivery_info **************', delivery_info)
     name = post_data.get("name")
     print('************** name **************', name)
-    productSet = post_data.get("productSet")
-    for param in post_data['productSet'][0]['product']['parameters']:
-    # Check if the parameter has the name 'EAN (GTIN)' and a 'values' list
-        if param.get('name') == 'EAN (GTIN)' and 'values' in param:
-            # Update the 'values' list with my_ean
-            param['values'] = [ean]
-    print('************** productSet **************', productSet)
+    category = post_data.get("category")
+    # print('************** category **************', category["id"])
+
+    # productSet = post_data.get("productSet")
+    # for product in post_data["productSet"]:
+    #     # Iterate over the parameters of each product
+    #     for param in product["product"]["parameters"]:
+    #         # Check if the parameter name is "EAN (GTIN)"
+    #         if param["id"] == "225693":
+    #             # Set the values for "EAN (GTIN)"
+    #             param["values"] = ean
+    #             print('************** param["values"] **************', param["values"])
+
+    # parameters = post_data["productSet"][0]["product"]["parameters"]
+    # parameters[5]["values"] = [ean]
+
+    # post_data["productSet"][0]["product"]["parameters"][5] = {
+    #                                 'id': '225693', 
+    #                                 'name': 'EAN (GTIN)', 
+    #                                 'values': [ean], 
+    #                                 'valuesIds': None, 
+    #                                 'rangeValue': None
+    #                             }
+
+    for product in post_data['productSet']:
+        product['product']['name'] = name
+        product['product']['images'] = ['https://inoxtrade.com.pl/AfterBuy/ats/1.jpg']
+
+    for product in post_data['productSet']:
+        product['product']['category'] = category
+    # print('************** productSet **************', productSet)
     external = post_data.get("external")
     # print('************** external **************', external)
     images = post_data.get("images")
@@ -211,18 +235,13 @@ def post_product_from_lister(request, secret, ean, post_data):
     # print('************** payments **************', payments)
     taxSettings = post_data.get("taxSettings")
     # print('************** taxSettings **************', taxSettings)
-    category = post_data.get("category")
-    print('************** category **************', category)
     if "discounts" in post_data:
         discounts = post_data["discounts"]
         discounts["name"] = "Hurtowy min"
-        if discounts["wholesalePriceList"]:
-            del discounts["wholesalePriceList"]["id"]
-        # del afterSalesServices["returnPolicy"]["id"]
         # print('************** discounts **************', discounts)
     if "messageToSellerSettings" in post_data:
         messageToSellerSettings = post_data["messageToSellerSettings"]
-        # messageToSellerSettings["mode"] = "OPTIONAL"
+        post_data["messageToSellerSettings"] = "OPTIONAL"
         # messageToSellerSettings["hint"] = "Wybierz wzór"
         # print('************** messageToSellerSettings **************', messageToSellerSettings)
     if "afterSalesServices" in post_data:
@@ -240,49 +259,89 @@ def post_product_from_lister(request, secret, ean, post_data):
     # for parameter in post_data["productSet"][0]["product"]["parameters"]:
     #     print(parameter["name"] + ":", parameter["values"][0])
 
+    print('************** QUANTITY **************', post_data["productSet"][0]["product"])
+
     data = {
     'name': name,
+    # 'productSet': post_data["productSet"],
 
-    # 'productSet': [{'product': {'id': 'a918549d-f310-4d3e-9509-355ee019f362', 
-    #               'publication': {'status': 'LISTED'}, 'parameters': 
-    #               [{'id': '248926', 'name': 'Marka', 'values': ['Testowa superMARKA'], 
-    #                 'valuesIds': ['248926_968438'], 'rangeValue': None}, 
-    #                 {'id': '244509', 'name': 'Nazwa handlowa', 
-    #                  'values': ['Fajny produkt'], 
-    #                  'valuesIds': None, 'rangeValue': None}, 
-    #                  {'id': '224017', 'name': 'Kod producenta', 
-    #                   'values': ['005'], 
-    #                   'valuesIds': None, 
-    #                   'rangeValue': None}, 
-    #                   {'id': '226901', 'name': 'Pojemność', 'values': ['350'], 'valuesIds': None, 'rangeValue': None}, 
-    #                   {'id': '130691', 'name': 'Produkt nie zawiera', 'values': ['glutenu'], 'valuesIds': ['130691_2'], 
-    #                    'rangeValue': None}, {'id': '225693', 'name': 'EAN (GTIN)', 'values': [ean], 'valuesIds': None, 'rangeValue': None}]}, 
-    #                    'quantity': {'value': 1}, 'responsiblePerson': None}],
-
-    'productSet': [{'product': {
-                        # 'id': 'a918549d-f310-4d3e-9509-355ee019f362', 
-                        'category': category,
+    'productSet': [{'product': 
+                    {
                         'name': name,
                         'images': ['https://inoxtrade.com.pl/AfterBuy/ats/1.jpg'],
-                        # 'publication': {'status': 'LISTED'}, 
                         'parameters': 
-                  [{'id': '248926', 'name': 'Marka', 'values': ['Testowa superMARKA'], 
-                    'valuesIds': ['248926_968438'], 'rangeValue': None}, 
-                    {'id': '244509', 'name': 'Nazwa handlowa', 
-                     'values': ['Fajny produkt'], 
-                     'valuesIds': None, 'rangeValue': None}, 
-                     {'id': '224017', 'name': 'Kod producenta', 
-                      'values': ['005'], 
-                      'valuesIds': None, 
-                      'rangeValue': None}, 
-                      {'id': '226901', 'name': 'Pojemność', 'values': ['350'], 'valuesIds': None, 'rangeValue': None}, 
-                      {'id': '130691', 'name': 'Produkt nie zawiera', 'values': ['glutenu'], 'valuesIds': ['130691_2'], 
-                       'rangeValue': None}, {'id': '225693', 'name': 'EAN (GTIN)', 'values': [ean], 'valuesIds': None, 'rangeValue': None}]}, 
-                       'quantity': {'value': 1}, 'responsiblePerson': None}],
+                            [
+                                post_data["productSet"][0]["product"]["parameters"][0], 
+                                post_data["productSet"][0]["product"]["parameters"][1],  
+                                post_data["productSet"][0]["product"]["parameters"][2], 
+                                post_data["productSet"][0]["product"]["parameters"][3],  
+                                post_data["productSet"][0]["product"]["parameters"][4], 
+                                {
+                                    'id': '225693', 
+                                    'name': 'EAN (GTIN)', 
+                                    'values': [ean], 
+                                    'valuesIds': None, 
+                                    'rangeValue': None
+                                }
+                            ]
+                    }, 
+                        # 'quantity': {'value': 1},
+                        'responsiblePerson': None
+                    }],
 
-        'external': external,
-        'images': images, 
-        'description': description,
+    # 'productSet': [{'product': {
+    #                     'name': name,
+    #                     'images': ['https://inoxtrade.com.pl/AfterBuy/ats/1.jpg'],
+    #                 'parameters': 
+    #                 [
+    #                     {
+    #                         'id': '248926', 
+    #                         'name': 'Marka', 
+    #                         'values': ['Testowa superMARKA'], 
+    #                         'valuesIds': ['248926_968438'], 
+    #                         'rangeValue': None
+    #                     }, 
+    #                     {
+    #                         'id': '244509', 
+    #                         'name': 
+    #                         'Nazwa handlowa', 
+    #                         'values': ['Fajny produkt'], 
+    #                         'valuesIds': None, 'rangeValue': None
+    #                     }, 
+    #                     {
+    #                         'id': '224017', 
+    #                         'name': 'Kod producenta', 
+    #                     'values': ['005'], 
+    #                     'valuesIds': None, 
+    #                     'rangeValue': None}, 
+    #                     {
+    #                         'id': '226901', 
+    #                         'name': 'Pojemność', 
+    #                         'values': ['350'], 
+    #                         'valuesIds': None, 
+    #                         'rangeValue': None
+    #                     }, 
+    #                     {
+    #                         'id': '130691', 
+    #                         'name': 'Produkt nie zawiera', 
+    #                         'values': ['glutenu'], 
+    #                         'valuesIds': ['130691_2'], 
+    #                         'rangeValue': None}, 
+    #                     {
+    #                         'id': '225693', 
+    #                         'name': 'EAN (GTIN)', 
+    #                         'values': [ean], 
+    #                         'valuesIds': None, 
+    #                         'rangeValue': None
+    #                     }]}, 
+    #                    'quantity': {'value': 1}, 
+    #                    'responsiblePerson': None
+    #                 }],
+
+    'external': external,
+    'category': category,
+    'images': images, 
+    'description': description,
     'location': location,
     'stock': stock,
     'sellingMode': sellingMode,
@@ -290,12 +349,12 @@ def post_product_from_lister(request, secret, ean, post_data):
     "taxSettings": taxSettings,
     'delivery': delivery_info,
     'afterSalesServices': afterSalesServices,
-    "discounts": discounts,
-    # "messageToSellerSettings": messageToSellerSettings,
-    # "messageToSellerSettings": {
-    #     "mode": "OPTIONAL",
-    #     "hint": "Wybierz wzór"
-    # }
+    "discounts": {
+        "wholesalePriceList": {
+            "name": "Hurtowy min"
+        }
+    },
+    "messageToSellerSettings": messageToSellerSettings,
 }
 
 
