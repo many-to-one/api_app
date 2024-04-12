@@ -15,6 +15,10 @@
     <div class="offers__cont">
 
         <h1 id="name" value="{{ name }}">{{ name }}</h1>
+        <div id="error_13" style="display: none;">
+            Nieprawidłowa zawartość EAN
+            <button onclick="closeError()">X</button>
+        </div>
 
         {% for offer in result.offers %}
 
@@ -36,7 +40,9 @@
                     {% endfor %}
                     <!-- Add more options for other statuses if needed -->
                 </select>
-                <a onclick="postOffer('{{ offer.id }}', document.getElementById('account_select_{{ order.id }}').value)">Wystawić</a>
+                <input id="ean_{{ offer.id }}" type="text" style="display: none;" value="">
+                <a id="start_{{ offer.id }}" onclick="getEan('{{ offer.id }}')" style="display: block;">Wystawić</a>
+                <a id="pst_{{ offer.id }}" onclick="postOffer('{{ offer.id }}', document.getElementById('account_select_{{ order.id }}').value)" style="display: none;">Post</a>
                 <a onclick="getOffer('{{ offer.id }}')">Więcej</a>
             </div>
 
@@ -45,6 +51,14 @@
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
+
+    var ean = document.getElementById('ean');
+    var listerId = document.getElementById('name');
+    var lister = listerId.getAttribute('value');
+    var nameId = document.getElementById('name');
+    var name = nameId.getAttribute('value');
+    var error_13 = document.getElementById('error_13');
+
         function getCSRFToken() {
             const cookieValue = document.cookie.match(/csrftoken=([^ ;]+)/)[1];
             return cookieValue;
@@ -113,24 +127,27 @@
             });
         }
 
-        function postOffer(offerId, name) {
+        function getEan (offerId) {
+            // Make start button invisible
+            var start = document.getElementById('start_' + offerId);
+            start.style.display = 'none';
 
-        // Get the name value of Lister
-        var listerId = document.getElementById('name');
-        var lister = listerId.getAttribute('value');
-        console.log('lister chacked', lister);
+            // Make Post button visible
+            var pst = document.getElementById('pst_' + offerId);
+            pst.style.display = 'block';
 
-        console.log('postOffer clicked', offerId);
-        var name2 = 'alfapro'
-        console.log('account clicked', name2);
+            // Make Ean Input visible
+            var ean = document.getElementById('ean_' + offerId);
+            ean.style.display = 'block';
 
-        // Make an AJAX request to update the stock value
-        axios.post('/post_new_offer/' + offerId + '/', { name: name2, lister: lister })
+            // Make an AJAX request to update the stock value
+            axios.post('/get_ean/', { offerId: offerId, name: name})
             .then(function(response) {
-                console.log('status', response.data.newValue)
+                // console.log('status', response.data.newValue)
                 if(response.status == 200) {
-                    // var context = response.data.context
-                    console.log('Success post_new_offer')
+                    var context = response.data.context.result;
+                    console.log('getEan', context);
+                    ean.value = context;
                     // window.location.href = 'http://127.0.0.1:8000/';
                 }
             })
@@ -138,9 +155,55 @@
                 // Handle error
                 console.error('Error updating stock:', error);
             });
+
+        }
+
+        function postOffer(offerId, name) {
+
+        // Get the name value of Lister
+        // var listerId = document.getElementById('name');
+        // var lister = listerId.getAttribute('value');
+        console.log('lister chacked', lister);
+
+        console.log('postOffer clicked', offerId);
+        var name2 = 'alfapro'
+        console.log('account clicked', name);
+        var ean = document.getElementById('ean_' + offerId);
+
+        // Make an AJAX request to update the stock value
+        axios.post('/post_new_offer/' + offerId + '/', { name: name, lister: lister, ean: ean.value })
+            .then(function(response) {
+                console.log('status', response.data)
+                if(response.status == 200) {
+                    if(response.data.message == 'Success') {
+                        // var context = response.data.context
+                        console.log('Success post_new_offer')
+                        // window.location.reload();
+                        // window.location.href = 'http://127.0.0.1:8000/';
+                    } else {
+                        console.log('ERROR 13')
+                        error_13.style.display = 'flex';
+                    }
+                }
+            })
+            .catch(function(error) {
+                // Handle error
+                console.error('Error updating stock:', error);
+                // window.location.reload();
+            });
         }
 
     </script>
+
+<script>
+    function closeError() {
+        var errorElement = document.getElementById("error_13");
+        if (errorElement) {
+            errorElement.style.display = "none";
+            console.log('CLOSE');
+        }
+    }
+</script>
 
 </body>
 {% endblock %}

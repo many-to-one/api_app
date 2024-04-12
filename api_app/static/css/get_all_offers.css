@@ -13,3 +13,23 @@
     width: 100px;
     height: auto;
 }
+
+#error_13 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: aquamarine;
+    width: 100%;
+    height: 50px;
+    padding-left: 10px;
+    margin-bottom: 2vh;
+}
+
+#error_13 button {
+    width: 30px;
+    border-radius: 50%;
+    background-color: bisque;
+    border: none;
+    padding-right: 10px;
+    cursor: pointer;
+}
