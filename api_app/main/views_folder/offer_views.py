@@ -8,12 +8,12 @@ from ..models import *
 
 def get_all_offers(request, name):
 
-    print('******* name ********', name)
+    # print('******* name ********', name)
     account = Allegro.objects.get(name=name)
-    print('******* account ********', account)
+    # print('******* account ********', account)
     secret = Secret.objects.get(account=account)
-    print('******* secret ********', secret)
-    print('******* secret.access_token ********', secret.access_token)
+    # print('******* secret ********', secret)
+    # print('******* secret.access_token ********', secret.access_token)
 
     try:
         url = "https://api.allegro.pl.allegrosandbox.pl/sale/offers"
@@ -35,7 +35,7 @@ def get_all_offers(request, name):
                     print('Exception @@@@@@@@@', e)
                     context = {'name': name}
                     return render(request, 'invalid_token.html', context)
-        print('RESULT - get_all_offers - @@@@@@@@@', json.dumps(result, indent=4))
+        # print('RESULT - get_all_offers - @@@@@@@@@', json.dumps(result, indent=4))
         context = {
             'result': product_result.json(),
             'name': name,
@@ -51,11 +51,11 @@ def get_one_offer(request, id):
     data = json.loads(request.body.decode('utf-8'))
     name = data.get('name')
 
-    print('**************name**************', name)
+    # print('**************name**************', name)
 
     account = Allegro.objects.get(name=name)
     secret = Secret.objects.get(account=account)
-    print('**************secret**************', secret.access_token)
+    # print('**************secret**************', secret.access_token)
     
     # return HttpResponse('ok')
 
@@ -77,7 +77,7 @@ def get_one_offer(request, id):
                 except Exception as e:
                     print('Exception @@@@@@@@@', e)
                     return redirect('invalid_token')
-        print('RESULT - get_one_offer - @@@@@@@@@', json.dumps(result, indent=4))
+        # print('RESULT - get_one_offer - @@@@@@@@@', json.dumps(result, indent=4))
         context = {
             'result': product_result.json()
         }
@@ -168,18 +168,9 @@ def post_product_from_lister(request, secret, ean, post_data):
     # account = Allegro.objects.get(user=request.user)
     # secret = Secret.objects.get(account=account)
 
-    # if "delivery" in post_data:
-    #     delivery_info = post_data["delivery"]
-    #     if "shippingRates" in delivery_info:
-    #         delivery_info["shippingRates"]["name"] = "Standard"
-    #         del delivery_info["shippingRates"]["id"]
-    #     if "messageToSellerSettings" in post_data:
-    #         message_settings = post_data["messageToSellerSettings"]
-    #         message_settings["mode"] = "OPTIONAL"
-    #         message_settings["hint"] = "Wybierz wzór"
+    # print('************** post_data **************', post_data)
+    # print('************** ean **************', ean)
 
-    print('************** post_data **************', post_data)
-    print('************** ean **************', ean)
     if "delivery" in post_data:
         delivery_info = post_data["delivery"]
         if "shippingRates" in delivery_info:
@@ -187,30 +178,9 @@ def post_product_from_lister(request, secret, ean, post_data):
             del delivery_info["shippingRates"]["id"]
             # print('************** delivery_info **************', delivery_info)
     name = post_data.get("name")
-    print('************** name **************', name)
+    # print('************** name **************', name)
     category = post_data.get("category")
     # print('************** category **************', category["id"])
-
-    # productSet = post_data.get("productSet")
-    # for product in post_data["productSet"]:
-    #     # Iterate over the parameters of each product
-    #     for param in product["product"]["parameters"]:
-    #         # Check if the parameter name is "EAN (GTIN)"
-    #         if param["id"] == "225693":
-    #             # Set the values for "EAN (GTIN)"
-    #             param["values"] = ean
-    #             print('************** param["values"] **************', param["values"])
-
-    # parameters = post_data["productSet"][0]["product"]["parameters"]
-    # parameters[5]["values"] = [ean]
-
-    # post_data["productSet"][0]["product"]["parameters"][5] = {
-    #                                 'id': '225693', 
-    #                                 'name': 'EAN (GTIN)', 
-    #                                 'values': [ean], 
-    #                                 'valuesIds': None, 
-    #                                 'rangeValue': None
-    #                             }
 
     for product in post_data['productSet']:
         product['product']['name'] = name
@@ -251,15 +221,7 @@ def post_product_from_lister(request, secret, ean, post_data):
         del afterSalesServices["returnPolicy"]["id"]
         # print('************** afterSalesServices **************', afterSalesServices)
 
-
-# Convert the modified dictionary back to JSON
-    # modified_json_data = json.dumps(post_data, indent=4)
-    # print('************** modified_json_data **************', modified_json_data)
-    # print("Parameters:")
-    # for parameter in post_data["productSet"][0]["product"]["parameters"]:
-    #     print(parameter["name"] + ":", parameter["values"][0])
-
-    print('************** QUANTITY **************', post_data["productSet"][0]["product"])
+    print('************** POST DATA **************', json.dumps(post_data["productSet"], indent=4))
 
     data = {
     'name': name,
@@ -269,74 +231,34 @@ def post_product_from_lister(request, secret, ean, post_data):
                     {
                         'name': name,
                         'images': ['https://inoxtrade.com.pl/AfterBuy/ats/1.jpg'],
-                        'parameters': 
-                            [
-                                post_data["productSet"][0]["product"]["parameters"][0], 
-                                post_data["productSet"][0]["product"]["parameters"][1],  
-                                post_data["productSet"][0]["product"]["parameters"][2], 
-                                post_data["productSet"][0]["product"]["parameters"][3],  
-                                post_data["productSet"][0]["product"]["parameters"][4], 
-                                {
-                                    'id': '225693', 
-                                    'name': 'EAN (GTIN)', 
-                                    'values': [ean], 
-                                    'valuesIds': None, 
-                                    'rangeValue': None
-                                }
-                            ]
+                        # 'parameters': 
+                        #     [
+                        #         # post_data["productSet"][0]["product"]["parameters"][0], 
+                        #         # post_data["productSet"][0]["product"]["parameters"][1],  
+                        #         # post_data["productSet"][0]["product"]["parameters"][2], 
+                        #         # post_data["productSet"][0]["product"]["parameters"][3],  
+                        #         # post_data["productSet"][0]["product"]["parameters"][4], 
+                        #         {
+                        #             'id': '225693', 
+                        #             'name': 'EAN (GTIN)', 
+                        #             'values': [ean], 
+                        #             'valuesIds': None, 
+                        #             'rangeValue': None
+                        #         }
+                        #     ]
+                        'parameters': post_data["productSet"][0]['product']["parameters"][1:] + [
+                            {
+                                'id': '225693', 
+                                'name': 'EAN (GTIN)', 
+                                'values': [ean], 
+                                'valuesIds': None, 
+                                'rangeValue': None
+                            }
+                        ]
                     }, 
                         # 'quantity': {'value': 1},
                         'responsiblePerson': None
                     }],
-
-    # 'productSet': [{'product': {
-    #                     'name': name,
-    #                     'images': ['https://inoxtrade.com.pl/AfterBuy/ats/1.jpg'],
-    #                 'parameters': 
-    #                 [
-    #                     {
-    #                         'id': '248926', 
-    #                         'name': 'Marka', 
-    #                         'values': ['Testowa superMARKA'], 
-    #                         'valuesIds': ['248926_968438'], 
-    #                         'rangeValue': None
-    #                     }, 
-    #                     {
-    #                         'id': '244509', 
-    #                         'name': 
-    #                         'Nazwa handlowa', 
-    #                         'values': ['Fajny produkt'], 
-    #                         'valuesIds': None, 'rangeValue': None
-    #                     }, 
-    #                     {
-    #                         'id': '224017', 
-    #                         'name': 'Kod producenta', 
-    #                     'values': ['005'], 
-    #                     'valuesIds': None, 
-    #                     'rangeValue': None}, 
-    #                     {
-    #                         'id': '226901', 
-    #                         'name': 'Pojemność', 
-    #                         'values': ['350'], 
-    #                         'valuesIds': None, 
-    #                         'rangeValue': None
-    #                     }, 
-    #                     {
-    #                         'id': '130691', 
-    #                         'name': 'Produkt nie zawiera', 
-    #                         'values': ['glutenu'], 
-    #                         'valuesIds': ['130691_2'], 
-    #                         'rangeValue': None}, 
-    #                     {
-    #                         'id': '225693', 
-    #                         'name': 'EAN (GTIN)', 
-    #                         'values': [ean], 
-    #                         'valuesIds': None, 
-    #                         'rangeValue': None
-    #                     }]}, 
-    #                    'quantity': {'value': 1}, 
-    #                    'responsiblePerson': None
-    #                 }],
 
     'external': external,
     'category': category,
