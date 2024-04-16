@@ -24,26 +24,39 @@
 
             <div class="offers__line">
                 <img class="photo" src="{{offer.primaryImage.url}}" alt="">
-                <p>{{ offer.name }}</p>
+                <p class="name">{{ offer.name }}</p>
                 <p>
-                    <input type="text" id="stock_{{ offer.id }}" value="{{ offer.stock.available }}">
+                    <input class="stock" type="text" id="stock_{{ offer.id }}" value="{{ offer.stock.available }}">
                     <div id="load_{{ offer.id }}" style="display: none;">
                         <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
                     </div>
-                    <img id="edit_{{ offer.id }}" class="icon" src="{% static 'icons/edit.png' %}" onclick="editStock('{{ offer.id }}')">
+                    <img id="edit_{{ offer.id }}" class="icon" src="{% static 'icons/edit2.png' %}" onclick="editStock('{{ offer.id }}')">
                 </p>
-                <p>{{ offer.publication.status }}</p>
+                
+                {% if offer.publication.status == 'ACTIVE' %}
+                    <img class="icon" src="{% static 'icons/active.png' %}" alt="">
+                {% elif offer.publication.status == 'INACTIVE' %}
+                    <img class="icon" src="{% static 'icons/inactive.png' %}" alt="">
+                {% elif offer.publication.status == 'ENDED' %}
+                    <img class="icon" src="{% static 'icons/ended.png' %}" alt="">
+                {% endif %}
                 <p>{{ offer.stock.sold }}</p>
-                <select id="account_select_{{ order.id }}">
+                <select class="account_select" id="account_select_{{ order.id }}">
                     {% for name in accounts  %}
                         <option id="status_{{ offer.id }}" value="{{ name }}">{{ name }}</option>
                     {% endfor %}
                     <!-- Add more options for other statuses if needed -->
                 </select>
                 <input id="ean_{{ offer.id }}" type="text" style="display: none;" value="">
-                <a id="start_{{ offer.id }}" onclick="getEan('{{ offer.id }}')" style="display: block;">Wystawić</a>
-                <a id="pst_{{ offer.id }}" onclick="postOffer('{{ offer.id }}', document.getElementById('account_select_{{ order.id }}').value)" style="display: none;">Post</a>
-                <a onclick="getOffer('{{ offer.id }}')">Więcej</a>
+                <a id="start_{{ offer.id }}" onclick="getEan('{{ offer.id }}')" style="display: block;">
+                    <img class="icon" src="{% static 'icons/post.png' %}" alt="">
+                </a>
+                <a id="pst_{{ offer.id }}" onclick="postOffer('{{ offer.id }}', document.getElementById('account_select_{{ order.id }}').value)" style="display: none;">
+                    <img class="icon" src="{% static 'icons/accept.png' %}" alt="">
+                </a>
+                <a onclick="getOffer('{{ offer.id }}')">
+                    <img class="icon" src="{% static 'icons/enter.png' %}" alt="">
+                </a>
             </div>
 
         {% endfor %}
