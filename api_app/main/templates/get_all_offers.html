@@ -11,13 +11,29 @@
 
 {% block content %}
 <body>
+
+    <div id="error_13" style="display: none;">
+        Nieprawidłowa zawartość EAN
+        <button onclick="closeError()">X</button>
+    </div>
     
     <div class="offers__cont">
 
-        <h1 id="name" value="{{ name }}">{{ name }}</h1>
-        <div id="error_13" style="display: none;">
-            Nieprawidłowa zawartość EAN
-            <button onclick="closeError()">X</button>
+        <!-- <div class="list__header">
+            <div class="cont">
+                <h1 id="name" value="{{ name }}">{{ name }}</h1>
+            </div>
+        </div> -->
+
+        <div class="list__header">
+            <p class="photo_h">{{name}}</p>
+            <p class="name_h">Tytuł</p>
+            <p class="stock_h">Stan</p>
+            <p class="status_h">Status</p>
+            <p class="sale_h">Sprzedaż</p>
+            <p class="account_h">Konto</p>
+            <p class="post_h">Wystawić produkt</p>
+            <!-- <p class="details_h">Szczegóły</p> -->
         </div>
 
         {% for offer in result.offers %}
@@ -27,10 +43,10 @@
                 <p class="name">{{ offer.name }}</p>
                 <p>
                     <input class="stock" type="text" id="stock_{{ offer.id }}" value="{{ offer.stock.available }}">
+                    <img id="edit_{{ offer.id }}" class="icon edit__stock" src="{% static 'icons/edit2.png' %}" onclick="editStock('{{ offer.id }}')">
                     <div id="load_{{ offer.id }}" style="display: none;">
                         <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
                     </div>
-                    <img id="edit_{{ offer.id }}" class="icon" src="{% static 'icons/edit2.png' %}" onclick="editStock('{{ offer.id }}')">
                 </p>
                 
                 {% if offer.publication.status == 'ACTIVE' %}
