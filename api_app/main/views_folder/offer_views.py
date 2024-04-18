@@ -122,6 +122,17 @@ def post_new_offer(request, id):
         headers = {'Authorization': f'Bearer {secret_lister.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
         product_result = requests.get(url, headers=headers, verify=True)
         result = product_result.json()
+        # Headers of the response
+        print(" ************* Headers of the response: *************", product_result.headers)
+        print('RESULT @@@@@@@@@', result)
+        if 'errors' in result:
+            # Handle errors in the response
+            errors = result['errors']
+            print(f"************ ERROR MESSAGE IN ERRORS ************ {errors}")
+            for error in errors:
+                code = error.get('code')
+                message = error.get('message')
+                # print(f"************ ERROR MESSAGE IN ERRORS ************ {code}: {message}")
         if 'error' in result:
             error_code = result['error']
             if error_code == 'invalid_token':

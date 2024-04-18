@@ -13,8 +13,26 @@ table {
     background-color: #f2f2f2;
   }
   
-  tr:nth-child(even) {
+  /* tr:nth-child(even) {
     background-color: #f2f2f2;
+  } */
+
+  tr:nth-child(even)  {
+    border-radius: 10px;
+    margin-bottom: 10px;
+    height: 70px;
+    padding: 5px;
+    background-color: white;
+    box-shadow: #f2f2f2 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+  }
+
+  tr {
+    border-radius: 10px;
+    margin-bottom: 10px;
+    height: 70px;
+    padding: 5px;
+    background-color: white;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
   }
   
   tr:hover {

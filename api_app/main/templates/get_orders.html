@@ -39,7 +39,7 @@
     <h1>Zamówienia:</h1>
     <table>
         <thead>
-            <tr>
+            <tr class="list__header"> 
                 <th>Produkt</th>
                 <th>Konto</th>
                 <th>SKU</th>
@@ -104,9 +104,12 @@
 
 
                                 {% else %}
-                                    <td></td> <!-- Set to null or empty for non-first items -->
+                                    <td></td> 
                                     <td></td>
-                                    <!-- <td>{{ order.buyer.login }}</td> -->
+                                    <td></td>
+                                    <td></td> 
+                                    <td></td>
+                                    <td></td>
                                 {% endif %}
                             </tr>
                         {% endfor %}

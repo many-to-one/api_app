@@ -16,6 +16,11 @@
         Nieprawidłowa zawartość EAN
         <button onclick="closeError()">X</button>
     </div>
+
+    <div id="error" style="display: none;">
+        Wystąpił błąd, skontaktuj się z właścicielem aplikacji
+        <button onclick="closeError()">X</button>
+    </div>
     
     <div class="offers__cont">
 
@@ -26,7 +31,7 @@
         </div> -->
 
         <div class="list__header">
-            <p class="photo_h">{{name}}</p>
+            <p class="photo_h" id="name" value="{{ name }}">{{name}}</p>
             <p class="name_h">Tytuł</p>
             <p class="stock_h">Stan</p>
             <p class="status_h">Status</p>
@@ -87,18 +92,40 @@
     var nameId = document.getElementById('name');
     var name = nameId.getAttribute('value');
     var error_13 = document.getElementById('error_13');
+    var error = document.getElementById('error');
 
-        function getCSRFToken() {
-            const cookieValue = document.cookie.match(/csrftoken=([^ ;]+)/)[1];
+        // function getCSRFToken() {
+        //     const cookieValue = document.cookie.match(/csrftoken=([^ ;]+)/)[1];
+        //     return cookieValue;
+        // }
+
+        // Function to get CSRF token from cookie
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    // Check if the cookie name matches the desired name
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
             return cookieValue;
         }
         
         // Axios configuration to include CSRF token in headers
-        axios.defaults.xsrfCookieName = 'csrftoken';
-        axios.defaults.xsrfHeaderName = 'X-CSRFToken';
-        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        // axios.defaults.xsrfCookieName = 'csrftoken';
+        // axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+        // axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
         function editStock(offerId) {
+
+            // Obtain CSRF token from cookie
+            var csrftoken = getCookie('csrftoken');
+
             const load = document.getElementById('load_'+ offerId)
             const edit = document.getElementById('edit_' + offerId);
             load.style.display = 'block';
@@ -113,7 +140,11 @@
         console.log('newStock', newStock)
 
         // Make an AJAX request to update the stock value
-        axios.patch('/edit_offer_stock/' + offerId + '/', { stock: newStock, name: name })
+        axios.patch('/edit_offer_stock/' + offerId + '/', { stock: newStock, name: name }, {
+            headers: {
+                    'X-CSRFToken': csrftoken
+                }
+        })
             .then(function(response) {
                 console.log('status', response.data.newValue)
                 if(response.status == 200) {
@@ -135,13 +166,20 @@
 
         function getOffer(offerId) {
 
+        // Obtain CSRF token from cookie
+        var csrftoken = getCookie('csrftoken');
+
         // Get the value from the input field
         var nameId = document.getElementById('name');
         var name = nameId.getAttribute('value');
         console.log('editStock name clicked', name);
 
         // Make an AJAX request to update the stock value
-        axios.post('/get_one_offer/' + offerId + '/', { name: name })
+        axios.post('/get_one_offer/' + offerId + '/', { name: name }, {
+            headers: {
+                    'X-CSRFToken': csrftoken
+                }
+        })
             .then(function(response) {
                 console.log('status', response.data.newValue)
                 if(response.status == 200) {
@@ -157,6 +195,10 @@
         }
 
         function getEan (offerId) {
+
+            // Obtain CSRF token from cookie
+            var csrftoken = getCookie('csrftoken');
+
             // Make start button invisible
             var start = document.getElementById('start_' + offerId);
             start.style.display = 'none';
@@ -170,7 +212,11 @@
             ean.style.display = 'block';
 
             // Make an AJAX request to update the stock value
-            axios.post('/get_ean/', { offerId: offerId, name: name})
+            axios.post('/get_ean/', { offerId: offerId, name: name}, {
+                headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            })
             .then(function(response) {
                 // console.log('status', response.data.newValue)
                 if(response.status == 200) {
@@ -189,9 +235,12 @@
 
         function postOffer(offerId, name) {
 
+        // Obtain CSRF token from cookie
+        var csrftoken = getCookie('csrftoken');
+
         // Get the name value of Lister
-        // var listerId = document.getElementById('name');
-        // var lister = listerId.getAttribute('value');
+        var listerId = document.getElementById('name');
+        var lister = listerId.getAttribute('value');
         console.log('lister chacked', lister);
 
         console.log('postOffer clicked', offerId);
@@ -200,7 +249,11 @@
         var ean = document.getElementById('ean_' + offerId);
 
         // Make an AJAX request to update the stock value
-        axios.post('/post_new_offer/' + offerId + '/', { name: name2, lister: lister, ean: ean.value })
+        axios.post('/post_new_offer/' + offerId + '/', { name: name2, lister: lister, ean: ean.value }, {
+            headers: {
+                    'X-CSRFToken': csrftoken
+                }
+        })
             .then(function(response) {
                 console.log('status', response.data)
                 if(response.status == 200) {
@@ -218,6 +271,7 @@
             .catch(function(error) {
                 // Handle error
                 console.error('Error updating stock:', error);
+                error.style.display = 'flex';
                 // window.location.reload();
             });
         }
@@ -227,9 +281,12 @@
 <script>
     function closeError() {
         var errorElement = document.getElementById("error_13");
-        if (errorElement) {
+        var errorMain = document.getElementById("error");
+        if ( errorElement ) {
             errorElement.style.display = "none";
             console.log('CLOSE');
+        } else if ( errorMain ) {
+            errorMain.style.display = "none";
         }
     }
 </script>
