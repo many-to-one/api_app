@@ -6,7 +6,7 @@
 
 .thread {
     display: flex;
-    /* align-items: center; */
+    align-items: center;
     margin-bottom: 10px;
     cursor: pointer;
     background-color: var(--light);

@@ -16,7 +16,7 @@
     <div class="thread-list">
         <h1>Wszyskie wiadomości {{ name }}</h1>
         {% for thread in result.threads %}
-            <div class="thread" onclick="getMessagess('{{ thread.id }}')">
+            <div class="thread" onclick="getOneMessage('{{ thread.id }}')" id="thread_{{ thread.id }}">
                 <div class="thread-avatar" >
                     <img src="{{ thread.interlocutor.avatarUrl }}" alt="Avatar">
                 </div>
@@ -60,11 +60,11 @@
 
 
 
-    function getMessagess(threadId) {
+    function getOneMessage(threadId) {
         console.log('threadId', threadId)
 
         // Make an AJAX request to update the stock value
-        axios.patch('/edit_offer_stock/' + offerId + '/', { stock: newStock, name: name }, {
+        axios.post('/get_one_message/', { threadId: threadId, name: name }, {
             headers: {
                     'X-CSRFToken': csrftoken
                 }
@@ -75,7 +75,7 @@
                     // document.getElementById('load_'+ offerId).style.display = 'none';
                     load.style.display = 'none';
                     edit.style.display = 'block';
-                    document.getElementById('stock_' + offerId).value = response.data.newValue;
+                    document.getElementById('thread_' + threadId);
                     // location.reload();
                     console.log('Success', response.data.message)
                 }
