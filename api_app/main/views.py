@@ -28,17 +28,17 @@ def success(request, text):
 def get_new_authorization_code(request, name):
     account = Allegro.objects.get(name=name)
     secret = Secret.objects.get(account=account)
-    # print('******************* name ***********************', secret.CLIENT_ID)
+    print('******************* name ***********************', secret.CLIENT_ID, account)
     # return HttpResponse('name', name)
 
-    REDIRECT_URI_ =f' http://localhost:8000/get_new_code/{name}'  
+    REDIRECT_URI_ =f' http://localhost:8000/get_new_code/{name}&promt=confirm'  
 
     try: 
 
         user = get_user(request)
 
         authorization_redirect_url = AUTH_URL + '?response_type=code&client_id=' + secret.CLIENT_ID + \
-                                 '&redirect_uri=' + REDIRECT_URI_
+                                 '&redirect_uri=' + REDIRECT_URI_ 
         # print("Zaloguj do Allegro - skorzystaj z url w swojej przeglądarce oraz wprowadź authorization code ze zwróconego url: ")
         # print("---  " + authorization_redirect_url + "  ---")
 

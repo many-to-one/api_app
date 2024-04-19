@@ -1,0 +1,55 @@
+.thread-list {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10vh;
+}
+
+.thread {
+    display: flex;
+    /* align-items: center; */
+    margin-bottom: 10px;
+    cursor: pointer;
+    background-color: var(--light);
+    width: 25vw;
+    padding: 10px;
+    border: 1px solid black;
+}
+
+.thread-avatar {
+    flex: 0 0 auto; /* Avatar container doesn't grow or shrink */
+    margin-right: 10px; /* Add some space between avatar and info */
+}
+
+.thread-avatar img {
+    width: 50px; /* Adjust the width of the avatar image */
+    height: 50px; /* Adjust the height of the avatar image */
+    border-radius: 50%; /* Make the avatar image round */
+}
+
+.thread-info {
+    flex: 1; /* The info container will take up remaining space */
+}
+
+.thread-interlocutor {
+    font-weight: bold; /* Make the interlocutor name bold */
+    margin-bottom: 5px; /* Add some space below the interlocutor name */
+}
+
+.thread-last-message {
+    color: #888; /* Add some color to the last message text */
+    margin-bottom: 5px; /* Add some space below the last message text */
+}
+
+.thread-read,
+.thread-unread {
+    font-style: italic; /* Make read/unread status italic */
+    font-size: 12px; /* Adjust the font size */
+}
+
+.thread-read {
+    color: green; /* Color for read status */
+}
+
+.thread-unread {
+    color: red; /* Color for unread status */
+}

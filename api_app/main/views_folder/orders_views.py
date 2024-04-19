@@ -31,7 +31,7 @@ def get_orders(request):
     accounts = Allegro.objects.filter(user=request.user)
     for account in accounts:
         secret = Secret.objects.get(account=account)
-        # print('*********************** NAME **********************', secret.account.name)
+        print('*********************** NAME get_orders **********************', secret.account.name)
 
         try:
             url = "https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms"
@@ -53,12 +53,13 @@ def get_orders(request):
                     # print('ERROR RESULT @@@@@@@@@', error_code)
                     try:
                         # Refresh the token
-                        new_token = get_next_token(request, secret.refresh_token)
+                        new_token = get_next_token(request, secret.refresh_token, account.name)
                         # Retry fetching orders with the new token
                         return get_orders(request)
                     except Exception as e:
                         print('Exception @@@@@@@@@', e)
-                        return redirect('invalid_token')
+                        context = {'name': account.name}
+                        return render(request, 'invalid_token.html', context)
             print('*********************** result **********************', json.dumps(result, indent=4))
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
@@ -87,12 +88,13 @@ def get_order_details(request, id):
                     # print('ERROR RESULT @@@@@@@@@', error_code)
                     try:
                         # Refresh the token
-                        new_token = get_next_token(request, secret.refresh_token)
+                        new_token = get_next_token(request, secret.refresh_token, account.name)
                         # Retry fetching orders with the new token
                         return get_order_details(request, id)
                     except Exception as e:
                         print('Exception @@@@@@@@@', e)
-                        return redirect('invalid_token')
+                        context = {'name': account.name}
+                        return render(request, 'invalid_token.html', context)
 
             # print('RESULT @@@@@@@@@', json.dumps(result, indent=4))
             context = {

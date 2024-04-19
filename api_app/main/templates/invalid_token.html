@@ -6,7 +6,15 @@
     <title>Document</title>
 </head>
 <body>
-    Twoja sesja wygasła, zaloguj się do Swego konta na allegro.pl 
-    <a href="{% url 'get_new_authorization_code' name %}">Dalej</a>
+    <div class="cont">
+        <h1>UWAGA !!!</h1>
+        <p>
+            Twoja sesja dla {{ name }} wygasła, zaloguj się do Swego konta {{ name }} na allegro.pl wybierając odpowiedni email
+            W przeciwnym razie dostaniesz komunikat, żeby powiązać aplikacje na koncie na którym aplikacja jest zalogowana. 
+            W żadnym wypadku nie rób tego.
+            Autor aplikacji nie ponosi odpowiedzialność za skótki którę się z tym wiążą.
+        </p> 
+        <a href="{% url 'get_new_authorization_code' name %}">Zaloguj do {{ name }}</a>
+    </div>
 </body>
 </html>

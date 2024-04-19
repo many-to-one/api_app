@@ -31,7 +31,14 @@
                         {% endfor %}
                     </div>
                 </li>
-                <li><a href="{% url 'post_product' %}">Wystaw product</a></li>
+                <li class="dropdown">
+                    <span>Centrum Wiadomości</span>
+                    <div class="dropdown-content">
+                        {% for name in accounts  %}
+                        <a href="{% url 'all_messages' name %}">{{ name }}</a>
+                        {% endfor %}
+                    </div>
+                </li>
                 <li><a href="{% url 'get_orders' %}">Zamówienia</a></li>
                 {% if request.user.is_authenticated %}
                     <li><a href="{% url 'logout_user' %}">Wyloguj</a></li>

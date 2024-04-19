@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    {% block content %}
+
+    {% if result %}
+    <div class="thread-list">
+        <h1>Wszyskie wiadomości {{ name }}</h1>
+        {% for thread in result.threads %}
+            <div class="thread" onclick="getMessagess('{{ thread.id }}')">
+                <div class="thread-avatar" >
+                    <img src="{{ thread.interlocutor.avatarUrl }}" alt="Avatar">
+                </div>
+                <div class="thread-info">
+                    <div class="thread-interlocutor">{{ thread.interlocutor.login }}</div>
+                    <div class="thread-last-message">Last Message: {{ thread.lastMessageDateTime }}</div>
+                    {% if thread.read %}
+                        <div class="thread-read">Read</div>
+                    {% else %}
+                        <div class="thread-unread">Unread</div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>Na razie nie ma żadnych wiadomości</p>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+
+<script>
+
+    // Function to get CSRF token from cookie
+    function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    // Check if the cookie name matches the desired name
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+
+
+    function getMessagess(threadId) {
+        console.log('threadId', threadId)
+
+        // Make an AJAX request to update the stock value
+        axios.patch('/edit_offer_stock/' + offerId + '/', { stock: newStock, name: name }, {
+            headers: {
+                    'X-CSRFToken': csrftoken
+                }
+        })
+            .then(function(response) {
+                console.log('status', response.data.newValue)
+                if(response.status == 200) {
+                    // document.getElementById('load_'+ offerId).style.display = 'none';
+                    load.style.display = 'none';
+                    edit.style.display = 'block';
+                    document.getElementById('stock_' + offerId).value = response.data.newValue;
+                    // location.reload();
+                    console.log('Success', response.data.message)
+                }
+            })
+            .catch(function(error) {
+                // Handle error
+                console.error('Error updating stock:', error);
+            });
+        }
+
+</script>
+
+{% endblock %}
+
+</body>
+</html>
