@@ -52,16 +52,17 @@ def all_messages(request, name):
 def get_one_message(request):
 
     data = json.loads(request.body.decode('utf-8'))
-    name = data.get('name'),
+    name = data.get('name')
     threadId = data.get('threadId')
 
-    # print('**************name**************', name)
+    print('************** name **************', name)
+    print('************** threadId **************', threadId)
 
     account = Allegro.objects.get(name=name)
     secret = Secret.objects.get(account=account)
     
     try:
-        url = f"https://api.allegro.pl.allegrosandbox.pl/ /messaging/threads/{threadId}/messages/"
+        url = f"https://api.allegro.pl.allegrosandbox.pl/messaging/threads/{threadId}/messages/"
         # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
         headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
         product_result = requests.get(url, headers=headers, verify=True)
@@ -78,7 +79,7 @@ def get_one_message(request):
                 except Exception as e:
                     print('Exception @@@@@@@@@', e)
                     return redirect('invalid_token')
-        # print('RESULT - get_one_offer - @@@@@@@@@', json.dumps(result, indent=4))
+        print('RESULT - get_one_message - @@@@@@@@@', json.dumps(result, indent=4))
         context = {
             'result': product_result.json()
         }

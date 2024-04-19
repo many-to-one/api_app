@@ -14,7 +14,7 @@
 
     {% if result %}
     <div class="thread-list">
-        <h1>Wszyskie wiadomości {{ name }}</h1>
+        <h1 id="name" value="{{ name }}">Wszyskie wiadomości {{ name }}</h1>
         {% for thread in result.threads %}
             <div class="thread" onclick="getOneMessage('{{ thread.id }}')" id="thread_{{ thread.id }}">
                 <div class="thread-avatar" >
@@ -32,6 +32,11 @@
             </div>
         {% endfor %}
     </div>
+
+    <div class="message" id="message">
+    </div>
+    
+
 {% else %}
     <p>Na razie nie ma żadnych wiadomości</p>
 {% endif %}
@@ -61,7 +66,11 @@
 
 
     function getOneMessage(threadId) {
-        console.log('threadId', threadId)
+
+        var csrftoken = getCookie('csrftoken')
+        var nameElem = document.getElementById('name');
+        var name = nameElem.getAttribute('value');
+        console.log('threadId', threadId, name)
 
         // Make an AJAX request to update the stock value
         axios.post('/get_one_message/', { threadId: threadId, name: name }, {
@@ -69,20 +78,36 @@
                     'X-CSRFToken': csrftoken
                 }
         })
-            .then(function(response) {
-                console.log('status', response.data.newValue)
-                if(response.status == 200) {
-                    // document.getElementById('load_'+ offerId).style.display = 'none';
-                    load.style.display = 'none';
-                    edit.style.display = 'block';
-                    document.getElementById('thread_' + threadId);
-                    // location.reload();
-                    console.log('Success', response.data.message)
-                }
-            })
+        .then(function(response) {
+            console.log('status', response.data.newValue)
+            if(response.status == 200) {
+                var messageContainer = document.getElementById('message');
+                var messages = response.data.context.result.messages;
+                console.log('messages', messages)
+            
+                // Clear previous content
+                // messageContainer.innerHTML = '';
+            
+                var status = document.getElementById('status');
+
+                // Loop through each message and create HTML elements
+                messages.forEach(function(message){
+                    console.log('mess', message.author.login);
+                    var messageItem = document.createElement('div');
+                    messageItem.classList.add('message-item');
+                    var p = document.createElement('p');
+                    p.textContent = 'Author: ' + message.author.login;
+                    messageItem.appendChild(p);
+                    messageContainer.appendChild(messageItem);
+                });
+            }
+        })
+
+
             .catch(function(error) {
                 // Handle error
                 console.error('Error updating stock:', error);
+                // window.location.href('index')
             });
         }
 
