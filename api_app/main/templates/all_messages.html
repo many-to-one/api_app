@@ -16,13 +16,14 @@
     <div class="thread-list">
         <h1 id="name" value="{{ name }}">Wszyskie wiadomości {{ name }}</h1>
         {% for thread in result.threads %}
-            <div class="thread" onclick="getOneMessage('{{ thread.id }}')" id="thread_{{ thread.id }}">
+            <div class="thread" onclick="getOneMessage('{{ thread.id }}')" id="thr" value="{{ thread.id }}">
                 <div class="thread-avatar" >
                     <img src="{{ thread.interlocutor.avatarUrl }}" alt="Avatar">
                 </div>
                 <div class="thread-info">
                     <div class="thread-interlocutor">{{ thread.interlocutor.login }}</div>
                     <div class="thread-last-message">Last Message: {{ thread.lastMessageDateTime }}</div>
+                    
                     {% if thread.read %}
                         <div class="thread-read">Read</div>
                     {% else %}
@@ -31,9 +32,10 @@
                 </div>
             </div>
         {% endfor %}
-    </div>
 
-    <div class="message" id="message">
+        <div class="message" id="message"></div>
+        <textarea id="content" placeholder="Napisz do nas.."></textarea>
+        <button id="formButton" onclick="sendMess()">Wyślij</button>
     </div>
     
 
@@ -65,11 +67,49 @@
 
 
 
+    function sendMess() {
+
+        // Prevent the default form submission
+        event.preventDefault();
+
+        var csrftoken = getCookie('csrftoken')
+        var threadElem = document.getElementById('thr');
+        var threadId = threadElem.getAttribute('value');
+        var content = document.getElementById('content').value;
+
+        console.log('threadId to send', threadId, content);
+
+        // Make a POST request to your Django backend
+        axios.post('/send_message/', { threadId: threadId, content: content }, {
+            headers: {
+                    'X-CSRFToken': csrftoken
+                }
+        })
+        .then(response => {
+            console.log(response.data);
+                // Handle successful response
+                if(response.status == 200) {
+                    // button.textContent = 'Gotowe!';
+                    console.log('Success', response)
+                    document.getElementById('content').value = '';
+                    // form.reset();
+                }
+            })
+            .catch(error => {
+                // Handle error
+                console.error('There was an error!', error);
+            });
+
+        // Add submit event listener to the form
+        // form.addEventListener('submit', submitForm);
+    }
+
     function getOneMessage(threadId) {
 
         var csrftoken = getCookie('csrftoken')
         var nameElem = document.getElementById('name');
         var name = nameElem.getAttribute('value');
+        var thr = threadId
         console.log('threadId', threadId, name)
 
         // Make an AJAX request to update the stock value
@@ -86,18 +126,34 @@
                 console.log('messages', messages)
             
                 // Clear previous content
-                // messageContainer.innerHTML = '';
+                messageContainer.innerHTML = '';
             
-                var status = document.getElementById('status');
+                var statusResp = document.getElementById('status');
 
                 // Loop through each message and create HTML elements
                 messages.forEach(function(message){
                     console.log('mess', message.author.login);
                     var messageItem = document.createElement('div');
-                    messageItem.classList.add('message-item');
-                    var p = document.createElement('p');
-                    p.textContent = 'Author: ' + message.author.login;
-                    messageItem.appendChild(p);
+                    messageItem.classList.add('message__item');
+
+                    var status = message.status
+
+                    var text = document.createElement('p');
+                    text.textContent = message.text;
+                    messageItem.appendChild(text);
+
+                    var author = document.createElement('p');
+                    author.textContent = 'Kupujący: ' + message.author.login;
+                    messageItem.appendChild(author);
+
+                    // var offer = document.createElement('p');
+                    // offer.textContent = 'Produkt: ' + (message.relatesTo.offer ? message.relatesTo.offer.id : message.relatesTo.order.id);
+                    // messageItem.appendChild(offer);
+
+                    var order = document.createElement('p');
+                    order.textContent = 'Zamówienie: ' + (message.relatesTo.order ? message.relatesTo.order.id : message.relatesTo.offer.id);
+                    messageItem.appendChild(order);
+
                     messageContainer.appendChild(messageItem);
                 });
             }

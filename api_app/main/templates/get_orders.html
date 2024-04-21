@@ -100,6 +100,7 @@
                                         <td></td>
                                     {% endif %} -->
 
+                                    <td><a href="{% url 'create_label_DPD' order.id %}">DPD</a></td>
                                     <td><a href="{% url 'get_order_details' order.id %}">Go</a></td>
 
 
@@ -156,6 +157,7 @@
 
                         </td>
 
+                    <td><a href="{% url 'create_label_DPD' order.id %}">DPD</a></td>
                     <td><a href="{% url 'get_order_details' order.id %}">Go</a></td>
 
 

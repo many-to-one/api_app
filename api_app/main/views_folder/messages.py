@@ -96,3 +96,19 @@ def get_one_message(request):
         
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
+
+
+def send_message(request):
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        content = data.get('content')
+        threadId = data.get('threadId')
+
+        print('************** content **************', content)
+        print('************** threadId **************', threadId)
+
+        return JsonResponse({'message': 'Gotowe!'}, status=200)
+    except:
+        # Return a JSON response with an error message
+        return JsonResponse({'error': 'Invalid request method!'}, status=400)
