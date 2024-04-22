@@ -107,91 +107,122 @@ def get_order_details(request, id):
 
 
 
+def create_label(request, id):
+
+    print('********************** CREATE LABEL CALLED ****************************', id)
+
+    accounts = Allegro.objects.filter(user=request.user)
+    for account in accounts:
+        secret = Secret.objects.get(account=account)
+
+        try:
+            url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}"
+            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+            product_result = requests.get(url, headers=headers, verify=True)
+            result = product_result.json()
+
+            if 'error' in result:
+                error_code = result['error']
+                if error_code == 'invalid_token':
+                    # print('ERROR RESULT @@@@@@@@@', error_code)
+                    try:
+                        # Refresh the token
+                        new_token = get_next_token(request, secret.refresh_token, account.name)
+                        # Retry fetching orders with the new token
+                        return get_order_details(request, id)
+                    except Exception as e:
+                        print('Exception @@@@@@@@@', e)
+                        context = {'name': account.name}
+                        return render(request, 'invalid_token.html', context)
+            print('RESULT FOR DPD @@@@@@@@@', json.dumps(result, indent=4))
+            # create_label(result)
+            return result
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)
+
+
 def create_label_DPD(request, id):
 
-    # accounts = Allegro.objects.filter(user=request.user)
-    # for account in accounts:
-    #     secret = Secret.objects.get(account=account)
+    data = create_label(request, id)
+    # data = False
 
-    #     try:
-    #         url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}"
-    #         headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-    #         product_result = requests.get(url, headers=headers, verify=True)
-    #         result = product_result.json()
+    print('********************** DATA ****************************', data)
 
-    #         if 'error' in result:
-    #             error_code = result['error']
-    #             if error_code == 'invalid_token':
-    #                 # print('ERROR RESULT @@@@@@@@@', error_code)
-    #                 try:
-    #                     # Refresh the token
-    #                     new_token = get_next_token(request, secret.refresh_token, account.name)
-    #                     # Retry fetching orders with the new token
-    #                     return get_order_details(request, id)
-    #                 except Exception as e:
-    #                     print('Exception @@@@@@@@@', e)
-    #                     context = {'name': account.name}
-    #                     return render(request, 'invalid_token.html', context)
-    #         print('RESULT FOR DPD @@@@@@@@@', json.dumps(result, indent=4))
-    #         # return HttpResponse('Ok')
-    #     except requests.exceptions.HTTPError as err:
-    #         raise SystemExit(err)
-
-            ## Create a DPD shipment label
-            # if result:
-    url = 'https://api-preprod.dpsin.dpdgroup.com:8443/shipping/v1/shipment?LabelPrintFormat=PDF&LabelPaperFormat=A5&LabelPrinterStartPosition=UPPER_LEFT&qrcode=true&DropOffType=BOTH'
-    headers = {
-        'accept': 'application/json',
-        'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJwYXNzd29yZCI6InRoZXR1NEVlIiwiYnVDb2RlIjoiMDIxIiwidXNlck5hbWUiOiJ0ZXN0IiwiZXhwIjoxNzEzODA5MjI4fQ.4D34gIdHXvZ5U27hAF-aWnI3wUEo6Nr1F-lSAEPP7oGqCo-8Nk-YmA-b0EZBm3ahyGQ4m6etM8eqlzE4Cn6fpQ',
-        'Content-Type': 'application/json',
-    }
-    payload = [{
-        "shipmentInfos": {
-            "productCode": "101"
-        },
-        "numberOfParcels": "1",
-        "sender": {
-            "customerInfos": {
-                "customerAccountNumber": "1495",
-                "customerID": "1495"
+    if data:
+        url = 'https://api-preprod.dpsin.dpdgroup.com:8443/shipping/v1/shipment?LabelPrintFormat=PDF&LabelPaperFormat=A5&LabelPrinterStartPosition=UPPER_LEFT&qrcode=true&DropOffType=BOTH'
+        headers = {
+            'accept': 'application/json',
+            'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJwYXNzd29yZCI6InRoZXR1NEVlIiwiYnVDb2RlIjoiMDIxIiwidXNlck5hbWUiOiJ0ZXN0IiwiZXhwIjoxNzEzODA5MjI4fQ.4D34gIdHXvZ5U27hAF-aWnI3wUEo6Nr1F-lSAEPP7oGqCo-8Nk-YmA-b0EZBm3ahyGQ4m6etM8eqlzE4Cn6fpQ',
+            'Content-Type': 'application/json',
+        }
+        payload = [{
+            "shipmentInfos": {
+                "productCode": "101"
             },
-            "address": {
-                "name1": "DPD Kraków",
-                "country": "PL",
-                "zipCode": "30-732",
-                "city": "Kraków",
-                "street": "Pułkownika Stanisława Dąbka 1A"
-            }
-        },
-        "receiver": {
-            "address": {
-                "name1": "DPD Warszawa",
-                "name2": "DPD Person Name",
-                "country": "PL",
-                "zipCode": "02-274",
-                "city": "Warszawa",
-                "street": "Mineralna 15"
+            "numberOfParcels": "1",
+            "sender": {
+                "customerInfos": {
+                    "customerAccountNumber": "1495",
+                    "customerID": "1495"
+                },
+                "address": {
+                    "name1": "DPD Kraków",
+                    "country": "PL",
+                    "zipCode": "30-732",
+                    "city": "Kraków",
+                    "street": "Pułkownika Stanisława Dąbka 1A"
+                }
             },
-            "contact": {
-                "phone1": "0123456789",
-                "email": "a@a.com",
-                "contactPerson": "DPD Contact"
-            }
-        },
-        "comment": "commentaire",
-        "parcel": [{
-            "parcelInfos": {
-                "weight": "6000"
-            }
+            "receiver": {
+                "address": {
+                    "name1": "DPD Warszawa",
+                    "name2": "DPD Person Name",
+                    "country": "PL",
+                    "zipCode": "02-274",
+                    "city": "Warszawa",
+                    "street": "Mineralna 15"
+                },
+                "contact": {
+                    "phone1": "0123456789",
+                    "email": "a@a.com",
+                    "contactPerson": "DPD Contact"
+                }
+            },
+            "comment": "commentaire",
+            "parcel": [{
+                "parcelInfos": {
+                    "weight": "6000"
+                }
+            }]
         }]
-    }]
-    response = requests.post(url, headers=headers, json=payload)
-    # print("Order details", result)
-    print("Shipment created successfully.", response)
-    return HttpResponse('Ok')
+        response = requests.post(url, headers=headers, json=payload)
+        shipment = response.json()
 
-            # else: 
-            #    print("Error")
+        if shipment:
+            # output_file = "../../dpd_label.pdf"
+            base64_to_pdf(shipment['label']['base64Data'])
+
+    # print("Shipment created successfully.", shipment['label']['base64Data'])
+
+
+def base64_to_pdf(base64_data):
+
+    import base64
+
+    try:
+        # Decode the Base64 data
+        binary_data = base64.b64decode(base64_data)
+
+        # Set the appropriate content type for PDF
+        response = HttpResponse(binary_data, content_type='application/pdf')
+
+        # Optionally, set a filename for the downloaded file
+        response['Content-Disposition'] = 'inline; filename="output.pdf"'
+        return response
+    except Exception as e:
+        print("Error:", e)
+
+    # return HttpResponse('Ok')
     
 
 
