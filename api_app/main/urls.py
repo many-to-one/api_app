@@ -17,7 +17,7 @@ urlpatterns = [
 
     path('get_orders', orders_views.get_orders, name='get_orders'),
     path('get_order_details/<uuid:id>', orders_views.get_order_details, name='get_order_details'),
-    path('change_status/<uuid:id>/<str:name>/', orders_views.change_status, name='change_status'),
+    path('change_status/<uuid:id>/<str:name>/<str:status>', orders_views.change_status, name='change_status'),
     path('create_label_DPD/<uuid:id>', orders_views.create_label_DPD, name='create_label_DPD'),
     # path('label_DPD/', name='label_DPD'),
 

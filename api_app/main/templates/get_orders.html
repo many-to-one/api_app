@@ -208,7 +208,7 @@
             console.log('Selected status:', selectedStatus);
 
             // Make an AJAX request to update the stock value
-            axios.put('/change_status/' + offerId + '/' + name + '/', { status: selectedStatus })
+            axios.put('/change_status/' + offerId + '/' + name + '/' + selectedStatus + '/')
                 .then(function(response) {
                     console.log('status', response.data.newStatus)
                     if(response.status == 200) {

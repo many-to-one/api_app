@@ -161,7 +161,7 @@ def create_label_DPD(request, id):
                     "shipmentInfos": {
                                      "productCode": "101"
                     },
-                    "numberOfParcels": post_data['delivery']['calculatedNumberOfPackages'],
+                    "numberOfParcels": str(post_data['delivery']['calculatedNumberOfPackages']), #post_data['delivery']['calculatedNumberOfPackages']
                     "sender": {
                               "customerInfos": {
                                                "customerAccountNumber": "1495",
@@ -202,10 +202,11 @@ def create_label_DPD(request, id):
         print('************** RESPONSE HEADERS ***********************', response.headers)
         if response.status_code == 401:
             # print('************** RESPONSE 401 ***********************')
-            login_DPD(data.secret)
+            login_DPD(secret)
         shipment = response.json()
 
         if response.status_code == 200:
+            change_status(request, post_data['id'], secret.account.name, 'SENT')
             return base64_to_pdf(shipment['label']['base64Data'])
         
         if response.status_code == 400:
@@ -253,16 +254,16 @@ def login_DPD (secret):
     
 
 
-def change_status(request, id, name):
+def change_status(request, id, name, status):
 
     account = Allegro.objects.get(name=name)
 
     secret = Secret.objects.get(account=account)
 
-    data = json.loads(request.body.decode('utf-8'))
-    new_status = data.get('status')
+    # data = json.loads(request.body.decode('utf-8'))
+    # new_status = data.get('status')
     
-    print('*********** new_status ***********', new_status, name)
+    print('*********** new_status ***********', status, name)
     print('*********** secret.access_token ***********', secret.account.name)
     # print('*********** secret.access_token ***********', secret.access_token)
 
@@ -271,7 +272,7 @@ def change_status(request, id, name):
         headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': 'application/vnd.allegro.public.v1+json', 'Content-Type': 'application/vnd.allegro.public.v1+json'}
 
         data = {
-                "status": new_status,
+                "status": status,
                 "shipmentSummary": {
                 "lineItemsSent": "SOME"
                 }
@@ -285,7 +286,7 @@ def change_status(request, id, name):
         return JsonResponse(
                 {
                     'message': 'Stock updated successfully',
-                    'newStatus': new_status,
+                    'newStatus': status,
                 }, 
                 status=200,
             )
