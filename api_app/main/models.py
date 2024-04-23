@@ -36,6 +36,10 @@ class Secret(models.Model):
         Allegro,
         on_delete=models.CASCADE
     )
+    dpd_access_token = models.CharField(
+        null=True,
+        max_length=999,
+        )
 
     def __str__(self):
         return self.account.name

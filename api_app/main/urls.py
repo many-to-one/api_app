@@ -19,6 +19,7 @@ urlpatterns = [
     path('get_order_details/<uuid:id>', orders_views.get_order_details, name='get_order_details'),
     path('change_status/<uuid:id>/<str:name>/', orders_views.change_status, name='change_status'),
     path('create_label_DPD/<uuid:id>', orders_views.create_label_DPD, name='create_label_DPD'),
+    # path('label_DPD/', name='label_DPD'),
 
     path('invalid_token', errors_views.invalid_token, name='invalid_token'),
     path('get_all_offers/<str:name>/', offer_views.get_all_offers, name='get_all_offers'),

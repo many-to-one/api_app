@@ -136,7 +136,7 @@ def create_label(request, id):
                         return render(request, 'invalid_token.html', context)
             print('RESULT FOR DPD @@@@@@@@@', json.dumps(result, indent=4))
             # create_label(result)
-            return result
+            return result, secret
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
 
@@ -144,65 +144,75 @@ def create_label(request, id):
 def create_label_DPD(request, id):
 
     data = create_label(request, id)
-    # data = False
+    post_data = data[0]
+    secret = data[1]
 
-    print('********************** DATA ****************************', data)
+    print('********************** DATA ****************************', secret)
+    print('********************** BUYER ****************************', post_data['buyer']['firstName'])
 
     if data:
-        url = 'https://api-preprod.dpsin.dpdgroup.com:8443/shipping/v1/shipment?LabelPrintFormat=PDF&LabelPaperFormat=A5&LabelPrinterStartPosition=UPPER_LEFT&qrcode=true&DropOffType=BOTH'
+        url = 'https://api-preprod.dpsin.dpdgroup.com:8443/shipping/v1/shipment?LabelPrintFormat=PDF&LabelPaperFormat=A6&qrcode=true&DropOffType=BOTH' #&LabelPrinterStartPosition=UPPER_LEFT
         headers = {
             'accept': 'application/json',
-            'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJwYXNzd29yZCI6InRoZXR1NEVlIiwiYnVDb2RlIjoiMDIxIiwidXNlck5hbWUiOiJ0ZXN0IiwiZXhwIjoxNzEzODA5MjI4fQ.4D34gIdHXvZ5U27hAF-aWnI3wUEo6Nr1F-lSAEPP7oGqCo-8Nk-YmA-b0EZBm3ahyGQ4m6etM8eqlzE4Cn6fpQ',
+            'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJwYXNzd29yZCI6InRoZXR1NEVlIiwiYnVDb2RlIjoiMDIxIiwidXNlck5hbWUiOiJ0ZXN0IiwiZXhwIjoxNzEzODgyMTMwfQ.S90vgHOpkc0uWt6dCCqw6zW5DPb4RI7w7pNLcRA3RpCvtkKmNLe3qQ2A9WF_Y9RPzWj6TOetCGHW9OSbReh-vg',
             'Content-Type': 'application/json',
         }
         payload = [{
-            "shipmentInfos": {
-                "productCode": "101"
-            },
-            "numberOfParcels": "1",
-            "sender": {
-                "customerInfos": {
-                    "customerAccountNumber": "1495",
-                    "customerID": "1495"
-                },
-                "address": {
-                    "name1": "DPD Kraków",
-                    "country": "PL",
-                    "zipCode": "30-732",
-                    "city": "Kraków",
-                    "street": "Pułkownika Stanisława Dąbka 1A"
-                }
-            },
-            "receiver": {
-                "address": {
-                    "name1": "DPD Warszawa",
-                    "name2": "DPD Person Name",
-                    "country": "PL",
-                    "zipCode": "02-274",
-                    "city": "Warszawa",
-                    "street": "Mineralna 15"
-                },
-                "contact": {
-                    "phone1": "0123456789",
-                    "email": "a@a.com",
-                    "contactPerson": "DPD Contact"
-                }
-            },
-            "comment": "commentaire",
-            "parcel": [{
-                "parcelInfos": {
-                    "weight": "6000"
-                }
-            }]
-        }]
+                    "shipmentInfos": {
+                                     "productCode": "101"
+                    },
+                    "numberOfParcels": post_data['delivery']['calculatedNumberOfPackages'],
+                    "sender": {
+                              "customerInfos": {
+                                               "customerAccountNumber": "1495",
+                                               "customerID": "1495"
+                                               },
+                              "address": {
+                                         "name1" : "DPD Kraków",
+                                         "country": "PL",
+                                         "zipCode": "30-732",
+                                         "city": "Kraków",
+                                         "street": "Pułkownika Stanisława Dąbka 1A"
+                                         }
+                              },
+                    "receiver": {
+                                "address": {
+                                "name1": post_data['delivery']['address']['firstName'],  
+                                "name2": post_data['delivery']['address']['lastName'],
+                                "country": post_data['delivery']['address']['countryCode'],
+                                "zipCode": post_data['delivery']['address']['zipCode'],
+                                "city": post_data['delivery']['address']['city'],
+                                "street": post_data['delivery']['address']['street']
+                                },
+                    "contact": {
+                               "phone1": post_data['delivery']['address']['phoneNumber'],
+                               "email": post_data['buyer']['email'],
+                               "contactPerson": post_data['delivery']['address']['lastName']
+                                },
+                    "comment": "commentaire"
+                    },
+                    "parcel": [{
+                               "parcelInfos": {
+                                              "weight": "6000"
+                                              }
+                              }]
+                }]
+        
         response = requests.post(url, headers=headers, json=payload)
+        print('************** RESPONSE HEADERS ***********************', response.headers)
+        if response.status_code == 401:
+            # print('************** RESPONSE 401 ***********************')
+            login_DPD(data.secret)
         shipment = response.json()
 
-        if shipment:
-            # output_file = "../../dpd_label.pdf"
-            base64_to_pdf(shipment['label']['base64Data'])
+        if response.status_code == 200:
+            return base64_to_pdf(shipment['label']['base64Data'])
+        
+        if response.status_code == 400:
+            return HttpResponse("DUPLICATED_PARCEL_SEARCH_KEY")
 
-    # print("Shipment created successfully.", shipment['label']['base64Data'])
+    # return HttpResponse('ok')
+
 
 
 def base64_to_pdf(base64_data):
@@ -222,7 +232,24 @@ def base64_to_pdf(base64_data):
     except Exception as e:
         print("Error:", e)
 
-    # return HttpResponse('Ok')
+
+def login_DPD (secret):
+    print('*********** LOGIN DPD CALLED ***********')
+    try:
+        url = 'https://api-preprod.dpsin.dpdgroup.com:8443/shipping/v1/login'
+        # url = 'https://api-preprod.dpsin.dpdgroup.com:8443/v1/auth/tokens'
+        headers = {
+            'X-DPD-LOGIN':'test',
+            'X-DPD-PASSWORD': 'thetu4Ee',
+            'X-DPD-BUCODE': '021'
+        }
+        response = requests.post(url, headers=headers)
+        print('*********** LOGIN DPD STATUS ***********', response.status_code)
+        print('*********** LOGIN RESPONSE JSON ***********', response.json())
+        print('*********** LOGIN RESPONSE HEADERS ***********', response.headers)
+        # secret.dpd
+    except:
+        print('*********** COŚ POSZŁO NIE TAK ***********')
     
 
 

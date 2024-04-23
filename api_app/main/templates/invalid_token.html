@@ -9,10 +9,11 @@
     <div class="cont">
         <h1>UWAGA !!!</h1>
         <p>
-            Twoja sesja dla {{ name }} wygasła, zaloguj się do Swego konta {{ name }} na allegro.pl wybierając odpowiedni email
+            Twoja sesja dla {{ name }} wygasła. Kliknij w poniższy link, żeby zalogować się do Swojego konta {{ name }} na allegro.pl wybierając ODPOWIEDNI EMAIL.
             W przeciwnym razie dostaniesz komunikat, żeby powiązać aplikacje na koncie na którym aplikacja jest zalogowana. 
             W żadnym wypadku nie rób tego.
-            Autor aplikacji nie ponosi odpowiedzialność za skótki którę się z tym wiążą.
+            Autor aplikacji nie ponosi odpowiedzialność za skutki którę się z tym wiążą.
+            Jeśli po zalogowaniu nie zostaniesz przekierowany do aplikacji, musisz najpierw z nie się wylogować i przejść dany proces jeszcze raz.
         </p> 
         <a href="{% url 'get_new_authorization_code' name %}">Zaloguj do {{ name }}</a>
     </div>
