@@ -4,4 +4,5 @@ body {
 
 :root {
     --light: white;
+    --success: rgb(132, 255, 159);
 }

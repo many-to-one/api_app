@@ -106,6 +106,129 @@ def get_order_details(request, id):
             raise SystemExit(err)
 
 
+def create_label_in_bulk(request, ids):
+
+
+    # print('********************** CREATE LABEL CALLED ****************************', ids)
+    # return HttpResponse("ok")
+
+    all_results = []
+
+    accounts = Allegro.objects.filter(user=request.user)
+    for account in accounts:
+        secret = Secret.objects.get(account=account)
+
+        for id in ids:
+            try:
+                url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}"
+                headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+                product_result = requests.get(url, headers=headers, verify=True)
+                result = product_result.json()
+
+                if 'error' in result:
+                    error_code = result['error']
+                    if error_code == 'invalid_token':
+                        # print('ERROR RESULT @@@@@@@@@', error_code)
+                        try:
+                            # Refresh the token
+                            new_token = get_next_token(request, secret.refresh_token, account.name)
+                            # Retry fetching orders with the new token
+                            return get_order_details(request, id)
+                        except Exception as e:
+                            print('Exception @@@@@@@@@', e)
+                            context = {'name': account.name}
+                            return render(request, 'invalid_token.html', context)
+                print('RESULT FOR DPD @@@@@@@@@', json.dumps(result, indent=4))
+                # create_label(result)
+                all_results.append(result)
+            except requests.exceptions.HTTPError as err:
+                raise SystemExit(err)
+            
+    return all_results, secret
+        
+
+def create_label_in_bulk_DPD(request):
+
+    json_data = json.loads(request.body.decode('utf-8'))
+    ids = json_data.get('ids')
+
+    data = create_label_in_bulk(request, ids)
+    post_data = data[0]
+    secret = data[1]
+
+    print('********************** DATA ****************************', secret.dpd_access_token)
+    print('********************** BUYER ****************************', post_data)
+
+    return JsonResponse(
+            {
+                'message': 'Success',
+                'ids': ids,
+            }, 
+            status=200,
+        )
+
+    # if data:
+    #     url = 'https://api-preprod.dpsin.dpdgroup.com:8443/shipping/v1/shipment?LabelPrintFormat=PDF&LabelPaperFormat=A6&qrcode=true&DropOffType=BOTH' #&LabelPrinterStartPosition=UPPER_LEFT
+    #     headers = {
+    #         'accept': 'application/json',
+    #         'Authorization': f'Bearer {secret.dpd_access_token}',
+    #         'Content-Type': 'application/json',
+    #     }
+    #     payload = [{
+    #                 "shipmentInfos": {
+    #                                  "productCode": "101"
+    #                 },
+    #                 "numberOfParcels": str(post_data['delivery']['calculatedNumberOfPackages']), #post_data['delivery']['calculatedNumberOfPackages']
+    #                 "sender": {
+    #                           "customerInfos": {
+    #                                            "customerAccountNumber": "1495",
+    #                                            "customerID": "1495"
+    #                                            },
+    #                           "address": {
+    #                                      "name1" : "DPD Kraków",
+    #                                      "country": "PL",
+    #                                      "zipCode": "30-732",
+    #                                      "city": "Kraków",
+    #                                      "street": "Pułkownika Stanisława Dąbka 1A"
+    #                                      }
+    #                           },
+    #                 "receiver": {
+    #                             "address": {
+    #                             "name1": post_data['delivery']['address']['firstName'],  
+    #                             "name2": post_data['delivery']['address']['lastName'],
+    #                             "country": post_data['delivery']['address']['countryCode'],
+    #                             "zipCode": post_data['delivery']['address']['zipCode'],
+    #                             "city": post_data['delivery']['address']['city'],
+    #                             "street": post_data['delivery']['address']['street']
+    #                             },
+    #                 "contact": {
+    #                            "phone1": post_data['delivery']['address']['phoneNumber'],
+    #                            "email": post_data['buyer']['email'],
+    #                            "contactPerson": post_data['delivery']['address']['lastName']
+    #                             },
+    #                 "comment": "commentaire"
+    #                 },
+    #                 "parcel": [{
+    #                            "parcelInfos": {
+    #                                           "weight": "6000"
+    #                                           }
+    #                           }]
+    #             }]
+        
+    #     response = requests.post(url, headers=headers, json=payload)
+    #     print('************** RESPONSE HEADERS ***********************', response.headers)
+    #     if response.status_code == 401:
+    #         # print('************** RESPONSE 401 ***********************')
+    #         login_DPD(request)
+    #     shipment = response.json()
+
+    #     if response.status_code == 200:
+    #         change_status(request, post_data['id'], secret.account.name, 'SENT')
+    #         return base64_to_pdf(shipment['label']['base64Data'])
+        
+    #     if response.status_code == 400:
+    #         return HttpResponse("DUPLICATED_PARCEL_SEARCH_KEY")
+
 
 def create_label(request, id):
 
@@ -154,7 +277,7 @@ def create_label_DPD(request, id):
         url = 'https://api-preprod.dpsin.dpdgroup.com:8443/shipping/v1/shipment?LabelPrintFormat=PDF&LabelPaperFormat=A6&qrcode=true&DropOffType=BOTH' #&LabelPrinterStartPosition=UPPER_LEFT
         headers = {
             'accept': 'application/json',
-            'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJwYXNzd29yZCI6InRoZXR1NEVlIiwiYnVDb2RlIjoiMDIxIiwidXNlck5hbWUiOiJ0ZXN0IiwiZXhwIjoxNzEzODgyMTMwfQ.S90vgHOpkc0uWt6dCCqw6zW5DPb4RI7w7pNLcRA3RpCvtkKmNLe3qQ2A9WF_Y9RPzWj6TOetCGHW9OSbReh-vg',
+            'Authorization': f'Bearer {secret.dpd_access_token}',
             'Content-Type': 'application/json',
         }
         payload = [{
@@ -202,7 +325,7 @@ def create_label_DPD(request, id):
         print('************** RESPONSE HEADERS ***********************', response.headers)
         if response.status_code == 401:
             # print('************** RESPONSE 401 ***********************')
-            login_DPD(secret)
+            login_DPD(request)
         shipment = response.json()
 
         if response.status_code == 200:
@@ -234,8 +357,9 @@ def base64_to_pdf(base64_data):
         print("Error:", e)
 
 
-def login_DPD (secret):
+def login_DPD (request):
     print('*********** LOGIN DPD CALLED ***********')
+
     try:
         url = 'https://api-preprod.dpsin.dpdgroup.com:8443/shipping/v1/login'
         # url = 'https://api-preprod.dpsin.dpdgroup.com:8443/v1/auth/tokens'
@@ -248,7 +372,10 @@ def login_DPD (secret):
         print('*********** LOGIN DPD STATUS ***********', response.status_code)
         print('*********** LOGIN RESPONSE JSON ***********', response.json())
         print('*********** LOGIN RESPONSE HEADERS ***********', response.headers)
-        # secret.dpd
+        # accounts = Allegro.objects.filter(user=request.user)
+        # for account in accounts:
+        #     secret = Secret.objects.get(account=account)
+        #     secret.dpd_access_token = response.headers
     except:
         print('*********** COŚ POSZŁO NIE TAK ***********')
     

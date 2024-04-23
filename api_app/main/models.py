@@ -26,11 +26,11 @@ class Secret(models.Model):
         )
     access_token = models.CharField(
         null=True,
-        max_length=999,
+        max_length=2000,
         )
     refresh_token = models.CharField(
         null=True,
-        max_length=999,
+        max_length=2000,
         )
     account = models.ForeignKey(
         Allegro,
@@ -38,7 +38,7 @@ class Secret(models.Model):
     )
     dpd_access_token = models.CharField(
         null=True,
-        max_length=999,
+        max_length=2000,
         )
 
     def __str__(self):

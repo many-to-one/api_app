@@ -39,6 +39,16 @@ table {
     background-color: #ddd;
   }
   
-  /* .double {
-    background-color: #a14d4d;
-  } */
+  .all_labels {
+    cursor: pointer;
+  }
+
+  #question {
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    width: 100%;
+    height: 70px;
+    background-color: var(--success);
+  }

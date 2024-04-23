@@ -8,38 +8,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- <link rel="stylesheet" href="get_orders.css"> -->
     <title>Zamówienia</title>
-    <style>
-        table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-  }
-  
-  th {
-    background-color: #f2f2f2;
-  }
-  
-  tr:nth-child(even) {
-    background-color: #f2f2f2;
-  }
-  
-  tr:hover {
-    background-color: #ddd;
-  }
-    </style>
 
 </head>
 {% block content %}
 <body>
     <h1>Zamówienia:</h1>
+    <div id="question"s>
+        <p id="text"></p>
+        <div>
+            <button onclick="getNo()">Nie</button>
+            <button onclick="confYes()">Tak</button>
+        </div>
+    </div>
     <table>
         <thead>
             <tr class="list__header"> 
+                <th onclick="allLabels()" class="all_labels">Etykiety</th>
                 <th>Produkt</th>
                 <th>Konto</th>
                 <th>SKU</th>
@@ -49,6 +33,7 @@
                 <th>Klient</th>
                 <th>Wysyłka</th>
                 <th>Zamówienie</th>
+                <th>Etykieta</th>
                 <th>Szczegóły</th>
             </tr>
         </thead>
@@ -62,6 +47,11 @@
                     <tr>
                         {% for item in order.lineItems %}
                             <tr class="double">
+                                {% if  forloop.counter == 1 %}
+                                    <td><input type="checkbox" name="selected_items" value="{{ order.id }}"></td>
+                                {% else %}
+                                    <td></td>
+                                {% endif %}
                                 <td>{{ item.offer.name }}</td> <!-- Product -->
                                 <td id="name_{{ order.id }}" value="{{ result.name }}">{{ result.name }}</td> <!-- Konto -->
                                 <td>{{ item.offer.external.id }}</td> <!-- SKU -->
@@ -69,7 +59,6 @@
 
 
                                 {% if forloop.counter == 1 %}
-
                                     <td>{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</td> <!-- Koszty -->
 
                                     {% if order.status == 'FILLED_IN' %}
@@ -100,7 +89,11 @@
                                         <td></td>
                                     {% endif %} -->
 
-                                    <td><a href="{% url 'create_label_DPD' order.id %}">DPD</a></td>
+                                    {% if order.delivery.method.name == 'Allegro Kurier DPD' %}
+                                        <td><a href="{% url 'create_label_DPD' order.id %}">DPD</a></td>
+                                    {% else %}
+                                        <td></td>
+                                    {% endif %}
                                     <td><a href="{% url 'get_order_details' order.id %}">Go</a></td>
 
 
@@ -121,7 +114,7 @@
             
 
             <tr>
-
+                    <td><input type="checkbox" name="selected_items" value="{{ order.id }}"></td>
                     {% for item in order.lineItems %}
                         <td>{{ item.offer.name }}</td> 
                         <td id="name_{{ order.id }}" value="{{ result.name }}">{{ result.name }}</td> <!-- Konto -->
@@ -156,8 +149,12 @@
                             <img style="display: none;" class="icon" id="load_{{ order.id }}"  src="{% static 'icons/load.png' %}" alt="">
 
                         </td>
-
-                    <td><a href="{% url 'create_label_DPD' order.id %}">DPD</a></td>
+                    
+                    {% if order.delivery.method.name == 'Allegro Kurier DPD' %}
+                        <td><a href="{% url 'create_label_DPD' order.id %}">DPD</a></td>
+                    {% else %}
+                        <td></td>
+                    {% endif %}
                     <td><a href="{% url 'get_order_details' order.id %}">Go</a></td>
 
 
@@ -226,6 +223,63 @@
                     console.error('Error updating stock:', error);
                 });
         }
+
+
+        function allLabels() {
+
+            var question = document.getElementById('question')
+            var text = document.getElementById('text')
+
+            question.style.display = 'flex';
+            text.innerHTML = '';
+            text.textContent = "Wydrukować etykiety?";
+
+        }
+
+
+        function confYes() {
+
+            // Get all checkboxes with the name "selected_items"
+            var checkboxes = document.querySelectorAll('input[name="selected_items"]');
+            var question = document.getElementById('question')
+            var text = document.getElementById('text');
+            question.style.display = 'none';
+            text.innerHTML = '';
+
+            // Initialize an empty array to store the checked checkbox values
+            var checkedItems = [];
+
+            // Iterate over each checkbox
+            checkboxes.forEach(function(checkbox) {
+                // Check if the checkbox is checked
+                if (checkbox.checked) {
+                    // If checked, push its value to the checkedItems array
+                    checkedItems.push(checkbox.value);
+                }
+            });
+
+            // Log the array of checked checkbox values
+            console.log(checkedItems);
+
+            axios.post('/create_label_in_bulk_DPD/', { ids: checkedItems })
+                .then(function(response) {
+                    if(response.status == 200) {
+                        console.log('Success', response.data)
+                    }
+                })
+                .catch(function(error) {
+                    // Handle error
+                    console.error('Error updating stock:', error);
+                });
+        }
+
+        function getNo() {
+            var question = document.getElementById('question')
+            var text = document.getElementById('text');
+            question.style.display = 'none';
+            text.innerHTML = '';
+        }
+
     </script>
    
 </body>
