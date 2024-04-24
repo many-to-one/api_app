@@ -117,7 +117,7 @@ def get_order_details(request, id):
 ############################################# CREATE A MANY DPD LABELS LOGIC ####################################################
 #################################################################################################################################
 
-def create_label_in_bulk(request, ids_arr):
+def create_label_in_bulk(request, result):
     """
         This function returns the description of each order in orders array,
         such as delivery and product information to use it in DPD label.
@@ -126,38 +126,40 @@ def create_label_in_bulk(request, ids_arr):
     # print('********************** CREATE LABEL IN BULK CALLED ****************************', ids_arr)
     all_results = []
 
-    accounts = Allegro.objects.filter(user=request.user)
-    for account in accounts:
-        secret = Secret.objects.get(account=account)
+    # accounts = Allegro.objects.filter(user=request.user)
+    # for account in accounts:
+    #     secret = Secret.objects.get(account=account)
 
-        for id in ids_arr:
-            try:
-                # print('**************************** RESULT FOR ID ****************************', id)
-                url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}"
-                headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-                product_result = requests.get(url, headers=headers, verify=True)
-                result = product_result.json()  
-                if 'error' in result:
-                    error_code = result['error']
-                    if error_code == 'invalid_token':
-                        # print('ERROR RESULT @@@@@@@@@', error_code)
-                        try:
-                            # Refresh the token
-                            new_token = get_next_token(request, secret.refresh_token, account.name)
-                            # Retry fetching orders with the new token
-                            return get_order_details(request, id)
-                        except Exception as e:
-                            print('Exception @@@@@@@@@', e)
-                            context = {'name': account.name}
-                            return render(request, 'invalid_token.html', context)
-                # print('RESULT FOR DPD @@@@@@@@@*****', json.dumps(result, indent=4))
-                # print('RESULT status @@@@@@@@@*****', product_result.status_code)
-                if product_result.status_code == 200:
-                    all_results.append(result)
-            except requests.exceptions.HTTPError as err:
-                raise SystemExit(err)
+    for order in result:
+        secret = Secret.objects.get(account__name=order['name'])
+        # print('**************************** SECRET ****************************', secret.access_token)
+        try:
+            # print('**************************** RESULT FOR ID ****************************', id)
+            url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{order['id']}"
+            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+            product_result = requests.get(url, headers=headers, verify=True)
+            result = product_result.json()  
+            if 'error' in result:
+                error_code = result['error']
+                if error_code == 'invalid_token':
+                    # print('ERROR RESULT @@@@@@@@@', error_code)
+                    try:
+                        # Refresh the token
+                        new_token = get_next_token(request, secret.refresh_token, secret.account.name)
+                        # Retry fetching orders with the new token
+                        return get_order_details(request, id)
+                    except Exception as e:
+                        print('Exception @@@@@@@@@', e)
+                        context = {'name': secret.account.name}
+                        return render(request, 'invalid_token.html', context)
+            # print('RESULT FOR DPD @@@@@@@@@*****', json.dumps(result, indent=4))
+            # print('RESULT status @@@@@@@@@*****', product_result.status_code)
+            if product_result.status_code == 200:
+                all_results.append({'result': result, 'name': secret.account.name})
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)
             
-    return all_results, secret
+    return all_results
         
 
 def create_label_in_bulk_DPD(request):
@@ -168,23 +170,27 @@ def create_label_in_bulk_DPD(request):
     """
 
     ids = request.GET.getlist('ids')
-    print('********************** IDS ****************************', ids)
+    # print('********************** IDS ****************************', ids)
 
     result = []
 
     for item in ids:
         parts = item.split(',')
-        id_, name = parts[0].split('_')
-        result.append({'id': id_, 'name': name})
+        for part in parts:
+            id_, name = part.split('_')
+            result.append({'id': id_, 'name': name})
     
-    print('********************** result ****************************', result)
+    # print('********************** result ****************************', result)
 
     # new_ids = str(ids[0])
     # ids_arr = new_ids.split(',')
     # print('********************** IDS ****************************', ids)
 
-    # data = create_label_in_bulk(request, ids_arr)
-    # all_post_data = data[0]
+    data = create_label_in_bulk(request, result)
+    all_post_data = data
+    for post in all_post_data:
+        print('********************** POST DATA ****************************', post['result'])
+        print('********************** POST NAME ****************************', post['name'])
     # secret = data[1]
 
     # labels = []
