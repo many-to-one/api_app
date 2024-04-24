@@ -168,89 +168,100 @@ def create_label_in_bulk_DPD(request):
     """
 
     ids = request.GET.getlist('ids')
-    new_ids = str(ids[0])
-    ids_arr = new_ids.split(',')
-    # print('********************** IDS ****************************', ids_arr)
+    print('********************** IDS ****************************', ids)
 
-    data = create_label_in_bulk(request, ids_arr)
-    all_post_data = data[0]
-    secret = data[1]
+    result = []
 
-    labels = []
+    for item in ids:
+        parts = item.split(',')
+        id_, name = parts[0].split('_')
+        result.append({'id': id_, 'name': name})
+    
+    print('********************** result ****************************', result)
+
+    # new_ids = str(ids[0])
+    # ids_arr = new_ids.split(',')
+    # print('********************** IDS ****************************', ids)
+
+    # data = create_label_in_bulk(request, ids_arr)
+    # all_post_data = data[0]
+    # secret = data[1]
+
+    # labels = []
 
     # print('********************** ALL DATA ****************************', json.dumps(all_post_data, indent=4))
 
 
-    for post_data in all_post_data:
+    # for post_data in all_post_data:
 
-        # print('********************** BUYER ****************************', post_data['buyer']['firstName']) 
+    #     # print('********************** BUYER ****************************', post_data['buyer']['firstName']) 
 
-        url = 'https://api-preprod.dpsin.dpdgroup.com:8443/shipping/v1/shipment?LabelPrintFormat=PDF&LabelPaperFormat=A6&qrcode=true&DropOffType=BOTH' #&LabelPrinterStartPosition=UPPER_LEFT
-        headers = {
-            'accept': 'application/json',
-            'Authorization': f'Bearer {secret.dpd_access_token}',
-            'Content-Type': 'application/json',
-        }
-        payload = [{
-                    "shipmentInfos": {
-                                     "productCode": "101"
-                    },
-                    "numberOfParcels": '1',#str(post_data['delivery']['calculatedNumberOfPackages']), 
-                    "sender": {
-                              "customerInfos": {
-                                               "customerAccountNumber": "1495",
-                                               "customerID": "1495"
-                                               },
-                              "address": {
-                                         "name1" : "DPD Kraków",
-                                         "country": "PL",
-                                         "zipCode": "30-732",
-                                         "city": "Kraków",
-                                         "street": "Pułkownika Stanisława Dąbka 1A"
-                                         }
-                              },
-                    "receiver": {
-                                "address": {
-                                "name1": post_data['delivery']['address']['firstName'],  
-                                "name2": post_data['delivery']['address']['lastName'],
-                                "country": post_data['delivery']['address']['countryCode'],
-                                "zipCode": post_data['delivery']['address']['zipCode'],
-                                "city": post_data['delivery']['address']['city'],
-                                "street": post_data['delivery']['address']['street']
-                                },
-                    "contact": {
-                               "phone1": post_data['delivery']['address']['phoneNumber'],
-                               "email": post_data['buyer']['email'],
-                               "contactPerson": post_data['delivery']['address']['lastName']
-                                },
-                    "comment": "MY COMMENT"
-                    },
-                    "parcel": [{
-                               "parcelInfos": {
-                                              "weight": "6000"
-                                              }
-                              }]
-                }]
-        # time.sleep(1)
+    #     url = 'https://api-preprod.dpsin.dpdgroup.com:8443/shipping/v1/shipment?LabelPrintFormat=PDF&LabelPaperFormat=A6&qrcode=true&DropOffType=BOTH' #&LabelPrinterStartPosition=UPPER_LEFT
+    #     headers = {
+    #         'accept': 'application/json',
+    #         'Authorization': f'Bearer {secret.dpd_access_token}',
+    #         'Content-Type': 'application/json',
+    #     }
+    #     payload = [{
+    #                 "shipmentInfos": {
+    #                                  "productCode": "101"
+    #                 },
+    #                 "numberOfParcels": '1',#str(post_data['delivery']['calculatedNumberOfPackages']), 
+    #                 "sender": {
+    #                           "customerInfos": {
+    #                                            "customerAccountNumber": "1495",
+    #                                            "customerID": "1495"
+    #                                            },
+    #                           "address": {
+    #                                      "name1" : "DPD Kraków",
+    #                                      "country": "PL",
+    #                                      "zipCode": "30-732",
+    #                                      "city": "Kraków",
+    #                                      "street": "Pułkownika Stanisława Dąbka 1A"
+    #                                      }
+    #                           },
+    #                 "receiver": {
+    #                             "address": {
+    #                             "name1": post_data['delivery']['address']['firstName'],  
+    #                             "name2": post_data['delivery']['address']['lastName'],
+    #                             "country": post_data['delivery']['address']['countryCode'],
+    #                             "zipCode": post_data['delivery']['address']['zipCode'],
+    #                             "city": post_data['delivery']['address']['city'],
+    #                             "street": post_data['delivery']['address']['street']
+    #                             },
+    #                 "contact": {
+    #                            "phone1": post_data['delivery']['address']['phoneNumber'],
+    #                            "email": post_data['buyer']['email'],
+    #                            "contactPerson": post_data['delivery']['address']['lastName']
+    #                             },
+    #                 "comment": "MY COMMENT"
+    #                 },
+    #                 "parcel": [{
+    #                            "parcelInfos": {
+    #                                           "weight": "6000"
+    #                                           }
+    #                           }]
+    #             }]
+    #     # time.sleep(1)
         
-        response = requests.post(url, headers=headers, json=payload)
-        # print('************** RESPONSE HEADERS ***********************', response.headers)
-        if response.status_code == 401:
-            # print('************** RESPONSE 401 ***********************')
-            login_DPD(request)
-        shipment = response.json()
+    #     response = requests.post(url, headers=headers, json=payload)
+    #     # print('************** RESPONSE HEADERS ***********************', response.headers)
+    #     if response.status_code == 401:
+    #         # print('************** RESPONSE 401 ***********************')
+    #         login_DPD(request)
+    #     shipment = response.json()
 
-        if response.status_code == 200:
-            labels.append(shipment['label']['base64Data'])
-            change_status(request, post_data['id'], secret.account.name, 'SENT')
-            # return base64_to_pdf(shipment['label']['base64Data'])
+    #     if response.status_code == 200:
+    #         labels.append(shipment['label']['base64Data'])
+    #         change_status(request, post_data['id'], secret.account.name, 'SENT')
+    #         # return base64_to_pdf(shipment['label']['base64Data'])
         
-        if response.status_code == 400:
-            return HttpResponse("DUPLICATED_PARCEL_SEARCH_KEY")
+    #     if response.status_code == 400:
+    #         return HttpResponse("DUPLICATED_PARCEL_SEARCH_KEY")
         
-    # print('****************** LABELS *********************', labels)
+    # # print('****************** LABELS *********************', labels)
     
-    return base64_to_pdf_bulk(labels)
+    # return base64_to_pdf_bulk(labels)
 
 
 def base64_to_pdf_bulk(base64_data_list):
