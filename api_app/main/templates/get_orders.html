@@ -13,12 +13,23 @@
 {% block content %}
 <body>
     <h1>Zamówienia:</h1>
-    <div id="question"s>
+    <div id="question">
         <p id="text"></p>
         <div>
             <button onclick="getNo()">Nie</button>
-            <button onclick="confYes()">Tak</button>
+            <button onclick="getYes()">Tak</button>
         </div>
+    </div>
+    <div id="questionOne">
+        <p id="textOne"></p>
+        <div>
+            <button onclick="getNoPrintOne()">Nie</button>
+            <button onclick="getYesPrintOne()">Tak</button>
+        </div>
+    </div>
+    <div id="wait">
+        <p>Proczę czekać...</p>
+        <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
     </div>
     <table>
         <thead>
@@ -90,7 +101,7 @@
                                     {% endif %} -->
 
                                     {% if order.delivery.method.name == 'Allegro Kurier DPD' %}
-                                        <td><a href="{% url 'create_label_DPD' order.id %}">DPD</a></td>
+                                        <td onclick="printOneLabel('{{ order.id }}')">DPD</td>
                                     {% else %}
                                         <td></td>
                                     {% endif %}
@@ -151,7 +162,7 @@
                         </td>
                     
                     {% if order.delivery.method.name == 'Allegro Kurier DPD' %}
-                        <td><a href="{% url 'create_label_DPD' order.id %}">DPD</a></td>
+                        <td onclick="printOneLabel('{{ order.id }}')" value="{{ order.id }}" id="tdOne">DPD</td>
                     {% else %}
                         <td></td>
                     {% endif %}
@@ -225,6 +236,43 @@
         }
 
 
+        function printOneLabel(orderId) {
+            console.log('printOneLabel', orderId)
+            var questionOne = document.getElementById('questionOne')
+            var textOne = document.getElementById('textOne')
+
+            questionOne.style.display = 'flex';
+            textOne.innerHTML = '';
+            textOne.textContent = "Wydrukować pojedyńczą etykietę?";
+        }
+
+        function getYesPrintOne() {
+
+            // var wait = document.getElementById('wait');
+            // wait.style.display = 'flex';
+
+            var questionOne = document.getElementById('questionOne')
+            var textOne = document.getElementById('textOne');
+            questionOne.style.display = 'none';
+            textOne.innerHTML = '';
+
+            var tdOne = document.getElementById('tdOne');
+            tdOneValue = tdOne.getAttribute('value');
+            console.log('tdOneValue', tdOneValue)
+            var url = '/create_label_DPD/' + tdOneValue + '/';
+
+            window.open(url, '_blank');
+
+        }
+
+        function getNoPrintOne() {
+            var questionOne = document.getElementById('questionOne')
+            var textOne = document.getElementById('textOne')
+            questionOne.style.display = 'none';
+            textOne.innerHTML = '';
+        }
+
+
         function allLabels() {
 
             var question = document.getElementById('question')
@@ -237,7 +285,10 @@
         }
 
 
-        function confYes() {
+        function getYes() {
+
+            var wait = document.getElementById('wait');
+            wait.style.display = 'flex';
 
             // Get all checkboxes with the name "selected_items"
             var checkboxes = document.querySelectorAll('input[name="selected_items"]');
@@ -265,6 +316,7 @@
                 .then(function(response) {
                     if(response.status == 200) {
                         console.log('Success', response.data)
+                        wait.style.display = 'none';
                     }
                 })
                 .catch(function(error) {

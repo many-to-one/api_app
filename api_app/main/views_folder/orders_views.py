@@ -156,7 +156,7 @@ def create_label_in_bulk_DPD(request):
     post_data = data[0]
     secret = data[1]
 
-    print('********************** DATA ****************************', secret.dpd_access_token)
+    # print('********************** DATA ****************************', secret.dpd_access_token)
     print('********************** BUYER ****************************', post_data)
 
     return JsonResponse(
@@ -264,6 +264,9 @@ def create_label(request, id):
             raise SystemExit(err)
 
 
+# def call_create_label_DPD(request, id):
+#     create_label_DPD
+
 def create_label_DPD(request, id):
 
     data = create_label(request, id)
@@ -331,6 +334,14 @@ def create_label_DPD(request, id):
         if response.status_code == 200:
             change_status(request, post_data['id'], secret.account.name, 'SENT')
             return base64_to_pdf(shipment['label']['base64Data'])
+            # pdf_content = base64_to_pdf(shipment['label']['base64Data'])
+            # return JsonResponse(
+            #     {
+            #         'message': 'Success',
+            #         'result': pdf_content,
+            #     }, 
+            #     status=200,
+            # )
         
         if response.status_code == 400:
             return HttpResponse("DUPLICATED_PARCEL_SEARCH_KEY")
@@ -353,6 +364,10 @@ def base64_to_pdf(base64_data):
         # Optionally, set a filename for the downloaded file
         response['Content-Disposition'] = 'inline; filename="output.pdf"'
         return response
+
+        # pdf_content = binary_data.decode('utf-8')
+        # return binary_data
+    
     except Exception as e:
         print("Error:", e)
 
@@ -370,12 +385,12 @@ def login_DPD (request):
         }
         response = requests.post(url, headers=headers)
         print('*********** LOGIN DPD STATUS ***********', response.status_code)
-        print('*********** LOGIN RESPONSE JSON ***********', response.json())
+        # print('*********** LOGIN RESPONSE JSON ***********', response.json())
         print('*********** LOGIN RESPONSE HEADERS ***********', response.headers)
-        # accounts = Allegro.objects.filter(user=request.user)
-        # for account in accounts:
-        #     secret = Secret.objects.get(account=account)
-        #     secret.dpd_access_token = response.headers
+        accounts = Allegro.objects.filter(user=request.user)
+        for account in accounts:
+            secret = Secret.objects.get(account=account)
+            secret.dpd_access_token = response.headers['x-dpd-token']
     except:
         print('*********** COŚ POSZŁO NIE TAK ***********')
     

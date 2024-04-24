@@ -5,4 +5,5 @@ body {
 :root {
     --light: white;
     --success: rgb(132, 255, 159);
+    --wait: rgb(245, 255, 104);
 }
