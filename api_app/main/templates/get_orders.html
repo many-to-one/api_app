@@ -304,7 +304,7 @@
             checkboxes.forEach(function(checkbox) {
                 // Check if the checkbox is checked
                 if (checkbox.checked) {
-                    // If checked, push its value to the checkedItems array
+                    console.log('checkbox =>', checkbox.value)
                     checkedItems.push(checkbox.value);
                 }
             });
@@ -312,17 +312,21 @@
             // Log the array of checked checkbox values
             console.log(checkedItems);
 
-            axios.post('/create_label_in_bulk_DPD/', { ids: checkedItems })
-                .then(function(response) {
-                    if(response.status == 200) {
-                        console.log('Success', response.data)
-                        wait.style.display = 'none';
-                    }
-                })
-                .catch(function(error) {
-                    // Handle error
-                    console.error('Error updating stock:', error);
-                });
+            var url = '/create_label_in_bulk_DPD/?ids=' + checkedItems;
+            window.location.href = url;
+            wait.style.display = 'none';
+
+            // axios.post('/create_label_in_bulk_DPD/', { ids: checkedItems })
+            // .then(function(response) {
+            //         if(response.status == 200) {
+            //             // console.log('Success', response.data)
+            //             wait.style.display = 'none';
+            //         }
+            //     })
+            //     .catch(function(error) {
+            //         // Handle error
+            //         console.error('Error updating stock:', error);
+            //     });
         }
 
         function getNo() {

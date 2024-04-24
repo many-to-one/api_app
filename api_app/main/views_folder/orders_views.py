@@ -3,6 +3,11 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 import requests
 import os
+import base64
+import time
+import io
+import zipfile
+import PyPDF2
 from dotenv import load_dotenv
 load_dotenv()
 from ..models import *
@@ -104,27 +109,34 @@ def get_order_details(request, id):
             return render(request, 'get_order_details.html', context)
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
+        
 
 
-def create_label_in_bulk(request, ids):
 
+#################################################################################################################################
+############################################# CREATE A MANY DPD LABELS LOGIC ####################################################
+#################################################################################################################################
 
-    # print('********************** CREATE LABEL CALLED ****************************', ids)
-    # return HttpResponse("ok")
+def create_label_in_bulk(request, ids_arr):
+    """
+        This function returns the description of each order in orders array,
+        such as delivery and product information to use it in DPD label.
+    """
 
+    # print('********************** CREATE LABEL IN BULK CALLED ****************************', ids_arr)
     all_results = []
 
     accounts = Allegro.objects.filter(user=request.user)
     for account in accounts:
         secret = Secret.objects.get(account=account)
 
-        for id in ids:
+        for id in ids_arr:
             try:
+                # print('**************************** RESULT FOR ID ****************************', id)
                 url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}"
                 headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
                 product_result = requests.get(url, headers=headers, verify=True)
-                result = product_result.json()
-
+                result = product_result.json()  
                 if 'error' in result:
                     error_code = result['error']
                     if error_code == 'invalid_token':
@@ -138,9 +150,10 @@ def create_label_in_bulk(request, ids):
                             print('Exception @@@@@@@@@', e)
                             context = {'name': account.name}
                             return render(request, 'invalid_token.html', context)
-                print('RESULT FOR DPD @@@@@@@@@', json.dumps(result, indent=4))
-                # create_label(result)
-                all_results.append(result)
+                # print('RESULT FOR DPD @@@@@@@@@*****', json.dumps(result, indent=4))
+                # print('RESULT status @@@@@@@@@*****', product_result.status_code)
+                if product_result.status_code == 200:
+                    all_results.append(result)
             except requests.exceptions.HTTPError as err:
                 raise SystemExit(err)
             
@@ -148,87 +161,133 @@ def create_label_in_bulk(request, ids):
         
 
 def create_label_in_bulk_DPD(request):
+    """
+        This function get the description from **create_label_in_bulk()** and use it to post in
+        DPD's labels creation. The description is an array **all_post_data**, so that's why 
+        we use here a loop to bring in payload each array's element.
+    """
 
-    json_data = json.loads(request.body.decode('utf-8'))
-    ids = json_data.get('ids')
+    ids = request.GET.getlist('ids')
+    new_ids = str(ids[0])
+    ids_arr = new_ids.split(',')
+    # print('********************** IDS ****************************', ids_arr)
 
-    data = create_label_in_bulk(request, ids)
-    post_data = data[0]
+    data = create_label_in_bulk(request, ids_arr)
+    all_post_data = data[0]
     secret = data[1]
 
-    # print('********************** DATA ****************************', secret.dpd_access_token)
-    print('********************** BUYER ****************************', post_data)
+    labels = []
 
-    return JsonResponse(
-            {
-                'message': 'Success',
-                'ids': ids,
-            }, 
-            status=200,
-        )
+    # print('********************** ALL DATA ****************************', json.dumps(all_post_data, indent=4))
 
-    # if data:
-    #     url = 'https://api-preprod.dpsin.dpdgroup.com:8443/shipping/v1/shipment?LabelPrintFormat=PDF&LabelPaperFormat=A6&qrcode=true&DropOffType=BOTH' #&LabelPrinterStartPosition=UPPER_LEFT
-    #     headers = {
-    #         'accept': 'application/json',
-    #         'Authorization': f'Bearer {secret.dpd_access_token}',
-    #         'Content-Type': 'application/json',
-    #     }
-    #     payload = [{
-    #                 "shipmentInfos": {
-    #                                  "productCode": "101"
-    #                 },
-    #                 "numberOfParcels": str(post_data['delivery']['calculatedNumberOfPackages']), #post_data['delivery']['calculatedNumberOfPackages']
-    #                 "sender": {
-    #                           "customerInfos": {
-    #                                            "customerAccountNumber": "1495",
-    #                                            "customerID": "1495"
-    #                                            },
-    #                           "address": {
-    #                                      "name1" : "DPD Kraków",
-    #                                      "country": "PL",
-    #                                      "zipCode": "30-732",
-    #                                      "city": "Kraków",
-    #                                      "street": "Pułkownika Stanisława Dąbka 1A"
-    #                                      }
-    #                           },
-    #                 "receiver": {
-    #                             "address": {
-    #                             "name1": post_data['delivery']['address']['firstName'],  
-    #                             "name2": post_data['delivery']['address']['lastName'],
-    #                             "country": post_data['delivery']['address']['countryCode'],
-    #                             "zipCode": post_data['delivery']['address']['zipCode'],
-    #                             "city": post_data['delivery']['address']['city'],
-    #                             "street": post_data['delivery']['address']['street']
-    #                             },
-    #                 "contact": {
-    #                            "phone1": post_data['delivery']['address']['phoneNumber'],
-    #                            "email": post_data['buyer']['email'],
-    #                            "contactPerson": post_data['delivery']['address']['lastName']
-    #                             },
-    #                 "comment": "commentaire"
-    #                 },
-    #                 "parcel": [{
-    #                            "parcelInfos": {
-    #                                           "weight": "6000"
-    #                                           }
-    #                           }]
-    #             }]
+
+    for post_data in all_post_data:
+
+        # print('********************** BUYER ****************************', post_data['buyer']['firstName']) 
+
+        url = 'https://api-preprod.dpsin.dpdgroup.com:8443/shipping/v1/shipment?LabelPrintFormat=PDF&LabelPaperFormat=A6&qrcode=true&DropOffType=BOTH' #&LabelPrinterStartPosition=UPPER_LEFT
+        headers = {
+            'accept': 'application/json',
+            'Authorization': f'Bearer {secret.dpd_access_token}',
+            'Content-Type': 'application/json',
+        }
+        payload = [{
+                    "shipmentInfos": {
+                                     "productCode": "101"
+                    },
+                    "numberOfParcels": '1',#str(post_data['delivery']['calculatedNumberOfPackages']), 
+                    "sender": {
+                              "customerInfos": {
+                                               "customerAccountNumber": "1495",
+                                               "customerID": "1495"
+                                               },
+                              "address": {
+                                         "name1" : "DPD Kraków",
+                                         "country": "PL",
+                                         "zipCode": "30-732",
+                                         "city": "Kraków",
+                                         "street": "Pułkownika Stanisława Dąbka 1A"
+                                         }
+                              },
+                    "receiver": {
+                                "address": {
+                                "name1": post_data['delivery']['address']['firstName'],  
+                                "name2": post_data['delivery']['address']['lastName'],
+                                "country": post_data['delivery']['address']['countryCode'],
+                                "zipCode": post_data['delivery']['address']['zipCode'],
+                                "city": post_data['delivery']['address']['city'],
+                                "street": post_data['delivery']['address']['street']
+                                },
+                    "contact": {
+                               "phone1": post_data['delivery']['address']['phoneNumber'],
+                               "email": post_data['buyer']['email'],
+                               "contactPerson": post_data['delivery']['address']['lastName']
+                                },
+                    "comment": "MY COMMENT"
+                    },
+                    "parcel": [{
+                               "parcelInfos": {
+                                              "weight": "6000"
+                                              }
+                              }]
+                }]
+        # time.sleep(1)
         
-    #     response = requests.post(url, headers=headers, json=payload)
-    #     print('************** RESPONSE HEADERS ***********************', response.headers)
-    #     if response.status_code == 401:
-    #         # print('************** RESPONSE 401 ***********************')
-    #         login_DPD(request)
-    #     shipment = response.json()
+        response = requests.post(url, headers=headers, json=payload)
+        # print('************** RESPONSE HEADERS ***********************', response.headers)
+        if response.status_code == 401:
+            # print('************** RESPONSE 401 ***********************')
+            login_DPD(request)
+        shipment = response.json()
 
-    #     if response.status_code == 200:
-    #         change_status(request, post_data['id'], secret.account.name, 'SENT')
-    #         return base64_to_pdf(shipment['label']['base64Data'])
+        if response.status_code == 200:
+            labels.append(shipment['label']['base64Data'])
+            change_status(request, post_data['id'], secret.account.name, 'SENT')
+            # return base64_to_pdf(shipment['label']['base64Data'])
         
-    #     if response.status_code == 400:
-    #         return HttpResponse("DUPLICATED_PARCEL_SEARCH_KEY")
+        if response.status_code == 400:
+            return HttpResponse("DUPLICATED_PARCEL_SEARCH_KEY")
+        
+    # print('****************** LABELS *********************', labels)
+    
+    return base64_to_pdf_bulk(labels)
 
+
+def base64_to_pdf_bulk(base64_data_list):
+
+    pdf_writer = PyPDF2.PdfWriter()
+
+    try:
+        for base64_data in base64_data_list:
+            # Decode the Base64 data
+            binary_data = base64.b64decode(base64_data)
+
+            # Create a PdfReader object
+            pdf_reader = PyPDF2.PdfReader(io.BytesIO(binary_data))
+
+            # Merge each page from the PdfReader object into the PdfWriter object
+            for page_num in range(len(pdf_reader.pages)):
+                pdf_writer.add_page(pdf_reader.pages[page_num])
+
+        # Create a BytesIO buffer to write the merged PDF
+        output_buffer = io.BytesIO()
+        pdf_writer.write(output_buffer)
+
+        # Set the appropriate content type for PDF
+        response = HttpResponse(output_buffer.getvalue(), content_type='application/pdf')
+
+        # Optionally, set a filename for the downloaded PDF
+        response['Content-Disposition'] = 'attachment; filename="merged_labels.pdf"'
+        return response
+    except Exception as e:
+        print("Error:", e)
+
+
+
+
+#################################################################################################################################
+############################################## CREATE A ONE DPD LABEL LOGIC #####################################################
+#################################################################################################################################
 
 def create_label(request, id):
 
@@ -264,8 +323,6 @@ def create_label(request, id):
             raise SystemExit(err)
 
 
-# def call_create_label_DPD(request, id):
-#     create_label_DPD
 
 def create_label_DPD(request, id):
 
@@ -273,8 +330,13 @@ def create_label_DPD(request, id):
     post_data = data[0]
     secret = data[1]
 
-    print('********************** DATA ****************************', secret)
-    print('********************** BUYER ****************************', post_data['buyer']['firstName'])
+    # print('********************** DATA ****************************', secret)
+    # print('********************** BUYER ****************************', post_data['buyer']['firstName'])
+    for item in post_data['lineItems']:
+        external_id = item['offer']['external']['id']
+        quantity = item['quantity']
+        print("External ID:", external_id)
+        print("Quantity:", quantity)
 
     if data:
         url = 'https://api-preprod.dpsin.dpdgroup.com:8443/shipping/v1/shipment?LabelPrintFormat=PDF&LabelPaperFormat=A6&qrcode=true&DropOffType=BOTH' #&LabelPrinterStartPosition=UPPER_LEFT
@@ -315,7 +377,7 @@ def create_label_DPD(request, id):
                                "email": post_data['buyer']['email'],
                                "contactPerson": post_data['delivery']['address']['lastName']
                                 },
-                    "comment": "commentaire"
+                    "comment": f'{external_id} - {quantity}szt'
                     },
                     "parcel": [{
                                "parcelInfos": {
@@ -334,14 +396,6 @@ def create_label_DPD(request, id):
         if response.status_code == 200:
             change_status(request, post_data['id'], secret.account.name, 'SENT')
             return base64_to_pdf(shipment['label']['base64Data'])
-            # pdf_content = base64_to_pdf(shipment['label']['base64Data'])
-            # return JsonResponse(
-            #     {
-            #         'message': 'Success',
-            #         'result': pdf_content,
-            #     }, 
-            #     status=200,
-            # )
         
         if response.status_code == 400:
             return HttpResponse("DUPLICATED_PARCEL_SEARCH_KEY")
@@ -351,8 +405,6 @@ def create_label_DPD(request, id):
 
 
 def base64_to_pdf(base64_data):
-
-    import base64
 
     try:
         # Decode the Base64 data
@@ -364,9 +416,6 @@ def base64_to_pdf(base64_data):
         # Optionally, set a filename for the downloaded file
         response['Content-Disposition'] = 'inline; filename="output.pdf"'
         return response
-
-        # pdf_content = binary_data.decode('utf-8')
-        # return binary_data
     
     except Exception as e:
         print("Error:", e)
@@ -396,6 +445,13 @@ def login_DPD (request):
     
 
 
+#################################################################################################################################
+############################################# THE END OF DPD'S LABELS LOGIC #####################################################
+#################################################################################################################################
+
+
+
+
 def change_status(request, id, name, status):
 
     account = Allegro.objects.get(name=name)
@@ -406,15 +462,15 @@ def change_status(request, id, name, status):
     # new_status = data.get('status')
     
     print('*********** new_status ***********', status, name)
-    print('*********** secret.access_token ***********', secret.account.name)
-    # print('*********** secret.access_token ***********', secret.access_token)
+    print('*********** secret.account.name ***********', secret.account.name)
+    print('*********** secret.access_token ***********', secret.access_token)
 
     try:
         url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}/fulfillment"
         headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': 'application/vnd.allegro.public.v1+json', 'Content-Type': 'application/vnd.allegro.public.v1+json'}
 
         data = {
-                "status": status,
+                "status": str(status),
                 "shipmentSummary": {
                 "lineItemsSent": "SOME"
                 }
@@ -423,7 +479,7 @@ def change_status(request, id, name, status):
         response = requests.put(url, headers=headers, json=data)
         print('*********** change_status ***********', response)
         # result = response.json()
-        # print('*********** response.json() ***********', result)
+        # print('*********** change_status response.json() ***********', result)
 
         return JsonResponse(
                 {
