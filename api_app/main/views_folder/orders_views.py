@@ -182,8 +182,7 @@ def create_label_in_bulk_DPD(request):
     
     # print('********************** result ****************************', result)
 
-    data = create_label_in_bulk(request, result)
-    all_post_data = data
+    all_post_data = create_label_in_bulk(request, result)
 
     labels = []
 
@@ -345,8 +344,8 @@ def create_label_DPD(request, id):
     for item in post_data['lineItems']:
         external_id = item['offer']['external']['id']
         quantity = item['quantity']
-        print("External ID:", external_id)
-        print("Quantity:", quantity)
+        # print("External ID:", external_id)
+        # print("Quantity:", quantity)
 
     if data:
         url = 'https://api-preprod.dpsin.dpdgroup.com:8443/shipping/v1/shipment?LabelPrintFormat=PDF&LabelPaperFormat=A6&qrcode=true&DropOffType=BOTH' #&LabelPrinterStartPosition=UPPER_LEFT
@@ -561,8 +560,15 @@ def get_shipment_list(request):
 
             secret = Secret.objects.get(account__name=name)
 
-            delivery_id = get_shipment_id(request, secret, name, deliveryMethod)
+            # delivery_id = get_shipment_id(request, secret, name, deliveryMethod)
             # print('********************** delivery_id ****************************', delivery_id)
+            data = create_label(request, id)
+            order_data = data[0]
+            # print('********************** order_data ****************************', json.dumps(order_data, indent=4))
+
+            for item in order_data['lineItems']:
+                external_id = item['offer']['external']['id']
+                offer_name = item['offer']["name"][:15]
 
             try:
                 url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
@@ -570,8 +576,8 @@ def get_shipment_list(request):
                 payload = {
                             # "commandId": "",
                             "input": {
-                              "deliveryMethodId": delivery_id,
-                              "credentialsId": "c9e6f40a-3d25-48fc-838c-055ceb1c5bc0",
+                              "deliveryMethodId": order_data["delivery"]["method"]["id"],
+                            #   "credentialsId": "c9e6f40a-3d25-48fc-838c-055ceb1c5bc0",
                               "sender": {
                                 "name": "Jan Kowalski",
                                 "company": "Allegro.pl sp. z o.o.",
@@ -581,38 +587,38 @@ def get_shipment_list(request):
                                 "city": "Warszawa",
                                 "state": "AL",
                                 "countryCode": "PL",
-                                "email": "email@mail.com",
+                                "email": "8awgqyk6a5+cub31c122@allegromail.pl",
                                 "phone": 500600700,
-                                "point": "A1234567"
+                                "point": "PL11033"
                               },
                               "receiver": {
-                                "name": "Jan Kowalski",
-                                "company": "Allegro.pl sp. z o.o.",
-                                "street": "Główna",
-                                "streetNumber": 30,
-                                "postalCode": "10-200",
-                                "city": "Warszawa",
+                                "name": order_data["buyer"]["id"],
+                                "company": order_data["buyer"]["companyName"],
+                                "street": order_data["buyer"]["address"]["street"].split()[0],
+                                "streetNumber": order_data["buyer"]["address"]["street"].split()[1],
+                                "postalCode": order_data["buyer"]["address"]["postCode"],
+                                "city": order_data["buyer"]["address"]["city"],
                                 "state": "AL",
-                                "countryCode": "PL",
-                                "email": "email@mail.com",
-                                "phone": 500600700,
-                                "point": "A1234567"
+                                "countryCode": order_data["buyer"]["address"]["countryCode"],
+                                "email": order_data["buyer"]["email"],
+                                "phone": order_data["buyer"]["phoneNumber"],
+                                "point": "PL11033"
                               },
-                              "pickup": {
-                                "name": "Jan Kowalski",
-                                "company": "Allegro.pl sp. z o.o.",
-                                "street": "Główna",
-                                "streetNumber": 30,
-                                "postalCode": "10-200",
-                                "city": "Warszawa",
-                                "state": "AL",
-                                "countryCode": "PL",
-                                "email": "email@mail.com",
-                                "phone": 500600700,
-                                "point": "A1234567"
-                              },
-                            #   "referenceNumber": "1255",
-                            #   "description": "Gra dla dzieci",
+                            #   "pickup": { # Niewymagane, dane miejsca odbioru przesyłki
+                            #     "name": "Jan Kowalski",
+                            #     "company": "Allegro.pl sp. z o.o.",
+                            #     "street": "Główna",
+                            #     "streetNumber": 30,
+                            #     "postalCode": "10-200",
+                            #     "city": "Warszawa",
+                            #     "state": "AL",
+                            #     "countryCode": "PL",
+                            #     "email": "8awgqyk6a5+cub31c122@allegromail.pl",
+                            #     "phone": 500600700,
+                            #     "point": "A1234567"
+                            #   },
+                              "referenceNumber": external_id,
+                              "description": f'{offer_name}...',
                               "packages": [
                                 {
                                   "type": "PACKAGE",
@@ -645,9 +651,9 @@ def get_shipment_list(request):
                             #     "iban": "PL48109024022441789739167589"
                             #   },
                               "labelFormat": "PDF",
-                            #   "additionalServices": [
-                            #     "ADDITIONAL_HANDLING"
-                            #   ],
+                              "additionalServices": [
+                                "ADDITIONAL_HANDLING"
+                              ],
                             #   "additionalProperties": {
                             #     "property1": "string",
                             #     "property2": "string"
@@ -670,10 +676,42 @@ def get_shipment_list(request):
                             context = {'name': 'retset'}
                             return render(request, 'invalid_token.html', context)
                 print('RESULT FOR SIPMENT LIST @@@@@@@@@', json.dumps(result, indent=4))
+                print('@@@@@@@@@ RESPONSE HEADERS 1 @@@@@@@@@', response.headers)
+                change_status(request, id, secret.account.name, 'SENT')
 
-                # return result
+                return get_shipment_status(request, result['commandId'], secret)
 
             except requests.exceptions.HTTPError as err:
                 raise SystemExit(err)
 
+    # return HttpResponse('ok')
+
+
+def get_shipment_status(request, commandId, secret):
+
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands/{commandId}"
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"} 
+    
+        response = requests.get(url, headers=headers)
+        result = response.json()
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token, 'retset')
+                    # Retry fetching orders with the new token
+                    return get_order_details(request, id)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    context = {'name': 'retset'}
+                    return render(request, 'invalid_token.html', context)
+        print('@@@@@@@@@ RESULT FOR SIPMENT STATUS @@@@@@@@@', json.dumps(result, indent=4))
+        print('@@@@@@@@@ RESPONSE HEADERS 2 @@@@@@@@@', response.headers)
+        # return result
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+    
     return HttpResponse('ok')
