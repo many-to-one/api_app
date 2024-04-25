@@ -31,155 +31,152 @@
         <p>Proczę czekać...</p>
         <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
     </div>
-    <table>
-        <thead>
-            <tr class="list__header"> 
-                <th onclick="allLabels()" class="all_labels">Etykiety</th>
-                <th>Produkt</th>
-                <th>Konto</th>
-                <th>SKU</th>
-                <th>Ilość</th>
-                <th>Koszty</th>
-                <th>Status</th>
-                <th>Klient</th>
-                <th>Wysyłka</th>
-                <th>Zamówienie</th>
-                <th>Etykieta</th>
-                <th>Szczegóły</th>
-            </tr>
-        </thead>
-        <tbody>
+
+            <div class="list__header_orders"> 
+                <p class="labels" onclick="allLabels()" class="all_labels">Zzn</p>
+                <p class="name_o" >Produkt</p>
+                <p class="account_o" >Konto</p>
+                <p class="sku_o" >SKU</p>
+                <p class="stock_o">Ilość</p>
+                <p class="costs_o">Koszty</p>
+                <p class="status_o">Status</p>
+                <p class="client_o">Klient</p>
+                <p class="shipment_o">Wysyłka</p>
+                <p class="order_o">Zamówienie</p>
+                <p class="label_o">Druk</p>
+            </div>
+
             {% for result in all_results %}
             {% for order in result.checkoutForms %}
 
 
 
             {% if order.delivery.calculatedNumberOfPackages == 2 %}
-                    <tr>
+
                         {% for item in order.lineItems %}
-                            <tr class="double">
+                        <div 
+                            class="orders__line dbl
+                            {% if order.fulfillment.status == 'SENT' %} 
+                                sent 
+                            {% elif order.fulfillment.status == 'CANCELLED' %}
+                                canceled
+                            {% elif order.fulfillment.status == 'PICKED_UP' %}
+                                picked_up
+                            {% endif %}"
+                        >
                                 {% if  forloop.counter == 1 %}
-                                    <td><input type="checkbox" name="selected_items" value="{{ order.id }}_{{ result.name }}"></td>
+                                    <p class="labels"><input type="checkbox" name="selected_items" value="{{ order.id }}_{{ result.name }}_{{ order.delivery.method.name }}"></p>
                                 {% else %}
-                                    <td></td>
+                                    <p></p>
                                 {% endif %}
-                                <td>{{ item.offer.name }}</td> <!-- Product -->
-                                <td id="name_{{ order.id }}" value="{{ result.name }}">{{ result.name }}</td> <!-- Konto -->
-                                <td>{{ item.offer.external.id }}</td> <!-- SKU -->
-                                <td>{{ item.quantity }}</td> <!-- Ilość -->
+                                <a class="name_o" href="{% url 'get_order_details' order.id %}">{{ item.offer.name }}</a> <!-- Product -->
+                                <p class="account_o" id="name_{{ order.id }}" value="{{ result.name }}">{{ result.name }}</p> <!-- Konto -->
+                                <p class="sku_o">{{ item.offer.external.id }}</p> <!-- SKU -->
+                                <p class="stock_o">{{ item.quantity }}</p> <!-- Ilość -->
 
 
                                 {% if forloop.counter == 1 %}
-                                    <td>{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</td> <!-- Koszty -->
+                                    <p class="costs_o">{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</p> <!-- Koszty -->
 
                                     {% if order.status == 'FILLED_IN' %}
-                                        <td>PŁATNOŚĆ ROZPOCZĘTA</td>
+                                        <p class="status_o">PŁATNOŚĆ ROZPOCZĘTA</p>
                                     {% elif order.status == 'READY_FOR_PROCESSING' %}
-                                        <td>OPŁACONE</td>
+                                        <p class="status_o">OPŁACONE</p>
                                     {% elif order.status == 'CANCELLED' %}
-                                        <td>ANULOWANE</td>
+                                        <p class="status_o">ANULOWANE</p>
                                     {% else %}
-                                        <td></td>
+                                        <p class="status_o"></p>
                                     {% endif %}
 
-                                    <td>{{ order.buyer.login }}</td>
-                                    <td>{{ order.delivery.method.name }}</td>
+                                    <p class="client_o">{{ order.buyer.login }}</p>
+                                    <p class="shipment_o">{{ order.delivery.method.name }}</p>
 
-                                    <!-- {% if order.fulfillment.status %} -->
-                                        <td>
-                                            <select class="account_select" id="status_select_{{ order.id }}">
-                                                <option id="status_{{ order.id }}" value="FILLED_IN" {% if order.fulfillment.status == 'SENT' %} selected {% endif %}>WYSŁANE</option>
-                                                <option id="status_{{ order.id }}" value="READY_FOR_PROCESSING" {% if order.fulfillment.status == 'NEW' %} selected {% endif %}>NOWE</option>
-                                                <option id="status_{{ order.id }}" value="CANCELLED" {% if order.fulfillment.status == 'CANCELLED' %} selected {% endif %}>ANULOWANE</option>
-                                                <!-- Add more options for other statuses if needed -->
-                                            </select>
-                                            <img class="icon" id="edit_{{ order.id }}" onclick="updateOrderStatus('{{ order.id }}', 'status_select_{{ order.id }}')" src="{% static 'icons/edit2.png' %}" alt="">
-                                            <img style="display: none;" class="icon" id="load_{{ order.id }}"  src="{% static 'icons/load.png' %}" alt="">
-                                        </td>
-                                    <!-- {% else %}
-                                        <td></td>
-                                    {% endif %} -->
+                                    <select class="account_select order_o" id="status_select_{{ order.id }}">
+                                        <option id="status_{{ order.id }}" value="FILLED_IN" {% if order.fulfillment.status == 'SENT' %} selected {% endif %}>WYSŁANE</option>
+                                        <option id="status_{{ order.id }}" value="READY_FOR_PROCESSING" {% if order.fulfillment.status == 'NEW' %} selected {% endif %}>NOWE</option>
+                                        <option id="status_{{ order.id }}" value="CANCELLED" {% if order.fulfillment.status == 'CANCELLED' %} selected {% endif %}>ANULOWANE</option>
+                                        <!-- Add more options for other statuses if needed -->
+                                    </select>
+                                    <img class="icon edit_o" id="edit_{{ order.id }}" onclick="updateOrderStatus('{{ order.id }}', 'status_select_{{ order.id }}')" src="{% static 'icons/edit2.png' %}" alt="">
+                                    <img style="display: none;" class="icon edit_o" id="load_{{ order.id }}"  src="{% static 'icons/load.png' %}" alt="">
+
 
                                     {% if order.delivery.method.name == 'Allegro Kurier DPD' %}
-                                        <td onclick="printOneLabel('{{ order.id }}')">DPD</td>
+                                        <p class="label_o" onclick="printOneLabel('{{ order.id }}')">DPD</p>
                                     {% else %}
-                                        <td></td>
+                                        <p class="label_o"></p>
                                     {% endif %}
-                                    <td><a href="{% url 'get_order_details' order.id %}">
-                                        <img class="icon" src="{% static 'icons/enter.png' %}" alt="">
-                                    </a></td>
 
 
                                 {% else %}
-                                    <td></td> 
-                                    <td></td>
-                                    <td></td>
-                                    <td></td> 
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
+                                    <p></p> 
+                                    <p></p>
+                                    <p></p>
+                                    <p></p> 
+                                    <p></p>
+                                    <p></p>
+                                    <p></p>
                                 {% endif %}
-                            </tr>
+                                </div>
                         {% endfor %}
-                    </tr>
                     
             {% else %}
 
-            
-
-            <tr> 
-                    <td><input type="checkbox" name="selected_items" value="{{ order.id }}_{{ result.name }}"></td>
+        
+                <div 
+                    class="orders__line 
+                        {% if order.fulfillment.status == 'SENT' %} 
+                            sent 
+                        {% elif order.fulfillment.status == 'CANCELLED' %}
+                            canceled
+                        {% elif order.fulfillment.status == 'PICKED_UP' %}
+                            picked_up
+                        {% endif %}"
+                >
+                    <input class="labels" type="checkbox" name="selected_items" value="{{ order.id }}_{{ result.name }}_{{ order.delivery.method.name }}">
                     {% for item in order.lineItems %}
-                        <td>{{ item.offer.name }}</td> 
-                        <td id="name_{{ order.id }}" value="{{ result.name }}">{{ result.name }}</td> <!-- Konto -->
-                        <td>{{ item.offer.external.id }}</td> 
-                        <td>{{ item.quantity }}</td> 
+                        <a class="name_o" href="{% url 'get_order_details' order.id %}">{{ item.offer.name }}</a>
+                        <p class="account_o" id="name_{{ order.id }}" value="{{ result.name }}">{{ result.name }}</p> <!-- Konto -->
+                        <p class="sku_o">{{ item.offer.external.id }}</p> 
+                        <p class="stock_o">{{ item.quantity }}</p> 
                     {% endfor %}
 
-                    <td>{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</td> 
+                    <p class="costs_o">{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</p> 
 
                     {% if order.status == 'FILLED_IN' %}
-                        <td>PŁATNOŚĆ ROZPOCZĘTA</td>
+                        <p class="status_o">PŁATNOŚĆ ROZPOCZĘTA</p>
                     {% elif order.status == 'READY_FOR_PROCESSING' %}
-                        <td>OPŁACONE</td>
+                        <p class="status_o">OPŁACONE</p>
                     {% elif order.status == 'CANCELLED' %}
-                        <td>ANULOWANE</td>
+                        <p class="status_o">ANULOWANE</p>
                     {% else %}
-                        <td></td>
+                        <p class="status_o"></p>
                     {% endif %}
 
-                    <td>{{ order.buyer.login }}</td>
-                    <td>{{ order.delivery.method.name }}</td>
+                    <p class="client_o">{{ order.buyer.login }}</p>
+                    <p class="shipment_o">{{ order.delivery.method.name }}</p>
 
-                        <td>
-                            <select class="account_select" id="status_select_{{ order.id }}">
-                                <option id="status_{{ order.id }}" value="SENT" {% if order.fulfillment.status == 'SENT' %} selected {% endif %}>WYSŁANE</option>
-                                <option id="status_{{ order.id }}" value="READY_FOR_PROCESSING" {% if order.fulfillment.status == 'NEW' %} selected {% endif %}>NOWE</option>
-                                <option id="status_{{ order.id }}" value="CANCELLED" {% if order.fulfillment.status == 'CANCELLED' %} selected {% endif %}>ANULOWANE</option>
-                                <option id="status_{{ order.id }}" value="PICKED_UP" {% if order.fulfillment.status == 'PICKED_UP' %} selected {% endif %}>DOSTARCZONE</option>
-                            </select>
+                    <select class="account_select order_o" id="status_select_{{ order.id }}">
+                        <option id="status_{{ order.id }}" value="SENT" {% if order.fulfillment.status == 'SENT' %} selected {% endif %}>WYSŁANE</option>
+                        <option id="status_{{ order.id }}" value="READY_FOR_PROCESSING" {% if order.fulfillment.status == 'NEW' %} selected {% endif %}>NOWE</option>
+                        <option id="status_{{ order.id }}" value="CANCELLED" {% if order.fulfillment.status == 'CANCELLED' %} selected {% endif %}>ANULOWANE</option>
+                        <option id="status_{{ order.id }}" value="PICKED_UP" {% if order.fulfillment.status == 'PICKED_UP' %} selected {% endif %}>DOSTARCZONE</option>
+                    </select>
 
-                            <img class="icon" id="edit_{{ order.id }}" onclick="updateOrderStatus('{{ order.id }}', 'status_select_{{ order.id }}')" src="{% static 'icons/edit2.png' %}" alt="">
-                            <img style="display: none;" class="icon" id="load_{{ order.id }}"  src="{% static 'icons/load.png' %}" alt="">
-
-                        </td>
+                    <img class="icon edit_o" id="edit_{{ order.id }}" onclick="updateOrderStatus('{{ order.id }}', 'status_select_{{ order.id }}')" src="{% static 'icons/edit2.png' %}" alt="">
+                    <img style="display: none;" class="icon edit_o" id="load_{{ order.id }}"  src="{% static 'icons/load.png' %}" alt="">
                     
                     {% if order.delivery.method.name == 'Allegro Kurier DPD' %}
-                        <td onclick="printOneLabel('{{ order.id }}')" value="{{ order.id }}" id="tdOne">DPD</td>
+                        <p class="label_o" onclick="printOneLabel('{{ order.id }}')" value="{{ order.id }}" id="tdOne">DPD</p>
                     {% else %}
-                        <td></td>
+                        <p class="label_o"></p>
                     {% endif %}
-                    <td><a href="{% url 'get_order_details' order.id %}">
-                        <img class="icon" src="{% static 'icons/enter.png' %}" alt="">
-                    </a></td>
-
-            </tr>
+                </div>
             
             {% endif %}
             {% endfor %}
             {% endfor %}
-        </tbody>
-    </table>
+
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
@@ -316,21 +313,11 @@
             // Log the array of checked checkbox values
             console.log(checkedItems);
 
-            var url = '/create_label_in_bulk_DPD/?ids=' + checkedItems;
+            // var url = '/create_label_in_bulk_DPD/?ids=' + checkedItems;
+            var url = '/get_shipment_list/?ids=' + checkedItems;
             window.location.href = url;
             wait.style.display = 'none';
 
-            // axios.post('/create_label_in_bulk_DPD/', { ids: checkedItems })
-            // .then(function(response) {
-            //         if(response.status == 200) {
-            //             // console.log('Success', response.data)
-            //             wait.style.display = 'none';
-            //         }
-            //     })
-            //     .catch(function(error) {
-            //         // Handle error
-            //         console.error('Error updating stock:', error);
-            //     });
         }
 
         function getNo() {

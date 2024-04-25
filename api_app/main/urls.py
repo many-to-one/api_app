@@ -21,6 +21,8 @@ urlpatterns = [
     path('create_label_DPD/<uuid:id>/', orders_views.create_label_DPD, name='create_label_DPD'),
     path('create_label_in_bulk_DPD/', orders_views.create_label_in_bulk_DPD, name='create_label_in_bulk_DPD'),
 
+    path('get_shipment_list/', orders_views.get_shipment_list, name='get_shipment_list'),
+
     path('invalid_token', errors_views.invalid_token, name='invalid_token'),
     path('get_all_offers/<str:name>/', offer_views.get_all_offers, name='get_all_offers'),
     path('get_one_offer/<str:id>/', offer_views.get_one_offer, name='get_one_offer'),

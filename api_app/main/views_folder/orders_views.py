@@ -73,7 +73,7 @@ def get_orders(request):
         'all_results': all_results
     }
     # print('*********************** all_results **********************', all_results)
-    return render(request, 'get_orders.html', context)
+    return render(request, 'get_all_orders.html', context)
     
 
 def get_order_details(request, id):
@@ -478,7 +478,11 @@ def change_status(request, id, name, status):
 
     try:
         url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}/fulfillment"
-        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': 'application/vnd.allegro.public.v1+json', 'Content-Type': 'application/vnd.allegro.public.v1+json'}
+        headers = {
+        'Authorization': f'Bearer {secret.access_token}',
+        'Accept': 'application/vnd.allegro.public.v1+json',
+        'Content-Type': 'application/vnd.allegro.public.v1+json'
+    }
 
         data = {
                 "status": str(status),
@@ -501,3 +505,175 @@ def change_status(request, id, name, status):
             )
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
+    
+
+def get_shipment_id(request, secret, name, deliveryMethod):
+     
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/delivery-services"
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+        product_result = requests.get(url, headers=headers, verify=True)
+        result = product_result.json()
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token, name)
+                    # Retry fetching orders with the new token
+                    return get_order_details(request, id)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    context = {'name': name}
+                    return render(request, 'invalid_token.html', context)
+         #print('RESULT FOR DPD @@@@@@@@@', json.dumps(result, indent=4))
+        for r in result['services']:
+            # print('************ LOOP ID ************', r['id'])
+            # print('************ LOOP NAME ************', r['name'])
+            if r['name'] == deliveryMethod and r['marketplaces'] == ['allegro-pl']:
+                # print('************ Allegro Kurier DPD ID ************', r['name'], '----', r['id']['deliveryMethodId'], '----', r['marketplaces'])
+                return r['id']['deliveryMethodId']
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+
+    # return HttpResponse('ok')
+    
+
+def get_shipment_list(request):
+
+    # accounts = Allegro.objects.filter(user=request.user)
+    # for account in accounts:
+    # secret = Secret.objects.get(account__name='retset')
+
+    ids = request.GET.getlist('ids')
+    # print('********************** IDS ****************************', ids)
+
+    result = []
+
+    for item in ids:
+        parts = item.split(',')
+        for part in parts:
+            id, name, deliveryMethod = part.split('_')
+            # result.append({'id': id, 'name': name, 'deliveryMethod': deliveryMethod})
+    
+            # print('********************** result ****************************', name)
+
+            secret = Secret.objects.get(account__name=name)
+
+            delivery_id = get_shipment_id(request, secret, name, deliveryMethod)
+            # print('********************** delivery_id ****************************', delivery_id)
+
+            try:
+                url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
+                headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
+                payload = {
+                            # "commandId": "",
+                            "input": {
+                              "deliveryMethodId": delivery_id,
+                              "credentialsId": "c9e6f40a-3d25-48fc-838c-055ceb1c5bc0",
+                              "sender": {
+                                "name": "Jan Kowalski",
+                                "company": "Allegro.pl sp. z o.o.",
+                                "street": "Główna",
+                                "streetNumber": 30,
+                                "postalCode": "10-200",
+                                "city": "Warszawa",
+                                "state": "AL",
+                                "countryCode": "PL",
+                                "email": "email@mail.com",
+                                "phone": 500600700,
+                                "point": "A1234567"
+                              },
+                              "receiver": {
+                                "name": "Jan Kowalski",
+                                "company": "Allegro.pl sp. z o.o.",
+                                "street": "Główna",
+                                "streetNumber": 30,
+                                "postalCode": "10-200",
+                                "city": "Warszawa",
+                                "state": "AL",
+                                "countryCode": "PL",
+                                "email": "email@mail.com",
+                                "phone": 500600700,
+                                "point": "A1234567"
+                              },
+                              "pickup": {
+                                "name": "Jan Kowalski",
+                                "company": "Allegro.pl sp. z o.o.",
+                                "street": "Główna",
+                                "streetNumber": 30,
+                                "postalCode": "10-200",
+                                "city": "Warszawa",
+                                "state": "AL",
+                                "countryCode": "PL",
+                                "email": "email@mail.com",
+                                "phone": 500600700,
+                                "point": "A1234567"
+                              },
+                            #   "referenceNumber": "1255",
+                            #   "description": "Gra dla dzieci",
+                              "packages": [
+                                {
+                                  "type": "PACKAGE",
+                                  "length": {
+                                    "value": "12",
+                                    "unit": "CENTIMETER"
+                                  },
+                                  "width": {
+                                    "value": "12",
+                                    "unit": "CENTIMETER"
+                                  },
+                                  "height": {
+                                    "value": "12",
+                                    "unit": "CENTIMETER"
+                                  },
+                                  "weight": {
+                                    "value": "12.45",
+                                    "unit": "KILOGRAMS"
+                                  }
+                                }
+                              ],
+                              "insurance": {
+                                "amount": "23.47",
+                                "currency": "PLN"
+                              },
+                            #   "cashOnDelivery": {
+                            #     "amount": "2.50",
+                            #     "currency": "PLN",
+                            #     "ownerName": "Jan Kowalski",
+                            #     "iban": "PL48109024022441789739167589"
+                            #   },
+                              "labelFormat": "PDF",
+                            #   "additionalServices": [
+                            #     "ADDITIONAL_HANDLING"
+                            #   ],
+                            #   "additionalProperties": {
+                            #     "property1": "string",
+                            #     "property2": "string"
+                            #   }
+                            }
+                        }
+                response = requests.post(url, headers=headers, json=payload)
+                result = response.json()
+                if 'error' in result:
+                    error_code = result['error']
+                    if error_code == 'invalid_token':
+                        # print('ERROR RESULT @@@@@@@@@', error_code)
+                        try:
+                            # Refresh the token
+                            new_token = get_next_token(request, secret.refresh_token, 'retset')
+                            # Retry fetching orders with the new token
+                            return get_order_details(request, id)
+                        except Exception as e:
+                            print('Exception @@@@@@@@@', e)
+                            context = {'name': 'retset'}
+                            return render(request, 'invalid_token.html', context)
+                print('RESULT FOR SIPMENT LIST @@@@@@@@@', json.dumps(result, indent=4))
+
+                # return result
+
+            except requests.exceptions.HTTPError as err:
+                raise SystemExit(err)
+
+    return HttpResponse('ok')

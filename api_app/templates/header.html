@@ -40,6 +40,7 @@
                     </div>
                 </li>
                 <li><a href="{% url 'get_orders' %}">Zamówienia</a></li>
+                <li><a href="{% url 'get_shipment_list' %}">Przewoźnicy</a></li>
                 {% if request.user.is_authenticated %}
                     <li><a href="{% url 'logout_user' %}">Wyloguj</a></li>
                 {% else %}

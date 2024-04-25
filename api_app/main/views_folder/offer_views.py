@@ -53,8 +53,8 @@ def get_one_offer(request, id):
 
     # print('**************name**************', name)
 
-    account = Allegro.objects.get(name=name)
-    secret = Secret.objects.get(account=account)
+    # account = Allegro.objects.get(name=name)
+    secret = Secret.objects.get(account__name=name)
     # print('**************secret**************', secret.access_token)
     
     # return HttpResponse('ok')
