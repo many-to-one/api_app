@@ -690,7 +690,7 @@ def get_shipment_list(request):
                 print('RESULT FOR SIPMENT LIST @@@@@@@@@', json.dumps(result, indent=4))
                 print('@@@@@@@@@ RESPONSE HEADERS 1 @@@@@@@@@', response.headers)
                 # change_status(request, id, secret.account.name, 'SENT')
-                time.sleep(7)
+                # time.sleep(7)
                 return get_shipment_status(request, result['commandId'], secret)
 
             except requests.exceptions.HTTPError as err:
@@ -722,8 +722,49 @@ def get_shipment_status(request, commandId, secret):
                     return render(request, 'invalid_token.html', context)
         print('@@@@@@@@@ RESULT FOR SIPMENT STATUS @@@@@@@@@', json.dumps(result, indent=4))
         print('@@@@@@@@@ RESPONSE HEADERS 2 @@@@@@@@@', response.headers)
-        # return result
+        return get_courier(request, result["shipmentId"], secret)
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
     
+    return HttpResponse('ok')
+
+
+def get_courier(request, shipmentId, secret):
+
+
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickups/create-commands" 
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
+        payload = {
+                #   "commandId": "14e142cf-e8e0-48cc-bcf6-399b5fd90b32",
+                  "input": {
+                    "shipmentIds": [
+                      shipmentId
+                    ],
+                    "pickupDateProposalId": 2023071210001300
+                  }
+                }
+        response = requests.post(url, headers=headers, json=payload)
+        result = response.json()
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token, 'retset')
+                    # Retry fetching orders with the new token
+                    return get_order_details(request, id)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    context = {'name': 'retset'}
+                    return render(request, 'invalid_token.html', context)
+        print('RESULT FOR COURIER @@@@@@@@@', json.dumps(result, indent=4))
+        print('@@@@@@@@@ RESPONSE COURIER HEADERS 1 @@@@@@@@@', response.headers)
+        # change_status(request, id, secret.account.name, 'SENT')
+        # time.sleep(7)
+        # return get_shipment_status(request, result['commandId'], secret)
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+
     return HttpResponse('ok')

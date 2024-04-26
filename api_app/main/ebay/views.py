@@ -40,7 +40,9 @@ import base64
 
 def get_shipment_status(request):
 
-    commandId ="708aa4df-d5a9-4df2-9c91-db18885a4e3b"
+    shipmentId = "40ec9cfb-4c10-45a7-92d2-bc845bcaaf02"
+
+    commandId ="f8f6a2a0-7acc-49b2-b0f5-28f5b635964e"
     token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiIxMDY5MzA1OTAiLCJzY29wZSI6WyJhbGxlZ3JvOmFwaTpvcmRlcnM6cmVhZCIsImFsbGVncm86YXBpOmZ1bGZpbGxtZW50OnJlYWQiLCJhbGxlZ3JvOmFwaTpwcm9maWxlOndyaXRlIiwiYWxsZWdybzphcGk6c2FsZTpvZmZlcnM6d3JpdGUiLCJhbGxlZ3JvOmFwaTpmdWxmaWxsbWVudDp3cml0ZSIsImFsbGVncm86YXBpOmJpbGxpbmc6cmVhZCIsImFsbGVncm86YXBpOmNhbXBhaWducyIsImFsbGVncm86YXBpOmRpc3B1dGVzIiwiYWxsZWdybzphcGk6c2FsZTpvZmZlcnM6cmVhZCIsImFsbGVncm86YXBpOnNoaXBtZW50czp3cml0ZSIsImFsbGVncm86YXBpOmJpZHMiLCJhbGxlZ3JvOmFwaTpvcmRlcnM6d3JpdGUiLCJhbGxlZ3JvOmFwaTphZHMiLCJhbGxlZ3JvOmFwaTpwYXltZW50czp3cml0ZSIsImFsbGVncm86YXBpOnNhbGU6c2V0dGluZ3M6d3JpdGUiLCJhbGxlZ3JvOmFwaTpwcm9maWxlOnJlYWQiLCJhbGxlZ3JvOmFwaTpyYXRpbmdzIiwiYWxsZWdybzphcGk6c2FsZTpzZXR0aW5nczpyZWFkIiwiYWxsZWdybzphcGk6cGF5bWVudHM6cmVhZCIsImFsbGVncm86YXBpOnNoaXBtZW50czpyZWFkIiwiYWxsZWdybzphcGk6bWVzc2FnaW5nIl0sImFsbGVncm9fYXBpIjp0cnVlLCJpc3MiOiJodHRwczovL2FsbGVncm8ucGwuYWxsZWdyb3NhbmRib3gucGwiLCJleHAiOjE3MTQxNTA3NzgsImp0aSI6IjQ2NmJjNWEyLWVmMjQtNDZlYi1iMDhlLTEwOGRiODY1ZmFlNyIsImNsaWVudF9pZCI6IjczYjIyZjZiN2E0NzQxNTU5OGZhZjRiNTdjMmYwZjQ1In0.kBG1cvKFYdOX4PsMzLf80h_VAeZTCtgSejMmOURC4ytf5Ti96uVGb2bhEiHP_NlegowJTLnIfS3LXsM-DoSx5rTKmNihalFMDMB_FJTxCwht_etzoSPPkmS2z_hRhqsWY9ve839NMLM3ePKb1zMGglxnnI3Pw_tGxideI6B5HbAkbjvuB5XZAJG0KqqtrPCLJyjCXtAiba76x5zcpimkDo_mtYU74lktHgrTVmLfYgd1qmd9k1rqqxZHQYWlbmWp4ITxNMJfmWpuauu9cqKqez2t20IUCxlxkrrTk5NTK2AMqbdPPAWlUEUHiFBUWadGkL_w_O2emGUYQIUIehgvzwDK7g_tBR3n9YGjNa0ifdVTEWTQ7HccpLZOLvfGSq9hkPhD6bULBo9z9f7jZnyjlojrTux9ESjSLB4DjTQ8ju4CRPsl1adpGe4I9iU-lzDpq1mwDPvz1KCWsY4DLgWEEwpJ-_tQpVj99xnBJ5YP2SY78dPByWFbwKpYCh3z4UswIazOKNrZluaPyhNpSuPhzW8EbzvxvBFpRhfswLmgfRPLIeic6dQHKXTVgYPwvRXDOT220unSjbOPn8W741SN9CPIM3MNwzvK0JhvqpR3wMIHbmvZH5FjBRjnIZ14wesviE130sy9eikZP9fXbBBrQINkhqhSFtocdtjKNr55xJA"
 
     try:
@@ -52,8 +54,37 @@ def get_shipment_status(request):
 
         print('@@@@@@@@@ RESULT FOR SIPMENT STATUS @@@@@@@@@', json.dumps(result, indent=4))
         print('@@@@@@@@@ RESPONSE HEADERS 2 @@@@@@@@@', response.headers)
-        # return result
+        return get_courier(request, result["shipmentId"], token)
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
     
+    return HttpResponse('ok')
+
+
+def get_courier(request, shipmentId, token):
+
+
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickups/create-commands" 
+        headers = {'Authorization': f'Bearer {token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
+        payload = {
+                #   "commandId": "14e142cf-e8e0-48cc-bcf6-399b5fd90b32",
+                  "input": {
+                    "shipmentIds": [
+                      shipmentId
+                    ],
+                    "pickupDateProposalId": 2023071210001300
+                  }
+                }
+        response = requests.post(url, headers=headers, json=payload)
+        result = response.json()
+    
+        print('RESULT FOR COURIER @@@@@@@@@', json.dumps(result, indent=4))
+        print('@@@@@@@@@ RESPONSE COURIER HEADERS 1 @@@@@@@@@', response.headers)
+        # change_status(request, id, secret.account.name, 'SENT')
+        # time.sleep(7)
+        # return get_shipment_status(request, result['commandId'], secret)
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+
     return HttpResponse('ok')
