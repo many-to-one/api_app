@@ -1,6 +1,7 @@
 from django.urls import include, path
 from .views import *
 from .views_folder import errors_views, orders_views, offer_views, accounts_views, messages
+from .ebay.views import *
 
 urlpatterns = [
     path('', index, name='index'),
@@ -33,4 +34,6 @@ urlpatterns = [
     path('all_messages/<str:name>/', messages.all_messages, name='all_messages'),
     path('get_one_message/', messages.get_one_message, name='get_one_message'),
     path('send_message/', messages.send_message, name='send_message'),
+
+    path('ebay_token/', get_shipment_status, name='ebay_token'),
 ] 

@@ -565,6 +565,18 @@ def get_shipment_list(request):
             data = create_label(request, id)
             order_data = data[0]
             # print('********************** order_data ****************************', json.dumps(order_data, indent=4))
+            print('********************** order_data ****************************', order_data["delivery"]["method"]["id"])
+            print('********************** order_data ****************************', order_data["buyer"]["firstName"])
+            print('********************** order_data ****************************', order_data["buyer"]["companyName"])
+            print('********************** order_data ****************************', order_data["buyer"]["address"]["street"].split()[0])
+            print('********************** order_data ****************************', order_data["buyer"]["address"]["street"].split()[1])
+            print('********************** order_data ****************************', order_data["buyer"]["address"]["postCode"])
+            print('********************** order_data ****************************', order_data["buyer"]["address"]["city"])
+            print('********************** order_data ****************************', order_data["buyer"]["address"]["countryCode"])
+            print('********************** order_data ****************************', order_data["buyer"]["email"])
+            print('********************** order_data ****************************', order_data["delivery"]["address"]["phoneNumber"])
+
+
 
             for item in order_data['lineItems']:
                 external_id = item['offer']['external']['id']
@@ -582,27 +594,27 @@ def get_shipment_list(request):
                                 "name": "Jan Kowalski",
                                 "company": "Allegro.pl sp. z o.o.",
                                 "street": "Główna",
-                                "streetNumber": 30,
-                                "postalCode": "10-200",
+                                "streetNumber": "30",
+                                "postalCode": "64-700",
                                 "city": "Warszawa",
-                                "state": "AL",
+                                # "state": "AL",
                                 "countryCode": "PL",
-                                "email": "8awgqyk6a5+cub31c122@allegromail.pl",
-                                "phone": 500600700,
-                                "point": "PL11033"
+                                "email": "8awgqyk6a5+cub31c122@allegrogroup.pl",
+                                "phone": "+48500600700",
+                                # "point": ""
                               },
                               "receiver": {
-                                "name": order_data["buyer"]["id"],
+                                "name": "Jan Kowalski", #order_data["buyer"]["firstName"],
                                 "company": order_data["buyer"]["companyName"],
                                 "street": order_data["buyer"]["address"]["street"].split()[0],
                                 "streetNumber": order_data["buyer"]["address"]["street"].split()[1],
                                 "postalCode": order_data["buyer"]["address"]["postCode"],
                                 "city": order_data["buyer"]["address"]["city"],
-                                "state": "AL",
+                                # "state": "AL",
                                 "countryCode": order_data["buyer"]["address"]["countryCode"],
                                 "email": order_data["buyer"]["email"],
-                                "phone": order_data["buyer"]["phoneNumber"],
-                                "point": "PL11033"
+                                "phone": "+48500600700", #order_data["delivery"]["address"]["phoneNumber"],
+                                # "point": ""
                               },
                             #   "pickup": { # Niewymagane, dane miejsca odbioru przesyłki
                             #     "name": "Jan Kowalski",
@@ -623,15 +635,15 @@ def get_shipment_list(request):
                                 {
                                   "type": "PACKAGE",
                                   "length": {
-                                    "value": "12",
+                                    "value": "16",
                                     "unit": "CENTIMETER"
                                   },
                                   "width": {
-                                    "value": "12",
+                                    "value": "16",
                                     "unit": "CENTIMETER"
                                   },
                                   "height": {
-                                    "value": "12",
+                                    "value": "16",
                                     "unit": "CENTIMETER"
                                   },
                                   "weight": {
@@ -677,8 +689,8 @@ def get_shipment_list(request):
                             return render(request, 'invalid_token.html', context)
                 print('RESULT FOR SIPMENT LIST @@@@@@@@@', json.dumps(result, indent=4))
                 print('@@@@@@@@@ RESPONSE HEADERS 1 @@@@@@@@@', response.headers)
-                change_status(request, id, secret.account.name, 'SENT')
-
+                # change_status(request, id, secret.account.name, 'SENT')
+                time.sleep(7)
                 return get_shipment_status(request, result['commandId'], secret)
 
             except requests.exceptions.HTTPError as err:
