@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% block content %}
+
+        <h3>Przetwarzam zamówienia, proszę czekać..</h3>
+        {% for res in result %}
+            <div 
+                name="link"
+                value="{{ res.commandId }}:{{ res.name }}"
+            >
+
+            <div id="question">
+                <p id="text"></p>
+                <div>
+                    <button onclick="getNo()">Bez podjazdu</button>
+                    <button onclick="setToSend()">Zamówić Podjazd Kuriera</button>
+                </div>
+            </div>
+
+            <div id="wait">
+                <p>Proczę czekać...</p>
+                <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
+            </div>
+
+            </div>
+        {% endfor %}
+
+
+
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+        <script>
+
+            function getCSRFToken() {
+                const cookieValue = document.cookie.match(/csrftoken=([^ ;]+)/)[1];
+                return cookieValue;
+            }
+            
+            // Axios configuration to include CSRF token in headers
+            axios.defaults.xsrfCookieName = 'csrftoken';
+            axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+            axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+            document.addEventListener('DOMContentLoaded', function() {
+                var question = document.getElementById('question')
+                var text = document.getElementById('text')
+
+                question.style.display = 'flex';
+                text.innerHTML = '';
+                text.textContent = "Wybierz opcje";
+            });
+
+            function setToSend() {
+
+                var wait = document.getElementById('wait');
+                wait.style.display = 'flex';
+
+                var links = document.querySelectorAll('div[name="link"]');
+                var context = [];
+                links.forEach(function(link) {
+                    var value = link.getAttribute('value');
+                    console.log('value:', value);
+                    context.push(value);  // Store the value in the context array
+                });
+                axios.post('/get_shipment_status_id/', 
+                    {
+                        ids: context
+                    }, 
+                    {
+                        headers: {
+                            'X-CSRFToken': getCSRFToken('csrftoken'), // Function to get the CSRF token
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                )       
+                    .then(function(response) {
+                        if (response.data.message == "Error"){
+                                console.log('Success', response.data)
+                                wait.style.display = 'none';
+                            }
+                        if(response.data.message == "Success") {
+                            console.log('Success', response.data)
+                            wait.style.display = 'none';
+                            window.location.href = '/get_orders';
+                        }
+                    })
+                    .catch(function(error) {
+                        // Handle error
+                        console.error('Error updating stock:', error);
+                    });
+                
+            }
+
+        </script>
+    
+    {% endblock %}
+</body>
+</html>

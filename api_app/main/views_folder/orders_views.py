@@ -44,11 +44,6 @@ def get_orders(request):
             # print('***********************secret.access_token**********************', secret.access_token)
             product_result = requests.get(url, headers=headers, verify=True)
             result = product_result.json()
-            print('************* TYPE *************', type(result))
-            # result_with_name = {
-            #     all_results: result,
-            #     'name': secret.account.name
-            # }
             result.update({'name': secret.account.name})
             all_results.append(result)
             # all_results.append(result)
@@ -65,50 +60,55 @@ def get_orders(request):
                         print('Exception @@@@@@@@@', e)
                         context = {'name': account.name}
                         return render(request, 'invalid_token.html', context)
-            # print('*********************** result **********************', json.dumps(result, indent=4))
+            # print('*********************** ALL ORDERS **********************', json.dumps(result, indent=4))
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
+        
+    for result in all_results:
+        for res in result["checkoutForms"]:
+            if res["fulfillment"]["status"] == 'NEW':
+
+                print('***************** ALL RESULTS LOOP *******************', "NEW-tak")
 
     context = {
-        'all_results': all_results
+        'all_results': all_results #sorted_results = sorted(all_results["checkoutForms"], key=lambda x: x["payment"]["finishedAt"])
     }
     # print('*********************** all_results **********************', all_results)
     return render(request, 'get_all_orders.html', context)
     
 
-def get_order_details(request, id):
+def get_order_details(request, id, name):
 
-    accounts = Allegro.objects.filter(user=request.user)
-    for account in accounts:
-        secret = Secret.objects.get(account=account)
+    # accounts = Allegro.objects.filter(user=request.user)
+    # for account in accounts:
+    secret = Secret.objects.get(account__name=name)
 
-        try:
-            url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}"
-            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-            product_result = requests.get(url, headers=headers, verify=True)
-            result = product_result.json()
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}"
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+        product_result = requests.get(url, headers=headers, verify=True)
+        result = product_result.json()
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token, name)
+                    # Retry fetching orders with the new token
+                    return get_order_details(request, id)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    context = {'name': name}
+                    return render(request, 'invalid_token.html', context)
 
-            if 'error' in result:
-                error_code = result['error']
-                if error_code == 'invalid_token':
-                    # print('ERROR RESULT @@@@@@@@@', error_code)
-                    try:
-                        # Refresh the token
-                        new_token = get_next_token(request, secret.refresh_token, account.name)
-                        # Retry fetching orders with the new token
-                        return get_order_details(request, id)
-                    except Exception as e:
-                        print('Exception @@@@@@@@@', e)
-                        context = {'name': account.name}
-                        return render(request, 'invalid_token.html', context)
-
-            print('RESULT @@@@@@@@@', json.dumps(result, indent=4))
-            context = {
-                'order': product_result.json()
-            }
-            return render(request, 'get_order_details.html', context)
-        except requests.exceptions.HTTPError as err:
-            raise SystemExit(err)
+        print('@@@@@@@@@ GET ORDER DETAILS @@@@@@@@@', json.dumps(result, indent=4))
+        context = {
+            'order': product_result.json()
+        }
+        return render(request, 'get_order_details.html', context)
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
         
 
 
@@ -298,38 +298,37 @@ def base64_to_pdf_bulk(base64_data_list):
 ############################################## CREATE A ONE DPD LABEL LOGIC #####################################################
 #################################################################################################################################
 
-def create_label(request, id):
+def create_label(request, id, name):
 
     print('********************** CREATE LABEL CALLED ****************************', id)
 
-    accounts = Allegro.objects.filter(user=request.user)
-    for account in accounts:
-        secret = Secret.objects.get(account=account)
+    # accounts = Allegro.objects.filter(user=request.user)
+    # for account in accounts:
+    secret = Secret.objects.get(account__name=name)
 
-        try:
-            url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}"
-            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-            product_result = requests.get(url, headers=headers, verify=True)
-            result = product_result.json()
-
-            if 'error' in result:
-                error_code = result['error']
-                if error_code == 'invalid_token':
-                    # print('ERROR RESULT @@@@@@@@@', error_code)
-                    try:
-                        # Refresh the token
-                        new_token = get_next_token(request, secret.refresh_token, account.name)
-                        # Retry fetching orders with the new token
-                        return get_order_details(request, id)
-                    except Exception as e:
-                        print('Exception @@@@@@@@@', e)
-                        context = {'name': account.name}
-                        return render(request, 'invalid_token.html', context)
-            print('RESULT FOR DPD @@@@@@@@@', json.dumps(result, indent=4))
-            # create_label(result)
-            return result, secret
-        except requests.exceptions.HTTPError as err:
-            raise SystemExit(err)
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}"
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+        product_result = requests.get(url, headers=headers, verify=True)
+        result = product_result.json()
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token, name)
+                    # Retry fetching orders with the new token
+                    return create_label(request, id, name)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    context = {'name': name}
+                    return render(request, 'invalid_token.html', context)
+        print('RESULT FOR DPD @@@@@@@@@', json.dumps(result, indent=4))
+        # create_label(result)
+        return result, secret
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
 
 
 
@@ -532,18 +531,233 @@ def get_shipment_id(request, secret, name, deliveryMethod):
             # print('************ LOOP NAME ************', r['name'])
             if r['name'] == deliveryMethod and r['marketplaces'] == ['allegro-pl']:
                 # print('************ Allegro Kurier DPD ID ************', r['name'], '----', r['id']['deliveryMethodId'], '----', r['marketplaces'])
-                return r['id']['deliveryMethodId']
+                if r['id']['credentialsId']:
+                    return r['id']['credentialsId']
+                else:
+                    return None
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
 
     # return HttpResponse('ok')
+
+
+
+
+def set_shipment_list(request):
+
+
+    ids = request.GET.getlist('ids')
+    print('********************** IDS ****************************', ids)
+
+    result_arr = []
+
+    for item in ids:
+        parts = item.split(',')
+        for part in parts:
+            id, name, deliveryMethod, fulfillmentStatus, orderStatus = part.split(':')
+
+            secret = Secret.objects.get(account__name=name)
+            credentialsId = get_shipment_id(request, secret, name, deliveryMethod)
+            # print('#################### credentialsId ######################', credentialsId)
+            data = create_label(request, id, name)
+            order_data = data[0]
+
+
+            for item in order_data['lineItems']:
+                external_id = item['offer']['external']['id']
+                offer_name = item['offer']["name"][:15]
+
+            try:
+                url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
+                headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
+                payload = {
+                            # "commandId": "",
+                            "input": {
+                              "deliveryMethodId": order_data["delivery"]["method"]["id"],
+                              "sender": {
+                                "name": "Jan Kowalski",
+                                "company": "Allegro.pl sp. z o.o.",
+                                "street": "Główna",
+                                "streetNumber": "30",
+                                "postalCode": "64-700",
+                                "city": "Warszawa",
+                                # "state": "AL",
+                                "countryCode": "PL",
+                                "email": "8awgqyk6a5+cub31c122@allegrogroup.pl",
+                                "phone": "+48500600700",
+                                # "point": ""
+                              },
+                              "receiver": {
+                                "name": "Jan Kowalski", #order_data["buyer"]["firstName"],
+                                "company": order_data["buyer"]["companyName"],
+                                "street": order_data["buyer"]["address"]["street"].split()[0],
+                                "streetNumber": order_data["buyer"]["address"]["street"].split()[1],
+                                "postalCode": order_data["buyer"]["address"]["postCode"],
+                                "city": order_data["buyer"]["address"]["city"],
+                                # "state": "AL",
+                                "countryCode": order_data["buyer"]["address"]["countryCode"],
+                                "email": order_data["buyer"]["email"],
+                                "phone": "+48500600700", #order_data["delivery"]["address"]["phoneNumber"],
+                                # "point": ""
+                              },
+                              "pickup": { # Niewymagane, dane miejsca odbioru przesyłki
+                                "name": "Jan Kowalski",
+                                "company": "Allegro.pl sp. z o.o.",
+                                "street": "Główna",
+                                "streetNumber": 30,
+                                "postalCode": "64-700",
+                                "city": "Warszawa",
+                                # "state": "AL",
+                                "countryCode": "PL",
+                                "email": "8awgqyk6a5+cub31c122@allegromail.pl",
+                                "phone": "+48500600700",
+                                # "point": "A1234567"
+                              },
+                              "referenceNumber": external_id,
+                              "description": f'{offer_name}...',
+                              "packages": [
+                                {
+                                  "type": "PACKAGE",
+                                  "length": {
+                                    "value": "16",
+                                    "unit": "CENTIMETER"
+                                  },
+                                  "width": {
+                                    "value": "16",
+                                    "unit": "CENTIMETER"
+                                  },
+                                  "height": {
+                                    "value": "16",
+                                    "unit": "CENTIMETER"
+                                  },
+                                  "weight": {
+                                    "value": "12.45",
+                                    "unit": "KILOGRAMS"
+                                  }
+                                }
+                              ],
+                              "insurance": {
+                                "amount": "23.47",
+                                "currency": "PLN"
+                              },
+                            #   "cashOnDelivery": {
+                            #     "amount": "2.50",
+                            #     "currency": "PLN",
+                            #     "ownerName": "Jan Kowalski",
+                            #     "iban": "PL48109024022441789739167589"
+                            #   },
+                              "labelFormat": "PDF",
+                            #   "additionalServices": [
+                            #     "ADDITIONAL_HANDLING"
+                            #   ],
+                            #   "additionalProperties": {
+                            #     "property1": "string",
+                            #     "property2": "string"
+                            #   }
+                            }
+                        }
+                if credentialsId is not None:
+                    payload["input"]["credentialsId"] = credentialsId
+                response = requests.post(url, headers=headers, json=payload)
+                result = response.json()
+                if 'error' in result:
+                    error_code = result['error']
+                    if error_code == 'invalid_token':
+                        # print('ERROR RESULT @@@@@@@@@', error_code)
+                        try:
+                            # Refresh the token
+                            new_token = get_next_token(request, secret.refresh_token, 'retset')
+                            # Retry fetching orders with the new token
+                            return get_order_details(request, id)
+                        except Exception as e:
+                            print('Exception @@@@@@@@@', e)
+                            context = {'name': 'retset'}
+                            return render(request, 'invalid_token.html', context)
+                print('RESULT FOR SIPMENT LIST @@@@@@@@@', json.dumps(result, indent=4))
+                print('@@@@@@@@@ RESPONSE HEADERS 1 @@@@@@@@@', response.headers)
+                result_arr.append({"id": id, "commandId": result["commandId"], "name": name})
+
+                # return get_shipment_status(request, result['commandId'], secret)
+
+            except requests.exceptions.HTTPError as err:
+                raise SystemExit(err)
+            
+    context = {'result': result_arr}
+
+    return render(request, 'set_pickup.html', context)
+
+
+def get_shipment_status_id(request):
+
+    # ids = request.GET.getlist('ids')[0]
+    data = json.loads(request.body)
+    ids = data.get('ids')
+    print('********************** IDS get_shipment_status_id ****************************', ids)
+
+    time.sleep(5)
+    for item in ids:
+        parts = item.split(',')
+        for part in parts:
+            commandId, name = part.split(':')
+            # result.append({'id': id, 'name': name, 'deliveryMethod': deliveryMethod, 'fulfillmentStatus': fulfillmentStatus, 'orderStatus': orderStatus})
+            # if fulfillmentStatus == 'NEW' and orderStatus == "READY_FOR_PROCESSING":
+    
+            print('********************** result ****************************', commandId, name)
+
+            secret = Secret.objects.get(account__name=name)
+
+            try:
+                url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands/{commandId}"
+                headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"} 
+
+                response = requests.get(url, headers=headers)
+                result = response.json()
+                if 'error' in result:
+                    error_code = result['error']
+                    if error_code == 'invalid_token':
+                        # print('ERROR RESULT @@@@@@@@@', error_code)
+                        try:
+                            # Refresh the token
+                            new_token = get_next_token(request, secret.refresh_token, 'retset')
+                            # Retry fetching orders with the new token
+                            return get_order_details(request, id)
+                        except Exception as e:
+                            print('Exception @@@@@@@@@', e)
+                            context = {'name': 'retset'}
+                            return render(request, 'invalid_token.html', context)
+                print('@@@@@@@@@ RESULT FOR SHIPMENT STATUS ID @@@@@@@@@', json.dumps(result, indent=4))
+                print('@@@@@@@@@ RESPONSE HEADERS @@@@@@@@@', response.headers)
+                # time.sleep(10)
+                if result["status"] == "ERROR":
+                    print('*************** ERROR ERROR ERROR ***************')
+                    print(result["status"])
+                    print(result["errors"][0]["userMessage"])
+                    return JsonResponse(
+                        {
+                            'message': result["errors"][0]["userMessage"],
+                        }, 
+                        status=200,
+                    )
+                if result["shipmentId"] is None:
+                    get_shipment_status_id(request)
+                pickupDateProposalId = get_pickup_proposals(secret.access_token, result["shipmentId"])
+                get_courier(request, result["shipmentId"], commandId, pickupDateProposalId, secret)
+            except requests.exceptions.HTTPError as err:
+                raise SystemExit(err)
+
+    return JsonResponse(
+                {
+                    'message': 'Success',
+                    'result': ids,
+                }, 
+                status=200,
+            )
+
+
     
 
 def get_shipment_list(request):
 
-    # accounts = Allegro.objects.filter(user=request.user)
-    # for account in accounts:
-    # secret = Secret.objects.get(account__name='retset')
 
     ids = request.GET.getlist('ids')
     # print('********************** IDS ****************************', ids)
@@ -562,9 +776,9 @@ def get_shipment_list(request):
 
             # delivery_id = get_shipment_id(request, secret, name, deliveryMethod)
             # print('********************** delivery_id ****************************', delivery_id)
-            data = create_label(request, id)
+            data = create_label(request, id, name)
             order_data = data[0]
-            # print('********************** order_data ****************************', json.dumps(order_data, indent=4))
+            print('********************** ORDER DATA IN SHIPMENT LIST****************************', order_data)
             print('********************** order_data ****************************', order_data["delivery"]["method"]["id"])
             print('********************** order_data ****************************', order_data["buyer"]["firstName"])
             print('********************** order_data ****************************', order_data["buyer"]["companyName"])
@@ -616,19 +830,19 @@ def get_shipment_list(request):
                                 "phone": "+48500600700", #order_data["delivery"]["address"]["phoneNumber"],
                                 # "point": ""
                               },
-                            #   "pickup": { # Niewymagane, dane miejsca odbioru przesyłki
-                            #     "name": "Jan Kowalski",
-                            #     "company": "Allegro.pl sp. z o.o.",
-                            #     "street": "Główna",
-                            #     "streetNumber": 30,
-                            #     "postalCode": "10-200",
-                            #     "city": "Warszawa",
-                            #     "state": "AL",
-                            #     "countryCode": "PL",
-                            #     "email": "8awgqyk6a5+cub31c122@allegromail.pl",
-                            #     "phone": 500600700,
-                            #     "point": "A1234567"
-                            #   },
+                              "pickup": { # Niewymagane, dane miejsca odbioru przesyłki
+                                "name": "Jan Kowalski",
+                                "company": "Allegro.pl sp. z o.o.",
+                                "street": "Główna",
+                                "streetNumber": 30,
+                                "postalCode": "64-700",
+                                "city": "Warszawa",
+                                # "state": "AL",
+                                "countryCode": "PL",
+                                "email": "8awgqyk6a5+cub31c122@allegromail.pl",
+                                "phone": "+48500600700",
+                                # "point": "A1234567"
+                              },
                               "referenceNumber": external_id,
                               "description": f'{offer_name}...',
                               "packages": [
@@ -722,26 +936,54 @@ def get_shipment_status(request, commandId, secret):
                     return render(request, 'invalid_token.html', context)
         print('@@@@@@@@@ RESULT FOR SIPMENT STATUS @@@@@@@@@', json.dumps(result, indent=4))
         print('@@@@@@@@@ RESPONSE HEADERS 2 @@@@@@@@@', response.headers)
-        return get_courier(request, result["shipmentId"], secret)
+        time.sleep(10)
+        pickupDateProposalId = get_pickup_proposals(secret.access_token, result["shipmentId"])
+        return get_courier(request, result["shipmentId"], commandId, pickupDateProposalId, secret)
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
     
     return HttpResponse('ok')
 
 
-def get_courier(request, shipmentId, secret):
+def get_pickup_proposals(token, shipmentId):
 
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickup-proposals" 
+        headers = {'Authorization': f'Bearer {token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
+        payload = {
+              "shipmentIds": [
+                shipmentId
+              ],
+            #   "readyDate": ship_time
+            }
+        response = requests.post(url, headers=headers, json=payload)
+        result = response.json()
+    
+        print('@@@@@@@@@ RESULT FOR PROPOSALS @@@@@@@@@', json.dumps(result, indent=4))
+        print('@@@@@@@@@ RESPONSE PROPOSALS HEADERS 1 @@@@@@@@@', response.headers)
+        # change_status(request, id, secret.account.name, 'SENT')
+        # time.sleep(7)
+        return result[0]["proposals"][0]["proposalItems"][1]["id"]
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+
+    # return HttpResponse('ok')
+
+
+def get_courier(request, shipmentId, commandId, pickupDateProposalId, secret):
+
+    print('******************* GET COURIER SHIPMENTID ************************', shipmentId)
 
     try:
         url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickups/create-commands" 
         headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
         payload = {
-                #   "commandId": "14e142cf-e8e0-48cc-bcf6-399b5fd90b32",
+                  "commandId": commandId,
                   "input": {
                     "shipmentIds": [
                       shipmentId
                     ],
-                    "pickupDateProposalId": 2023071210001300
+                    "pickupDateProposalId": "ANY"
                   }
                 }
         response = requests.post(url, headers=headers, json=payload)

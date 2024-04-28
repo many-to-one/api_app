@@ -89,6 +89,7 @@
 .name_o {
     position: absolute;
     left: 4%;
+    width: 20vw;
     font-style: bold;
     text-decoration: none;
     color: var(--black);

@@ -17,12 +17,14 @@ urlpatterns = [
     path('post_product', post_product, name='post_product'),
 
     path('get_orders', orders_views.get_orders, name='get_orders'),
-    path('get_order_details/<uuid:id>', orders_views.get_order_details, name='get_order_details'),
-    path('change_status/<uuid:id>/<str:name>/<str:status>', orders_views.change_status, name='change_status'),
+    path('get_order_details/<uuid:id>/<str:name>/', orders_views.get_order_details, name='get_order_details'),
+    path('change_status/<uuid:id>/<str:name>/<str:status>/', orders_views.change_status, name='change_status'),
     path('create_label_DPD/<uuid:id>/', orders_views.create_label_DPD, name='create_label_DPD'),
     path('create_label_in_bulk_DPD/', orders_views.create_label_in_bulk_DPD, name='create_label_in_bulk_DPD'),
 
     path('get_shipment_list/', orders_views.get_shipment_list, name='get_shipment_list'),
+    path('set_shipment_list/', orders_views.set_shipment_list, name='set_shipment_list'),
+    path('get_shipment_status_id/', orders_views.get_shipment_status_id, name='get_shipment_status_id'),
 
     path('invalid_token', errors_views.invalid_token, name='invalid_token'),
     path('get_all_offers/<str:name>/', offer_views.get_all_offers, name='get_all_offers'),
@@ -35,5 +37,5 @@ urlpatterns = [
     path('get_one_message/', messages.get_one_message, name='get_one_message'),
     path('send_message/', messages.send_message, name='send_message'),
 
-    path('ebay_token/', get_shipment_status, name='ebay_token'),
+    path('ebay_token/', get_courier_status, name='ebay_token'),
 ] 
