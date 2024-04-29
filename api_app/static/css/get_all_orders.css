@@ -123,11 +123,12 @@
     position: absolute;
     left: 53%;
     font-style: bold;
+    width: 5vw;
 }
 
 .client_o {
     position: absolute;
-    left: 60%;
+    left: 61%;
     font-style: bold;
 }
 

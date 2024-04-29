@@ -269,11 +269,14 @@ def base64_to_pdf_bulk(base64_data_list):
 
     try:
         for base64_data in base64_data_list:
+            # print(' @@@@@@@@@@@@@@@@@ INSIDE base64_data @@@@@@@@@@@@@@@@@ ', base64_data)
             # Decode the Base64 data
-            binary_data = base64.b64decode(base64_data)
+            binary_data = base64_data #base64.b64decode(base64_data)
+            # print(' @@@@@@@@@@@@@@@@@ INSIDE binary_data @@@@@@@@@@@@@@@@@ ', binary_data)
 
             # Create a PdfReader object
             pdf_reader = PyPDF2.PdfReader(io.BytesIO(binary_data))
+            # print(' @@@@@@@@@@@@@@@@@ INSIDE pdf_reader @@@@@@@@@@@@@@@@@ ', pdf_reader)
 
             # Merge each page from the PdfReader object into the PdfWriter object
             for page_num in range(len(pdf_reader.pages)):
@@ -281,6 +284,7 @@ def base64_to_pdf_bulk(base64_data_list):
 
         # Create a BytesIO buffer to write the merged PDF
         output_buffer = io.BytesIO()
+        print(' @@@@@@@@@@@@@@@@@ INSIDE output_buffer @@@@@@@@@@@@@@@@@ ', output_buffer)
         pdf_writer.write(output_buffer)
 
         # Set the appropriate content type for PDF
@@ -301,7 +305,7 @@ def base64_to_pdf_bulk(base64_data_list):
 
 def create_label(request, id, name):
 
-    print('********************** CREATE LABEL CALLED ****************************', id)
+    # print('********************** CREATE LABEL CALLED ****************************', id)
 
     # accounts = Allegro.objects.filter(user=request.user)
     # for account in accounts:
@@ -325,7 +329,7 @@ def create_label(request, id, name):
                     print('Exception @@@@@@@@@', e)
                     context = {'name': name}
                     return render(request, 'invalid_token.html', context)
-        print('RESULT FOR DPD @@@@@@@@@', json.dumps(result, indent=4))
+        # print('RESULT FOR DPD @@@@@@@@@', json.dumps(result, indent=4))
         # create_label(result)
         return result, secret
     except requests.exceptions.HTTPError as err:
@@ -414,6 +418,8 @@ def create_label_DPD(request, id):
 
 
 def base64_to_pdf(base64_data):
+
+    print('************** RESPONSE base64_data ***********************', base64_data[20])
 
     try:
         # Decode the Base64 data
@@ -597,7 +603,7 @@ def set_shipment_list(request):
 
 
     ids = request.GET.getlist('ids')
-    print('********************** IDS ****************************', ids)
+    # print('********************** IDS ****************************', ids)
 
     result_arr = []
 
@@ -612,10 +618,10 @@ def set_shipment_list(request):
 
             data = create_label(request, id, name)
             order_data = data[0]
-            print('#################### order_data ######################', json.dumps(order_data, indent=4))
+            # print('#################### order_data ######################', json.dumps(order_data, indent=4))
 
             descr = get_offer_descr(request, order_data["lineItems"][0]["offer"]["id"], name)
-            print('********************** descr ****************************', descr)
+            # print('********************** descr ****************************', descr)
 
     # return HttpResponse('ok')
 
@@ -730,8 +736,8 @@ def set_shipment_list(request):
                             print('Exception @@@@@@@@@', e)
                             context = {'name': 'retset'}
                             return render(request, 'invalid_token.html', context)
-                print('RESULT FOR SIPMENT LIST @@@@@@@@@', json.dumps(result, indent=4))
-                print('@@@@@@@@@ RESPONSE HEADERS 1 @@@@@@@@@', response.headers)
+                # print('RESULT FOR SIPMENT LIST @@@@@@@@@', json.dumps(result, indent=4))
+                # print('@@@@@@@@@ RESPONSE HEADERS 1 @@@@@@@@@', response.headers)
                 result_arr.append({"id": id, "commandId": result["commandId"], "name": name})
 
                 # return get_shipment_status(request, result['commandId'], secret)
@@ -746,10 +752,11 @@ def set_shipment_list(request):
 
 def get_shipment_status_id(request):
 
-    # ids = request.GET.getlist('ids')[0]
-    data = json.loads(request.body)
-    ids = data.get('ids')
-    print('********************** IDS get_shipment_status_id ****************************', ids)
+    labels = []
+    # data = json.loads(request.body)
+    # ids = data.get('ids')
+    ids = request.GET.getlist('ids')
+    # print('********************** IDS get_shipment_status_id ****************************', ids)
 
     time.sleep(5)
     for item in ids:
@@ -759,7 +766,7 @@ def get_shipment_status_id(request):
             # result.append({'id': id, 'name': name, 'deliveryMethod': deliveryMethod, 'fulfillmentStatus': fulfillmentStatus, 'orderStatus': orderStatus})
             # if fulfillmentStatus == 'NEW' and orderStatus == "READY_FOR_PROCESSING":
     
-            print('********************** result ****************************', commandId, name)
+            # print('********************** result ****************************', commandId, name)
 
             secret = Secret.objects.get(account__name=name)
 
@@ -782,8 +789,8 @@ def get_shipment_status_id(request):
                             print('Exception @@@@@@@@@', e)
                             context = {'name': 'retset'}
                             return render(request, 'invalid_token.html', context)
-                print('@@@@@@@@@ RESULT FOR SHIPMENT STATUS ID @@@@@@@@@', json.dumps(result, indent=4))
-                print('@@@@@@@@@ RESPONSE HEADERS @@@@@@@@@', response.headers)
+                # print('@@@@@@@@@ RESULT FOR SHIPMENT STATUS ID @@@@@@@@@', json.dumps(result, indent=4))
+                # print('@@@@@@@@@ RESPONSE HEADERS @@@@@@@@@', response.headers)
                 # time.sleep(10)
                 if result["status"] == "ERROR":
                     print('*************** ERROR ERROR ERROR ***************')
@@ -799,17 +806,21 @@ def get_shipment_status_id(request):
                     get_shipment_status_id(request)
                 pickupDateProposalId = get_pickup_proposals(secret.access_token, result["shipmentId"])
                 get_courier(request, result["shipmentId"], commandId, pickupDateProposalId, secret)
-                label_print(request, result["shipmentId"], secret)
+                labels.append(label_print(request, result["shipmentId"], secret))
+                # lab = label_print(request, result["shipmentId"], secret)
+                # print(' @@@@@@@@@@@@@@@@@ LABELS LIST @@@@@@@@@@@@@@@@@ ', labels)
             except requests.exceptions.HTTPError as err:
                 raise SystemExit(err)
 
-    return JsonResponse(
-                {
-                    'message': 'Success',
-                    'result': ids,
-                }, 
-                status=200,
-            )
+    return base64_to_pdf_bulk(labels)
+    # return base64_to_pdf(lab)
+    # return JsonResponse(
+    #             {
+    #                 'message': 'Success',
+    #                 'result': ids,
+    #             }, 
+    #             status=200,
+    #         )
 
 
 def get_pickup_proposals(token, shipmentId):
@@ -830,7 +841,7 @@ def get_pickup_proposals(token, shipmentId):
         print('@@@@@@@@@ RESPONSE PROPOSALS HEADERS 1 @@@@@@@@@', response.headers)
         # change_status(request, id, secret.account.name, 'SENT')
         # time.sleep(7)
-        return result[0]["proposals"][0]["proposalItems"][1]["id"]
+        return "ANY" #result[0]["proposals"][0]["proposalItems"][1]["id"]
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
 
@@ -839,7 +850,7 @@ def get_pickup_proposals(token, shipmentId):
 
 def get_courier(request, shipmentId, commandId, pickupDateProposalId, secret):
 
-    print('******************* GET COURIER SHIPMENTID ************************', shipmentId)
+    # print('******************* GET COURIER SHIPMENTID ************************', shipmentId)
 
     try:
         url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickups/create-commands" 
@@ -895,16 +906,15 @@ def label_print(request, shipmentId, secret):
         response = requests.post(url, headers=headers, json=payload)
         # result = response.json()
         
-        print(' @@@@@@@@@ RESULT FOR LABELS shipmentId @@@@@@@@@ ', shipmentId)
-        print(' @@@@@@@@@ RESULT FOR LABELS @@@@@@@@@ ', response)
-        print('@@@@@@@@@ RESPONSE LABELS HEADERS 1 @@@@@@@@@', response.headers)
-        # change_status(request, id, secret.account.name, 'SENT')
-        # time.sleep(7)
-        # return get_shipment_status(request, result['commandId'], secret)
+        # print(' @@@@@@@@@ RESULT FOR LABELS shipmentId @@@@@@@@@ ', shipmentId)
+        # print(' @@@@@@@@@ RESULT FOR LABELS @@@@@@@@@ ', response)
+        # print(' @@@@@@@@@ RESULT FOR LABELS @@@@@@@@@ ', response.content)
+        # print('@@@@@@@@@ RESPONSE LABELS HEADERS 1 @@@@@@@@@', response.headers)
+        return response.content
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
 
-    return HttpResponse('ok')
+    # return HttpResponse('ok')
 
     
 

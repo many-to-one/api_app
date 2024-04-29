@@ -71,32 +71,37 @@
                     console.log('value:', value);
                     context.push(value);  // Store the value in the context array
                 });
-                axios.post('/get_shipment_status_id/', 
-                    {
-                        ids: context
-                    }, 
-                    {
-                        headers: {
-                            'X-CSRFToken': getCSRFToken('csrftoken'), // Function to get the CSRF token
-                            'Content-Type': 'application/json'
-                        }
-                    }
-                )       
-                    .then(function(response) {
-                        if (response.data.message == "Error"){
-                                console.log('Success', response.data)
-                                wait.style.display = 'none';
-                            }
-                        if(response.data.message == "Success") {
-                            console.log('Success', response.data)
-                            wait.style.display = 'none';
-                            window.location.href = '/get_orders';
-                        }
-                    })
-                    .catch(function(error) {
-                        // Handle error
-                        console.error('Error updating stock:', error);
-                    });
+
+                var url = '/get_shipment_status_id/?ids=' + context;
+                window.location.href = url;
+                wait.style.display = 'none';
+                // axios.post('/get_shipment_status_id/', 
+                //     {
+                //         ids: context
+                //     }, 
+                //     {
+                //         headers: {
+                //             'X-CSRFToken': getCSRFToken('csrftoken'), // Function to get the CSRF token
+                //             'Content-Type': 'application/json'
+                //         }
+                //     }
+                // )       
+                //     .then(function(response) {
+                //         // window.location.href = '/get_orders';
+                //         if (response.data.message == "Error"){
+                //                 console.log('Success', response.data)
+                //                 wait.style.display = 'none';
+                //             }
+                //         if(response.data.message == "Success") {
+                //             console.log('Success', response.data)
+                //             wait.style.display = 'none';
+                //             window.location.href = '/get_orders';
+                //         }
+                //     })
+                //     .catch(function(error) {
+                //         // Handle error
+                //         console.error('Error updating stock:', error);
+                //     });
                 
             }
 
