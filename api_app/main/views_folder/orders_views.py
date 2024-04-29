@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 from ..models import *
 from ..utils import *
+from .offer_views import get_one_offer
 
 REDIRECT_URI = os.getenv('REDIRECT_URI')      # wprowadź redirect_uri
 AUTH_URL = os.getenv('AUTH_URL')
@@ -541,6 +542,55 @@ def get_shipment_id(request, secret, name, deliveryMethod):
     # return HttpResponse('ok')
 
 
+def get_offer_descr(request, id, name):
+
+    # print('**************name**************', name)
+
+    # account = Allegro.objects.get(name=name)
+    secret = Secret.objects.get(account__name=name)
+    # print('**************secret**************', secret.access_token)
+    
+    # return HttpResponse('ok')
+
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
+        # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+        product_result = requests.get(url, headers=headers, verify=True)
+        result = product_result.json()
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token)
+                    # Retry fetching orders with the new token
+                    return get_one_offer(request, id)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    return redirect('invalid_token')
+        # print('RESULT - get_one_offer - @@@@@@@@@', json.dumps(result, indent=4))
+        item_height = ""
+        item_width = ""
+        item_length = ""
+        item_wieght = ""
+        for item in result["productSet"][0]["product"]["parameters"]:
+            if item["id"] == "223329":
+                item_height = item["values"][0]
+                # print('************** get_one_offer item **************', item["values"][0])
+            if item["id"] == "223333":
+                item_width = item["values"][0]
+            if item["id"] == "201321":
+                item_length = item["values"][0]
+            if item["id"] == "17448":
+                item_wieght = item["values"][0]
+
+        return [item_length, item_width, item_height, item_wieght]
+
+        
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
 
 
 def set_shipment_list(request):
@@ -559,8 +609,15 @@ def set_shipment_list(request):
             secret = Secret.objects.get(account__name=name)
             credentialsId = get_shipment_id(request, secret, name, deliveryMethod)
             # print('#################### credentialsId ######################', credentialsId)
+
             data = create_label(request, id, name)
             order_data = data[0]
+            print('#################### order_data ######################', json.dumps(order_data, indent=4))
+
+            descr = get_offer_descr(request, order_data["lineItems"][0]["offer"]["id"], name)
+            print('********************** descr ****************************', descr)
+
+    # return HttpResponse('ok')
 
 
             for item in order_data['lineItems']:
@@ -619,19 +676,19 @@ def set_shipment_list(request):
                                 {
                                   "type": "PACKAGE",
                                   "length": {
-                                    "value": "16",
+                                    "value": descr[0],
                                     "unit": "CENTIMETER"
                                   },
                                   "width": {
-                                    "value": "16",
+                                    "value": descr[1],
                                     "unit": "CENTIMETER"
                                   },
                                   "height": {
-                                    "value": "16",
+                                    "value": descr[2],
                                     "unit": "CENTIMETER"
                                   },
                                   "weight": {
-                                    "value": "12.45",
+                                    "value": descr[3],
                                     "unit": "KILOGRAMS"
                                   }
                                 }

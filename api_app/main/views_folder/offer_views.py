@@ -51,7 +51,7 @@ def get_one_offer(request, id):
     data = json.loads(request.body.decode('utf-8'))
     name = data.get('name')
 
-    # print('**************name**************', name)
+    print('************** get_one_offer id **************', id)
 
     # account = Allegro.objects.get(name=name)
     secret = Secret.objects.get(account__name=name)
@@ -78,8 +78,26 @@ def get_one_offer(request, id):
                     print('Exception @@@@@@@@@', e)
                     return redirect('invalid_token')
         # print('RESULT - get_one_offer - @@@@@@@@@', json.dumps(result, indent=4))
+        item_height = ""
+        item_width = ""
+        item_length = ""
+        item_wieght = ""
+        for item in result["productSet"][0]["product"]["parameters"]:
+            if item["id"] == "223329":
+                item_height = item["values"][0]
+                # print('************** get_one_offer item **************', item["values"][0])
+            if item["id"] == "223333":
+                item_width = item["values"][0]
+            if item["id"] == "201321":
+                item_length = item["values"][0]
+            if item["id"] == "17448":
+                item_wieght = item["values"][0]
         context = {
             'result': product_result.json()
+            # "item_height": item_height,
+            # "item_width": item_width,
+            # "item_length": item_length,
+            # "item_wieght": item_wieght,
         }
         # post_product_from_lister(request, result)
 

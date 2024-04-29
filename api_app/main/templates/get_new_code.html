@@ -12,6 +12,17 @@
 
 
     <script>
+
+        // Axios configuration to include CSRF token in headers
+        axios.defaults.xsrfCookieName = 'csrftoken';
+        axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+        function getCSRFToken() {
+            const cookieValue = document.cookie.match(/csrftoken=([^ ;]+)/)[1];
+            return cookieValue;
+        }
+
         // Extract authorization code from URL
         function sendAuthorizationCode() {
             const urlParams = new URLSearchParams(window.location.search);
