@@ -799,6 +799,7 @@ def get_shipment_status_id(request):
                     get_shipment_status_id(request)
                 pickupDateProposalId = get_pickup_proposals(secret.access_token, result["shipmentId"])
                 get_courier(request, result["shipmentId"], commandId, pickupDateProposalId, secret)
+                label_print(request, result["shipmentId"], secret)
             except requests.exceptions.HTTPError as err:
                 raise SystemExit(err)
 
@@ -810,6 +811,100 @@ def get_shipment_status_id(request):
                 status=200,
             )
 
+
+def get_pickup_proposals(token, shipmentId):
+
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickup-proposals" 
+        headers = {'Authorization': f'Bearer {token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
+        payload = {
+              "shipmentIds": [
+                shipmentId
+              ],
+            #   "readyDate": ship_time
+            }
+        response = requests.post(url, headers=headers, json=payload)
+        result = response.json()
+    
+        print('@@@@@@@@@ RESULT FOR PROPOSALS @@@@@@@@@', json.dumps(result, indent=4))
+        print('@@@@@@@@@ RESPONSE PROPOSALS HEADERS 1 @@@@@@@@@', response.headers)
+        # change_status(request, id, secret.account.name, 'SENT')
+        # time.sleep(7)
+        return result[0]["proposals"][0]["proposalItems"][1]["id"]
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+
+    # return HttpResponse('ok')
+
+
+def get_courier(request, shipmentId, commandId, pickupDateProposalId, secret):
+
+    print('******************* GET COURIER SHIPMENTID ************************', shipmentId)
+
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickups/create-commands" 
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
+        payload = {
+                  "commandId": commandId,
+                  "input": {
+                    "shipmentIds": [
+                      shipmentId
+                    ],
+                    "pickupDateProposalId": pickupDateProposalId
+                  }
+                }
+        response = requests.post(url, headers=headers, json=payload)
+        result = response.json()
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token, 'retset')
+                    # Retry fetching orders with the new token
+                    return get_order_details(request, id)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    context = {'name': 'retset'}
+                    return render(request, 'invalid_token.html', context)
+        print('RESULT FOR COURIER @@@@@@@@@', json.dumps(result, indent=4))
+        print('@@@@@@@@@ RESPONSE COURIER HEADERS 1 @@@@@@@@@', response.headers)
+        # change_status(request, id, secret.account.name, 'SENT')
+        # time.sleep(7)
+        # return get_shipment_status(request, result['commandId'], secret)
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+
+    return HttpResponse('ok')
+
+
+def label_print(request, shipmentId, secret):
+
+
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/label" 
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/octet-stream", 'Content-type': "application/vnd.allegro.public.v1+json"} 
+        payload = {
+                    "shipmentIds": [
+                    shipmentId
+                    ],
+                    "pageSize": "A6",
+                    # "cutLine": True
+                }
+        response = requests.post(url, headers=headers, json=payload)
+        # result = response.json()
+        
+        print(' @@@@@@@@@ RESULT FOR LABELS shipmentId @@@@@@@@@ ', shipmentId)
+        print(' @@@@@@@@@ RESULT FOR LABELS @@@@@@@@@ ', response)
+        print('@@@@@@@@@ RESPONSE LABELS HEADERS 1 @@@@@@@@@', response.headers)
+        # change_status(request, id, secret.account.name, 'SENT')
+        # time.sleep(7)
+        # return get_shipment_status(request, result['commandId'], secret)
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+
+    return HttpResponse('ok')
 
     
 
@@ -1002,68 +1097,3 @@ def get_shipment_status(request, commandId, secret):
     return HttpResponse('ok')
 
 
-def get_pickup_proposals(token, shipmentId):
-
-    try:
-        url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickup-proposals" 
-        headers = {'Authorization': f'Bearer {token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
-        payload = {
-              "shipmentIds": [
-                shipmentId
-              ],
-            #   "readyDate": ship_time
-            }
-        response = requests.post(url, headers=headers, json=payload)
-        result = response.json()
-    
-        print('@@@@@@@@@ RESULT FOR PROPOSALS @@@@@@@@@', json.dumps(result, indent=4))
-        print('@@@@@@@@@ RESPONSE PROPOSALS HEADERS 1 @@@@@@@@@', response.headers)
-        # change_status(request, id, secret.account.name, 'SENT')
-        # time.sleep(7)
-        return result[0]["proposals"][0]["proposalItems"][1]["id"]
-    except requests.exceptions.HTTPError as err:
-        raise SystemExit(err)
-
-    # return HttpResponse('ok')
-
-
-def get_courier(request, shipmentId, commandId, pickupDateProposalId, secret):
-
-    print('******************* GET COURIER SHIPMENTID ************************', shipmentId)
-
-    try:
-        url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickups/create-commands" 
-        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
-        payload = {
-                  "commandId": commandId,
-                  "input": {
-                    "shipmentIds": [
-                      shipmentId
-                    ],
-                    "pickupDateProposalId": "ANY"
-                  }
-                }
-        response = requests.post(url, headers=headers, json=payload)
-        result = response.json()
-        if 'error' in result:
-            error_code = result['error']
-            if error_code == 'invalid_token':
-                # print('ERROR RESULT @@@@@@@@@', error_code)
-                try:
-                    # Refresh the token
-                    new_token = get_next_token(request, secret.refresh_token, 'retset')
-                    # Retry fetching orders with the new token
-                    return get_order_details(request, id)
-                except Exception as e:
-                    print('Exception @@@@@@@@@', e)
-                    context = {'name': 'retset'}
-                    return render(request, 'invalid_token.html', context)
-        print('RESULT FOR COURIER @@@@@@@@@', json.dumps(result, indent=4))
-        print('@@@@@@@@@ RESPONSE COURIER HEADERS 1 @@@@@@@@@', response.headers)
-        # change_status(request, id, secret.account.name, 'SENT')
-        # time.sleep(7)
-        # return get_shipment_status(request, result['commandId'], secret)
-    except requests.exceptions.HTTPError as err:
-        raise SystemExit(err)
-
-    return HttpResponse('ok')

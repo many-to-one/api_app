@@ -37,5 +37,5 @@ urlpatterns = [
     path('get_one_message/', messages.get_one_message, name='get_one_message'),
     path('send_message/', messages.send_message, name='send_message'),
 
-    path('ebay_token/', get_courier_status, name='ebay_token'),
+    path('ebay_token/', ebay_token, name='ebay_token'),
 ] 
