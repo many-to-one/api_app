@@ -289,7 +289,7 @@ def post_product_from_lister(request, secret, ean, post_data):
                         'responsiblePerson': None
                     }],
 
-    'external': external,
+    'external': external,  #delayedX czas wydłużenia wystawienia
     'category': category,
     'images': images, 
     'description': description,
