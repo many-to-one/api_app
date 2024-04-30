@@ -13,6 +13,7 @@ load_dotenv()
 from ..models import *
 from ..utils import *
 from .offer_views import get_one_offer
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 REDIRECT_URI = os.getenv('REDIRECT_URI')      # wprowadź redirect_uri
 AUTH_URL = os.getenv('AUTH_URL')
@@ -30,52 +31,69 @@ CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 #     return render(request, 'get_accounts.html', context)
 
 
-def get_orders(request):
+def get_orders(request, name):
 
     all_results = []
-    result_with_name = {}
-    accounts = Allegro.objects.filter(user=request.user)
-    for account in accounts:
-        secret = Secret.objects.get(account=account)
-        print('*********************** NAME get_orders **********************', secret.account.name)
+    result_with_name = []
 
-        try:
-            url = "https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms"
-            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-            # print('***********************secret.access_token**********************', secret.access_token)
-            product_result = requests.get(url, headers=headers, verify=True)
-            result = product_result.json()
-            result.update({'name': secret.account.name})
-            all_results.append(result)
-            # all_results.append(result)
-            if 'error' in result:
-                error_code = result['error']
-                if error_code == 'invalid_token':
-                    # print('ERROR RESULT @@@@@@@@@', error_code)
-                    try:
-                        # Refresh the token
-                        new_token = get_next_token(request, secret.refresh_token, account.name)
-                        # Retry fetching orders with the new token
-                        return get_orders(request)
-                    except Exception as e:
-                        print('Exception @@@@@@@@@', e)
-                        context = {'name': account.name}
-                        return render(request, 'invalid_token.html', context)
-            # print('*********************** ALL ORDERS **********************', json.dumps(result, indent=4))
-        except requests.exceptions.HTTPError as err:
-            raise SystemExit(err)
+    secret = Secret.objects.get(account__name=name)
+    print('*********************** NAME get_orders **********************', secret.account.name)
+
+    try:
+        url = "https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms"
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+        # print('***********************secret.access_token**********************', secret.access_token)
+        product_result = requests.get(url, headers=headers, verify=True)
+        result = product_result.json()
+        result.update({'name': secret.account.name})
+        all_results.append(result)
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token, name)
+                    # Retry fetching orders with the new token
+                    return get_orders(request)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    context = {'name': name}
+                    return render(request, 'invalid_token.html', context)
+        # print('*********************** ALL ORDERS IN **********************', json.dumps(result, indent=4))
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
         
     for result in all_results:
         for res in result["checkoutForms"]:
-            if res["fulfillment"]["status"] == 'NEW':
+            result_with_name.append(res)
+            print('***************** RESULTS FOR PAGINATION *******************', json.dumps(res, indent=4))
+    #         if res["fulfillment"]["status"] == 'NEW':
 
-                print('***************** ALL RESULTS LOOP *******************', "NEW-tak")
+    #             print('***************** ALL RESULTS LOOP *******************', "NEW-tak")
+
+
+    # Paginate the results
+    paginator = Paginator(result_with_name, 10)  # Show 10 results per page
+    print('***************** paginator.count *******************', paginator.count)
+    print('***************** paginator.num_pages *******************', paginator.num_pages)
+
+    page_number = request.GET.get('page')
+    try:
+        paginated_results = paginator.page(page_number)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        paginated_results = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        paginated_results = paginator.page(paginator.num_pages)
 
     context = {
-        'all_results': all_results #sorted_results = sorted(all_results["checkoutForms"], key=lambda x: x["payment"]["finishedAt"])
+        'all_results': paginated_results, #sorted_results = sorted(all_results["checkoutForms"], key=lambda x: x["payment"]["finishedAt"])
+        "name" :name,
     }
-    # print('*********************** all_results **********************', all_results)
-    return render(request, 'get_all_orders.html', context)
+    print('*********************** len all_results **********************', len(paginated_results))
+    return render(request, 'get_all_orders_test.html', context)
     
 
 def get_order_details(request, id, name):
