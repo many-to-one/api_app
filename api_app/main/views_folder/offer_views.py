@@ -220,7 +220,7 @@ def post_product_from_lister(request, secret, ean, post_data):
     for product in post_data['productSet']:
         for i in product['product']['parameters']:
             if i['id'] == '225693':
-                i['values'] = ["5904659189888"]
+                i['values'] = [f"{ean}"]
                 print('************** EAN EAN EAN **************', 'TAK', i['values'])
     external = post_data.get("external")
     # print('************** external **************', external)
