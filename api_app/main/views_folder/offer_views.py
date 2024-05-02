@@ -35,7 +35,7 @@ def get_all_offers(request, name):
                     print('Exception @@@@@@@@@', e)
                     context = {'name': name}
                     return render(request, 'invalid_token.html', context)
-        print('RESULT - get_all_offers - @@@@@@@@@', json.dumps(result, indent=4))
+        # print('RESULT - get_all_offers - @@@@@@@@@', json.dumps(result, indent=4))
         context = {
             'result': product_result.json(),
             'name': name,
@@ -218,9 +218,10 @@ def post_product_from_lister(request, secret, ean, post_data):
     for product in post_data['productSet']:
         product['product']['category'] = category
     for product in post_data['productSet']:
-        if product['product']['parameters'][0]['id'] == '225693':
-            product['product']['parameters'][0]['values'] = [ean]
-            # print('************** EAN EAN EAN **************', ean)
+        for i in product['product']['parameters']:
+            if i['id'] == '225693':
+                i['values'] = ["5904659189888"]
+                print('************** EAN EAN EAN **************', 'TAK', i['values'])
     external = post_data.get("external")
     # print('************** external **************', external)
     images = post_data.get("images")
@@ -326,6 +327,7 @@ def post_product_from_lister(request, secret, ean, post_data):
     # Additional error handling based on specific use case
     if response.status_code != 200:
         print(f"Error: {response.text}")
+        print(response.headers)
 
         return redirect('index')
 
