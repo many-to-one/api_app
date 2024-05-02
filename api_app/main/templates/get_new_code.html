@@ -8,7 +8,7 @@
 <body>
     <h1>New Authorization Code for {{ name }}</h1>
     
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
 
 
     <script>
@@ -39,7 +39,7 @@
 
                 axios.post(`http://localhost:8000/get_access_token/${code}/${name}/`)
                     .then(response => {
-                        // console.log(response.data);
+                        console.log("new code resp", response.data);
                         window.location.href = 'http://127.0.0.1:8000/';
                     })
                     .catch(error => {

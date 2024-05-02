@@ -62,24 +62,24 @@
                     <img class="icon" src="{% static 'icons/ended.png' %}" alt="">
                 {% endif %}
                 <p>{{ offer.stock.sold }}</p>
-                <select class="account_select" id="account_select_{{ order.id }}">
+                <select class="account_select" id="account_select_{{ order.id }}_{{ forloop.counter }}">
                     {% for nameIs in accounts  %}
-                        <option id="status_{{ offer.id }}" value="{{ nameIs }}">
+                        <option id="status_{{ offer.id }}_{{ forloop.counter }}" value="{{ nameIs }}">
                             {{ nameIs }}
                         </option>
                     {% endfor %}  
                     <!-- Add more options for other statuses if needed -->
                 </select>
 
-                <input id="ean_{{ offer.id }}" type="text" style="display: none;" value="">
+                <input id="ean_{{ offer.id }}_{{ forloop.counter }}" type="text" style="display: none;" value="">
 
-                <a id="start_{{ offer.id }}" onclick="getEan('{{ offer.id }}')" style="display: block;">
+                <a id="start_{{ offer.id }}_{{ forloop.counter }}" onclick="getEan('{{ offer.id }}', '{{ forloop.counter }}')" style="display: block;">
                     <img class="icon" src="{% static 'icons/post.png' %}" alt="">
                 </a>
 
-                <a id="pst_{{ offer.id }}" onclick="postOffer('{{ offer.id }}', document.getElementById('account_select_{{ order.id }}').value)" style="display: none;">
-                    <img id="pstIcon_{{ offer.id }}" class="icon" src="{% static 'icons/accept.png' %}" alt="">
-                    <div id="loadPst_{{ offer.id }}" style="display: none;">
+                <a id="pst_{{ offer.id }}_{{ forloop.counter }}" onclick="postOffer('{{ offer.id }}', '{{ forloop.counter }}', document.getElementById('account_select_{{ order.id }}_{{ forloop.counter }}').value)" style="display: none;">
+                    <img id="pstIcon_{{ offer.id }}_{{ forloop.counter }}" class="icon" src="{% static 'icons/accept.png' %}" alt="">
+                    <div id="loadPst_{{ offer.id }}_{{ forloop.counter }}" style="display: none;">
                         <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
                     </div>
                 </a>
@@ -92,7 +92,7 @@
         {% endfor %}
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
     <script>
 
     var ean = document.getElementById('ean');
@@ -125,40 +125,14 @@
             return cookieValue;
         }
         
-        // Axios configuration to include CSRF token in headers
-        // axios.defaults.xsrfCookieName = 'csrftoken';
-        // axios.defaults.xsrfHeaderName = 'X-CSRFToken';
-        // axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
-        function postOfferTest(offerId, selectedValue) {
-    // Your existing postOffer logic here
+        function postOfferTest(offerId, counter, selectedValue) {
+            // Your existing postOffer logic here
 
-    console.log('Selected account:', selectedValue);
+            console.log('offerId - account:', counter);
 
-    // Perform other actions based on the selected value
-}
-
-// Attach an event listener to the select element within the postOffer function
-function attachSelectEventListener(offerId) {
-    var selectElement = document.getElementById('account_select_' + offerId);
-    if (selectElement) {
-        selectElement.addEventListener('change', function() {
-            var selectedValue = this.value;
-            postOffer(offerId, selectedValue);
-        });
-    } else {
-        console.error('Select element not found for offer ID:', offerId);
-    }
-}
-
-// Call the attachSelectEventListener function when the document is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Assuming you have a list of offer IDs
-    var offerIds = [/* List of offer IDs */];
-    offerIds.forEach(function(offerId) {
-        attachSelectEventListener(offerId);
-    });
-});
+            // Perform other actions based on the selected value
+        }
 
         function editStock(offerId) {
 
@@ -233,21 +207,23 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        function getEan (offerId) {
+        function getEan (offerId, counter) {
+
+            console.log('getEan offerId', offerId, counter, name);
 
             // Obtain CSRF token from cookie
             var csrftoken = getCookie('csrftoken');
 
             // Make start button invisible
-            var start = document.getElementById('start_' + offerId);
+            var start = document.getElementById('start_' + offerId + '_' + counter);
             start.style.display = 'none';
 
             // Make Post button visible
-            var pst = document.getElementById('pst_' + offerId);
+            var pst = document.getElementById('pst_' + offerId + '_' + counter);
             pst.style.display = 'block';
 
             // Make Ean Input visible
-            var ean = document.getElementById('ean_' + offerId);
+            var ean = document.getElementById('ean_' + offerId + '_' + counter);
             ean.style.display = 'block';
 
             // Make an AJAX request to update the stock value
@@ -270,68 +246,70 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error updating stock:', error);
             });
 
+            return ean.value;
+
         }
 
-        document.getElementById('account_select_{{ order.id }}').addEventListener('change', function() {
-    var selectedValue = this.value; // Get the selected value
+//         document.getElementById('account_select_{{ order.id }}').addEventListener('change', function() {
+//     var selectedValue = this.value; // Get the selected value
 
-    // Now you can use the selected value in your logic
-    console.log('Selected account:', selectedValue);
+//     // Now you can use the selected value in your logic
+//     console.log('Selected account:', selectedValue);
 
-    // You can perform other actions based on the selected value
-    // For example, you can make an AJAX request or update other parts of the page
-});
+//     // You can perform other actions based on the selected value
+//     // For example, you can make an AJAX request or update other parts of the page
+// });
 
-        function postOffer(offerId, name) {
+
+        function postOffer(offerId, counter, name) {
 
         // Obtain CSRF token from cookie
         var csrftoken = getCookie('csrftoken');
 
-        var posto = document.getElementById('status_' + offerId)
-        var postVal = posto.value;
+        // var posto = document.getElementById('status_' + offerId)
+        // console.log('posto', posto)
+        // var postVal = posto.value;
 
-        const loadPst = document.getElementById('loadPst_'+ offerId)
-        const pstIcon = document.getElementById('pstIcon_' + offerId);
+        const loadPst = document.getElementById('loadPst_' + offerId + '_' + counter)
+        const pstIcon = document.getElementById('pstIcon_' + offerId + '_' + counter);
         loadPst.style.display = 'block';
         pstIcon.style.display = 'none';
 
         // Get the name value of Lister
-        var listerId = document.getElementById('name');
-        var lister = listerId.getAttribute('value');
+        // var listerId = document.getElementById('name');
+        // var lister = listerId.getAttribute('value');
         // console.log('lister chacked', lister);
 
-        var nameAc = name;
-        console.log('postOffer name clicked', postVal);
-        var ean = document.getElementById('ean_' + offerId);
+        var ean = document.getElementById('ean_' + offerId + '_' + counter);
+        console.log('postOffer - name lister, ean, clicked', name, lister, ean.value);
 
-        // Make an AJAX request to update the stock value
-        // axios.post('/post_new_offer/' + offerId + '/', { name: nameAc, lister: lister, ean: ean.value }, {
-        //     headers: {
-        //             'X-CSRFToken': csrftoken
-        //         }
-        // })
-        //     .then(function(response) {
-        //         console.log('status', response.data)
-        //         if(response.status == 200) {
-        //             if(response.data.message == 'Success') {
-        //                 loadPst.style.display = 'none';
-        //                 pstIcon.style.display = 'flex';
-        //                 // var context = response.data.context
-        //                 console.log('Success post_new_offer')
-        //                 // window.location.reload();
-        //                 // window.location.href = '/get_all_offers/' + name + '/';
-        //             } else {
-        //                 console.log('ERROR 13')
-        //                 error_13.style.display = 'flex';
-        //             }
-        //         }
-        //     })
-        //     .catch(function(error) {
-        //         // Handle error
-        //         console.error('Error updating stock:', error);
-        //         error.style.display = 'flex';
-        //         // window.location.reload();
-        //     });
+        axios.post('/post_new_offer/' + offerId + '/', { name: name, lister: lister, ean: ean.value }, {
+            headers: {
+                    'X-CSRFToken': csrftoken
+                }
+        })
+            .then(function(response) {
+                console.log('status', response.data)
+                if(response.status == 200) {
+                    if(response.data.message == 'Success') {
+                        loadPst.style.display = 'none';
+                        pstIcon.style.display = 'flex';
+                        // var context = response.data.context
+                        console.log('Success post_new_offer')
+                        // window.location.reload();
+                        // window.location.href = '/get_all_offers/' + name + '/';
+                    } else {
+                        console.log('ERROR 13')
+                        error_13.style.display = 'flex';
+                    }
+                }
+            })
+            .catch(function(error) {
+                // Handle error
+                console.error('Error updating stock:', error);
+                error.style.display = 'flex';
+                // window.location.reload();
+            });
         }
 
     </script>

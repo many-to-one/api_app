@@ -35,7 +35,7 @@ def get_all_offers(request, name):
                     print('Exception @@@@@@@@@', e)
                     context = {'name': name}
                     return render(request, 'invalid_token.html', context)
-        # print('RESULT - get_all_offers - @@@@@@@@@', json.dumps(result, indent=4))
+        print('RESULT - get_all_offers - @@@@@@@@@', json.dumps(result, indent=4))
         context = {
             'result': product_result.json(),
             'name': name,
@@ -173,7 +173,7 @@ def post_new_offer(request, id):
             return JsonResponse(
             {
                 'message': 'Success',
-                'context': context,
+                # 'context': context,
             }, 
             status=200,
         )
@@ -217,7 +217,10 @@ def post_product_from_lister(request, secret, ean, post_data):
 
     for product in post_data['productSet']:
         product['product']['category'] = category
-    # print('************** productSet **************', productSet)
+    for product in post_data['productSet']:
+        if product['product']['parameters'][0]['id'] == '225693':
+            product['product']['parameters'][0]['values'] = [ean]
+            # print('************** EAN EAN EAN **************', ean)
     external = post_data.get("external")
     # print('************** external **************', external)
     images = post_data.get("images")
@@ -260,30 +263,32 @@ def post_product_from_lister(request, secret, ean, post_data):
                     {
                         'name': name,
                         'images': ['https://inoxtrade.com.pl/AfterBuy/ats/1.jpg'],
-                        # 'parameters': 
-                        #     [
-                        #         # post_data["productSet"][0]["product"]["parameters"][0], 
-                        #         # post_data["productSet"][0]["product"]["parameters"][1],  
-                        #         # post_data["productSet"][0]["product"]["parameters"][2], 
-                        #         # post_data["productSet"][0]["product"]["parameters"][3],  
-                        #         # post_data["productSet"][0]["product"]["parameters"][4], 
-                        #         {
-                        #             'id': '225693', 
-                        #             'name': 'EAN (GTIN)', 
-                        #             'values': [ean], 
-                        #             'valuesIds': None, 
-                        #             'rangeValue': None
-                        #         }
-                        #     ]
-                        'parameters': post_data["productSet"][0]['product']["parameters"][1:] + [
-                            {
-                                'id': '225693', 
-                                'name': 'EAN (GTIN)', 
-                                'values': [ean], 
-                                'valuesIds': None, 
-                                'rangeValue': None
-                            }
-                        ]
+                        'parameters': 
+                        post_data["productSet"][0]["product"]["parameters"]
+                            # [
+                            #     post_data["productSet"][0]["product"]["parameters"][0], 
+                            #     post_data["productSet"][0]["product"]["parameters"][1],  
+                            #     post_data["productSet"][0]["product"]["parameters"][2], 
+                            #     post_data["productSet"][0]["product"]["parameters"][3],  
+                            #     post_data["productSet"][0]["product"]["parameters"][4], 
+                            #     post_data["productSet"][0]["product"]["parameters"][6],
+                            #     {
+                            #         'id': '225693', 
+                            #         'name': 'EAN (GTIN)', 
+                            #         'values': [ean], 
+                            #         'valuesIds': None, 
+                            #         'rangeValue': None
+                            #     }
+                            # ]
+                        # 'parameters': post_data["productSet"][0]['product']["parameters"][1:] + [
+                        #     {
+                        #         'id': '225693', 
+                        #         'name': 'EAN (GTIN)', 
+                        #         'values': [ean], 
+                        #         'valuesIds': None, 
+                        #         'rangeValue': None
+                        #     }
+                        # ]
                     }, 
                         # 'quantity': {'value': 1},
                         'responsiblePerson': None
@@ -330,6 +335,8 @@ def post_product_from_lister(request, secret, ean, post_data):
         print(json.dumps(result, indent=4))
     except requests.exceptions.JSONDecodeError:
         print("No JSON response")
+
+    # return HttpResponse('ok', ean)
 
 
 

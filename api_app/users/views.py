@@ -42,8 +42,8 @@ def login_user(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
 
-        # print('EMAIL -----', email)
-        # print('PASSWORD -----', password)
+        print('EMAIL -----', email)
+        print('PASSWORD -----', password)
 
         # if email:
         #     return JsonResponse({'message': 'email'})

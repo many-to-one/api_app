@@ -15,7 +15,7 @@
     }
 </style>
 <body>
-    <h1>Login page</h1>
+    <h1>Login page +</h1>
     <div class="container">
         <form id="loginForm">
             {% csrf_token %}
@@ -32,7 +32,8 @@
         </form>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
     <script>
         document.getElementById('loginForm').addEventListener('submit', function(event) {
         event.preventDefault(); // Prevent the default form submission
@@ -40,8 +41,10 @@
         // Get form data
         const formData = new FormData(event.target);
 
+        console.log("formData", formData);
+
         // Send POST request using Axios
-        axios.post('users/login_user/', formData)
+        axios.post('users/login_user/', formData, console.log("formData inside AXIOS POST", formData))
             .then(function(response) {
                 console.log(response.data.message);
                 
