@@ -25,6 +25,7 @@
 
         // Extract authorization code from URL
         function sendAuthorizationCode() {
+            var csrftoken = getCSRFToken('csrftoken');
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
             const name = '{{ name }}'
@@ -37,7 +38,14 @@
                 // Set CSRF token in Axios headers
                 axios.defaults.headers.common['X-CSRFToken'] = csrftoken;
 
-                axios.post(`http://localhost:8000/get_access_token/${code}/${name}/`)
+                axios.post(`http://localhost:8000/get_access_token/${code}/${name}/`,
+                    {
+                        headers: {
+                        'X-CSRFToken': csrftoken
+                    }
+                    }
+                )
+                    
                     .then(response => {
                         console.log("new code resp", response.data);
                         window.location.href = 'http://127.0.0.1:8000/';

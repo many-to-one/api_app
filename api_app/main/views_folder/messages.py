@@ -105,6 +105,7 @@ def send_message(request):
         content = data.get('content')
         threadId = data.get('threadId')
 
+        print('************** SEND MESSAGE **************')
         print('************** content **************', content)
         print('************** threadId **************', threadId)
 

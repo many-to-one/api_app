@@ -152,7 +152,7 @@
                         type="checkbox" 
                         name="selected_items" 
                         {% if order.fulfillment.status == 'NEW' and order.status == 'READY_FOR_PROCESSING' %}
-                            value="{{ order.id }}:{{ result.name }}:{{ order.delivery.method.name }}:{{ order.fulfillment.status }}:{{ order.status }}"
+                            value="{{ order.id }}:{{ name }}:{{ order.delivery.method.name }}:{{ order.fulfillment.status }}:{{ order.status }}"
                         {% endif %}
                     >
                     {% for item in order.lineItems %}
@@ -323,10 +323,10 @@
 
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Your JavaScript function here
-            // setToSend();
-        });
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     // Your JavaScript function here
+        //     // setToSend();
+        // });
 
 
         function setToSend() {

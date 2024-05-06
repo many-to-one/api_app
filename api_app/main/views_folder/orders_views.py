@@ -90,7 +90,7 @@ def get_orders(request, name):
 
     context = {
         'all_results': paginated_results, #sorted_results = sorted(all_results["checkoutForms"], key=lambda x: x["payment"]["finishedAt"])
-        "name" :name,
+        "name": name,
     }
     print('*********************** len all_results **********************', len(paginated_results))
     return render(request, 'get_all_orders_test.html', context)
@@ -647,6 +647,7 @@ def set_shipment_list(request):
             for item in order_data['lineItems']:
                 external_id = item['offer']['external']['id']
                 offer_name = item['offer']["name"][:15]
+                print('********************** DOSTAWA ****************************', order_data["delivery"]["method"]["id"])
 
             try:
                 url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
