@@ -325,3 +325,22 @@ def get_ids_all_categories(request):
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
     
+
+def get_ships(request):
+    # 0b9bed2c-0bc1-4e1f-9694-29bb39ebb483 Allegro One Box, UPS
+    print('USER @@@@@@@@@', request.user)
+
+    accounts = Allegro.objects.filter(user=request.user)
+    for account in accounts:
+        secret = Secret.objects.get(account=account)
+        try:
+            url = "https://api.allegro.pl.allegrosandbox.pl/shipment-management/delivery-services"
+            # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
+            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+            product_result = requests.get(url, headers=headers, verify=True)
+            # return main_categories_result
+            result = product_result.json()
+            print('RESULT @@@@@@@@@', json.dumps(result, indent=4))
+            return HttpResponse('ok')
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)

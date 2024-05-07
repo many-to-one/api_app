@@ -41,3 +41,327 @@ def get_next_token(request, access_token, name):
     except requests.exceptions.HTTPError as err:
         # raise SystemExit(err)
         print(f'******** requests.exceptions.HTTPError ******** --------- {err}')
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################################
+#################################################### CREATE ORDER ####################################################
+######################################################################################################################
+
+def pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId):
+
+    """ Allegro One Box """
+
+    url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
+    headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
+    payload = {
+                # "commandId": "",
+                "input": {
+                  "deliveryMethodId": order_data["delivery"]["method"]["id"],
+                  "sender": {
+                    "name": "Jan Kowalski",
+                    "company": "Allegro.pl sp. z o.o.",
+                    "street": "Główna",
+                    "streetNumber": "30",
+                    "postalCode": "64-700",
+                    "city": "Warszawa",
+                    # "state": "AL",
+                    "countryCode": "PL",
+                    "email": "8awgqyk6a5+cub31c122@allegrogroup.pl",
+                    "phone": "+48500600700",
+                    # "point": ""
+                  },
+                  "receiver": {
+                    "name": "Jan Kowalski", #order_data["buyer"]["firstName"],
+                    "company": order_data["buyer"]["companyName"],
+                    "street": order_data["buyer"]["address"]["street"].split()[0],
+                    "streetNumber": order_data["buyer"]["address"]["street"].split()[1],
+                    "postalCode": order_data["buyer"]["address"]["postCode"],
+                    "city": order_data["buyer"]["address"]["city"],
+                    # "state": "AL",
+                    "countryCode": order_data["buyer"]["address"]["countryCode"],
+                    "email": order_data["buyer"]["email"],
+                    "phone": "+48500600700", #order_data["delivery"]["address"]["phoneNumber"],
+                    "point": order_data["delivery"]["pickupPoint"]["id"]
+                  },
+                  "pickup": { # Niewymagane, dane miejsca odbioru przesyłki
+                    "name": "Jan Kowalski",
+                    "company": "Allegro.pl sp. z o.o.",
+                    "street": "Główna",
+                    "streetNumber": 30,
+                    "postalCode": "64-700",
+                    "city": "Warszawa",
+                    # "state": "AL",
+                    "countryCode": "PL",
+                    "email": "8awgqyk6a5+cub31c122@allegromail.pl",
+                    "phone": "+48500600700",
+                    # "point": "A1234567"
+                  },
+                  "referenceNumber": external_id,
+                  "description": f'{offer_name}...',
+                  "packages": [
+                    {
+                      "type": "PACKAGE",
+                      "length": {
+                        "value": descr[0],
+                        "unit": "CENTIMETER"
+                      },
+                      "width": {
+                        "value": descr[1],
+                        "unit": "CENTIMETER"
+                      },
+                      "height": {
+                        "value": descr[2],
+                        "unit": "CENTIMETER"
+                      },
+                      "weight": {
+                        "value": descr[3],
+                        "unit": "KILOGRAMS"
+                      }
+                    }
+                  ],
+                  "insurance": {
+                    "amount": "23.47",
+                    "currency": "PLN"
+                  },
+                #   "cashOnDelivery": {
+                #     "amount": "2.50",
+                #     "currency": "PLN",
+                #     "ownerName": "Jan Kowalski",
+                #     "iban": "PL48109024022441789739167589"
+                #   },
+                  "labelFormat": "PDF",
+                #   "additionalServices": [
+                #     "ADDITIONAL_HANDLING"
+                #   ],
+                #   "additionalProperties": {
+                #     "property1": "string",
+                #     "property2": "string"
+                #   }
+                }
+            }
+    # if credentialsId is not None:
+    #     payload["input"]["credentialsId"] = credentialsId
+    response = requests.post(url, headers=headers, json=payload)
+    print(' ######################### HELLO FROM UTILS PICKUP_POINT ######################### ')
+    return response.json()
+
+
+
+
+# =====================================================================================================================================================================================
+
+
+
+
+def no_pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId):
+    
+    """ Courier with pick up from seller """
+
+    url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
+    headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
+    payload = {
+                # "commandId": "",
+                "input": {
+                  "deliveryMethodId": order_data["delivery"]["method"]["id"],
+                  "sender": {
+                    "name": "Jan Kowalski",
+                    "company": "Allegro.pl sp. z o.o.",
+                    "street": "Główna",
+                    "streetNumber": "30",
+                    "postalCode": "64-700",
+                    "city": "Warszawa",
+                    # "state": "AL",
+                    "countryCode": "PL",
+                    "email": "8awgqyk6a5+cub31c122@allegrogroup.pl",
+                    "phone": "+48500600700",
+                    # "point": ""
+                  },
+                  "receiver": {
+                    "name": "Jan Kowalski", #order_data["buyer"]["firstName"],
+                    "company": order_data["buyer"]["companyName"],
+                    "street": order_data["buyer"]["address"]["street"].split()[0],
+                    "streetNumber": order_data["buyer"]["address"]["street"].split()[1],
+                    "postalCode": order_data["buyer"]["address"]["postCode"],
+                    "city": order_data["buyer"]["address"]["city"],
+                    # "state": "AL",
+                    "countryCode": order_data["buyer"]["address"]["countryCode"],
+                    "email": order_data["buyer"]["email"],
+                    "phone": "+48500600700", #order_data["delivery"]["address"]["phoneNumber"],
+                    # "point": order_data["delivery"]["pickupPoint"]["id"]
+                  },
+                  "pickup": { # Niewymagane, dane miejsca odbioru przesyłki
+                    "name": "Jan Kowalski",
+                    "company": "Allegro.pl sp. z o.o.",
+                    "street": "Główna",
+                    "streetNumber": 30,
+                    "postalCode": "64-700",
+                    "city": "Warszawa",
+                    # "state": "AL",
+                    "countryCode": "PL",
+                    "email": "8awgqyk6a5+cub31c122@allegromail.pl",
+                    "phone": "+48500600700",
+                    # "point": "A1234567"
+                  },
+                  "referenceNumber": external_id,
+                  "description": f'{offer_name}...',
+                  "packages": [
+                    {
+                      "type": "PACKAGE",
+                      "length": {
+                        "value": descr[0],
+                        "unit": "CENTIMETER"
+                      },
+                      "width": {
+                        "value": descr[1],
+                        "unit": "CENTIMETER"
+                      },
+                      "height": {
+                        "value": descr[2],
+                        "unit": "CENTIMETER"
+                      },
+                      "weight": {
+                        "value": descr[3],
+                        "unit": "KILOGRAMS"
+                      }
+                    }
+                  ],
+                  "insurance": {
+                    "amount": "23.47",
+                    "currency": "PLN"
+                  },
+                #   "cashOnDelivery": {
+                #     "amount": "2.50",
+                #     "currency": "PLN",
+                #     "ownerName": "Jan Kowalski",
+                #     "iban": "PL48109024022441789739167589"
+                #   },
+                  "labelFormat": "PDF",
+                #   "additionalServices": [
+                #     "ADDITIONAL_HANDLING"
+                #   ],
+                #   "additionalProperties": {
+                #     "property1": "string",
+                #     "property2": "string"
+                #   }
+                }
+            }
+    if credentialsId is not None:
+        payload["input"]["credentialsId"] = credentialsId
+    response = requests.post(url, headers=headers, json=payload)
+    print(' ######################### HELLO FROM UTILS NO PICKUP_POINT ######################### ', credentialsId)
+    return response.json()
+
+
+
+
+# =====================================================================================================================================================================================
+
+
+
+
+def pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId):
+    
+    """ Courier without pick up from seller """
+
+    url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
+    headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
+    payload = {
+                # "commandId": "",
+                "input": {
+                  "deliveryMethodId": order_data["delivery"]["method"]["id"],
+                  "sender": {
+                    "name": "Jan Kowalski",
+                    "company": "Allegro.pl sp. z o.o.",
+                    "street": "Główna",
+                    "streetNumber": "30",
+                    "postalCode": "64-700",
+                    "city": "Warszawa",
+                    # "state": "AL",
+                    "countryCode": "PL",
+                    "email": "8awgqyk6a5+cub31c122@allegrogroup.pl",
+                    "phone": "+48500600700",
+                    # "point": ""
+                  },
+                  "receiver": {
+                    "name": "Jan Kowalski", #order_data["buyer"]["firstName"],
+                    "company": order_data["buyer"]["companyName"],
+                    "street": order_data["buyer"]["address"]["street"].split()[0],
+                    "streetNumber": order_data["buyer"]["address"]["street"].split()[1],
+                    "postalCode": order_data["buyer"]["address"]["postCode"],
+                    "city": order_data["buyer"]["address"]["city"],
+                    # "state": "AL",
+                    "countryCode": order_data["buyer"]["address"]["countryCode"],
+                    "email": order_data["buyer"]["email"],
+                    "phone": "+48500600700", #order_data["delivery"]["address"]["phoneNumber"],
+                  },
+                  "pickup": { # Niewymagane, dane miejsca odbioru przesyłki
+                    "name": "Jan Kowalski",
+                    "company": "Allegro.pl sp. z o.o.",
+                    "street": "Główna",
+                    "streetNumber": 30,
+                    "postalCode": "64-700",
+                    "city": "Warszawa",
+                    # "state": "AL",
+                    "countryCode": "PL",
+                    "email": "8awgqyk6a5+cub31c122@allegromail.pl",
+                    "phone": "+48500600700",
+                    # "point": "A1234567"
+                  },
+                  "referenceNumber": external_id,
+                  "description": f'{offer_name}...',
+                  "packages": [
+                    {
+                      "type": "PACKAGE",
+                      "length": {
+                        "value": descr[0],
+                        "unit": "CENTIMETER"
+                      },
+                      "width": {
+                        "value": descr[1],
+                        "unit": "CENTIMETER"
+                      },
+                      "height": {
+                        "value": descr[2],
+                        "unit": "CENTIMETER"
+                      },
+                      "weight": {
+                        "value": descr[3],
+                        "unit": "KILOGRAMS"
+                      }
+                    }
+                  ],
+                  "insurance": {
+                    "amount": "23.47",
+                    "currency": "PLN"
+                  },
+                #   "cashOnDelivery": {
+                #     "amount": "2.50",
+                #     "currency": "PLN",
+                #     "ownerName": "Jan Kowalski",
+                #     "iban": "PL48109024022441789739167589"
+                #   },
+                  "labelFormat": "PDF",
+                #   "additionalServices": [
+                #     "ADDITIONAL_HANDLING"
+                #   ],
+                #   "additionalProperties": {
+                #     "property1": "string",
+                #     "property2": "string"
+                #   }
+                }
+            }
+
+    response = requests.post(url, headers=headers, json=payload)
+    print(' ######################### HELLO FROM UTILS COURIER WITHOUT PICKUP_POINT ######################### ')
+    return response.json()

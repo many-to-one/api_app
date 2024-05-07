@@ -323,51 +323,47 @@
 
         }
 
-        // document.addEventListener('DOMContentLoaded', function() {
-        //     // Your JavaScript function here
-        //     // setToSend();
-        // });
 
 
-        function setToSend() {
+        // function setToSend() {
 
-            var checkboxes = document.querySelectorAll('input[name="selected_items"]');
-            var fulfill = document.querySelectorAll('div[name="fulfillmentStatus"]');
-            var fulfilltems = [];
+        //     var checkboxes = document.querySelectorAll('input[name="selected_items"]');
+        //     var fulfill = document.querySelectorAll('div[name="fulfillmentStatus"]');
+        //     var fulfilltems = [];
 
-            // Iterate over each checkbox
-            fulfill.forEach(function(el) {
-                if (el.getAttribute('value')) {
-                    // console.log('status =>', checkbox.getAttribute('value'));
-                    fulfilltems.push(el.getAttribute('value'));
-                }
-            });
-            console.log(fulfilltems);
+        //     // Iterate over each checkbox
+        //     fulfill.forEach(function(el) {
+        //         if (el.getAttribute('value')) {
+        //             // console.log('status =>', checkbox.getAttribute('value'));
+        //             fulfilltems.push(el.getAttribute('value'));
+        //         }
+        //     });
+        //     console.log(fulfilltems);
 
-            // var url = '/set_shipment_list/?ids=' + fulfilltems;
-            axios.post('/set_shipment_list/?ids=' + fulfilltems)
-                .then(function(response) {
-                    if(response.status == 200) {
-                        console.log('Success', response.data)
-                        // Set the value of each checkbox with the received IDs
-                        response.data.result.forEach(function(res, index) {
-                            var check = document.getElementById('check_' + res["id"]);
-                            console.log('response.data', res["id"], index, check);
-                            if (check) {
-                                check.checked = true;
-                                check.value = res["commandId"] + ':' + res["name"];
-                            }
-                        });
-                    }
-                })
-                .catch(function(error) {
-                    // Handle error
-                    console.error('Error updating stock:', error);
-                });
-            // window.location.href = url;
-            // wait.style.display = 'none';
+        //     // var url = '/set_shipment_list/?ids=' + fulfilltems;
+        //     axios.post('/set_shipment_list/?ids=' + fulfilltems)
+        //         .then(function(response) {
+        //             if(response.status == 200) {
+        //                 console.log('Success', response.data)
+        //                 // Set the value of each checkbox with the received IDs
+        //                 response.data.result.forEach(function(res, index) {
+        //                     var check = document.getElementById('check_' + res["id"]);
+        //                     console.log('response.data', res["id"], index, check);
+        //                     if (check) {
+        //                         check.checked = true;
+        //                         check.value = res["commandId"] + ':' + res["name"];
+        //                     }
+        //                 });
+        //             }
+        //         })
+        //         .catch(function(error) {
+        //             // Handle error
+        //             console.error('Error updating stock:', error);
+        //         });
+        //     // window.location.href = url;
+        //     // wait.style.display = 'none';
 
-        }
+        // }
 
 
         function getYes() {
@@ -405,6 +401,8 @@
         }
 
         function getNo() {
+            var noPickup = "no_pickup";
+            var checkboxes = document.querySelectorAll('input[name="selected_items"]');
             var question = document.getElementById('question')
             var text = document.getElementById('text');
             question.style.display = 'none';
