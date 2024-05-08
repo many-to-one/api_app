@@ -67,7 +67,7 @@ def get_orders(request, name):
     for result in all_results:
         for res in result["checkoutForms"]:
             result_with_name.append(res)
-            print('***************** RESULTS FOR PAGINATION *******************', json.dumps(res, indent=4))
+            # print('***************** RESULTS FOR PAGINATION *******************', json.dumps(res, indent=4))
     #         if res["fulfillment"]["status"] == 'NEW':
 
     #             print('***************** ALL RESULTS LOOP *******************', "NEW-tak")
@@ -486,18 +486,49 @@ def login_DPD (request):
 
 
 
-def change_status(request, id, name, status):
+def change_status(request, id, name, status, delivery):
 
-    account = Allegro.objects.get(name=name)
-
-    secret = Secret.objects.get(account=account)
-
-    # data = json.loads(request.body.decode('utf-8'))
-    # new_status = data.get('status')
+    secret = Secret.objects.get(account__name=name)
     
-    print('*********** new_status ***********', status, name)
-    print('*********** secret.account.name ***********', secret.account.name)
-    print('*********** secret.access_token ***********', secret.access_token)
+    # print('*********** new_status ***********', status, name, delivery)
+    # print('*********** secret.account.name ***********', secret.account.name)
+    # print('*********** secret.access_token ***********', secret.access_token)
+
+    # if status == 'CANCELLED':
+    #     shipmentId = get_shipment_id(request, secret, name, delivery)
+    #     print('*********** CANCELLED shipmentId ***********', shipmentId)
+    #     try:
+    #         url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/cancel-commands"
+    #         headers = {
+    #         'Authorization': f'Bearer {secret.access_token}',
+    #         'Accept': 'application/vnd.allegro.public.v1+json',
+    #         'Content-Type': 'application/vnd.allegro.public.v1+json'
+    #     }
+
+    #         data = {
+    #         #   "commandId": "14e142cf-e8e0-48cc-bcf6-399b5fd90b32",
+    #           "input": {
+    #             "shipmentId": shipmentId
+    #           }
+    #         }
+
+    #         response = requests.post(url, headers=headers, json=data)
+    #         # print('*********** change_status ***********', response)
+    #         result = response.json()
+    #         print('*********** CANCELLED response.json() ***********', result)
+
+    #         return JsonResponse(
+    #                 {
+    #                     'message': 'Stock updated successfully',
+    #                     'newStatus': status,
+    #                 }, 
+    #                 status=200,
+    #             )
+    #     except requests.exceptions.HTTPError as err:
+    #         raise SystemExit(err)
+
+
+    # return HttpResponse('ok')
 
     try:
         url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}/fulfillment"
@@ -550,7 +581,7 @@ def get_shipment_id(request, secret, name, deliveryMethod):
                     print('Exception @@@@@@@@@', e)
                     context = {'name': name}
                     return render(request, 'invalid_token.html', context)
-         #print('RESULT FOR DPD @@@@@@@@@', json.dumps(result, indent=4))
+        # print( '@@@@@@@@@ RESULT FOR get_shipment_id @@@@@@@@@ ', json.dumps(result, indent=4))
         for r in result['services']:
             # print('************ LOOP ID ************', r['id'])
             # print('************ LOOP NAME ************', r['name'])
@@ -619,7 +650,7 @@ def get_offer_descr(request, id, name):
 
 def set_shipment_list(request):
 
-    from ..utils import pickup_point_order, no_pickup_point_order
+    from ..utils import pickup_point_order, no_pickup_point_order, cash_no_point_order
     ids = request.GET.getlist('ids')
     # print('********************** IDS NO PICKUP ****************************', ids)
 
@@ -645,6 +676,8 @@ def set_shipment_list(request):
     # print('#################### credentialsId ######################', credentialsId)
     data = create_label(request, id, name)
     order_data = data[0]
+    # print('********************** CASH ON DELIVERY ****************************', order_data["payment"]["type"])
+    # print('********************** CASH TO PAY ****************************', order_data["summary"]['totalToPay']['amount'], order_data["summary"]['totalToPay']['currency'])
     # print('#################### order_data ######################', json.dumps(order_data, indent=4))
     descr = get_offer_descr(request, order_data["lineItems"][0]["offer"]["id"], name)
     # print('********************** descr ****************************', descr)
@@ -653,15 +686,19 @@ def set_shipment_list(request):
     for item in order_data['lineItems']:
         external_id = item['offer']['external']['id']
         offer_name = item['offer']["name"][:15]
-        print('********************** DOSTAWA ****************************', order_data["delivery"]["method"]["id"])
+        # print('********************** DOSTAWA ****************************', order_data["delivery"]["method"]["id"])
         # print('********************** ID PUNKT ODBIORU ****************************', order_data["delivery"]["pickupPoint"]["id"])
 
     try:
-        if pickup:
-            print('********************** IDS NO PICKUP ****************************', pickup[0])
+        # if pickup:
+        #     print('********************** IDS NO PICKUP ****************************', pickup[0])
         if order_data["delivery"]["pickupPoint"] == None:
-            result = no_pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
+            if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
+                result = cash_no_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
+            else:
+                result = no_pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
         else:
+            print('********************** dpd test ****************************', order_data["delivery"]["pickupPoint"])
             result = pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
         if 'error' in result:
             error_code = result['error']
@@ -884,17 +921,17 @@ def get_shipment_list(request):
             # print('********************** delivery_id ****************************', delivery_id)
             data = create_label(request, id, name)
             order_data = data[0]
-            print('********************** ORDER DATA IN SHIPMENT LIST****************************', order_data)
-            print('********************** order_data ****************************', order_data["delivery"]["method"]["id"])
-            print('********************** order_data ****************************', order_data["buyer"]["firstName"])
-            print('********************** order_data ****************************', order_data["buyer"]["companyName"])
-            print('********************** order_data ****************************', order_data["buyer"]["address"]["street"].split()[0])
-            print('********************** order_data ****************************', order_data["buyer"]["address"]["street"].split()[1])
-            print('********************** order_data ****************************', order_data["buyer"]["address"]["postCode"])
-            print('********************** order_data ****************************', order_data["buyer"]["address"]["city"])
-            print('********************** order_data ****************************', order_data["buyer"]["address"]["countryCode"])
-            print('********************** order_data ****************************', order_data["buyer"]["email"])
-            print('********************** order_data ****************************', order_data["delivery"]["address"]["phoneNumber"])
+            # print('********************** ORDER DATA IN SHIPMENT LIST****************************', order_data)
+            # print('********************** order_data ****************************', order_data["delivery"]["method"]["id"])
+            # print('********************** order_data ****************************', order_data["buyer"]["firstName"])
+            # print('********************** order_data ****************************', order_data["buyer"]["companyName"])
+            # print('********************** order_data ****************************', order_data["buyer"]["address"]["street"].split()[0])
+            # print('********************** order_data ****************************', order_data["buyer"]["address"]["street"].split()[1])
+            # print('********************** order_data ****************************', order_data["buyer"]["address"]["postCode"])
+            # print('********************** order_data ****************************', order_data["buyer"]["address"]["city"])
+            # print('********************** order_data ****************************', order_data["buyer"]["address"]["countryCode"])
+            # print('********************** order_data ****************************', order_data["buyer"]["email"])
+            # print('********************** order_data ****************************', order_data["delivery"]["address"]["phoneNumber"])
 
 
 

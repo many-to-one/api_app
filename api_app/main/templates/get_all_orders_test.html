@@ -184,7 +184,7 @@
                         <option id="status_{{ order.id }}" value="PICKED_UP" {% if order.fulfillment.status == 'PICKED_UP' %} selected {% endif %}>DOSTARCZONE</option>
                     </select>
 
-                    <img class="icon edit_o" id="edit_{{ order.id }}" onclick="updateOrderStatus('{{ order.id }}', 'status_select_{{ order.id }}')" src="{% static 'icons/edit2.png' %}" alt="">
+                    <img class="icon edit_o" id="edit_{{ order.id }}" onclick="updateOrderStatus('{{ order.id }}', 'status_select_{{ order.id }}', '{{ order.delivery.method.name }}')" src="{% static 'icons/edit2.png' %}" alt="">
                     <img style="display: none;" class="icon edit_o" id="load_{{ order.id }}"  src="{% static 'icons/load.png' %}" alt="">
                     
                     {% if order.delivery.method.name == 'Allegro Kurier DPD' %}
@@ -231,7 +231,7 @@
 
 
 
-        function updateOrderStatus(offerId, selectId) {
+        function updateOrderStatus(offerId, selectId, deliveryMethod) {
 
             // console.log('updateOrderStatus offerId clicked', offerId)
             // console.log('updateOrderStatus selectId clicked', selectId)
@@ -255,7 +255,7 @@
             console.log('Selected status:', selectedStatus);
 
             // Make an AJAX request to update the stock value
-            axios.put('/change_status/' + offerId + '/' + name + '/' + selectedStatus + '/')
+            axios.put('/change_status/' + offerId + '/' + name + '/' + selectedStatus + '/' + deliveryMethod + '/')
                 .then(function(response) {
                     console.log('status', response.data.newStatus)
                     if(response.status == 200) {
@@ -323,47 +323,6 @@
 
         }
 
-
-
-        // function setToSend() {
-
-        //     var checkboxes = document.querySelectorAll('input[name="selected_items"]');
-        //     var fulfill = document.querySelectorAll('div[name="fulfillmentStatus"]');
-        //     var fulfilltems = [];
-
-        //     // Iterate over each checkbox
-        //     fulfill.forEach(function(el) {
-        //         if (el.getAttribute('value')) {
-        //             // console.log('status =>', checkbox.getAttribute('value'));
-        //             fulfilltems.push(el.getAttribute('value'));
-        //         }
-        //     });
-        //     console.log(fulfilltems);
-
-        //     // var url = '/set_shipment_list/?ids=' + fulfilltems;
-        //     axios.post('/set_shipment_list/?ids=' + fulfilltems)
-        //         .then(function(response) {
-        //             if(response.status == 200) {
-        //                 console.log('Success', response.data)
-        //                 // Set the value of each checkbox with the received IDs
-        //                 response.data.result.forEach(function(res, index) {
-        //                     var check = document.getElementById('check_' + res["id"]);
-        //                     console.log('response.data', res["id"], index, check);
-        //                     if (check) {
-        //                         check.checked = true;
-        //                         check.value = res["commandId"] + ':' + res["name"];
-        //                     }
-        //                 });
-        //             }
-        //         })
-        //         .catch(function(error) {
-        //             // Handle error
-        //             console.error('Error updating stock:', error);
-        //         });
-        //     // window.location.href = url;
-        //     // wait.style.display = 'none';
-
-        // }
 
 
         function getYes() {
