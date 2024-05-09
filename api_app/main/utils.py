@@ -73,7 +73,7 @@ def pickup_point_order(secret, order_data, external_id, offer_name, descr, crede
                     "company": "Allegro.pl sp. z o.o.",
                     "street": "Główna",
                     "streetNumber": "30",
-                    "postalCode": '52-340', #"64-700",
+                    "postalCode": '64-700', #"52-340"(kod Wrocław),
                     "city": "Warszawa",
                     # "state": "AL",
                     "countryCode": "PL",

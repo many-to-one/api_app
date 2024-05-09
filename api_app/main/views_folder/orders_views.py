@@ -698,8 +698,11 @@ def set_shipment_list(request):
             else:
                 result = no_pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
         else:
-            print('********************** pickupPoint ****************************', order_data["delivery"]["pickupPoint"])
-            result = pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
+            if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
+                result = cash_no_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
+            # print('********************** pickupPoint ****************************', order_data["delivery"]["pickupPoint"])
+            else:
+                result = pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
         if 'error' in result:
             error_code = result['error']
             if error_code == 'invalid_token':
@@ -750,7 +753,7 @@ def get_shipment_status_id(request):
             # result.append({'id': id, 'name': name, 'deliveryMethod': deliveryMethod, 'fulfillmentStatus': fulfillmentStatus, 'orderStatus': orderStatus})
             # if fulfillmentStatus == 'NEW' and orderStatus == "READY_FOR_PROCESSING":
     
-            # print('********************** result ****************************', commandId, name)
+            print('********************** result ****************************', commandId, name)
 
             secret = Secret.objects.get(account__name=name)
 
@@ -780,17 +783,20 @@ def get_shipment_status_id(request):
                     print('*************** ERROR ERROR ERROR ***************')
                     print(result["status"])
                     print(result["errors"][0]["userMessage"])
-                    return JsonResponse(
-                        {
-                            'message': result["errors"][0]["userMessage"],
-                        }, 
-                        status=200,
-                    )
-                # if result["shipmentId"] is None:
-                #     get_shipment_status_id(request)
+                    # return JsonResponse(
+                    #     {
+                    #         'message': result["errors"][0]["userMessage"],
+                    #     }, 
+                    #     status=200,
+                    # )
+                if result["shipmentId"] is None:
+                    # get_shipment_status_id(request)
+                    continue
                 if pickup[0] == 'pickup':
-                    # if result["shipmentId"] is None:
-                    #     get_shipment_status_id(request)
+                    print('*************** PICKUP ***************', result["shipmentId"])
+                    if result["shipmentId"] is None:
+                        continue
+                        # get_shipment_status_id(request)
                     pickupDateProposalId = get_pickup_proposals(request, secret.access_token, result["shipmentId"])
                     get_courier(request, result["shipmentId"], commandId, pickupDateProposalId, secret)
                 print('*************** LABEL ADDING INFO ***************', result["shipmentId"], secret)
