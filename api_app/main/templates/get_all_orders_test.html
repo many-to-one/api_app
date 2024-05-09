@@ -20,13 +20,13 @@
             <button onclick="getYes()">Tak</button>
         </div>
     </div>
-    <div id="questionOne">
+    <!-- <div id="questionOne">
         <p id="textOne"></p>
         <div>
             <button onclick="getNoPrintOne()">Nie</button>
             <button onclick="getYesPrintOne()">Tak</button>
         </div>
-    </div>
+    </div> -->
     <div id="wait">
         <p>Proczę czekać...</p>
         <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
@@ -275,41 +275,41 @@
         }
 
 
-        function printOneLabel(orderId) {
-            console.log('printOneLabel', orderId)
-            var questionOne = document.getElementById('questionOne')
-            var textOne = document.getElementById('textOne')
+        // function printOneLabel(orderId) {
+        //     console.log('printOneLabel', orderId)
+        //     var questionOne = document.getElementById('questionOne')
+        //     var textOne = document.getElementById('textOne')
 
-            questionOne.style.display = 'flex';
-            textOne.innerHTML = '';
-            textOne.textContent = "Wydrukować pojedyńczą etykietę?";
-        }
+        //     questionOne.style.display = 'flex';
+        //     textOne.innerHTML = '';
+        //     textOne.textContent = "Wydrukować pojedyńczą etykietę?";
+        // }
 
-        function getYesPrintOne() {
+        // function getYesPrintOne() {
 
-            // var wait = document.getElementById('wait');
-            // wait.style.display = 'flex';
+        //     // var wait = document.getElementById('wait');
+        //     // wait.style.display = 'flex';
 
-            var questionOne = document.getElementById('questionOne')
-            var textOne = document.getElementById('textOne');
-            questionOne.style.display = 'none';
-            textOne.innerHTML = '';
+        //     var questionOne = document.getElementById('questionOne')
+        //     var textOne = document.getElementById('textOne');
+        //     questionOne.style.display = 'none';
+        //     textOne.innerHTML = '';
 
-            var tdOne = document.getElementById('tdOne');
-            tdOneValue = tdOne.getAttribute('value');
-            console.log('tdOneValue', tdOneValue)
-            var url = '/create_label_DPD/' + tdOneValue + '/';
+        //     var tdOne = document.getElementById('tdOne');
+        //     tdOneValue = tdOne.getAttribute('value');
+        //     console.log('tdOneValue', tdOneValue)
+        //     var url = '/create_label_DPD/' + tdOneValue + '/';
 
-            window.open(url, '_blank');
+        //     window.open(url, '_blank');
 
-        }
+        // }
 
-        function getNoPrintOne() {
-            var questionOne = document.getElementById('questionOne')
-            var textOne = document.getElementById('textOne')
-            questionOne.style.display = 'none';
-            textOne.innerHTML = '';
-        }
+        // function getNoPrintOne() {
+        //     var questionOne = document.getElementById('questionOne')
+        //     var textOne = document.getElementById('textOne')
+        //     questionOne.style.display = 'none';
+        //     textOne.innerHTML = '';
+        // }
 
 
         function allLabels() {

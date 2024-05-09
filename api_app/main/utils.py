@@ -60,7 +60,7 @@ def get_next_token(request, access_token, name):
 
 def pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId):
 
-    """ Allegro One Box """
+    """ Paczkomaty z podjazdem kuriera """
 
     url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
     headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
@@ -73,7 +73,7 @@ def pickup_point_order(secret, order_data, external_id, offer_name, descr, crede
                     "company": "Allegro.pl sp. z o.o.",
                     "street": "Główna",
                     "streetNumber": "30",
-                    "postalCode": "64-700",
+                    "postalCode": '52-340', #"64-700",
                     "city": "Warszawa",
                     # "state": "AL",
                     "countryCode": "PL",
@@ -106,8 +106,8 @@ def pickup_point_order(secret, order_data, external_id, offer_name, descr, crede
                     "phone": "+48500600700",
                     # "point": order_data["delivery"]["pickupPoint"]["id"]
                   },
-                  "referenceNumber": external_id,
-                  "description": f'{offer_name}...',
+                  "referenceNumber": external_id, #f'{offer_name}...'
+                  "description": external_id,
                   "packages": [
                     {
                       "type": "PACKAGE",
@@ -164,7 +164,7 @@ def pickup_point_order(secret, order_data, external_id, offer_name, descr, crede
 
 def cash_no_point_order(secret, order_data, external_id, offer_name, descr, credentialsId):
 
-    """ Cash-Courier without pick up from seller """
+    """ Courier (cash) with pick up from seller """
 
     url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
     headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
@@ -211,7 +211,7 @@ def cash_no_point_order(secret, order_data, external_id, offer_name, descr, cred
                     # "point": "A1234567"
                   },
                   "referenceNumber": external_id,
-                  "description": f'{offer_name}...',
+                  "description": external_id,
                   "packages": [
                     {
                       "type": "PACKAGE",
@@ -316,7 +316,7 @@ def no_pickup_point_order(secret, order_data, external_id, offer_name, descr, cr
                     # "point": "A1234567"
                   },
                   "referenceNumber": external_id,
-                  "description": f'{offer_name}...',
+                  "description": external_id,
                   "packages": [
                     {
                       "type": "PACKAGE",
@@ -370,7 +370,7 @@ def no_pickup_point_order(secret, order_data, external_id, offer_name, descr, cr
 # =====================================================================================================================================================================================
 
 
-
+# ---@#$
 
 def nie_pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId):
     

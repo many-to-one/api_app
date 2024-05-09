@@ -72,7 +72,7 @@
                     context.push(value);  // Store the value in the context array
                 });
 
-                var url = '/get_shipment_status_id/?ids=' + context;
+                var url = '/get_shipment_status_id/?ids=' + context + '&pickup=' + 'pickup';
                 window.location.href = url;
                 wait.style.display = 'none';
                 
@@ -81,20 +81,20 @@
 
             function getNo() {
 
-                // var wait = document.getElementById('wait');
-                // wait.style.display = 'flex';
+                var wait = document.getElementById('wait');
+                wait.style.display = 'flex';
 
-                // var links = document.querySelectorAll('div[name="link"]');
-                // var context = [];
-                // links.forEach(function(link) {
-                //     var value = link.getAttribute('value');
-                //     console.log('value:', value);
-                //     context.push(value);  // Store the value in the context array
-                // });
+                var links = document.querySelectorAll('div[name="link"]');
+                var context = [];
+                links.forEach(function(link) {
+                    var value = link.getAttribute('value');
+                    console.log('value:', value);
+                    context.push(value);  // Store the value in the context array
+                });
 
-                // var url = '/get_shipment_status_id/?ids=' + context + '&pickup=' + 'no_pickup';
-                var seller = document.getElementById('seller').getAttribute('data-value');
-                var url = '/get_orders/' + seller + '/';
+                var url = '/get_shipment_status_id/?ids=' + context + '&pickup=' + 'no_pickup';
+                // var seller = document.getElementById('seller').getAttribute('data-value');
+                // var url = '/get_orders/' + seller + '/';
                 window.location.href = url;
                 wait.style.display = 'none';
 

@@ -698,7 +698,7 @@ def set_shipment_list(request):
             else:
                 result = no_pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
         else:
-            print('********************** dpd test ****************************', order_data["delivery"]["pickupPoint"])
+            print('********************** pickupPoint ****************************', order_data["delivery"]["pickupPoint"])
             result = pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
         if 'error' in result:
             error_code = result['error']
@@ -737,7 +737,10 @@ def get_shipment_status_id(request):
     # data = json.loads(request.body)
     # ids = data.get('ids')
     ids = request.GET.getlist('ids')
-    # print('********************** IDS get_shipment_status_id ****************************', ids)
+    pickup = request.GET.getlist('pickup')
+    print('********************** IDS get_shipment_status_id pickup ****************************', pickup[0])
+
+    # return HttpResponse(pickup)
 
     time.sleep(5)
     for item in ids:
@@ -783,28 +786,23 @@ def get_shipment_status_id(request):
                         }, 
                         status=200,
                     )
-                if result["shipmentId"] is None:
-                    get_shipment_status_id(request)
-                pickupDateProposalId = get_pickup_proposals(secret.access_token, result["shipmentId"])
-                get_courier(request, result["shipmentId"], commandId, pickupDateProposalId, secret)
+                # if result["shipmentId"] is None:
+                #     get_shipment_status_id(request)
+                if pickup[0] == 'pickup':
+                    # if result["shipmentId"] is None:
+                    #     get_shipment_status_id(request)
+                    pickupDateProposalId = get_pickup_proposals(request, secret.access_token, result["shipmentId"])
+                    get_courier(request, result["shipmentId"], commandId, pickupDateProposalId, secret)
+                print('*************** LABEL ADDING INFO ***************', result["shipmentId"], secret)
                 labels.append(label_print(request, result["shipmentId"], secret))
-                # lab = label_print(request, result["shipmentId"], secret)
-                # print(' @@@@@@@@@@@@@@@@@ LABELS LIST @@@@@@@@@@@@@@@@@ ', labels)
+
             except requests.exceptions.HTTPError as err:
                 raise SystemExit(err)
-
+    print('*************** LABEL ADDING INFO 2 ***************')
     return base64_to_pdf_bulk(labels)
-    # return base64_to_pdf(lab)
-    # return JsonResponse(
-    #             {
-    #                 'message': 'Success',
-    #                 'result': ids,
-    #             }, 
-    #             status=200,
-    #         )
 
 
-def get_pickup_proposals(token, shipmentId):
+def get_pickup_proposals(request, token, shipmentId):
 
     try:
         url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickup-proposals" 
@@ -887,7 +885,7 @@ def label_print(request, shipmentId, secret):
         response = requests.post(url, headers=headers, json=payload)
         # result = response.json()
         
-        # print(' @@@@@@@@@ RESULT FOR LABELS shipmentId @@@@@@@@@ ', shipmentId)
+        print(' @@@@@@@@@ RESULT FOR LABELS shipmentId ZADZIAŁAŁO @@@@@@@@@ ', shipmentId)
         # print(' @@@@@@@@@ RESULT FOR LABELS @@@@@@@@@ ', response)
         # print(' @@@@@@@@@ RESULT FOR LABELS @@@@@@@@@ ', response.content)
         # print('@@@@@@@@@ RESPONSE LABELS HEADERS 1 @@@@@@@@@', response.headers)
