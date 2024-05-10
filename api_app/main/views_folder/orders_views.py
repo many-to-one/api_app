@@ -347,7 +347,7 @@ def create_label(request, id, name):
                     print('Exception @@@@@@@@@', e)
                     context = {'name': name}
                     return render(request, 'invalid_token.html', context)
-        print('@@@@@@@@@ PUNKT ODBIORU ID @@@@@@@@@', json.dumps(result, indent=4))
+        # print('@@@@@@@@@ PUNKT ODBIORU ID @@@@@@@@@', json.dumps(result, indent=4))
         # create_label(result)
         return result, secret
     except requests.exceptions.HTTPError as err:
@@ -562,6 +562,8 @@ def change_status(request, id, name, status, delivery):
     
 
 def get_shipment_id(request, secret, name, deliveryMethod):
+
+    """ Umowa własna z przewoźnikiem """
      
     try:
         url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/delivery-services"
@@ -582,6 +584,7 @@ def get_shipment_id(request, secret, name, deliveryMethod):
                     context = {'name': name}
                     return render(request, 'invalid_token.html', context)
         # print( '@@@@@@@@@ RESULT FOR get_shipment_id @@@@@@@@@ ', json.dumps(result, indent=4))
+        # print('************ HEADERS get_shipment_id ************', product_result.headers)
         for r in result['services']:
             # print('************ LOOP ID ************', r['id'])
             # print('************ LOOP NAME ************', r['name'])
@@ -826,7 +829,7 @@ def get_pickup_proposals(request, token, shipmentId):
         print('@@@@@@@@@ RESPONSE PROPOSALS HEADERS 1 @@@@@@@@@', response.headers)
         # change_status(request, id, secret.account.name, 'SENT')
         # time.sleep(7)
-        return "ANY" #result[0]["proposals"][0]["proposalItems"][1]["id"]
+        return  result[0]["proposals"][0]["proposalItems"][1]["id"] #"ANY"
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
 
@@ -836,6 +839,7 @@ def get_pickup_proposals(request, token, shipmentId):
 def get_courier(request, shipmentId, commandId, pickupDateProposalId, secret):
 
     # print('******************* GET COURIER SHIPMENTID ************************', shipmentId)
+    print('******************* pickupDateProposalId in GET COURIER ************************', pickupDateProposalId)
 
     try:
         url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickups/create-commands" 
