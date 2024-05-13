@@ -106,7 +106,7 @@ def pickup_point_order(secret, order_data, external_id, offer_name, descr, crede
                     "phone": "+48500600700",
                     # "point": order_data["delivery"]["pickupPoint"]["id"]
                   },
-                  "referenceNumber": external_id, #f'{offer_name}...'
+                  "referenceNumber": external_id,
                   "description": external_id,
                   "packages": [
                     {
@@ -421,7 +421,7 @@ def nie_pickup_point_order(secret, order_data, external_id, offer_name, descr, c
                     # "point": "A1234567"
                   },
                   "referenceNumber": external_id,
-                  "description": f'{offer_name}...',
+                  "description": external_id,
                   "packages": [
                     {
                       "type": "PACKAGE",

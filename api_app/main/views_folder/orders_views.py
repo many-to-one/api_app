@@ -655,79 +655,78 @@ def set_shipment_list(request):
 
     from ..utils import pickup_point_order, no_pickup_point_order, cash_no_point_order
     ids = request.GET.getlist('ids')
-    print('********************** IDS set_shipment_list IDS ****************************', ids)
+    # print('********************** IDS set_shipment_list IDS ****************************', ids)
 
     pickup = request.GET.getlist('pickup')
 
     result_arr = []
 
-    ids_ = ids.split(',')
-    print('********************** ids_ ids_ ids_ ****************************', ids_)
-    for item in ids_:
-        parts = item.split(':')
-        print('********************** PARTS PARTS PARTS ****************************', parts)
-        id = parts[0]
-        name = parts[1]
-        deliveryMethod = parts[2]
-        fulfillmentStatus = parts[3]
-        orderStatus = parts[4]
-        print('#################### deliveryMethod ######################', deliveryMethod)
+    for item in ids:
+        parts_all = item.split(',')
+        for parts_ in parts_all:
+            parts = parts_.split(':')
+            id = parts[0]
+            name = parts[1]
+            deliveryMethod = parts[2]
+            # fulfillmentStatus = parts[3]
+            # orderStatus = parts[4]
+            print('#################### name ######################', name)
 
 
-        secret = Secret.objects.get(account__name=name)
-        credentialsId = get_shipment_id(request, secret, name, deliveryMethod)
-        # print('#################### credentialsId ######################', credentialsId)
-        data = create_label(request, id, name)
-        order_data = data[0]
-        # print('********************** CASH ON DELIVERY ****************************', order_data["payment"]["type"])
-        # print('********************** CASH TO PAY ****************************', order_data["summary"]['totalToPay']['amount'], order_data["summary"]['totalToPay']['currency'])
-        # print('#################### order_data ######################', json.dumps(order_data, indent=4))
-        descr = get_offer_descr(request, order_data["lineItems"][0]["offer"]["id"], name)
-        # print('********************** descr ****************************', descr)
+            secret = Secret.objects.get(account__name=name)
+            credentialsId = get_shipment_id(request, secret, name, deliveryMethod)
+            # print('#################### credentialsId ######################', credentialsId)
+            data = create_label(request, id, name)
+            order_data = data[0]
+            # print('********************** CASH ON DELIVERY ****************************', order_data["payment"]["type"])
+            # print('********************** CASH TO PAY ****************************', order_data["summary"]['totalToPay']['amount'], order_data["summary"]['totalToPay']['currency'])
+            # print('#################### order_data ######################', json.dumps(order_data, indent=4))
+            descr = get_offer_descr(request, order_data["lineItems"][0]["offer"]["id"], name)
+            # print('********************** descr ****************************', descr)
 
 
-        for item in order_data['lineItems']:
-            external_id = item['offer']['external']['id']
-            offer_name = item['offer']["name"][:15]
-            # print('********************** DOSTAWA ****************************', order_data["delivery"]["method"]["id"])
-            # print('********************** ID PUNKT ODBIORU ****************************', order_data["delivery"]["pickupPoint"]["id"])
+            for item in order_data['lineItems']:
+                external_id = item['offer']['external']['id']
+                offer_name = item['offer']["name"][:15]
+                # print('********************** DOSTAWA ****************************', order_data["delivery"]["method"]["id"])
+                # print('********************** ID PUNKT ODBIORU ****************************', order_data["delivery"]["pickupPoint"]["id"])
 
-        try:
-            # if pickup:
-            #     print('********************** IDS NO PICKUP ****************************', pickup[0])
-            if order_data["delivery"]["pickupPoint"] == None:
-                if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
-                    result = cash_no_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
+            try:
+                # if pickup:
+                #     print('********************** IDS NO PICKUP ****************************', pickup[0])
+                if order_data["delivery"]["pickupPoint"] == None:
+                    if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
+                        result = cash_no_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
+                    else:
+                        result = no_pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
                 else:
-                    result = no_pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
-            else:
-                if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
-                    result = cash_no_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
-                # print('********************** pickupPoint ****************************', order_data["delivery"]["pickupPoint"])
-                else:
-                    result = pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
-            if 'error' in result:
-                error_code = result['error']
-                if error_code == 'invalid_token':
-                    # print('ERROR RESULT @@@@@@@@@', error_code)
-                    try:
-                        # Refresh the token
-                        new_token = get_next_token(request, secret.refresh_token, 'retset')
-                        # Retry fetching orders with the new token
-                        return get_order_details(request, id)
-                    except Exception as e:
-                        print('Exception @@@@@@@@@', e)
-                        context = {'name': 'retset'}
-                        return render(request, 'invalid_token.html', context)
-            # print('RESULT FOR SIPMENT LIST @@@@@@@@@', json.dumps(result, indent=4))
-            # print('@@@@@@@@@ RESPONSE HEADERS 1 @@@@@@@@@', response.headers)
-            result_arr.append({"id": id, "commandId": result["commandId"], "name": name})
-                    # return get_shipment_status(request, result['commandId'], secret)
+                    if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
+                        result = cash_no_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
+                    # print('********************** pickupPoint ****************************', order_data["delivery"]["pickupPoint"])
+                    else:
+                        result = pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
+                if 'error' in result:
+                    error_code = result['error']
+                    if error_code == 'invalid_token':
+                        # print('ERROR RESULT @@@@@@@@@', error_code)
+                        try:
+                            # Refresh the token
+                            new_token = get_next_token(request, secret.refresh_token, 'retset')
+                            # Retry fetching orders with the new token
+                            return get_order_details(request, id)
+                        except Exception as e:
+                            print('Exception @@@@@@@@@', e)
+                            context = {'name': 'retset'}
+                            return render(request, 'invalid_token.html', context)
+                # print('RESULT FOR SIPMENT LIST @@@@@@@@@', json.dumps(result, indent=4))
+                # print('@@@@@@@@@ RESPONSE HEADERS 1 @@@@@@@@@', response.headers)
+                result_arr.append({"id": id, "commandId": result["commandId"], "name": name})
+                        # return get_shipment_status(request, result['commandId'], secret)
 
-        except requests.exceptions.HTTPError as err:
-            raise SystemExit(err)
+            except requests.exceptions.HTTPError as err:
+                raise SystemExit(err)
 
-    print('#################### result_arr ######################', result_arr)
+    # print('#################### result_arr ######################', result_arr)
            
     context = {
         'result': result_arr,
@@ -745,13 +744,14 @@ def get_shipment_status_id(request):
     # data = json.loads(request.body)
     # ids = data.get('ids')
     ids = request.GET.getlist('ids')
-    print('********************** IDS get_shipment_status_id IDS ****************************', ids)
+    # print('********************** IDS get_shipment_status_id IDS ****************************', ids)
     pickup = request.GET.getlist('pickup')
-    print('********************** IDS get_shipment_status_id pickup ****************************', pickup[0])
+    # print('********************** IDS get_shipment_status_id pickup ****************************', pickup[0])
 
     # return HttpResponse(pickup)
 
     time.sleep(5)
+    print('********************** TIME TIME TIME 5 SECONDS ****************************')
     for item in ids:
 
         # !!!!!!!!!!
@@ -759,13 +759,13 @@ def get_shipment_status_id(request):
         # !!!!!!!!!!
 
         parts = item.split(',')
-        print('********************** PARTS PARTS PARTS ****************************', parts)
+        # print('********************** PARTS PARTS PARTS ****************************', parts)
         for part in parts:
             commandId, name = part.split(':')
             # result.append({'id': id, 'name': name, 'deliveryMethod': deliveryMethod, 'fulfillmentStatus': fulfillmentStatus, 'orderStatus': orderStatus})
             # if fulfillmentStatus == 'NEW' and orderStatus == "READY_FOR_PROCESSING":
     
-            print('********************** result ****************************', commandId, name)
+            # print('********************** result ****************************', commandId, name)
 
             secret = Secret.objects.get(account__name=name)
 
@@ -805,18 +805,18 @@ def get_shipment_status_id(request):
                     # get_shipment_status_id(request)
                     continue
                 if pickup[0] == 'pickup':
-                    print('*************** PICKUP ***************', result["shipmentId"])
+                    # print('*************** PICKUP ***************', result["shipmentId"])
                     if result["shipmentId"] is None:
                         continue
                         # get_shipment_status_id(request)
                     pickupDateProposalId = get_pickup_proposals(request, secret.access_token, result["shipmentId"])
                     get_courier(request, result["shipmentId"], commandId, pickupDateProposalId, secret)
-                print('*************** LABEL ADDING INFO ***************', result["shipmentId"], secret)
+                # print('*************** LABEL ADDING INFO ***************', result["shipmentId"], secret)
                 labels.append(label_print(request, result["shipmentId"], secret))
 
             except requests.exceptions.HTTPError as err:
                 raise SystemExit(err)
-    print('*************** LABEL ADDING INFO 2 ***************')
+    # print('*************** LABEL ADDING INFO 2 ***************')
     return base64_to_pdf_bulk(labels)
 
 
@@ -834,8 +834,8 @@ def get_pickup_proposals(request, token, shipmentId):
         response = requests.post(url, headers=headers, json=payload)
         result = response.json()
     
-        print('@@@@@@@@@ RESULT FOR PROPOSALS @@@@@@@@@', json.dumps(result, indent=4))
-        print('@@@@@@@@@ RESPONSE PROPOSALS HEADERS 1 @@@@@@@@@', response.headers)
+        # print('@@@@@@@@@ RESULT FOR PROPOSALS @@@@@@@@@', json.dumps(result, indent=4))
+        # print('@@@@@@@@@ RESPONSE PROPOSALS HEADERS 1 @@@@@@@@@', response.headers)
         # change_status(request, id, secret.account.name, 'SENT')
         # time.sleep(7)
         return  result[0]["proposals"][0]["proposalItems"][0]["id"] #"ANY"
@@ -848,7 +848,7 @@ def get_pickup_proposals(request, token, shipmentId):
 def get_courier(request, shipmentId, commandId, pickupDateProposalId, secret):
 
     # print('******************* GET COURIER SHIPMENTID ************************', shipmentId)
-    print('******************* pickupDateProposalId in GET COURIER ************************', pickupDateProposalId)
+    # print('******************* pickupDateProposalId in GET COURIER ************************', pickupDateProposalId)
 
     try:
         url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickups/create-commands" 
@@ -877,8 +877,8 @@ def get_courier(request, shipmentId, commandId, pickupDateProposalId, secret):
                     print('Exception @@@@@@@@@', e)
                     context = {'name': 'retset'}
                     return render(request, 'invalid_token.html', context)
-        print('RESULT FOR COURIER @@@@@@@@@', json.dumps(result, indent=4))
-        print('@@@@@@@@@ RESPONSE COURIER HEADERS 1 @@@@@@@@@', response.headers)
+        # print('RESULT FOR COURIER @@@@@@@@@', json.dumps(result, indent=4))
+        # print('@@@@@@@@@ RESPONSE COURIER HEADERS 1 @@@@@@@@@', response.headers)
         # change_status(request, id, secret.account.name, 'SENT')
         # time.sleep(7)
         # return get_shipment_status(request, result['commandId'], secret)
@@ -904,7 +904,7 @@ def label_print(request, shipmentId, secret):
         response = requests.post(url, headers=headers, json=payload)
         # result = response.json()
         
-        print(' @@@@@@@@@ RESULT FOR LABELS shipmentId ZADZIAŁAŁO @@@@@@@@@ ', shipmentId)
+        # print(' @@@@@@@@@ RESULT FOR LABELS shipmentId ZADZIAŁAŁO @@@@@@@@@ ', shipmentId)
         # print(' @@@@@@@@@ RESULT FOR LABELS @@@@@@@@@ ', response)
         # print(' @@@@@@@@@ RESULT FOR LABELS @@@@@@@@@ ', response.content)
         # print('@@@@@@@@@ RESPONSE LABELS HEADERS 1 @@@@@@@@@', response.headers)
