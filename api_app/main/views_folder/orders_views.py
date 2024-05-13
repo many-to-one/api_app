@@ -655,76 +655,90 @@ def set_shipment_list(request):
 
     from ..utils import pickup_point_order, no_pickup_point_order, cash_no_point_order
     ids = request.GET.getlist('ids')
-    # print('********************** IDS set_shipment_list IDS ****************************', ids)
+    print('********************** IDS set_shipment_list IDS ****************************', ids)
 
     pickup = request.GET.getlist('pickup')
 
     result_arr = []
 
+    # for item in ids:
+    #     parts_all = item.split(',')
+    #     for parts_ in parts_all:
+    #         parts = parts_.split(':')
+    #         id = parts[0]
+    #         name = parts[1]
+    #         deliveryMethod = parts[2]
+    #         # fulfillmentStatus = parts[3]
+    #         # orderStatus = parts[4]
+    #         print('#################### name ######################', parts)
+
     for item in ids:
-        parts_all = item.split(',')
-        for parts_ in parts_all:
-            parts = parts_.split(':')
-            id = parts[0]
-            name = parts[1]
-            deliveryMethod = parts[2]
-            # fulfillmentStatus = parts[3]
-            # orderStatus = parts[4]
-            print('#################### name ######################', name)
-
-
-            secret = Secret.objects.get(account__name=name)
-            credentialsId = get_shipment_id(request, secret, name, deliveryMethod)
-            # print('#################### credentialsId ######################', credentialsId)
-            data = create_label(request, id, name)
-            order_data = data[0]
-            # print('********************** CASH ON DELIVERY ****************************', order_data["payment"]["type"])
-            # print('********************** CASH TO PAY ****************************', order_data["summary"]['totalToPay']['amount'], order_data["summary"]['totalToPay']['currency'])
-            # print('#################### order_data ######################', json.dumps(order_data, indent=4))
-            descr = get_offer_descr(request, order_data["lineItems"][0]["offer"]["id"], name)
-            # print('********************** descr ****************************', descr)
-
-
-            for item in order_data['lineItems']:
-                external_id = item['offer']['external']['id']
-                offer_name = item['offer']["name"][:15]
-                # print('********************** DOSTAWA ****************************', order_data["delivery"]["method"]["id"])
-                # print('********************** ID PUNKT ODBIORU ****************************', order_data["delivery"]["pickupPoint"]["id"])
-
-            try:
-                # if pickup:
-                #     print('********************** IDS NO PICKUP ****************************', pickup[0])
-                if order_data["delivery"]["pickupPoint"] == None:
-                    if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
-                        result = cash_no_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
-                    else:
-                        result = no_pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
+        for order_data in item.split('@'):
+            if order_data:
+                order = order_data.split(":")
+                if order[0].startswith(','): #for "Allegro One Box, DPD" and else with comma
+                    id = order[0][1:]
                 else:
-                    if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
-                        result = cash_no_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
-                    # print('********************** pickupPoint ****************************', order_data["delivery"]["pickupPoint"])
-                    else:
-                        result = pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
-                if 'error' in result:
-                    error_code = result['error']
-                    if error_code == 'invalid_token':
-                        # print('ERROR RESULT @@@@@@@@@', error_code)
-                        try:
-                            # Refresh the token
-                            new_token = get_next_token(request, secret.refresh_token, 'retset')
-                            # Retry fetching orders with the new token
-                            return get_order_details(request, id)
-                        except Exception as e:
-                            print('Exception @@@@@@@@@', e)
-                            context = {'name': 'retset'}
-                            return render(request, 'invalid_token.html', context)
-                # print('RESULT FOR SIPMENT LIST @@@@@@@@@', json.dumps(result, indent=4))
-                # print('@@@@@@@@@ RESPONSE HEADERS 1 @@@@@@@@@', response.headers)
-                result_arr.append({"id": id, "commandId": result["commandId"], "name": name})
-                        # return get_shipment_status(request, result['commandId'], secret)
+                    id = order[0] 
+                name = order[1]
+                deliveryMethod = order[2]
+                print('order_data:', id, name, deliveryMethod)
+            # if i and not i.startswith(','):
+            #     i = i[1:]
+            #     print('i:', i)
 
-            except requests.exceptions.HTTPError as err:
-                raise SystemExit(err)
+                secret = Secret.objects.get(account__name=name)
+                credentialsId = get_shipment_id(request, secret, name, deliveryMethod)
+                # print('#################### credentialsId ######################', credentialsId)
+                data = create_label(request, id, name)
+                order_data = data[0]
+                # print('********************** CASH ON DELIVERY ****************************', order_data["payment"]["type"])
+                # print('********************** CASH TO PAY ****************************', order_data["summary"]['totalToPay']['amount'], order_data["summary"]['totalToPay']['currency'])
+                # print('#################### order_data ######################', json.dumps(order_data, indent=4))
+                descr = get_offer_descr(request, order_data["lineItems"][0]["offer"]["id"], name)
+                # print('********************** descr ****************************', descr)
+
+
+                for item in order_data['lineItems']:
+                    external_id = item['offer']['external']['id']
+                    offer_name = item['offer']["name"][:15]
+                    # print('********************** DOSTAWA ****************************', order_data["delivery"]["method"]["id"])
+                    # print('********************** ID PUNKT ODBIORU ****************************', order_data["delivery"]["pickupPoint"]["id"])
+
+                try:
+                    # if pickup:
+                    #     print('********************** IDS NO PICKUP ****************************', pickup[0])
+                    if order_data["delivery"]["pickupPoint"] == None:
+                        if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
+                            result = cash_no_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
+                        else:
+                            result = no_pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
+                    else:
+                        if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
+                            result = cash_no_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
+                        # print('********************** pickupPoint ****************************', order_data["delivery"]["pickupPoint"])
+                        else:
+                            result = pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
+                    if 'error' in result:
+                        error_code = result['error']
+                        if error_code == 'invalid_token':
+                            # print('ERROR RESULT @@@@@@@@@', error_code)
+                            try:
+                                # Refresh the token
+                                new_token = get_next_token(request, secret.refresh_token, 'retset')
+                                # Retry fetching orders with the new token
+                                return get_order_details(request, id)
+                            except Exception as e:
+                                print('Exception @@@@@@@@@', e)
+                                context = {'name': 'retset'}
+                                return render(request, 'invalid_token.html', context)
+                    # print('RESULT FOR SIPMENT LIST @@@@@@@@@', json.dumps(result, indent=4))
+                    # print('@@@@@@@@@ RESPONSE HEADERS 1 @@@@@@@@@', response.headers)
+                    result_arr.append({"id": id, "commandId": result["commandId"], "name": name})
+                            # return get_shipment_status(request, result['commandId'], secret)
+
+                except requests.exceptions.HTTPError as err:
+                    raise SystemExit(err)
 
     # print('#################### result_arr ######################', result_arr)
            

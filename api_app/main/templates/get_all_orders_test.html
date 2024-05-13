@@ -152,7 +152,7 @@
                         type="checkbox" 
                         name="selected_items" 
                         {% if order.fulfillment.status == 'NEW' and order.status == 'READY_FOR_PROCESSING' %}
-                            value="{{ order.id }}:{{ name }}:{{ order.delivery.method.name }}:{{ order.fulfillment.status }}:{{ order.status }}"
+                            value="{{ order.id }}:{{ name }}:{{ order.delivery.method.name }}@"
                         {% endif %}
                     >
                     {% for item in order.lineItems %}
