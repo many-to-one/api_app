@@ -14,6 +14,7 @@ from ..models import *
 from ..utils import *
 from .offer_views import get_one_offer
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+import asyncio
 
 REDIRECT_URI = os.getenv('REDIRECT_URI')      # wprowadź redirect_uri
 AUTH_URL = os.getenv('AUTH_URL')
@@ -74,7 +75,7 @@ def get_orders(request, name):
 
 
     # Paginate the results
-    paginator = Paginator(result_with_name, 10)  # Show 10 results per page
+    paginator = Paginator(result_with_name, 50)  # Show 10 results per page
     print('***************** paginator.count *******************', paginator.count)
     print('***************** paginator.num_pages *******************', paginator.num_pages)
 
@@ -93,7 +94,7 @@ def get_orders(request, name):
         "name": name,
     }
     print('*********************** len all_results **********************', len(paginated_results))
-    return render(request, 'get_all_orders_test.html', context)
+    return render(request, 'get_all_orders.html', context)
     
 
 def get_order_details(request, id, name):
@@ -661,17 +662,6 @@ def set_shipment_list(request):
 
     result_arr = []
 
-    # for item in ids:
-    #     parts_all = item.split(',')
-    #     for parts_ in parts_all:
-    #         parts = parts_.split(':')
-    #         id = parts[0]
-    #         name = parts[1]
-    #         deliveryMethod = parts[2]
-    #         # fulfillmentStatus = parts[3]
-    #         # orderStatus = parts[4]
-    #         print('#################### name ######################', parts)
-
     for item in ids:
         for order_data in item.split('@'):
             if order_data:
@@ -683,9 +673,6 @@ def set_shipment_list(request):
                 name = order[1]
                 deliveryMethod = order[2]
                 print('order_data:', id, name, deliveryMethod)
-            # if i and not i.startswith(','):
-            #     i = i[1:]
-            #     print('i:', i)
 
                 secret = Secret.objects.get(account__name=name)
                 credentialsId = get_shipment_id(request, secret, name, deliveryMethod)
@@ -752,94 +739,6 @@ def set_shipment_list(request):
     # return HttpResponse('ok')
 
 
-import asyncio
-# def get_shipment_status_id(request):
-
-#     labels = []
-#     # data = json.loads(request.body)
-#     # ids = data.get('ids')
-#     ids = request.GET.getlist('ids')
-#     # print('********************** IDS get_shipment_status_id IDS ****************************', ids)
-#     pickup = request.GET.getlist('pickup')
-#     # print('********************** IDS get_shipment_status_id pickup ****************************', pickup[0])
-
-#     # return HttpResponse(pickup)
-
-#     time.sleep(5)
-#     print('********************** TIME TIME TIME 5 SECONDS ****************************')
-#     for item in ids:
-
-#         # !!!!!!!!!!
-#         # check itteration, mayby SPLIT doesn't work properly, andthat's why it works only with one()first shipment
-#         # !!!!!!!!!!
-
-#         parts = item.split(',')
-#         # print('********************** PARTS PARTS PARTS ****************************', parts)
-#         for part in parts:
-#             commandId, name = part.split(':')
-#             # result.append({'id': id, 'name': name, 'deliveryMethod': deliveryMethod, 'fulfillmentStatus': fulfillmentStatus, 'orderStatus': orderStatus})
-#             # if fulfillmentStatus == 'NEW' and orderStatus == "READY_FOR_PROCESSING":
-    
-#             # print('********************** result ****************************', commandId, name)
-
-#             secret = Secret.objects.get(account__name=name)
-
-#             try:
-#                 url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands/{commandId}"
-#                 headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"} 
-
-#                 response = requests.get(url, headers=headers)
-#                 result = response.json()
-#                 if 'error' in result:
-#                     error_code = result['error']
-#                     if error_code == 'invalid_token':
-#                         # print('ERROR RESULT @@@@@@@@@', error_code)
-#                         try:
-#                             # Refresh the token
-#                             new_token = get_next_token(request, secret.refresh_token, 'retset')
-#                             # Retry fetching orders with the new token
-#                             return get_order_details(request, id)
-#                         except Exception as e:
-#                             print('Exception @@@@@@@@@', e)
-#                             context = {'name': 'retset'}
-#                             return render(request, 'invalid_token.html', context)
-#                 print('@@@@@@@@@ RESULT FOR SHIPMENT STATUS ID @@@@@@@@@', json.dumps(result, indent=4))
-#                 # print('@@@@@@@@@ RESPONSE HEADERS @@@@@@@@@', response.headers)
-#                 # time.sleep(10)
-#                 if result["status"] == "ERROR":
-#                     print('*************** ERROR ERROR ERROR ***************')
-#                     print(result["status"])
-#                     print(result["errors"][0]["userMessage"])
-#                     # return JsonResponse(
-#                     #     {
-#                     #         'message': result["errors"][0]["userMessage"],
-#                     #     }, 
-#                     #     status=200,
-#                     # )
-#                 if result["shipmentId"] is None:
-#                     get_shipment_status_id(request)
-#                     # continue
-#                 if pickup[0] == 'pickup':
-#                     # print('*************** PICKUP ***************', result["shipmentId"])
-#                     if result["shipmentId"] is None:
-#                         get_shipment_status_id(request)
-#                         break
-#                     else:
-#                         pickupDateProposalId = get_pickup_proposals(request, secret.access_token, result["shipmentId"])
-#                         get_courier(request, result["shipmentId"], commandId, pickupDateProposalId, secret)
-#                 # print('*************** LABEL ADDING INFO ***************', result["shipmentId"], secret)
-#                 label = label_print(request, result["shipmentId"], secret)
-#                 print('*************** LABEL ***************', label[:100])
-#                 labels.append(label)
-
-
-#             except requests.exceptions.HTTPError as err:
-#                 raise SystemExit(err)
-            
-#     print('*************** FUNC RETURN ***************')
-#     return base64_to_pdf_bulk(labels)
-
-
 def make_order(request, secret, commandId):
     url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands/{commandId}"
     headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"} 
@@ -860,161 +759,56 @@ def make_order(request, secret, commandId):
                 print('Exception @@@@@@@@@', e)
                 context = {'name': 'retset'}
                 return render(request, 'invalid_token.html', context)
-        print('@@@@@@@@@ RESULT FOR SHIPMENT STATUS ID @@@@@@@@@', json.dumps(result, indent=4))
-        print('@@@@@@@@@ RESULT FOR SHIPMENT STATUS ID @@@@@@@@@', result["commandId"])
- 
+    print('@@@@@@@@@ RESULT FOR SHIPMENT STATUS ID @@@@@@@@@', json.dumps(result, indent=4))
     return result
 
 
-# def get_shipment_status_id(request):
-
-#     labels = []
-#     # data = json.loads(request.body)
-#     # ids = data.get('ids')
-#     ids = request.GET.getlist('ids')
-#     # print('********************** IDS get_shipment_status_id IDS ****************************', ids)
-#     pickup = request.GET.getlist('pickup')
-#     print('********************** IDS get_shipment_status_id pickup ****************************', pickup[0])
-
-#     # return HttpResponse(pickup)
-
-#     time.sleep(5)
-#     print('********************** TIME TIME TIME 5 SECONDS ****************************')
-#     for item in ids:
-
-#         # !!!!!!!!!!
-#         # check itteration, mayby SPLIT doesn't work properly, andthat's why it works only with one()first shipment
-#         # !!!!!!!!!!
-
-#         parts = item.split(',')
-#         # print('********************** PARTS PARTS PARTS ****************************', parts)
-#         for part in parts:
-#             commandId, name = part.split(':')
-#             # result.append({'id': id, 'name': name, 'deliveryMethod': deliveryMethod, 'fulfillmentStatus': fulfillmentStatus, 'orderStatus': orderStatus})
-#             # if fulfillmentStatus == 'NEW' and orderStatus == "READY_FOR_PROCESSING":
-    
-#             print('********************** result ****************************', commandId, name) #1f8004b4-df56-4bd9-afec-e5e4ebaaf3ff #d7db1513-48a9-49b4-8ad4-7583a78f4f9e(nopickup)
-
-#             secret = Secret.objects.get(account__name=name)
-
-#             try:
-#                 result = make_order(request, secret, commandId)
-#                 # url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands/{commandId}"
-#                 # headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"} 
-
-#                 # response = requests.get(url, headers=headers)
-#                 # result = response.json()
-#                 # if 'error' in result:
-#                 #     error_code = result['error']
-#                 #     if error_code == 'invalid_token':
-#                 #         # print('ERROR RESULT @@@@@@@@@', error_code)
-#                 #         try:
-#                 #             # Refresh the token
-#                 #             new_token = get_next_token(request, secret.refresh_token, 'retset')
-#                 #             # Retry fetching orders with the new token
-#                 #             return get_order_details(request, id)
-#                 #         except Exception as e:
-#                 #             print('Exception @@@@@@@@@', e)
-#                 #             context = {'name': 'retset'}
-#                 #             return render(request, 'invalid_token.html', context)
-#                 print('@@@@@@@@@ RESULT FOR SHIPMENT STATUS ID here @@@@@@@@@', json.dumps(result, indent=4))
-#                 # print('@@@@@@@@@ RESULT FOR SHIPMENT STATUS ID @@@@@@@@@', result["commandId"])
-
-#                 if result["shipmentId"] == None:
-#                     result = make_order(request, secret, commandId)
-
-#                 if result["status"] == "ERROR":
-#                     print('*************** ERROR ERROR ERROR ***************')
-#                     print(result["status"])
-#                     print(result["errors"][0]["userMessage"])
-
-#                 if pickup[0] == 'pickup':
-                    
-#                     shipmentId = result["shipmentId"]
-#                     print('*************** shipmentId ***************', shipmentId)
-#                     print('*************** secret ***************', secret)
-#                     print('*************** commandId ***************', commandId)
-#                     loop = asyncio.new_event_loop()
-#                     asyncio.set_event_loop(loop)
-#                     loop.run_until_complete(async_operations(request, shipmentId, secret, commandId))
-                        
-#                     # pickupDateProposalId = get_pickup_proposals(request, secret.access_token, result["shipmentId"])
-#                     # get_courier(request, result["shipmentId"], commandId, pickupDateProposalId, secret)
-#                     # print('*************** LABEL ADDING INFO ***************', result["shipmentId"], secret)
-    
-#                 label = label_print(request, result["shipmentId"], secret)
-#                 print('*************** LABEL ***************', label)
-#                 labels.append(label)
-#                 print('*************** LABELS ***************', labels)
-
-#             except requests.exceptions.HTTPError as err:
-#                 raise SystemExit(err)
-            
-#     print('*************** RETURN SOMETHING ***************')
-#     return base64_to_pdf_bulk(labels)
-
-
 def get_shipment_status_id(request):
-    labels = []
-    ids = request.GET.getlist('ids')
-    pickup = request.GET.getlist('pickup')
+    while True:
+        labels = []
+        ids = request.GET.getlist('ids')
+        pickup = request.GET.getlist('pickup')
 
-    for item in ids:
-        parts = item.split(',')
-        for part in parts:
-            commandId, name = part.split(':')
-
-            secret = Secret.objects.get(account__name=name)
-
-            try:
-                print('*************** BEFORE commandId ***************', commandId)  #a1d3c5b6-cf5b-4b8e-bd15-47d798ae99af Pocztex
-                result = make_order(request, secret, commandId) 
-
-                if result["shipmentId"] is None:
-                    # If shipmentId is None, try making the order again
-                    result = make_order(request, secret, commandId)
-
-                if result["status"] == "ERROR":
-                    # Handle error response
-                    print('*************** ERROR ERROR ERROR ***************')
-                    print(result["status"])
-                    print(result["errors"][0]["userMessage"])
-                    # continue to the next iteration of the loop
-
-                if pickup[0] == 'pickup':
-                    shipmentId = result["shipmentId"]
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-                    loop.run_until_complete(async_operations(request, shipmentId, secret, commandId))
-
-                label = label_print(request, result["shipmentId"], secret)
-                labels.append(label)
-
-            except requests.exceptions.HTTPError as err:
-                raise SystemExit(err)
-
-    # Check if any shipmentId is processed successfully before returning
-    if any(label is not None for label in labels):
-        return base64_to_pdf_bulk(labels)
-    else:
-        # Retry making the order
+        time.sleep(5)
+        print('********************** TIME TIME TIME 5 SECONDS ****************************')
         for item in ids:
             parts = item.split(',')
             for part in parts:
                 commandId, name = part.split(':')
                 secret = Secret.objects.get(account__name=name)
-                result = make_order(request, secret, commandId)
-                if result["shipmentId"] is not None:
-                    # If any shipmentId is successfully processed, break the loop
-                    break
-        else:
-            # If no shipment IDs are successfully processed after retrying,
-            # return an appropriate response indicating that no shipment IDs were successfully processed.
-            return HttpResponse("No shipment IDs were successfully processed.")
-        
-        # If a shipment ID is successfully processed after retrying, return the labels
-        # return base64_to_pdf_bulk(labels)
 
+                try:
+                    result = make_order(request, secret, commandId)
+                    if result["status"] == "ERROR":
+                        print('*************** ERROR ERROR ERROR ***************')
+                        print(result["status"])
+                        print(result["errors"][0]["userMessage"])
+                        continue
+                        # return JsonResponse({
+                        #     "ERROR": result["errors"][0]["userMessage"]
+                        # })
+
+                    if result["shipmentId"] == None:
+                        # makes this function restart and returns ONLY ONCE
+                        break
+
+                    if pickup[0] == 'pickup':                  
+                        # shipmentId = result["shipmentId"]
+                        # loop = asyncio.new_event_loop()
+                        # asyncio.set_event_loop(loop)
+                        # loop.run_until_complete(async_operations(request, shipmentId, secret, commandId))
+                        pickupDateProposalId = get_pickup_proposals(request, secret.access_token, result["shipmentId"])
+                        get_courier(request, result["shipmentId"], commandId, pickupDateProposalId, secret)
+                    if result["shipmentId"] is not None:
+                        label = label_print(request, result["shipmentId"], secret)
+                        labels.append(label)
+
+                except requests.exceptions.HTTPError as err:
+                    raise SystemExit(err)
+        # if labels: 
+        if any(label is not None for label in labels):
+            print('********************** RETURN SOMETHING ****************************')
+            return base64_to_pdf_bulk(labels)
 
 
 
@@ -1023,7 +817,7 @@ async def async_operations(request, shipmentId, secret, commandId):
     await get_courier(request, shipmentId, commandId, pickupDateProposalId, secret)
 
 
-async def get_pickup_proposals(request, token, shipmentId):
+def get_pickup_proposals(request, token, shipmentId):
 
     try:
         url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickup-proposals" 
@@ -1048,7 +842,7 @@ async def get_pickup_proposals(request, token, shipmentId):
     # return HttpResponse('ok')
 
 
-async def get_courier(request, shipmentId, commandId, pickupDateProposalId, secret):
+def get_courier(request, shipmentId, commandId, pickupDateProposalId, secret):
 
     # print('******************* GET COURIER SHIPMENTID ************************', shipmentId)
     # print('******************* pickupDateProposalId in GET COURIER ************************', pickupDateProposalId)

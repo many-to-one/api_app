@@ -22,7 +22,7 @@
     margin-bottom: 10px;
     /* height: 160px; */
     /* padding: 5px; */
-    background-color: white;
+    background-color: var(--dark_success);
     box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
 }
 
@@ -37,33 +37,33 @@
 
 .name_h {
     position: absolute;
-    left: 7%;
+    left: 11%;
 }
 
 .stock_h {
     position: absolute;
-    left: 53.5%;
+    left: 58%;
 }
 
 .status_h {
     position: absolute;
-    left: 65.5%;
+    left: 65%;
 }
 
 .sale_h {
     position: absolute;
-    left: 70.5%;
+    left: 68%;
 }
 
 .account_h {
     position: absolute;
-    left: 77.5%;
+    left: 76%;
 }
 
 .post_h {
     width: 6vw;
     position: absolute;
-    left: 91.5%;
+    left: 84%;
 }
 
 .details_h {
@@ -74,19 +74,57 @@
 
 .offers__cont {
     position: relative;
-    margin-top: 110px;
-}
+    /* margin-top: 110px; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+} 
 
 .offers__line {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 20px;
+    width: auto;
+    max-width: 80%;
     border-radius: 10px;
     margin-bottom: 10px;
-    height: 70px;
+    min-height: 70px;
+    height: auto;
     padding: 5px;
-    background-color: white;
+    background-color: var(--light);
     box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+}
+
+@media screen and (max-width: 1000px) {
+    .offers__line {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+}
+
+.dbl {
+    background-color: var(--dbl);
+}
+
+.sent {
+    background-color: var(--dark_success);
+}
+
+.canceled {
+    background-color: var(--wait);
+}
+
+.picked_up {
+    background-color: var(--success);
+}
+
+.label {
+    width: 20px;
+    height: 20px;
 }
 
 .photo {
@@ -97,12 +135,20 @@
 }
 
 .name {
-    width: 40vw;
+    width: 38vw;
+    text-decoration: none;
+    color: var(--dark);
 }
 
 .stock {
     width: 20px;
     height: 20px;
+}
+
+.account, .sku, .costs {
+    min-width: 40px;
+    width: auto;
+    white-space: nowrap;
 }
 
 .account_select {
@@ -111,6 +157,11 @@
     border: 1px solid black;
     border-radius: 10px;
     padding: 2px;
+}
+
+.shipment {
+    width: 10vw;
+    height: auto;
 }
 
 .account__select__header {

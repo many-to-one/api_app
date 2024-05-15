@@ -20,17 +20,19 @@
             <button onclick="getYes()">Tak</button>
         </div>
     </div>
-    <div id="questionOne">
+    <!-- <div id="questionOne">
         <p id="textOne"></p>
         <div>
             <button onclick="getNoPrintOne()">Nie</button>
             <button onclick="getYesPrintOne()">Tak</button>
         </div>
-    </div>
+    </div> -->
     <div id="wait">
         <p>Proczę czekać...</p>
         <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
     </div>
+
+        <div class="offers__cont">
 
             <div class="list__header_orders"> 
                 <p class="labels" onclick="allLabels()" class="all_labels">Zzn</p>
@@ -46,104 +48,91 @@
                 <p class="label_o">Druk</p>
             </div>
 
-            {% for result in all_results %}
-            {% for order in result.checkoutForms %}
-
-
-
-            {% if order.delivery.calculatedNumberOfPackages == 2 %}
-
-                        {% for item in order.lineItems %}
-                        <div 
-                            name="fulfillmentStatus"
-                            class="orders__line dbl
-                            {% if order.fulfillment.status == 'SENT' %} 
-                                sent 
-                            {% elif order.fulfillment.status == 'CANCELLED' %}
-                                canceled
-                            {% elif order.fulfillment.status == 'PICKED_UP' %}
-                                picked_up
-                            {% endif %}"
-                        >
-                                {% if  forloop.counter == 1 %}
-                                    <p class="labels">
-                                        <input 
-                                            class="labels" 
-                                            type="checkbox" 
-                                            name="selected_items" 
-                                            {% if order.fulfillment.status == 'NEW' and order.status == 'READY_FOR_PROCESSING' %}
-                                                value="{{ order.id }}:{{ result.name }}:{{ order.delivery.method.name }}:{{ order.fulfillment.status }}:{{ order.status }}"
-                                            {% endif %}
-                                        >
-                                    </p>
-                                {% else %}
-                                    <p></p>
-                                {% endif %}
-                                <a class="name_o" href="{% url 'get_order_details' order.id result.name   %}">{{ item.offer.name }}</a> <!-- Product -->
-                                <p class="account_o" id="name_{{ order.id }}" value="{{ result.name }}">{{ result.name }}</p> <!-- Konto -->
-                                <p class="sku_o">{{ item.offer.external.id }}</p> <!-- SKU -->
-                                <p class="stock_o">{{ item.quantity }}</p> <!-- Ilość -->
-
-
-                                {% if forloop.counter == 1 %}
-                                    <p class="costs_o">{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</p> <!-- Koszty -->
-
-                                    {% if order.status == 'FILLED_IN' %}
-                                        <p value="{{ order.id }}_{{ order.status }}" class="status_o">PŁATNOŚĆ ROZPOCZĘTA</p>
-                                    {% elif order.status == 'READY_FOR_PROCESSING' %}
-                                        <p value="{{ order.id }}_{{ order.status }}" class="status_o">OPŁACONE</p>
-                                    {% elif order.status == 'CANCELLED' %}
-                                        <p value="{{ order.id }}_{{ order.status }}" class="status_o">ANULOWANE</p>
-                                    {% else %}
-                                        <p value="{{ order.id }}_{{ order.status }}" class="status_o"></p>
-                                    {% endif %}
-
-                                    <p class="client_o">{{ order.buyer.login }}</p>
-                                    <p class="shipment_o">{{ order.delivery.method.name }}</p>
-
-                                    <select class="account_select order_o" id="status_select_{{ order.id }}">
-                                        <option 
-                                            id="status_{{ order.id }}" 
-                                            value="SENT" 
-                                            {% if order.fulfillment.status == 'SENT' %} 
-                                                selected 
-                                            {% endif %}
-                                        >
-                                            WYSŁANE
-                                        </option>
-                                        <option id="status_{{ order.id }}" value="READY_FOR_PROCESSING" {% if order.fulfillment.status == 'NEW' %} selected {% endif %}>NOWE</option>
-                                        <option id="status_{{ order.id }}" value="CANCELLED" {% if order.fulfillment.status == 'CANCELLED' %} selected {% endif %}>ANULOWANE</option>
-                                        <option id="status_{{ order.id }}" value="PICKED_UP" {% if order.fulfillment.status == 'PICKED_UP' %} selected {% endif %}>DOSTARCZONE</option>
-                                    </select>
-                                    <img class="icon edit_o" id="edit_{{ order.id }}" onclick="updateOrderStatus('{{ order.id }}', 'status_select_{{ order.id }}')" src="{% static 'icons/edit2.png' %}" alt="">
-                                    <img style="display: none;" class="icon edit_o" id="load_{{ order.id }}"  src="{% static 'icons/load.png' %}" alt="">
-
-
-                                    {% if order.delivery.method.name == 'Allegro Kurier DPD' %}
-                                        <p class="label_o" onclick="printOneLabel('{{ order.id }}')">DPD</p>
-                                    {% else %}
-                                        <p class="label_o"></p>
-                                    {% endif %}
-
-
-                                {% else %}
-                                    <p></p> 
-                                    <p></p>
-                                    <p></p>
-                                    <p></p> 
-                                    <p></p>
-                                    <p></p>
-                                    <p></p>
-                                {% endif %}
-                                </div>
-                        {% endfor %}
-                    
-            {% else %}
-
-        
+            {% for order in all_results %}       
+            
+                {% if order.delivery.calculatedNumberOfPackages == 2 %}
+                {% for item in order.lineItems %}
                 <div 
                     name="fulfillmentStatus"
-                    class="orders__line 
+                    class="offers__line dbl
+                    {% if order.fulfillment.status == 'SENT' %} 
+                        sent 
+                    {% elif order.fulfillment.status == 'CANCELLED' %}
+                        canceled
+                    {% elif order.fulfillment.status == 'PICKED_UP' %}
+                        picked_up
+                    {% endif %}"
+                >
+                        {% if  forloop.counter == 1 %}
+                            <p class="labels">
+                                <input 
+                                    class="labels" 
+                                    type="checkbox" 
+                                    name="selected_items" 
+                                    {% if order.fulfillment.status == 'NEW' and order.status == 'READY_FOR_PROCESSING' %}
+                                        value="{{ order.id }}:{{ name }}:{{ order.delivery.method.name }}:{{ order.fulfillment.status }}:{{ order.status }}"
+                                    {% endif %}
+                                >
+                            </p>
+                        {% else %}
+                            <p></p>
+                        {% endif %}
+                        <a class="name" href="{% url 'get_order_details' order.id name   %}">{{ item.offer.name }}</a> <!-- Product -->
+                        <p class="account" id="name_{{ order.id }}" value="{{ name }}">{{ name }}</p> <!-- Konto -->
+                        <p class="sku">{{ item.offer.external.id }}</p> <!-- SKU -->
+                        <p class="stock">{{ item.quantity }}</p> <!-- Ilość -->
+
+
+                        {% if forloop.counter == 1 %}
+                            <p class="costs">{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</p> <!-- Koszty -->
+
+                            {% if order.status == 'FILLED_IN' %}
+                                <p value="{{ order.id }}_{{ order.status }}" class="status">PŁATNOŚĆ ROZPOCZĘTA</p>
+                            {% elif order.status == 'READY_FOR_PROCESSING' %}
+                                <p value="{{ order.id }}_{{ order.status }}" class="status">OPŁACONE</p>
+                            {% elif order.status == 'CANCELLED' %}
+                                <p value="{{ order.id }}_{{ order.status }}" class="status">ANULOWANE</p>
+                            {% else %}
+                                <p value="{{ order.id }}_{{ order.status }}" class="status"></p>
+                            {% endif %}
+
+                            <p class="client">{{ order.buyer.login }}</p>
+                            <p class="shipment">{{ order.delivery.method.name }}</p>
+
+                            <select class="account_select order" id="status_select_{{ order.id }}">
+                                <option 
+                                    id="status_{{ order.id }}" 
+                                    value="SENT" 
+                                    {% if order.fulfillment.status == 'SENT' %} 
+                                        selected 
+                                    {% endif %}
+                                >
+                                    WYSŁANE
+                                </option>
+                                <option id="status_{{ order.id }}" value="READY_FOR_PROCESSING" {% if order.fulfillment.status == 'NEW' %} selected {% endif %}>NOWE</option>
+                                <option id="status_{{ order.id }}" value="CANCELLED" {% if order.fulfillment.status == 'CANCELLED' %} selected {% endif %}>ANULOWANE</option>
+                                <option id="status_{{ order.id }}" value="PICKED_UP" {% if order.fulfillment.status == 'PICKED_UP' %} selected {% endif %}>DOSTARCZONE</option>
+                            </select>
+                            <img class="icon edit" id="edit_{{ order.id }}" onclick="updateOrderStatus('{{ order.id }}', 'status_select_{{ order.id }}')" src="{% static 'icons/edit2.png' %}" alt="">
+                            <img style="display: none;" class="icon edit_o" id="load_{{ order.id }}"  src="{% static 'icons/load.png' %}" alt="">
+
+
+                        {% else %}
+                            <p></p> 
+                            <p></p>
+                            <p></p>
+                            <p></p> 
+                            <p></p>
+                            <p></p>
+                            <p></p>
+                        {% endif %}
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                <div 
+                    name="fulfillmentStatus"
+                    class="offers__line dbl
                     {% if order.fulfillment.status == 'SENT' %} 
                         sent 
                     {% elif order.fulfillment.status == 'CANCELLED' %}
@@ -157,50 +146,44 @@
                         type="checkbox" 
                         name="selected_items" 
                         {% if order.fulfillment.status == 'NEW' and order.status == 'READY_FOR_PROCESSING' %}
-                            value="{{ order.id }}:{{ result.name }}:{{ order.delivery.method.name }}:{{ order.fulfillment.status }}:{{ order.status }}"
+                            value="{{ order.id }}:{{ name }}:{{ order.delivery.method.name }}@"
                         {% endif %}
                     >
                     {% for item in order.lineItems %}
-                        <a class="name_o" href="{% url 'get_order_details' order.id result.name  %}">{{ item.offer.name }}</a>
-                        <p class="account_o" id="name_{{ order.id }}" value="{{ result.name }}">{{ result.name }}</p> <!-- Konto -->
-                        <p class="sku_o">{{ item.offer.external.id }}</p> 
-                        <p class="stock_o">{{ item.quantity }}</p> 
+                        <a class="name" href="{% url 'get_order_details' order.id name   %}">{{ item.offer.name }}</a>
+                        <p class="account" id="name_{{ order.id }}" value="{{ name }}">{{ name }}</p> <!-- Konto -->
+                        <p class="sku">{{ item.offer.external.id }}</p> 
+                        <p class="stock">{{ item.quantity }}</p> 
                     {% endfor %}
 
-                    <p class="costs_o">{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</p> 
+                    <p class="costs">{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</p> 
 
                     {% if order.status == 'FILLED_IN' %}
-                        <p value="{{ order.id }}_{{ order.status }}" class="status_o">PŁATNOŚĆ ROZPOCZĘTA</p>
+                        <p value="{{ order.id }}_{{ order.status }}" class="status">NIE OPŁACONE</p>
                     {% elif order.status == 'READY_FOR_PROCESSING' %}
-                        <p value="{{ order.id }}_{{ order.status }}" class="status_o">OPŁACONE</p>
+                        <p value="{{ order.id }}_{{ order.status }}" class="status">OPŁACONE</p>
                     {% elif order.status == 'CANCELLED' %}
-                        <p value="{{ order.id }}_{{ order.status }}" class="status_o">ANULOWANE</p>
+                        <p value="{{ order.id }}_{{ order.status }}" class="status">ANULOWANE</p>
                     {% else %}
-                        <p value="{{ order.id }}_{{ order.status }}" class="status_o"></p>
+                        <p value="{{ order.id }}_{{ order.status }}" class="status"></p>
                     {% endif %}
 
-                    <p class="client_o">{{ order.buyer.login }}</p>
-                    <p class="shipment_o">{{ order.delivery.method.name }}</p>
+                    <p class="client">{{ order.buyer.login }}</p>
+                    <p class="shipment">{{ order.delivery.method.name }}</p>
 
-                    <select class="account_select order_o" id="status_select_{{ order.id }}">
+                    <select class="account_select order" id="status_select_{{ order.id }}">
                         <option id="status_{{ order.id }}" value="SENT" {% if order.fulfillment.status == 'SENT' %} selected {% endif %}>WYSŁANE</option>
                         <option id="status_{{ order.id }}" value="READY_FOR_PROCESSING" {% if order.fulfillment.status == 'NEW' %} selected {% endif %}>NOWE</option>
                         <option id="status_{{ order.id }}" value="CANCELLED" {% if order.fulfillment.status == 'CANCELLED' %} selected {% endif %}>ANULOWANE</option>
                         <option id="status_{{ order.id }}" value="PICKED_UP" {% if order.fulfillment.status == 'PICKED_UP' %} selected {% endif %}>DOSTARCZONE</option>
                     </select>
 
-                    <img class="icon edit_o" id="edit_{{ order.id }}" onclick="updateOrderStatus('{{ order.id }}', 'status_select_{{ order.id }}')" src="{% static 'icons/edit2.png' %}" alt="">
-                    <img style="display: none;" class="icon edit_o" id="load_{{ order.id }}"  src="{% static 'icons/load.png' %}" alt="">
-                    
-                    {% if order.delivery.method.name == 'Allegro Kurier DPD' %}
-                        <p class="label_o" onclick="printOneLabel('{{ order.id }}')" value="{{ order.id }}" id="tdOne">DPD</p>
-                    {% else %}
-                        <p class="label_o"></p>
-                    {% endif %}
+                    <img class="icon edit" id="edit_{{ order.id }}" onclick="updateOrderStatus('{{ order.id }}', 'status_select_{{ order.id }}', '{{ order.delivery.method.name }}')" src="{% static 'icons/edit2.png' %}" alt="">
+                    <img style="display: none;" class="icon edit" id="load_{{ order.id }}"  src="{% static 'icons/load.png' %}" alt="">
+
                 </div>
             
-            {% endif %}
-            {% endfor %}
+
             {% endfor %}
 
             <div class="pagination">
@@ -221,8 +204,10 @@
                 </span>
             </div>
 
+        </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
     <script>
 
         function getCSRFToken() {
@@ -237,7 +222,7 @@
 
 
 
-        function updateOrderStatus(offerId, selectId) {
+        function updateOrderStatus(offerId, selectId, deliveryMethod) {
 
             // console.log('updateOrderStatus offerId clicked', offerId)
             // console.log('updateOrderStatus selectId clicked', selectId)
@@ -261,7 +246,7 @@
             console.log('Selected status:', selectedStatus);
 
             // Make an AJAX request to update the stock value
-            axios.put('/change_status/' + offerId + '/' + name + '/' + selectedStatus + '/')
+            axios.put('/change_status/' + offerId + '/' + name + '/' + selectedStatus + '/' + deliveryMethod + '/')
                 .then(function(response) {
                     console.log('status', response.data.newStatus)
                     if(response.status == 200) {
@@ -281,41 +266,41 @@
         }
 
 
-        function printOneLabel(orderId) {
-            console.log('printOneLabel', orderId)
-            var questionOne = document.getElementById('questionOne')
-            var textOne = document.getElementById('textOne')
+        // function printOneLabel(orderId) {
+        //     console.log('printOneLabel', orderId)
+        //     var questionOne = document.getElementById('questionOne')
+        //     var textOne = document.getElementById('textOne')
 
-            questionOne.style.display = 'flex';
-            textOne.innerHTML = '';
-            textOne.textContent = "Wydrukować pojedyńczą etykietę?";
-        }
+        //     questionOne.style.display = 'flex';
+        //     textOne.innerHTML = '';
+        //     textOne.textContent = "Wydrukować pojedyńczą etykietę?";
+        // }
 
-        function getYesPrintOne() {
+        // function getYesPrintOne() {
 
-            // var wait = document.getElementById('wait');
-            // wait.style.display = 'flex';
+        //     // var wait = document.getElementById('wait');
+        //     // wait.style.display = 'flex';
 
-            var questionOne = document.getElementById('questionOne')
-            var textOne = document.getElementById('textOne');
-            questionOne.style.display = 'none';
-            textOne.innerHTML = '';
+        //     var questionOne = document.getElementById('questionOne')
+        //     var textOne = document.getElementById('textOne');
+        //     questionOne.style.display = 'none';
+        //     textOne.innerHTML = '';
 
-            var tdOne = document.getElementById('tdOne');
-            tdOneValue = tdOne.getAttribute('value');
-            console.log('tdOneValue', tdOneValue)
-            var url = '/create_label_DPD/' + tdOneValue + '/';
+        //     var tdOne = document.getElementById('tdOne');
+        //     tdOneValue = tdOne.getAttribute('value');
+        //     console.log('tdOneValue', tdOneValue)
+        //     var url = '/create_label_DPD/' + tdOneValue + '/';
 
-            window.open(url, '_blank');
+        //     window.open(url, '_blank');
 
-        }
+        // }
 
-        function getNoPrintOne() {
-            var questionOne = document.getElementById('questionOne')
-            var textOne = document.getElementById('textOne')
-            questionOne.style.display = 'none';
-            textOne.innerHTML = '';
-        }
+        // function getNoPrintOne() {
+        //     var questionOne = document.getElementById('questionOne')
+        //     var textOne = document.getElementById('textOne')
+        //     questionOne.style.display = 'none';
+        //     textOne.innerHTML = '';
+        // }
 
 
         function allLabels() {
@@ -329,51 +314,6 @@
 
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Your JavaScript function here
-            // setToSend();
-        });
-
-
-        function setToSend() {
-
-            var checkboxes = document.querySelectorAll('input[name="selected_items"]');
-            var fulfill = document.querySelectorAll('div[name="fulfillmentStatus"]');
-            var fulfilltems = [];
-
-            // Iterate over each checkbox
-            fulfill.forEach(function(el) {
-                if (el.getAttribute('value')) {
-                    // console.log('status =>', checkbox.getAttribute('value'));
-                    fulfilltems.push(el.getAttribute('value'));
-                }
-            });
-            console.log(fulfilltems);
-
-            // var url = '/set_shipment_list/?ids=' + fulfilltems;
-            axios.post('/set_shipment_list/?ids=' + fulfilltems)
-                .then(function(response) {
-                    if(response.status == 200) {
-                        console.log('Success', response.data)
-                        // Set the value of each checkbox with the received IDs
-                        response.data.result.forEach(function(res, index) {
-                            var check = document.getElementById('check_' + res["id"]);
-                            console.log('response.data', res["id"], index, check);
-                            if (check) {
-                                check.checked = true;
-                                check.value = res["commandId"] + ':' + res["name"];
-                            }
-                        });
-                    }
-                })
-                .catch(function(error) {
-                    // Handle error
-                    console.error('Error updating stock:', error);
-                });
-            // window.location.href = url;
-            // wait.style.display = 'none';
-
-        }
 
 
         function getYes() {
@@ -411,6 +351,8 @@
         }
 
         function getNo() {
+            var noPickup = "no_pickup";
+            var checkboxes = document.querySelectorAll('input[name="selected_items"]');
             var question = document.getElementById('question')
             var text = document.getElementById('text');
             question.style.display = 'none';

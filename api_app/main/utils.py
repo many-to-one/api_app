@@ -1,3 +1,4 @@
+import math
 from users.models import CustomUser
 from .models import *
 import requests
@@ -124,7 +125,7 @@ def pickup_point_order(secret, order_data, external_id, offer_name, descr, crede
                         "unit": "CENTIMETER"
                       },
                       "weight": {
-                        "value": descr[3],
+                        "value": math.ceil(float(descr[3])),
                         "unit": "KILOGRAMS"
                       }
                     }
