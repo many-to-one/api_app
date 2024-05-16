@@ -164,7 +164,7 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr)
 
 
 
-async def cash_no_point_order(secret, order_data, external_id, offer_name, descr):
+def cash_no_point_order(secret, order_data, external_id, offer_name, descr):
 
     """ Courier (cash) with pick up from seller """
 
@@ -268,7 +268,9 @@ async def cash_no_point_order(secret, order_data, external_id, offer_name, descr
 
 
 
-async def no_pickup_point_order(secret, order_data, external_id, offer_name, descr):
+def no_pickup_point_order(secret, order_data, external_id, offer_name, descr):
+    
+    # print('$$$$$$$$$$$$ order_data $$$$$$$$$$$$', order_data)
     
     """ Courier with pick up from seller """
 

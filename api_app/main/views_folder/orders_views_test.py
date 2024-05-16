@@ -662,7 +662,7 @@ async def set_shipment_list_async(request, ids, secret):
 
     return results, descr   
 
-# from asgiref.sync import sync_to_async
+from asgiref.sync import async_to_sync
 def set_shipment_list(request):
     start_time = time.time()
 
@@ -670,36 +670,32 @@ def set_shipment_list(request):
     secret = Secret.objects.get(account__name='retset')
     # secret = await sync_to_async(Secret.objects.get)(account__name='retset')
     ids = request.GET.getlist('ids')
-    print('********************** IDS set_shipment_list IDS ****************************', ids)
+    # print('********************** IDS set_shipment_list IDS ****************************', ids)
 
     pickup = request.GET.getlist('pickup')
     result_arr = []
 
     results = asyncio.run(set_shipment_list_async(request, ids, secret))[0]
     descr = results[2]
-    # print('********************** descr ****************************', results[2])
+    # print('********************** NAME ****************************', results[1][1].account.name)
 
     for order_data in results:
         if order_data is not None:
-            # print('********************** order_data ****************************', order_data, type(order_data))
             if isinstance(order_data, tuple):
                 for item in order_data[0]['lineItems']:
                     external_id = item['offer']['external']['id']
                     offer_name = item['offer']["name"][:15]
-                    print('********************** external_id & offer_name ****************************', external_id, offer_name)
-                    print('********************** order_data[0] ****************************', order_data[0])
-                    # print('********************** DOSTAWA ****************************', order_data[0]["delivery"]["method"]["id"])
-                    # print('********************** ID PUNKT ODBIORU ****************************', order_data[0]["delivery"]["pickupPoint"]["id"])
                     order_data = order_data[0]
+
                     try:
                         if order_data["delivery"]["pickupPoint"] == None:
                             if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
-                                result = cash_no_point_order(secret, results[0], external_id, offer_name, descr)
+                                result = cash_no_point_order(secret, order_data, external_id, offer_name, descr)
                             else:
-                                result = no_pickup_point_order(secret,  results[0], external_id, offer_name, descr)
+                                result = no_pickup_point_order(secret,  order_data, external_id, offer_name, descr)
                         else:
                             if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
-                                result = cash_no_point_order(secret,  results[0], external_id, offer_name, descr)
+                                result = cash_no_point_order(secret,  order_data, external_id, offer_name, descr)
                             # print('********************** pickupPoint ****************************', order_data["delivery"]["pickupPoint"])
                             else:
                                 result = pickup_point_order(secret,  results[0], external_id, offer_name, descr)
@@ -725,14 +721,19 @@ def set_shipment_list(request):
 
             else:
                 continue
-                # descr = order_data
-                # print('********************** descr ****************************', descr)
 
     end_time = time.time()
     elapsed_time = end_time - start_time
     print(f"********************** Elapsed time: {elapsed_time} seconds **********************")
 
-    return HttpResponse('ok')
+    context = {
+        'result': result_arr,
+        'name': 'retset',
+        }
+
+    return render(request, 'set_pickup.html', context)
+
+    # return HttpResponse('ok')
 
 
 def make_order(request, secret, commandId):
