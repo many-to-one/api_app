@@ -1,6 +1,6 @@
 from django.urls import include, path
 from .views import *
-from .views_folder import errors_views, orders_views, offer_views, accounts_views, messages
+from .views_folder import errors_views, orders_views, orders_views_test, offer_views, accounts_views, messages
 from .ebay.views import *
 
 urlpatterns = [
@@ -16,15 +16,15 @@ urlpatterns = [
     path('get_refresh_token/<str:authorization_code>', get_refresh_token, name='get_refresh_token'),
     path('post_product', post_product, name='post_product'),
 
-    path('get_orders/<str:name>/', orders_views.get_orders, name='get_orders'),
-    path('get_order_details/<uuid:id>/<str:name>/', orders_views.get_order_details, name='get_order_details'),
-    path('change_status/<uuid:id>/<str:name>/<str:status>/<str:delivery>/', orders_views.change_status, name='change_status'),
-    path('create_label_DPD/<uuid:id>/', orders_views.create_label_DPD, name='create_label_DPD'),
-    path('create_label_in_bulk_DPD/', orders_views.create_label_in_bulk_DPD, name='create_label_in_bulk_DPD'),
+    path('get_orders/<str:name>/', orders_views_test.get_orders, name='get_orders'),
+    path('get_order_details/<uuid:id>/<str:name>/', orders_views_test.get_order_details, name='get_order_details'),
+    path('change_status/<uuid:id>/<str:name>/<str:status>/<str:delivery>/', orders_views_test.change_status, name='change_status'),
+    path('create_label_DPD/<uuid:id>/', orders_views_test.create_label_DPD, name='create_label_DPD'),
+    path('create_label_in_bulk_DPD/', orders_views_test.create_label_in_bulk_DPD, name='create_label_in_bulk_DPD'),
 
-    path('get_shipment_list/', orders_views.get_shipment_list, name='get_shipment_list'),
-    path('set_shipment_list/', orders_views.set_shipment_list, name='set_shipment_list'),
-    path('get_shipment_status_id/', orders_views.get_shipment_status_id, name='get_shipment_status_id'),
+    path('get_shipment_list/', orders_views_test.get_shipment_list, name='get_shipment_list'),
+    path('set_shipment_list/', orders_views_test.set_shipment_list, name='set_shipment_list'), ###
+    path('get_shipment_status_id/', orders_views_test.get_shipment_status_id, name='get_shipment_status_id'),
 
     path('invalid_token', errors_views.invalid_token, name='invalid_token'),
     path('get_all_offers/<str:name>/', offer_views.get_all_offers, name='get_all_offers'),

@@ -46,12 +46,95 @@ def get_access_token(authorization_code, code_verifier):
         raise SystemExit(err)
 
 
+#################################################################################################################################
+################################################## ASYNCHRONUS TESTS ############################################################
+#################################################################################################################################
+
+import time
+
+def func_1(value):
+    time.sleep(1)
+    return f'result of func_1: {value}'
+
+def func_2(value):
+    time.sleep(1)
+    return f'result of func_2: {value}'
+
+def func_3(value):
+    time.sleep(1)
+    return f'result of func_3: {value}'
+
+def synchr():
+    start_time = time.time()  # Record the start time
+    result_arr = []
+    arr = ['value_1', 'value_2', 'value_3', 'value_4']
+
+    for i in arr:
+        res_1 = func_1(i)
+        res_2 = func_2(i)  # Changed from func_1 to func_2
+        res_3 = func_3(i)  # Changed from func_1 to func_3
+        result_arr.append((res_1, res_2, res_3))  # Changed ',' to ')'
+    
+    end_time = time.time()  # Record the end time
+    elapsed_time = end_time - start_time  # Calculate the elapsed time
+
+    print(f'SYNCHRONUS RESULT - {result_arr}')
+    print(f"Elapsed time: {elapsed_time} seconds")
+
+# -------------------------------------------------------------------------------- #
+
+
+import asyncio
+import time
+
+async def func_1(value):
+    await asyncio.sleep(1)  # Simulate an asynchronous operation
+    return f'result of func_1: {value}'
+
+async def func_2(value):
+    await asyncio.sleep(1)
+    return f'result of func_2: {value}'
+
+async def func_3(value):
+    await asyncio.sleep(1)
+    return f'result of func_3: {value}'
+
+async def asynchr():
+    start_time = time.time()
+    result_arr = []
+    arr = ['value_1', 'value_2', 'value_3', 'value_4']
+
+    tasks = []
+    for i in arr:
+        tasks.append(asyncio.create_task(func_1(i)))
+        tasks.append(asyncio.create_task(func_2(i)))
+        tasks.append(asyncio.create_task(func_3(i)))
+
+    # Wait for all tasks to complete
+    results = await asyncio.gather(*tasks)
+
+    # Group the results in threes
+    for i in range(0, len(results), 3):
+        result_arr.append((results[i], results[i+1], results[i+2]))
+    
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+
+    print(f'ASYNCHRONOUS RESULT - {result_arr}')
+    print(f"Elapsed time: {elapsed_time} seconds")
+
+
+
 def main():
-    code_verifier = generate_code_verifier()
-    authorization_code = get_authorization_code(code_verifier)
-    response = get_access_token(authorization_code, code_verifier)
-    access_token = response['access_token']
-    print(f"access token = {access_token}")
+    # synchr()
+    asyncio.run(asynchr())
+
+
+    # code_verifier = generate_code_verifier()
+    # authorization_code = get_authorization_code(code_verifier)
+    # response = get_access_token(authorization_code, code_verifier)
+    # access_token = response['access_token']
+    # print(f"access token = {access_token}")
 
 
 if __name__ == "__main__":

@@ -1,3 +1,4 @@
+import asyncio
 import math
 from users.models import CustomUser
 from .models import *
@@ -59,7 +60,7 @@ def get_next_token(request, access_token, name):
 #################################################### CREATE ORDER ####################################################
 ######################################################################################################################
 
-def pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId):
+async def pickup_point_order(secret, order_data, external_id, offer_name, descr):
 
     """ Paczkomaty z podjazdem kuriera """
 
@@ -163,7 +164,7 @@ def pickup_point_order(secret, order_data, external_id, offer_name, descr, crede
 
 
 
-def cash_no_point_order(secret, order_data, external_id, offer_name, descr, credentialsId):
+async def cash_no_point_order(secret, order_data, external_id, offer_name, descr):
 
     """ Courier (cash) with pick up from seller """
 
@@ -267,7 +268,7 @@ def cash_no_point_order(secret, order_data, external_id, offer_name, descr, cred
 
 
 
-def no_pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId):
+async def no_pickup_point_order(secret, order_data, external_id, offer_name, descr):
     
     """ Courier with pick up from seller """
 
@@ -359,10 +360,10 @@ def no_pickup_point_order(secret, order_data, external_id, offer_name, descr, cr
                 #   }
                 }
             }
-    if credentialsId is not None:
-        payload["input"]["credentialsId"] = credentialsId
+    # if credentialsId is not None:
+    #     payload["input"]["credentialsId"] = credentialsId
     response = requests.post(url, headers=headers, json=payload)
-    print(' ######################### COURIER WITH PICKUP FROM SELLER ######################### ', credentialsId)
+    # print(' ######################### COURIER WITH PICKUP FROM SELLER ######################### ', credentialsId)
     return response.json()
 
 

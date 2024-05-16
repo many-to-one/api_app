@@ -33,20 +33,19 @@
     </div>
 
         <div class="offers__cont">
-
-            <div class="list__header_orders"> 
-                <p class="labels" onclick="allLabels()" class="all_labels">Zzn</p>
-                <p class="name_o" >Produkt</p>
-                <p class="account_o" >Konto</p>
-                <p class="sku_o" >SKU</p>
-                <p class="stock_o">Ilość</p>
-                <p class="costs_o">Koszty</p>
-                <p class="status_o">Status</p>
-                <p class="client_o">Klient</p>
-                <p class="shipment_o">Wysyłka</p>
-                <p class="order_o">Zamówienie</p>
-                <p class="label_o">Druk</p>
-            </div>
+>
+                <div class="list__header_orders">
+                    <p class="labels" onclick="allLabels()" class="labels">Zzn</p>
+                    <p class="name_o" >Produkt</p>
+                    <p class="account_o" >Konto</p>
+                    <p class="sku_o" >SKU</p>
+                    <p class="stock_o">Ilość</p>
+                    <p class="costs_o">Koszty</p>
+                    <p class="status_o">Status</p>
+                    <p class="client_o">Klient</p>
+                    <p class="shipment_o">Wysyłka</p>
+                    <p class="order_o">Zamówienie</p>
+                </div>
 
             {% for order in all_results %}       
             
@@ -132,7 +131,7 @@
 
                 <div 
                     name="fulfillmentStatus"
-                    class="offers__line dbl
+                    class="offers__line
                     {% if order.fulfillment.status == 'SENT' %} 
                         sent 
                     {% elif order.fulfillment.status == 'CANCELLED' %}
@@ -146,7 +145,7 @@
                         type="checkbox" 
                         name="selected_items" 
                         {% if order.fulfillment.status == 'NEW' and order.status == 'READY_FOR_PROCESSING' %}
-                            value="{{ order.id }}:{{ name }}:{{ order.delivery.method.name }}@"
+                            value="{{ order.id }}:{{ name }}:{{ order.delivery.method.name }}:{{ order.lineItems.0.offer.id }}@"
                         {% endif %}
                     >
                     {% for item in order.lineItems %}
