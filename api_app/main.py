@@ -70,16 +70,17 @@ def synchr():
     arr = ['value_1', 'value_2', 'value_3', 'value_4']
 
     for i in arr:
-        res_1 = func_1(i)
-        res_2 = func_2(i)  # Changed from func_1 to func_2
-        res_3 = func_3(i)  # Changed from func_1 to func_3
-        result_arr.append((res_1, res_2, res_3))  # Changed ',' to ')'
+        res_1 = func_1(i)  # Call synchronous function
+        # res_2 = func_2(i)  # Changed from func_1 to func_2
+        # res_3 = func_3(i)  # Changed from func_1 to func_3
+        result_arr.append(res_1)  # Removed unnecessary parentheses
     
     end_time = time.time()  # Record the end time
     elapsed_time = end_time - start_time  # Calculate the elapsed time
 
-    print(f'SYNCHRONUS RESULT - {result_arr}')
+    print(f'SYNCHRONOUS RESULT - {result_arr}')
     print(f"Elapsed time: {elapsed_time} seconds")
+
 
 # -------------------------------------------------------------------------------- #
 
@@ -107,15 +108,15 @@ async def asynchr():
     tasks = []
     for i in arr:
         tasks.append(asyncio.create_task(func_1(i)))
-        tasks.append(asyncio.create_task(func_2(i)))
-        tasks.append(asyncio.create_task(func_3(i)))
+        # tasks.append(asyncio.create_task(func_2(i)))
+        # tasks.append(asyncio.create_task(func_3(i)))
 
     # Wait for all tasks to complete
     results = await asyncio.gather(*tasks)
 
     # Group the results in threes
     for i in range(0, len(results), 3):
-        result_arr.append((results[i], results[i+1], results[i+2]))
+        result_arr.append((results[i])) #results[i+1], results[i+2]
     
     end_time = time.time()
     elapsed_time = end_time - start_time
@@ -126,8 +127,8 @@ async def asynchr():
 
 
 def main():
-    # synchr()
-    asyncio.run(asynchr())
+    synchr()
+    # asyncio.run(asynchr())
 
 
     # code_verifier = generate_code_verifier()

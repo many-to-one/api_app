@@ -548,6 +548,8 @@ def change_status(request, id, name, status, delivery):
 
         response = requests.put(url, headers=headers, json=data)
         print('*********** change_status ***********', response)
+        print('*********** change_status ***********', response.headers)
+        print('*********** change_status ***********', response.json())
         # result = response.json()
         # print('*********** change_status response.json() ***********', result)
 

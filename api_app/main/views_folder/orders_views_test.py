@@ -16,6 +16,7 @@ from .offer_views import get_one_offer
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import asyncio
 import httpx
+from asgiref.sync import async_to_sync, sync_to_async
 
 REDIRECT_URI = os.getenv('REDIRECT_URI')      # wprowadź redirect_uri
 AUTH_URL = os.getenv('AUTH_URL')
@@ -324,14 +325,6 @@ def base64_to_pdf_bulk(base64_data_list):
 
 async def create_label(request, id, name, secret):
 
-    # time.sleep(1)
-
-    # print('********************** CREATE LABEL CALLED ****************************', id)
-
-    # accounts = Allegro.objects.filter(user=request.user)
-    # for account in accounts:
-    # secret = Secret.objects.get(account__name=name)
-
     try:
         async with httpx.AsyncClient() as client:
             url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}"
@@ -365,13 +358,9 @@ def create_label_DPD(request, id):
     post_data = data[0]
     secret = data[1]
 
-    # print('********************** DATA ****************************', secret)
-    # print('********************** BUYER ****************************', post_data['buyer']['firstName'])
     for item in post_data['lineItems']:
         external_id = item['offer']['external']['id']
         quantity = item['quantity']
-        # print("External ID:", external_id)
-        # print("Quantity:", quantity)
 
     if data:
         url = 'https://api-preprod.dpsin.dpdgroup.com:8443/shipping/v1/shipment?LabelPrintFormat=PDF&LabelPaperFormat=A6&qrcode=true&DropOffType=BOTH' #&LabelPrinterStartPosition=UPPER_LEFT
@@ -509,7 +498,7 @@ def change_status(request, id, name, status, delivery):
             }
 
         response = requests.put(url, headers=headers, json=data)
-        print('*********** change_status ***********', response)
+        # print('*********** change_status ***********', response)
 
         return JsonResponse(
                 {
@@ -564,14 +553,6 @@ async def get_shipment_id(request, secret, name, deliveryMethod):
 
 async def get_offer_descr(request, id, secret):
 
-    # print('**************name**************', name)
-
-    # account = Allegro.objects.get(name=name)
-    # secret = Secret.objects.get(account__name=name)
-    # print('**************secret**************', secret.access_token)
-    
-    # return HttpResponse('ok')
-
     try:
         async with httpx.AsyncClient() as client:
             url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
@@ -591,7 +572,7 @@ async def get_offer_descr(request, id, secret):
                     except Exception as e:
                         print('Exception @@@@@@@@@', e)
                         return redirect('invalid_token')
-            print('RESULT - get_one_offer - @@@@@@@@@', json.dumps(result, indent=4))
+            # print('RESULT - get_one_offer - @@@@@@@@@', json.dumps(result, indent=4))
             item_height = ""
             item_width = ""
             item_length = ""
@@ -613,28 +594,6 @@ async def get_offer_descr(request, id, secret):
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
     
-
-#FOR SYNC TEST
-# def set_shipment_list_sync(request, ids, secret):
-
-#     tasks = []
-
-#     for item in ids:
-#         for order_data in item.split('@'):
-#             if order_data:
-#                 order = order_data.split(":")
-#                 if order[0].startswith(','):
-#                     id = order[0][1:]
-#                 else:
-#                     id = order[0] 
-#                 name = order[1]
-#                 deliveryMethod = order[2]
-#                 print('order_data:', id, name, deliveryMethod)
- 
-#                 tasks.append(get_shipment_id(request, secret, name, deliveryMethod))
-#                 tasks.append(create_label(request, id, name, secret))
-
-#     return tasks 
 
 
 async def set_shipment_list_async(request, ids, secret):
@@ -662,7 +621,8 @@ async def set_shipment_list_async(request, ids, secret):
 
     return results, descr   
 
-from asgiref.sync import async_to_sync
+
+
 def set_shipment_list(request):
     start_time = time.time()
 
@@ -736,31 +696,36 @@ def set_shipment_list(request):
     # return HttpResponse('ok')
 
 
-def make_order(request, secret, commandId):
-    url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands/{commandId}"
-    headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"} 
+async def make_order(request, secret, commandId):
 
-    response = requests.get(url, headers=headers)
-    result = response.json()
+    async with httpx.AsyncClient() as client:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands/{commandId}"
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"} 
 
-    if 'error' in result:
-        error_code = result['error']
-        if error_code == 'invalid_token':
-            # print('ERROR RESULT @@@@@@@@@', error_code)
-            try:
-                # Refresh the token
-                new_token = get_next_token(request, secret.refresh_token, 'retset')
-                # Retry fetching orders with the new token
-                return get_order_details(request, id)
-            except Exception as e:
-                print('Exception @@@@@@@@@', e)
-                context = {'name': 'retset'}
-                return render(request, 'invalid_token.html', context)
-    print('@@@@@@@@@ RESULT FOR SHIPMENT STATUS ID @@@@@@@@@', json.dumps(result, indent=4))
+        response = await client.get(url, headers=headers)
+        result = response.json()
+
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token, 'retset')
+                    # Retry fetching orders with the new token
+                    return get_order_details(request, id)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    context = {'name': 'retset'}
+                    return render(request, 'invalid_token.html', context)
+    # print('@@@@@@@@@ RESULT FOR SHIPMENT STATUS ID @@@@@@@@@', json.dumps(result, indent=4))
     return result
 
 
-def get_shipment_status_id(request):
+async def get_shipment_status_id(request):
+
+    start_time = time.time()
+    tasks = []
     while True:
         labels = []
         ids = request.GET.getlist('ids')
@@ -772,10 +737,11 @@ def get_shipment_status_id(request):
             parts = item.split(',')
             for part in parts:
                 commandId, name = part.split(':')
-                secret = Secret.objects.get(account__name=name)
+                # secret = Secret.objects.get(account__name=name)
+                secret = await sync_to_async(Secret.objects.get)(account__name=name)
 
                 try:
-                    result = make_order(request, secret, commandId)
+                    result = await make_order(request, secret, commandId)
                     if result["status"] == "ERROR":
                         print('*************** ERROR ERROR ERROR ***************')
                         print(result["status"])
@@ -797,14 +763,18 @@ def get_shipment_status_id(request):
                         pickupDateProposalId = get_pickup_proposals(request, secret.access_token, result["shipmentId"])
                         get_courier(request, result["shipmentId"], commandId, pickupDateProposalId, secret)
                     if result["shipmentId"] is not None:
-                        label = label_print(request, result["shipmentId"], secret)
-                        labels.append(label)
+                        label =  tasks.append(asyncio.create_task(label_print(request, result["shipmentId"], secret)))
+                        labels = await asyncio.gather(*tasks)
+                        # label = await label_print(request, result["shipmentId"], secret)
+                        # labels.append(label)
 
                 except requests.exceptions.HTTPError as err:
                     raise SystemExit(err)
         # if labels: 
         if any(label is not None for label in labels):
-            print('********************** RETURN SOMETHING ****************************')
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print(f"********************** FINISH time: {elapsed_time} seconds **********************")
             return base64_to_pdf_bulk(labels)
 
 
@@ -882,26 +852,27 @@ def get_courier(request, shipmentId, commandId, pickupDateProposalId, secret):
     return HttpResponse('ok')
 
 
-def label_print(request, shipmentId, secret):
+async def label_print(request, shipmentId, secret):
 
 
     try:
-        url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/label" 
-        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/octet-stream", 'Content-type': "application/vnd.allegro.public.v1+json"} 
-        payload = {
-                    "shipmentIds": [
-                    shipmentId
-                    ],
-                    "pageSize": "A6",
-                    # "cutLine": True
-                }
-        response = requests.post(url, headers=headers, json=payload)
-        
-        print(' @@@@@@@@@ RESULT FOR LABELS shipmentId ZADZIAŁAŁO @@@@@@@@@ ', shipmentId)
-        print(' @@@@@@@@@ RESULT FOR LABELS @@@@@@@@@ ', response)
-        # print(' @@@@@@@@@ RESULT FOR LABELS @@@@@@@@@ ', response.content)
-        # print('@@@@@@@@@ RESPONSE LABELS HEADERS 1 @@@@@@@@@', response.headers)
-        return response.content
+        async with httpx.AsyncClient() as client:
+            url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/label" 
+            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/octet-stream", 'Content-type': "application/vnd.allegro.public.v1+json"} 
+            payload = {
+                        "shipmentIds": [
+                        shipmentId
+                        ],
+                        "pageSize": "A6",
+                        # "cutLine": True
+                    }
+            response = await client.post(url, headers=headers, json=payload)
+
+            print(' @@@@@@@@@ RESULT FOR LABELS shipmentId ZADZIAŁAŁO @@@@@@@@@ ', shipmentId)
+            print(' @@@@@@@@@ RESULT FOR LABELS @@@@@@@@@ ', response)
+            # print(' @@@@@@@@@ RESULT FOR LABELS @@@@@@@@@ ', response.content)
+            # print('@@@@@@@@@ RESPONSE LABELS HEADERS 1 @@@@@@@@@', response.headers)
+            return response.content
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
 

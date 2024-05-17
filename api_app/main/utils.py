@@ -257,7 +257,7 @@ def cash_no_point_order(secret, order_data, external_id, offer_name, descr):
             }
 
     response = requests.post(url, headers=headers, json=payload)
-    print(' ######################### HELLO FROM UTILS CASH COURIER WITHOUT PICKUP_POINT ######################### ', response.json())
+    print(' ######################### HELLO FROM UTILS CASH COURIER WITHOUT PICKUP_POINT ######################### ')
     return response.json()
 
 
