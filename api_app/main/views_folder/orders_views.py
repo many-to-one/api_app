@@ -689,61 +689,62 @@ def set_shipment_list(request):
                 print('********************** descr ****************************', descr)
 
 
-    #             for item in order_data['lineItems']:
-    #                 external_id = item['offer']['external']['id']
-    #                 offer_name = item['offer']["name"][:15]
-    #                 # print('********************** DOSTAWA ****************************', order_data["delivery"]["method"]["id"])
-    #                 # print('********************** ID PUNKT ODBIORU ****************************', order_data["delivery"]["pickupPoint"]["id"])
+                for item in order_data['lineItems']:
+                    external_id = item['offer']['external']['id']
+                    offer_name = item['offer']["name"][:15]
+                    # print('********************** DOSTAWA ****************************', order_data["delivery"]["method"]["id"])
+                    # print('********************** ID PUNKT ODBIORU ****************************', order_data["delivery"]["pickupPoint"]["id"])
 
-    #             try:
-    #                 # if pickup:
-    #                 #     print('********************** IDS NO PICKUP ****************************', pickup[0])
-    #                 if order_data["delivery"]["pickupPoint"] == None:
-    #                     if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
-    #                         result = cash_no_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
-    #                     else:
-    #                         result = no_pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
-    #                 else:
-    #                     if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
-    #                         result = cash_no_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
-    #                     # print('********************** pickupPoint ****************************', order_data["delivery"]["pickupPoint"])
-    #                     else:
-    #                         result = pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
-    #                 if 'error' in result:
-    #                     error_code = result['error']
-    #                     if error_code == 'invalid_token':
-    #                         # print('ERROR RESULT @@@@@@@@@', error_code)
-    #                         try:
-    #                             # Refresh the token
-    #                             new_token = get_next_token(request, secret.refresh_token, 'retset')
-    #                             # Retry fetching orders with the new token
-    #                             return get_order_details(request, id)
-    #                         except Exception as e:
-    #                             print('Exception @@@@@@@@@', e)
-    #                             context = {'name': 'retset'}
-    #                             return render(request, 'invalid_token.html', context)
-    #                 # print('RESULT FOR SIPMENT LIST @@@@@@@@@', json.dumps(result, indent=4))
-    #                 # print('@@@@@@@@@ RESPONSE HEADERS 1 @@@@@@@@@', response.headers)
-    #                 result_arr.append({"id": id, "commandId": result["commandId"], "name": name})
-    #                         # return get_shipment_status(request, result['commandId'], secret)
+                try:
+                    # if pickup:
+                    #     print('********************** IDS NO PICKUP ****************************', pickup[0])
+                    if order_data["delivery"]["pickupPoint"] == None:
+                        if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
+                            result = cash_no_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
+                        else:
+                            result = no_pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
+                    else:
+                        if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
+                            result = cash_no_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
+                        # print('********************** pickupPoint ****************************', order_data["delivery"]["pickupPoint"])
+                        else:
+                            print('********************** credentialsId ****************************', credentialsId)
+                            result = pickup_point_order(secret, order_data, external_id, offer_name, descr)
+                    if 'error' in result:
+                        error_code = result['error']
+                        if error_code == 'invalid_token':
+                            # print('ERROR RESULT @@@@@@@@@', error_code)
+                            try:
+                                # Refresh the token
+                                new_token = get_next_token(request, secret.refresh_token, 'retset')
+                                # Retry fetching orders with the new token
+                                return get_order_details(request, id)
+                            except Exception as e:
+                                print('Exception @@@@@@@@@', e)
+                                context = {'name': 'retset'}
+                                return render(request, 'invalid_token.html', context)
+                    # print('RESULT FOR SIPMENT LIST @@@@@@@@@', json.dumps(result, indent=4))
+                    # print('@@@@@@@@@ RESPONSE HEADERS 1 @@@@@@@@@', response.headers)
+                    result_arr.append({"id": id, "commandId": result["commandId"], "name": name})
+                            # return get_shipment_status(request, result['commandId'], secret)
 
-    #             except requests.exceptions.HTTPError as err:
-    #                 raise SystemExit(err)
+                except requests.exceptions.HTTPError as err:
+                    raise SystemExit(err)
 
-    # # print('#################### result_arr ######################', result_arr)
+    # print('#################### result_arr ######################', result_arr)
            
-    # context = {
-    #     'result': result_arr,
-    #     'name': name,
-    #     }
-
-    # return render(request, 'set_pickup.html', context)
-
+    context = {
+        'result': result_arr,
+        'name': name,
+        }
+    
     end_time = time.time()
     elapsed_time = end_time - start_time
     print(f"********************** Elapsed time: {elapsed_time} seconds **********************")
+
+    return render(request, 'set_pickup.html', context)
     
-    return HttpResponse('ok')
+    # return HttpResponse('ok')
 
 
 def make_order(request, secret, commandId):

@@ -284,7 +284,7 @@ def create_label_in_bulk_DPD(request):
     return base64_to_pdf_bulk(labels)
 
 
-def base64_to_pdf_bulk(base64_data_list):
+async def base64_to_pdf_bulk(base64_data_list):
 
     pdf_writer = PyPDF2.PdfWriter()
 
@@ -633,55 +633,64 @@ def set_shipment_list(request):
     # print('********************** IDS set_shipment_list IDS ****************************', ids)
 
     pickup = request.GET.getlist('pickup')
+    tasks = []
     result_arr = []
 
     results = asyncio.run(set_shipment_list_async(request, ids, secret))[0]
     descr = results[2]
     # print('********************** NAME ****************************', results[1][1].account.name)
-
     for order_data in results:
-        if order_data is not None:
-            if isinstance(order_data, tuple):
-                for item in order_data[0]['lineItems']:
-                    external_id = item['offer']['external']['id']
-                    offer_name = item['offer']["name"][:15]
-                    order_data = order_data[0]
+        print('********************** NAME ****************************', order_data)
 
-                    try:
-                        if order_data["delivery"]["pickupPoint"] == None:
-                            if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
-                                result = cash_no_point_order(secret, order_data, external_id, offer_name, descr)
-                            else:
-                                result = no_pickup_point_order(secret,  order_data, external_id, offer_name, descr)
-                        else:
-                            if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
-                                result = cash_no_point_order(secret,  order_data, external_id, offer_name, descr)
-                            # print('********************** pickupPoint ****************************', order_data["delivery"]["pickupPoint"])
-                            else:
-                                result = pickup_point_order(secret,  results[0], external_id, offer_name, descr)
-                        if 'error' in result:
-                            error_code = result['error']
-                            if error_code == 'invalid_token':
-                                # print('ERROR RESULT @@@@@@@@@', error_code)
-                                try:
-                                    # Refresh the token
-                                    new_token = get_next_token(request, secret.refresh_token, 'retset')
-                                    # Retry fetching orders with the new token
-                                    return get_order_details(request, id)
-                                except Exception as e:
-                                    print('Exception @@@@@@@@@', e)
-                                    context = {'name': 'retset'}
-                                    return render(request, 'invalid_token.html', context)
-                        # print('RESULT FOR SIPMENT LIST @@@@@@@@@', json.dumps(result, indent=4))
-                        # print('@@@@@@@@@ RESPONSE HEADERS 1 @@@@@@@@@', response.headers)
-                        result_arr.append({"id": id, "commandId": result["commandId"], "name": 'retset'})
-                                # return get_shipment_status(request, result['commandId'], secret
-                    except requests.exceptions.HTTPError as err:
-                        raise SystemExit(err)
+    # if results:
+    #     result_arr = [
+    #         pickup_point_order(secret, order_data, order_data[1][0]['offer']['external']['id'], order_data[1][0]['offer']["name"][:15], descr) 
+    #         for order_data in results
+    #         ]
+    # for order_data in results:
+    #     if order_data is not None:
+    #         if isinstance(order_data, tuple):
+    #             for item in order_data[0]['lineItems']:
+    #                 external_id = item['offer']['external']['id']
+    #                 offer_name = item['offer']["name"][:15]
+    #                 order_data = order_data[0]
 
-            else:
-                continue
+    #                 try:
+    #                     if order_data["delivery"]["pickupPoint"] == None:
+    #                         if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
+    #                             result = cash_no_point_order(secret, order_data, external_id, offer_name, descr)
+    #                         else:
+    #                             result = no_pickup_point_order(secret,  order_data, external_id, offer_name, descr)
+    #                     else:
+    #                         if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
+    #                             result = cash_no_point_order(secret,  order_data, external_id, offer_name, descr)
+    #                         # print('********************** pickupPoint ****************************', order_data["delivery"]["pickupPoint"])
+    #                         else:
+    #                             # result = pickup_point_order(secret,  order_data, external_id, offer_name, descr)
+    #                             result = tasks.append(asyncio.create_task(pickup_point_order(secret,  order_data, external_id, offer_name, descr)))
+    #                     if 'error' in result:
+    #                         error_code = result['error']
+    #                         if error_code == 'invalid_token':
+    #                             # print('ERROR RESULT @@@@@@@@@', error_code)
+    #                             try:
+    #                                 # Refresh the token
+    #                                 new_token = get_next_token(request, secret.refresh_token, 'retset')
+    #                                 # Retry fetching orders with the new token
+    #                                 return get_order_details(request, id)
+    #                             except Exception as e:
+    #                                 print('Exception @@@@@@@@@', e)
+    #                                 context = {'name': 'retset'}
+    #                                 return render(request, 'invalid_token.html', context)
+    #                     # print('RESULT FOR SIPMENT LIST @@@@@@@@@', json.dumps(result, indent=4))
+    #                     # print('@@@@@@@@@ RESPONSE HEADERS 1 @@@@@@@@@', response.headers)
+    #                     result_arr.append({"id": id, "commandId": result["commandId"], "name": 'retset'})
+    #                             # return get_shipment_status(request, result['commandId'], secret
+    #                 except requests.exceptions.HTTPError as err:
+    #                     raise SystemExit(err)
 
+            # else:
+            #     continue
+    # labels = await asyncio.gather(*tasks)
     end_time = time.time()
     elapsed_time = end_time - start_time
     print(f"********************** Elapsed time: {elapsed_time} seconds **********************")
@@ -764,18 +773,17 @@ async def get_shipment_status_id(request):
                         get_courier(request, result["shipmentId"], commandId, pickupDateProposalId, secret)
                     if result["shipmentId"] is not None:
                         label =  tasks.append(asyncio.create_task(label_print(request, result["shipmentId"], secret)))
-                        labels = await asyncio.gather(*tasks)
                         # label = await label_print(request, result["shipmentId"], secret)
                         # labels.append(label)
 
                 except requests.exceptions.HTTPError as err:
                     raise SystemExit(err)
-        # if labels: 
+        labels = await asyncio.gather(*tasks)
         if any(label is not None for label in labels):
             end_time = time.time()
             elapsed_time = end_time - start_time
             print(f"********************** FINISH time: {elapsed_time} seconds **********************")
-            return base64_to_pdf_bulk(labels)
+            return await base64_to_pdf_bulk(labels)
 
 
 

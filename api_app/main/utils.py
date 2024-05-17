@@ -9,6 +9,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 TOKEN_URL = os.getenv('TOKEN_URL')
+import httpx
 
 
 def get_user(request):
@@ -60,10 +61,17 @@ def get_next_token(request, access_token, name):
 #################################################### CREATE ORDER ####################################################
 ######################################################################################################################
 
-async def pickup_point_order(secret, order_data, external_id, offer_name, descr):
+def pickup_point_order(secret, order_data, external_id, offer_name, descr):
 
     """ Paczkomaty z podjazdem kuriera """
 
+    print(' ######################### pickup_point_order secret ######################### ', secret)
+    print(' ######################### pickup_point_order order_data ######################### ', order_data)
+    print(' ######################### pickup_point_order external_id ######################### ', external_id)
+    print(' ######################### pickup_point_order offer_name ######################### ', offer_name)
+    print(' ######################### pickup_point_order descr ######################### ', descr)
+
+    # async with httpx.AsyncClient() as client:
     url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
     headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
     payload = {
@@ -154,7 +162,7 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr)
     # if credentialsId is not None:
     #     payload["input"]["credentialsId"] = credentialsId
     response = requests.post(url, headers=headers, json=payload)
-    print(' ######################### HELLO FROM UTILS PICKUP_POINT ######################### ')
+    print(' ######################### HELLO FROM UTILS PICKUP_POINT ######################### ', response.json())
     return response.json()
 
 
@@ -167,6 +175,12 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr)
 def cash_no_point_order(secret, order_data, external_id, offer_name, descr):
 
     """ Courier (cash) with pick up from seller """
+
+    print(' ######################### cash_no_point_order secret ######################### ', secret)
+    print(' ######################### cash_no_point_order order_data ######################### ', order_data)
+    print(' ######################### cash_no_point_order external_id ######################### ', external_id)
+    print(' ######################### cash_no_point_order offer_name ######################### ', offer_name)
+    print(' ######################### cash_no_point_order descr ######################### ', descr)
 
     url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
     headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
@@ -268,7 +282,13 @@ def cash_no_point_order(secret, order_data, external_id, offer_name, descr):
 
 
 
-def no_pickup_point_order(secret, order_data, external_id, offer_name, descr):
+async def no_pickup_point_order(secret, order_data, external_id, offer_name, descr):
+    
+    print(' ######################### no_pickup_point_order secret ######################### ', secret)
+    print(' ######################### no_pickup_point_order order_data ######################### ', order_data)
+    print(' ######################### no_pickup_point_order external_id ######################### ', external_id)
+    print(' ######################### no_pickup_point_order offer_name ######################### ', offer_name)
+    print(' ######################### no_pickup_point_order descr ######################### ', descr)
     
     # print('$$$$$$$$$$$$ order_data $$$$$$$$$$$$', order_data)
     
