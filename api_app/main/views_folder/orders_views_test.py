@@ -16,7 +16,7 @@ from .offer_views import get_one_offer
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import asyncio
 import httpx
-from asgiref.sync import async_to_sync, sync_to_async
+from asgiref.sync import sync_to_async
 
 REDIRECT_URI = os.getenv('REDIRECT_URI')      # wprowadź redirect_uri
 AUTH_URL = os.getenv('AUTH_URL')
@@ -347,7 +347,7 @@ async def create_label(request, id, name, secret):
             # print('@@@@@@@@@ PUNKT ODBIORU ID @@@@@@@@@', json.dumps(result, indent=4))
             print('@@@@@@@@@ CRETAE LABEL @@@@@@@@@')
 
-            return result, secret
+            return result
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
 
@@ -595,11 +595,14 @@ async def get_offer_descr(request, id, secret):
         raise SystemExit(err)
     
 
+async def combined_task(request, id, name, offerId, secret):
+    return await create_label(request, id, name, secret), await get_offer_descr(request, offerId, secret)
 
-async def set_shipment_list_async(request, ids, secret):
+
+async def set_shipment_list_async(request, ids):
 
     tasks = []
-
+    secret = await sync_to_async(Secret.objects.get)(account__name='retset')
     for item in ids:
         for order_data in item.split('@'):
             if order_data:
@@ -614,39 +617,118 @@ async def set_shipment_list_async(request, ids, secret):
                 print('order_data:', id, name, deliveryMethod, offerId)
  
                 tasks.append(asyncio.create_task(get_shipment_id(request, secret, name, deliveryMethod)))
-                tasks.append(asyncio.create_task(create_label(request, id, name, secret)))
-                descr = tasks.append(asyncio.create_task(get_offer_descr(request, offerId, secret)))
+                tasks.append(asyncio.create_task(
+                    combined_task(request, id, name, offerId, secret)
+                    ))
+                # tasks.append(asyncio.create_task(get_offer_descr(request, offerId, secret)))
 
     results = await asyncio.gather(*tasks)
 
-    return results, descr   
+    return results   
 
 
+# @sync_to_async
+async def get_secret():
+    secret = sync_to_async(Secret.objects.get)(account__name='retset')
+    return await secret
 
-def set_shipment_list(request):
-    start_time = time.time()
 
-    from ..utils import pickup_point_order, no_pickup_point_order, cash_no_point_order
-    secret = Secret.objects.get(account__name='retset')
+async def set_shipment_list_q(results, secret):
+    # start_time = time.time()
+
+    print('********************** set_shipment_list_q results ****************************', results)
+    # print('********************** results[0] ****************************', results[0])
+    # print('********************** results[1] ****************************', results[1])
+
+    from ..utils import pickup_point_order, no_pickup_point_order, cash_no_point_order, test
+    # secret = Secret.objects.get(account__name='retset')
     # secret = await sync_to_async(Secret.objects.get)(account__name='retset')
-    ids = request.GET.getlist('ids')
-    # print('********************** IDS set_shipment_list IDS ****************************', ids)
+    # secret = await get_secret()
+    # ids = request.GET.getlist('ids')
+    # print('********************** secret + ****************************', secret)
 
-    pickup = request.GET.getlist('pickup')
+    # pickup = request.GET.getlist('pickup')
     tasks = []
-    result_arr = []
 
-    results = asyncio.run(set_shipment_list_async(request, ids, secret))[0]
-    descr = results[2]
-    # print('********************** NAME ****************************', results[1][1].account.name)
-    for order_data in results:
-        print('********************** NAME ****************************', order_data)
+    # for order_data in results:
+    #     if isinstance(order_data, tuple):
+    #         dict_data.update(order_data[0])
+    #         print(
+    #                 '********************** NAME +++ tuple ****************************', 
+    #                 dict_data
+    #             )
+        # elif isinstance(order_data, list):
+        #     dict_data['descr'].extend(order_data)
+        #     print('******************* NAME +++ list **********************')        
 
-    # if results:
-    #     result_arr = [
-    #         pickup_point_order(secret, order_data, order_data[1][0]['offer']['external']['id'], order_data[1][0]['offer']["name"][:15], descr) 
-    #         for order_data in results
-    #         ]
+
+    # print('******************* dict_data 1 **********************', dict_data['lineItems'][0]['offer']['external']['id'])
+    # print('******************* dict_data 2 **********************', dict_data['descr'])   
+    # print('******************* dict_data **********************', dict_data) 
+    # print('******************* descri **********************', descri) 
+
+
+    # data_r = [
+    #     {'key_1': 'val_1'}, {'key_2': 'val_2'},
+    #     ]
+
+    if results:
+        
+            [
+                tasks.append(asyncio.create_task(
+                test(
+                    secret, 
+                    order_data[0],
+                    order_data[0]['lineItems'][0]['offer']['external']['id'],
+                    order_data[0]['lineItems'][0]['offer']["name"][:15],
+                    order_data[1]
+                )
+                ))
+                for order_data in results
+                if isinstance(order_data, tuple)
+            ]
+
+        # result_arr = [
+        #     tasks.append(asyncio.create_task(
+        #         # pickup_point_order(
+        #         test(
+        #             secret=secret, 
+        #             order_data=order_data, 
+        #             # a=dict_data['lineItems'][0]['offer']['external']['id'], 
+        #             # b=dict_data['lineItems'][0]['offer']["name"][:15], 
+        #             # descr=dict_data['descr']
+        #         )
+        #         for order_data in dict_data
+        #         ))
+        #     ]
+
+        # result_arr = [
+        #     tasks.append(asyncio.create_task(
+        #         # pickup_point_order(
+        #         test(
+        #             secret=secret, 
+        #             order_data=order_data[0], 
+        #             a=order_data[0]['lineItems'][0]['offer']['external']['id'], 
+        #             b=order_data[0]['lineItems'][0]['offer']["name"][:15], 
+        #             descr=order_data if isinstance(order_data, dict) else None,
+        #         )
+        #         ))
+        #     for order_data in results
+        #     # if isinstance(order_data, tuple)
+        #     ]
+        
+    # result_arr = [
+    #     tasks.append(asyncio.create_task(test(string='string', data=data,)))
+    #     for data in data_r
+    #     ]
+    
+    
+    # for data in data_r:
+    #     a = test(string='string',data=data)
+    #     result_arr.append(a)
+
+    # print('********************** NAME + ****************************', results)
+
     # for order_data in results:
     #     if order_data is not None:
     #         if isinstance(order_data, tuple):
@@ -691,14 +773,40 @@ def set_shipment_list(request):
             # else:
             #     continue
     # labels = await asyncio.gather(*tasks)
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    print(f"********************** Elapsed time: {elapsed_time} seconds **********************")
+    
+
+    # return HttpResponse('ok')
+    return await asyncio.gather(*tasks)
+
+
+# @sync_to_async
+def set_shipment_list(request):
+
+    start_time = time.time()
+
+    ids = request.GET.getlist('ids')
+    # print('********************** IDS set_shipment_list IDS ****************************', ids)
+
+    pickup = request.GET.getlist('pickup')
+    secret = Secret.objects.get(account__name='retset')
+    # time.sleep(2)
+    # print('********************** secret @@@ ****************************', secret)
+    # secret = await sync_to_async(Secret.objects.get)(account__name='retset')
+    results = asyncio.run(set_shipment_list_async(request, ids))#[0]
+    # print('********************** /// results /// ****************************', results)  #results[1][1]
+    time.sleep(1)
+    if results:
+        results_ = asyncio.run(set_shipment_list_q(results, secret))
+        # print('**********************  /// results_ /// ****************************', results_)
 
     context = {
-        'result': result_arr,
+        'result': results_,
         'name': 'retset',
         }
+    
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f"********************** set_shipment_list finished time: {elapsed_time} seconds **********************")
 
     return render(request, 'set_pickup.html', context)
 
@@ -739,6 +847,7 @@ async def get_shipment_status_id(request):
         labels = []
         ids = request.GET.getlist('ids')
         pickup = request.GET.getlist('pickup')
+        print('@@@@@@@@@ ids @@@@@@@@@', ids)
 
         time.sleep(5)
         print('********************** TIME TIME TIME 5 SECONDS ****************************')
@@ -747,7 +856,7 @@ async def get_shipment_status_id(request):
             for part in parts:
                 commandId, name = part.split(':')
                 # secret = Secret.objects.get(account__name=name)
-                secret = await sync_to_async(Secret.objects.get)(account__name=name)
+                secret = await sync_to_async(Secret.objects.get)(account__name='retset')
 
                 try:
                     result = await make_order(request, secret, commandId)
