@@ -817,28 +817,31 @@ def set_shipment_list(request):
 
 async def make_order(request, secret, commandId):
 
-    async with httpx.AsyncClient() as client:
-        url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands/{commandId}"
-        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"} 
+    while True:
+        async with httpx.AsyncClient() as client:
+            url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands/{commandId}"
+            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"} 
 
-        response = await client.get(url, headers=headers)
-        result = response.json()
+            response = await client.get(url, headers=headers)
+            result = response.json()
 
-        if 'error' in result:
-            error_code = result['error']
-            if error_code == 'invalid_token':
-                # print('ERROR RESULT @@@@@@@@@', error_code)
-                try:
-                    # Refresh the token
-                    new_token = get_next_token(request, secret.refresh_token, 'retset')
-                    # Retry fetching orders with the new token
-                    return get_order_details(request, id)
-                except Exception as e:
-                    print('Exception @@@@@@@@@', e)
-                    context = {'name': 'retset'}
-                    return render(request, 'invalid_token.html', context)
-    # print('@@@@@@@@@ RESULT FOR SHIPMENT STATUS ID @@@@@@@@@', json.dumps(result, indent=4))
-    return result
+            if 'error' in result:
+                error_code = result['error']
+                if error_code == 'invalid_token':
+                    # print('ERROR RESULT @@@@@@@@@', error_code)
+                    try:
+                        # Refresh the token
+                        new_token = get_next_token(request, secret.refresh_token, 'retset')
+                        # Retry fetching orders with the new token
+                        return get_order_details(request, id)
+                    except Exception as e:
+                        print('Exception @@@@@@@@@', e)
+                        context = {'name': 'retset'}
+                        return render(request, 'invalid_token.html', context)
+        # print('@@@@@@@@@ RESULT FOR SHIPMENT STATUS ID @@@@@@@@@', json.dumps(result, indent=4))
+        print('@@@@@@@@@ RESULT FOR SHIPMENT STATUS ID @@@@@@@@@', result["shipmentId"])
+        if result["shipmentId"] is not None:
+            return result["shipmentId"]
 
 
 async def get_shipment_status_id(request):
@@ -850,45 +853,50 @@ async def get_shipment_status_id(request):
         ids = request.GET.getlist('ids')
         pickup = request.GET.getlist('pickup')
         print('@@@@@@@@@ ids @@@@@@@@@', ids)
+        secret = await sync_to_async(Secret.objects.get)(account__name='retset')
 
-        time.sleep(5)
-        print('********************** TIME TIME TIME 5 SECONDS ****************************')
-        for item in ids:
-            parts = item.split(',')
-            for part in parts:
-                commandId, name = part.split(':')
-                # secret = Secret.objects.get(account__name=name)
-                secret = await sync_to_async(Secret.objects.get)(account__name='retset')
+        # time.sleep(5)
+        print('********************** TIME TIME TIME 0 SECONDS ****************************')
+        # for item in ids:
+        #     parts = item.split(',')
+        #     for part in parts:
+        #         commandId, name = part.split(':')
+        #         # secret = Secret.objects.get(account__name=name)
+        #         secret = await sync_to_async(Secret.objects.get)(account__name='retset')
 
-                try:
-                    result = await make_order(request, secret, commandId)
-                    if result["status"] == "ERROR":
-                        print('*************** ERROR ERROR ERROR ***************')
-                        print(result["status"])
-                        print(result["errors"][0]["userMessage"])
-                        continue
-                        # return JsonResponse({
-                        #     "ERROR": result["errors"][0]["userMessage"]
-                        # })
+        # secrets = [
+        #     Secret.objects.get(account__name=part.split(':')[1])
+        #     for item in ids
+        #     for part in item.split(',')
+        # ]
 
-                    if result["shipmentId"] == None:
-                        # makes this function restart and returns ONLY ONCE
-                        break
+        parts_list = [
+            part.split(':')
+            for item in ids
+            for part in item.split(',')
+        ]
 
-                    if pickup[0] == 'pickup':                  
-                        # shipmentId = result["shipmentId"]
-                        # loop = asyncio.new_event_loop()
-                        # asyncio.set_event_loop(loop)
-                        # loop.run_until_complete(async_operations(request, shipmentId, secret, commandId))
-                        pickupDateProposalId = get_pickup_proposals(request, secret.access_token, result["shipmentId"])
-                        get_courier(request, result["shipmentId"], commandId, pickupDateProposalId, secret)
-                    if result["shipmentId"] is not None:
-                        label =  tasks.append(asyncio.create_task(label_print(request, result["shipmentId"], secret)))
-                        # label = await label_print(request, result["shipmentId"], secret)
-                        # labels.append(label)
+        order_tasks = [
+            tasks.append(asyncio.create_task(
+                label_print(
+                    request, 
+                    await make_order(request, secret, commandId), 
+                    secret
+                    )
+                ))
+            for commandId, name in parts_list
+        ]
 
-                except requests.exceptions.HTTPError as err:
-                    raise SystemExit(err)
+        # order_tasks = [
+        # await make_order(request, secret, commandId)
+        # for commandId, name in parts_list
+        # ]
+
+        # [
+        #     tasks.append(asyncio.create_task(label_print(request, result["shipmentId"], secret)))
+        #     for result in order_tasks
+        # ]
+
         labels = await asyncio.gather(*tasks)
 
         if any(label is not None for label in labels):
