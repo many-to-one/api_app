@@ -637,6 +637,7 @@ async def set_shipment_list_q(results, secret):
     # start_time = time.time()
 
     print('********************** set_shipment_list_q results ****************************', results)
+    print('********************** set_shipment_list_q secret ****************************', secret)
     # print('********************** results[0] ****************************', results[0])
     # print('********************** results[1] ****************************', results[1])
 
@@ -790,14 +791,15 @@ def set_shipment_list(request):
     pickup = request.GET.getlist('pickup')
     secret = Secret.objects.get(account__name='retset')
     # time.sleep(2)
-    # print('********************** secret @@@ ****************************', secret)
+    print('********************** secret @@@ ****************************', secret)
     # secret = await sync_to_async(Secret.objects.get)(account__name='retset')
     results = asyncio.run(set_shipment_list_async(request, ids))#[0]
     # print('********************** /// results /// ****************************', results)  #results[1][1]
-    time.sleep(1)
+    # time.sleep(1)
     if results:
-        results_ = asyncio.run(set_shipment_list_q(results, secret))
-        # print('**********************  /// results_ /// ****************************', results_)
+        if secret:
+            results_ = asyncio.run(set_shipment_list_q(results, secret))
+            # print('**********************  /// results_secret /// ****************************', secret)
 
     context = {
         'result': results_,
@@ -888,11 +890,13 @@ async def get_shipment_status_id(request):
                 except requests.exceptions.HTTPError as err:
                     raise SystemExit(err)
         labels = await asyncio.gather(*tasks)
+
         if any(label is not None for label in labels):
             end_time = time.time()
             elapsed_time = end_time - start_time
             print(f"********************** FINISH time: {elapsed_time} seconds **********************")
             return await base64_to_pdf_bulk(labels)
+
 
 
 
