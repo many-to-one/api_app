@@ -35,7 +35,7 @@
         <div class="offers__cont">
 
             <div class="list__header_orders"> 
-                <p class="labels" onclick="allLabels()" class="all_labels">Zzn</p>
+                <p class="labels" onclick="allLabels()" class="all_labels" id="getName" value="{{ name }}">{{ name }}</p>
                 <p class="name_o" >Produkt</p>
                 <p class="account_o" >Konto</p>
                 <p class="sku_o" >SKU</p>
@@ -334,6 +334,8 @@
             var wait = document.getElementById('wait');
             wait.style.display = 'flex';
 
+            var getName = document.getElementById('getName').value
+
             // Get all checkboxes with the name "selected_items"
             var checkboxes = document.querySelectorAll('input[name="selected_items"]');
             var question = document.getElementById('question')
@@ -355,9 +357,11 @@
 
             // Log the array of checked checkbox values
             console.log(checkedItems);
+            console.log('name', getName);
 
             // var url = '/create_label_in_bulk_DPD/?ids=' + checkedItems;
-            var url = '/set_shipment_list/?ids=' + checkedItems;
+
+            var url = `/set_shipment_list/${getName}/?ids=` + checkedItems;
             window.location.href = url;
             wait.style.display = 'none';
 

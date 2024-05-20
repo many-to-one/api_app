@@ -654,7 +654,7 @@ def get_offer_descr(request, id, name):
         raise SystemExit(err)
 
 
-def set_shipment_list(request):
+def set_shipment_list(request, name):
     start_time = time.time()
 
     from ..utils import pickup_point_order, no_pickup_point_order, cash_no_point_order
@@ -771,7 +771,7 @@ def make_order(request, secret, commandId):
     return result
 
 
-def get_shipment_status_id(request):
+def get_shipment_status_id(request, name):
     while True:
         labels = []
         ids = request.GET.getlist('ids')

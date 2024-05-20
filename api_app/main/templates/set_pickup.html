@@ -64,6 +64,8 @@
                 var wait = document.getElementById('wait');
                 wait.style.display = 'flex';
 
+                var seller = document.getElementById('seller').getAttribute('data-value');
+
                 var links = document.querySelectorAll('div[name="link"]');
                 var context = [];
                 links.forEach(function(link) {
@@ -72,7 +74,7 @@
                     context.push(value);  // Store the value in the context array
                 });
 
-                var url = '/get_shipment_status_id/?ids=' + context + '&pickup=' + 'pickup';
+                var url = `/get_shipment_status_id/${seller}/?ids=` + context + '&pickup=' + 'pickup';
                 window.location.href = url;
                 wait.style.display = 'none';
                 
@@ -84,6 +86,8 @@
                 var wait = document.getElementById('wait');
                 wait.style.display = 'flex';
 
+                var seller = document.getElementById('seller').getAttribute('data-value');
+
                 var links = document.querySelectorAll('div[name="link"]');
                 var context = [];
                 links.forEach(function(link) {
@@ -92,7 +96,7 @@
                     context.push(value);  // Store the value in the context array
                 });
 
-                var url = '/get_shipment_status_id/?ids=' + context + '&pickup=' + 'no_pickup';
+                var url = `/get_shipment_status_id/${seller}/?ids=` + context + '&pickup=' + 'no_pickup';
                 // var seller = document.getElementById('seller').getAttribute('data-value');
                 // var url = '/get_orders/' + seller + '/';
                 window.location.href = url;

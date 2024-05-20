@@ -186,8 +186,8 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr)
       # if credentialsId is not None:
       #     payload["input"]["credentialsId"] = credentialsId
       response = await client.post(url, headers=headers, json=payload)
-      result = response.json()
-      print(' ######################### HELLO FROM UTILS PICKUP_POINT ######################### ', json.dumps(result, indent=4))
+      # result = response.json()
+      print(' ######################### HELLO FROM UTILS PICKUP_POINT ######################### ') #json.dumps(result, indent=4)
     return response.json()
 
 
@@ -297,8 +297,8 @@ async def cash_no_point_order(secret, order_data, external_id, offer_name, descr
               }
 
       response = await client.post(url, headers=headers, json=payload)
-      result = response.json()
-      print(' ######################### HELLO FROM UTILS CASH COURIER WITHOUT PICKUP_POINT ######################### ', json.dumps(result, indent=4)) #json.dumps(result, indent=4)
+      # result = response.json()
+      print(' ######################### HELLO FROM UTILS CASH COURIER WITHOUT PICKUP_POINT ######################### ') #json.dumps(result, indent=4)
     return response.json()
 
 
@@ -412,8 +412,8 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
       # if credentialsId is not None:
       #     payload["input"]["credentialsId"] = credentialsId
       response = await client.post(url, headers=headers, json=payload)
-      result = response.json()
-      print(' ######################### COURIER WITH PICKUP FROM SELLER ######################### ', json.dumps(result, indent=4)) #credentialsId
+      # result = response.json()
+      print(' ######################### COURIER WITH PICKUP FROM SELLER ######################### ') #credentialsId #json.dumps(result, indent=4)
     return response.json()
 
 
