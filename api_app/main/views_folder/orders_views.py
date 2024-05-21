@@ -322,13 +322,13 @@ def base64_to_pdf_bulk(base64_data_list):
 ############################################## CREATE A ONE DPD LABEL LOGIC #####################################################
 #################################################################################################################################
 
-def create_label(request, id, name):
+def create_label(request, id, name, secret):
 
     # print('********************** CREATE LABEL CALLED ****************************', id)
 
     # accounts = Allegro.objects.filter(user=request.user)
     # for account in accounts:
-    secret = Secret.objects.get(account__name=name)
+    # secret = Secret.objects.get(account__name=name)
 
     try:
         url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}"
@@ -603,12 +603,12 @@ def get_shipment_id(request, secret, name, deliveryMethod):
     # return HttpResponse('ok')
 
 
-def get_offer_descr(request, id, name):
+def get_offer_descr(request, id, name, secret):
 
     # print('**************name**************', name)
 
     # account = Allegro.objects.get(name=name)
-    secret = Secret.objects.get(account__name=name)
+    # secret = Secret.objects.get(account__name=name)
     # print('**************secret**************', secret.access_token)
     
     # return HttpResponse('ok')
@@ -654,16 +654,19 @@ def get_offer_descr(request, id, name):
         raise SystemExit(err)
 
 
-def set_shipment_list(request, name):
+async def set_shipment_list(request, name):
     start_time = time.time()
 
     from ..utils import pickup_point_order, no_pickup_point_order, cash_no_point_order
+    from asgiref.sync import sync_to_async
     ids = request.GET.getlist('ids')
     print('********************** IDS set_shipment_list IDS ****************************', ids)
 
     pickup = request.GET.getlist('pickup')
 
     result_arr = []
+
+    secret = await sync_to_async(Secret.objects.get)(account__name=name)
 
     for item in ids:
         for order_data in item.split('@'):
@@ -677,15 +680,15 @@ def set_shipment_list(request, name):
                 deliveryMethod = order[2]
                 print('order_data:', id, name, deliveryMethod)
 
-                secret = Secret.objects.get(account__name=name)
+                # secret = Secret.objects.get(account__name=name)
                 credentialsId = get_shipment_id(request, secret, name, deliveryMethod)
                 print('#################### credentialsId ######################', credentialsId)
-                data = create_label(request, id, name)
+                data = create_label(request, id, name, secret)
                 order_data = data[0]
                 # print('********************** CASH ON DELIVERY ****************************', order_data["payment"]["type"])
                 # print('********************** CASH TO PAY ****************************', order_data["summary"]['totalToPay']['amount'], order_data["summary"]['totalToPay']['currency'])
                 # print('#################### order_data ######################', json.dumps(order_data, indent=4))
-                descr = get_offer_descr(request, order_data["lineItems"][0]["offer"]["id"], name)
+                descr = get_offer_descr(request, order_data["lineItems"][0]["offer"]["id"], name, secret)
                 print('********************** descr ****************************', descr)
 
 
@@ -700,16 +703,16 @@ def set_shipment_list(request, name):
                     #     print('********************** IDS NO PICKUP ****************************', pickup[0])
                     if order_data["delivery"]["pickupPoint"] == None:
                         if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
-                            result = cash_no_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
+                            result = await cash_no_point_order(secret, order_data, external_id, offer_name, descr) #credentialsId
                         else:
-                            result = no_pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
+                            result = await no_pickup_point_order(secret, order_data, external_id, offer_name, descr) #credentialsId
                     else:
                         if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
-                            result = cash_no_point_order(secret, order_data, external_id, offer_name, descr, credentialsId)
+                            result = await cash_no_point_order(secret, order_data, external_id, offer_name, descr) #credentialsId
                         # print('********************** pickupPoint ****************************', order_data["delivery"]["pickupPoint"])
                         else:
-                            print('********************** credentialsId ****************************', credentialsId)
-                            result = pickup_point_order(secret, order_data, external_id, offer_name, descr)
+                            print('********************** credentialsId ****************************') #credentialsId
+                            result = await pickup_point_order(secret, order_data, external_id, offer_name, descr)
                     if 'error' in result:
                         error_code = result['error']
                         if error_code == 'invalid_token':
@@ -725,7 +728,8 @@ def set_shipment_list(request, name):
                                 return render(request, 'invalid_token.html', context)
                     # print('RESULT FOR SIPMENT LIST @@@@@@@@@', json.dumps(result, indent=4))
                     # print('@@@@@@@@@ RESPONSE HEADERS 1 @@@@@@@@@', response.headers)
-                    result_arr.append({"id": id, "commandId": result["commandId"], "name": name})
+                    if result:
+                        result_arr.append({"id": id, "commandId": result["commandId"], "name": name})
                             # return get_shipment_status(request, result['commandId'], secret)
 
                 except requests.exceptions.HTTPError as err:

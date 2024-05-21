@@ -87,13 +87,14 @@
     gap: 20px;
     width: auto;
     max-width: 80%;
-    border-radius: 10px;
+    /* border-radius: 10px; */
     margin-bottom: 10px;
-    min-height: 70px;
+    min-height: 90px;
     height: auto;
     padding: 5px;
     background-color: var(--light);
-    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    /* box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset; */
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
 
 @media screen and (max-width: 1000px) {

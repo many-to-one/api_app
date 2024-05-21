@@ -9,6 +9,8 @@ import io
 import zipfile
 import PyPDF2
 from dotenv import load_dotenv
+
+from ..celery_tasks.orders_tasks import my_task, my_new_task
 load_dotenv()
 from ..models import *
 from ..utils import *
@@ -305,7 +307,7 @@ async def base64_to_pdf_bulk(base64_data_list):
 
         # Create a BytesIO buffer to write the merged PDF
         output_buffer = io.BytesIO()
-        print(' @@@@@@@@@@@@@@@@@ INSIDE output_buffer @@@@@@@@@@@@@@@@@ ', output_buffer)
+        print(' @@@@@@@@@@@@@@@@@ INSIDE output_buffer @@@@@@@@@@@@@@@@@ ') #output_buffer
         pdf_writer.write(output_buffer)
 
         # Set the appropriate content type for PDF
@@ -642,36 +644,8 @@ async def set_shipment_list_q(results, secret):
     # print('********************** results[1] ****************************', results[1])
 
     from ..utils import pickup_point_order, no_pickup_point_order, cash_no_point_order, test
-    # secret = Secret.objects.get(account__name='retset')
-    # secret = await sync_to_async(Secret.objects.get)(account__name='retset')
-    # secret = await get_secret()
-    # ids = request.GET.getlist('ids')
-    # print('********************** secret + ****************************', secret)
 
-    # pickup = request.GET.getlist('pickup')
     tasks = []
-
-    # for order_data in results:
-    #     if isinstance(order_data, tuple):
-    #         dict_data.update(order_data[0])
-    #         print(
-    #                 '********************** NAME +++ tuple ****************************', 
-    #                 dict_data
-    #             )
-        # elif isinstance(order_data, list):
-        #     dict_data['descr'].extend(order_data)
-        #     print('******************* NAME +++ list **********************')        
-
-
-    # print('******************* dict_data 1 **********************', dict_data['lineItems'][0]['offer']['external']['id'])
-    # print('******************* dict_data 2 **********************', dict_data['descr'])   
-    # print('******************* dict_data **********************', dict_data) 
-    # print('******************* descri **********************', descri) 
-
-
-    # data_r = [
-    #     {'key_1': 'val_1'}, {'key_2': 'val_2'},
-    #     ]
 
     if results:
         
@@ -688,92 +662,6 @@ async def set_shipment_list_q(results, secret):
                 for order_data in results
                 if isinstance(order_data, tuple)
             ]
-
-        # result_arr = [
-        #     tasks.append(asyncio.create_task(
-        #         # pickup_point_order(
-        #         test(
-        #             secret=secret, 
-        #             order_data=order_data, 
-        #             # a=dict_data['lineItems'][0]['offer']['external']['id'], 
-        #             # b=dict_data['lineItems'][0]['offer']["name"][:15], 
-        #             # descr=dict_data['descr']
-        #         )
-        #         for order_data in dict_data
-        #         ))
-        #     ]
-
-        # result_arr = [
-        #     tasks.append(asyncio.create_task(
-        #         # pickup_point_order(
-        #         test(
-        #             secret=secret, 
-        #             order_data=order_data[0], 
-        #             a=order_data[0]['lineItems'][0]['offer']['external']['id'], 
-        #             b=order_data[0]['lineItems'][0]['offer']["name"][:15], 
-        #             descr=order_data if isinstance(order_data, dict) else None,
-        #         )
-        #         ))
-        #     for order_data in results
-        #     # if isinstance(order_data, tuple)
-        #     ]
-        
-    # result_arr = [
-    #     tasks.append(asyncio.create_task(test(string='string', data=data,)))
-    #     for data in data_r
-    #     ]
-    
-    
-    # for data in data_r:
-    #     a = test(string='string',data=data)
-    #     result_arr.append(a)
-
-    # print('********************** NAME + ****************************', results)
-
-    # for order_data in results:
-    #     if order_data is not None:
-    #         if isinstance(order_data, tuple):
-    #             for item in order_data[0]['lineItems']:
-    #                 external_id = item['offer']['external']['id']
-    #                 offer_name = item['offer']["name"][:15]
-    #                 order_data = order_data[0]
-
-    #                 try:
-    #                     if order_data["delivery"]["pickupPoint"] == None:
-    #                         if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
-    #                             result = cash_no_point_order(secret, order_data, external_id, offer_name, descr)
-    #                         else:
-    #                             result = no_pickup_point_order(secret,  order_data, external_id, offer_name, descr)
-    #                     else:
-    #                         if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
-    #                             result = cash_no_point_order(secret,  order_data, external_id, offer_name, descr)
-    #                         # print('********************** pickupPoint ****************************', order_data["delivery"]["pickupPoint"])
-    #                         else:
-    #                             # result = pickup_point_order(secret,  order_data, external_id, offer_name, descr)
-    #                             result = tasks.append(asyncio.create_task(pickup_point_order(secret,  order_data, external_id, offer_name, descr)))
-    #                     if 'error' in result:
-    #                         error_code = result['error']
-    #                         if error_code == 'invalid_token':
-    #                             # print('ERROR RESULT @@@@@@@@@', error_code)
-    #                             try:
-    #                                 # Refresh the token
-    #                                 new_token = get_next_token(request, secret.refresh_token, 'retset')
-    #                                 # Retry fetching orders with the new token
-    #                                 return get_order_details(request, id)
-    #                             except Exception as e:
-    #                                 print('Exception @@@@@@@@@', e)
-    #                                 context = {'name': 'retset'}
-    #                                 return render(request, 'invalid_token.html', context)
-    #                     # print('RESULT FOR SIPMENT LIST @@@@@@@@@', json.dumps(result, indent=4))
-    #                     # print('@@@@@@@@@ RESPONSE HEADERS 1 @@@@@@@@@', response.headers)
-    #                     result_arr.append({"id": id, "commandId": result["commandId"], "name": 'retset'})
-    #                             # return get_shipment_status(request, result['commandId'], secret
-    #                 except requests.exceptions.HTTPError as err:
-    #                     raise SystemExit(err)
-
-            # else:
-            #     continue
-    # labels = await asyncio.gather(*tasks)
     
 
     # return HttpResponse('ok')
@@ -813,10 +701,11 @@ def set_shipment_list(request, name):
 
     # return HttpResponse('ok')
 
+pickup_tasks = []
+async def make_order(request, secret, commandId, pickup):
 
-async def make_order(request, secret, commandId):
-
-    print('@@@@@@@@@ MAKE ORDER commandId @@@@@@@@@', commandId)
+    # print('@@@@@@@@@ MAKE ORDER commandId @@@@@@@@@', commandId)
+    # pickup_tasks = []
 
     while True:
         async with httpx.AsyncClient() as client:
@@ -845,6 +734,11 @@ async def make_order(request, secret, commandId):
         # print('@@@@@@@@@ MAKE ORDER VALIDATION_ERROR @@@@@@@@@', result['errors'][0]["code"])
     
         if result["shipmentId"] is not None:
+            if pickup[0] == 'pickup':
+                # my_new_task.delay(result["shipmentId"], secret.access_token, commandId) #apply_async
+                # my_task.delay()
+                # print('@@@@@@@@@ CELERY RESULT IN VIEW @@@@@@@@@', resultFromC)
+                asyncio.create_task(async_proposals_and_courier(request, result["shipmentId"], secret, commandId))
             return result["shipmentId"]
     #     elif result['errors'][0]["code"]:
     #         break
@@ -855,7 +749,7 @@ async def get_shipment_status_id(request, name):
 
     start_time = time.time()
     tasks = []
-    pickup_tasks = []
+    # pickup_tasks = []
     courier_tasks = []
     while True:
         labels = []
@@ -866,7 +760,7 @@ async def get_shipment_status_id(request, name):
         secret = await sync_to_async(Secret.objects.get)(account__name=name)
 
         # time.sleep(5)
-        print('********************** TIME TIME TIME 0 SECONDS ****************************')
+        # print('********************** TIME TIME TIME 5 SECONDS ****************************')
 
         parts_list = [
             part.split(':')
@@ -878,18 +772,18 @@ async def get_shipment_status_id(request, name):
             tasks.append(asyncio.create_task(
                 label_print(
                     request, 
-                    await make_order(request, secret, commandId), 
+                    await make_order(request, secret, commandId, pickup), 
                     secret
                     )
                 ))
             for commandId, name in parts_list
         ]
 
-        # if pickup[0] == 'pickup':
+
         #     [
         #         pickup_tasks.append(
         #             asyncio.create_task(
-        #                 async_operations(request, secret.access_token, result["shipmentId"], commandId)
+        #                 async_proposals_and_courier(request, secret.access_token, result["shipmentId"], commandId)
         #                 )
         #             )
         #         for result, commandId in order_tasks
@@ -898,28 +792,29 @@ async def get_shipment_status_id(request, name):
         #     await asyncio.gather(*pickup_tasks)
 
         labels = await asyncio.gather(*tasks)
+        # return labels
 
         if any(label is not None for label in labels):
-            print('@@@@@@@@@@@@@@@@@@ LABELS @@@@@@@@@@@@@@@@@@@@', labels)
+            print('@@@@@@@@@@@@@@@@@@ LABELS @@@@@@@@@@@@@@@@@@@@') #labels
             end_time = time.time()
             elapsed_time = end_time - start_time
             print(f"********************** FINISH time: {elapsed_time} seconds **********************")
             return await base64_to_pdf_bulk(labels)
 
 
+async def async_proposals_and_courier(request, shipmentId, secret, commandId):
+    # print('@@@@@@@@@@@@@@@@@@ async_proposals_and_courier SECRET @@@@@@@@@@@@@@@@@@@@', secret)
+    pickupDateProposalId = await get_pickup_proposals(request, secret, shipmentId)
+    if pickupDateProposalId:
+        await get_courier(request, shipmentId, commandId, pickupDateProposalId, secret)
 
 
-async def async_operations(request, shipmentId, secret, commandId):
-    pickupDateProposalId = await get_pickup_proposals(request, secret.access_token, shipmentId)
-    await get_courier(request, shipmentId, commandId, pickupDateProposalId, secret)
-
-
-async def get_pickup_proposals(request, token, shipmentId):
+async def get_pickup_proposals(request, secret, shipmentId):
 
     async with httpx.AsyncClient() as client:
         try:
             url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickup-proposals" 
-            headers = {'Authorization': f'Bearer {token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
+            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
             payload = {
                   "shipmentIds": [
                     shipmentId
