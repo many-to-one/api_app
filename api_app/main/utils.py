@@ -89,7 +89,11 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr)
 
     """ Paczkomaty z podjazdem kuriera """
 
-    # order_data["delivery"]["pickupPoint"]["id"] = 4591097
+    if order_data["delivery"]["method"]["name"] == "Allegro Automat DHL POP BOX":
+      order_data["delivery"]["pickupPoint"]["id"] = 4591097
+    if order_data["delivery"]["method"]["name"] ==  "Allegro Odbiór w Punkcie DHL":
+        order_data["delivery"]["pickupPoint"]["id"] = 4509455
+
     # print(' ######################### pickup_point_order secret ######################### ', secret.access_token)
     print(' ######################### pickup_point_order order_data ######################### ', order_data["delivery"]["pickupPoint"]["id"]) 
     # print(' ######################### pickup_point_order external_id ######################### ', external_id)
