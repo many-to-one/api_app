@@ -71,9 +71,19 @@
     font-style: bold;
 } */
 
+.check_o {
+    position: absolute;
+    left: 10.3%;
+    height: 15px;
+    /* width: 20vw; */
+    font-style: bold;
+    text-decoration: none;
+    color: var(--black);
+}
+
 .name_o {
     position: absolute;
-    left: 12%;
+    left: 14%;
     width: 20vw;
     font-style: bold;
     text-decoration: none;

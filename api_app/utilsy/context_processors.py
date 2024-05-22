@@ -1,4 +1,5 @@
 from django.shortcuts import render
+import requests
 from main.models import *
 
 
@@ -9,3 +10,4 @@ def get_accounts(request):
     }
 
     # return render(request, 'get_accounts.html', context)
+

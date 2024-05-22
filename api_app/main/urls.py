@@ -16,11 +16,11 @@ urlpatterns = [
     path('get_refresh_token/<str:authorization_code>', get_refresh_token, name='get_refresh_token'),
     path('post_product', post_product, name='post_product'),
 
-    path('get_orders/<str:name>/', orders_views_test.get_orders, name='get_orders'),
+    path('get_orders/<str:name>/<str:delivery>/', orders_views_test.get_orders, name='get_orders'),
     path('get_order_details/<uuid:id>/<str:name>/', orders_views_test.get_order_details, name='get_order_details'),
     path('change_status/<uuid:id>/<str:name>/<str:status>/<str:delivery>/', orders_views.change_status, name='change_status'),
-    path('create_label_DPD/<uuid:id>/', orders_views_test.create_label_DPD, name='create_label_DPD'),
-    path('create_label_in_bulk_DPD/', orders_views_test.create_label_in_bulk_DPD, name='create_label_in_bulk_DPD'),
+    # path('create_label_DPD/<uuid:id>/', orders_views_test.create_label_DPD, name='create_label_DPD'),
+    # path('create_label_in_bulk_DPD/', orders_views_test.create_label_in_bulk_DPD, name='create_label_in_bulk_DPD'),
 
     path('get_shipment_list/', orders_views_test.get_shipment_list, name='get_shipment_list'),
     path('set_shipment_list/<str:name>/', orders_views_test.set_shipment_list, name='set_shipment_list'), ###

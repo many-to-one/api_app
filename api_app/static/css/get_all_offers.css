@@ -155,8 +155,10 @@
 .account_select {
     width: 10vw;
     height: 30px;
-    border: 1px solid black;
-    border-radius: 10px;
+    border: none;
+    background-color: var(--bg_color);
+    /* border: 1px solid black;
+    border-radius: 10px; */
     padding: 2px;
 }
 

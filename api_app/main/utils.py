@@ -95,11 +95,11 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr)
         order_data["delivery"]["pickupPoint"]["id"] = 4509455
 
     # print(' ######################### pickup_point_order secret ######################### ', secret.access_token)
-    print(' ######################### pickup_point_order order_data ######################### ', order_data["delivery"]["pickupPoint"]["id"]) 
-    # print(' ######################### pickup_point_order external_id ######################### ', external_id)
-    # print(' ######################### pickup_point_order offer_name ######################### ', offer_name)
+    # print(' ######################### pickup_point_order order_data ######################### ', order_data["delivery"]["pickupPoint"]["id"]) 
+    print(' ######################### pickup_point_order external_id ######################### ', order_data["delivery"]["method"]["id"])
+    print(' ######################### pickup_point_order offer_name ######################### ', order_data["delivery"]["address"]["phoneNumber"])
     # print(' ######################### pickup_point_order descr ######################### ', descr)
-
+    # order_data["delivery"]["address"]["phoneNumber"] = "500600700"
     async with httpx.AsyncClient() as client:
       url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
       headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
@@ -107,6 +107,7 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr)
                   # "commandId": "",
                   "input": {
                     "deliveryMethodId": order_data["delivery"]["method"]["id"],
+                    # "credentialsId": "", #"b20ef9e1-faa2-4f25-9032-adbea23e5cb9#abcdef-ghij-klmn-opqrs123",#b20ef9e1-faa2-4f25-9032-adbea23e5cb9#
                     "sender": {
                       "name": "Jan Kowalski",
                       "company": "Allegro.pl sp. z o.o.",
@@ -120,7 +121,7 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr)
                       "phone": "+48500600700",
                     },
                     "receiver": {
-                      "name": "Jan Kowalski", #order_data["buyer"]["firstName"],
+                      "name": f'{order_data["buyer"]["firstName"]} {order_data["buyer"]["lastName"]}',#"Jan Kowalski"
                       "company": order_data["buyer"]["companyName"],
                       "street": order_data["buyer"]["address"]["street"].split()[0],
                       "streetNumber": order_data["buyer"]["address"]["street"].split()[1],
@@ -129,7 +130,7 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr)
                       # "state": "AL",
                       "countryCode": order_data["buyer"]["address"]["countryCode"],
                       "email": order_data["buyer"]["email"],
-                      "phone": "+48500600700", #order_data["delivery"]["address"]["phoneNumber"],
+                      "phone": order_data["delivery"]["address"]["phoneNumber"], #str(order_data["delivery"]["address"]["phoneNumber"]), #+48500600700"
                       "point": order_data["delivery"]["pickupPoint"]["id"]
                     },
                     "pickup": { # Niewymagane, dane miejsca odbioru przesyłki
@@ -142,7 +143,7 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr)
                       # "state": "AL",
                       "countryCode": "PL",
                       "email": "8awgqyk6a5+cub31c122@allegromail.pl",
-                      "phone": "+48500600700",
+                      "phone": "500600700", #"+48500600700",
                       # "point": order_data["delivery"]["pickupPoint"]["id"]
                     },
                     "referenceNumber": external_id,
