@@ -423,7 +423,7 @@ async def get_offer_descr(request, id, secret):
     
 
 async def combined_task(request, id, name, offerId, secret):
-    return await create_label(request, id, name, secret), await get_offer_descr(request, offerId, secret)
+    return await create_label(request, id, name, secret), await get_offer_descr(request, offerId, secret), await get_user(secret)
 
 
 async def set_shipment_list_async(request, ids, secret):
@@ -481,7 +481,8 @@ async def set_shipment_list_q(results, secret):
                     order_data[0],
                     order_data[0]['lineItems'][0]['offer']['external']['id'],
                     order_data[0]['lineItems'][0]['offer']["name"][:15],
-                    order_data[1]
+                    order_data[1],
+                    order_data[2],
                 )
                 ))
                 for order_data in results
@@ -491,6 +492,24 @@ async def set_shipment_list_q(results, secret):
 
     # return HttpResponse('ok')
     return await asyncio.gather(*tasks)
+
+
+async def get_user(secret):
+    async with httpx.AsyncClient() as client:
+        try:
+            url = f"https://api.allegro.pl.allegrosandbox.pl/sale/offer-contacts" 
+            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
+
+            response = await client.get(url, headers=headers)
+            result = response.json()
+
+            print('@@@@@@@@@ RESULT GET USER @@@@@@@@@', json.dumps(result, indent=4))
+            print('@@@@@@@@@ RESPONSE GET USER HEADERS @@@@@@@@@', response.headers)
+            # change_status(request, id, secret.account.name, 'SENT')
+            # time.sleep(7)
+            return  result
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)
 
 
 # @sync_to_async

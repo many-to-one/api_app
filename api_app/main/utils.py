@@ -67,8 +67,8 @@ def get_next_token(request, access_token, name):
 #################################################### CREATE ORDER ####################################################
 ######################################################################################################################
 
-async def test(secret, order_data, external_id, offer_name, descr):
-    print('********************** SECRET TEST ****************************', secret)
+async def test(secret, order_data, external_id, offer_name, descr, user):
+    print('********************** USER TEST ****************************', user)
     result = None
     if order_data["delivery"]["pickupPoint"] == None:
         if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
