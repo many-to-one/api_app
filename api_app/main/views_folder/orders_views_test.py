@@ -112,7 +112,7 @@ def get_orders(request, name, delivery):
         # "deliveryMethods": all_delivery_methods,
     }
     # print('*********************** len all_results **********************', len(paginated_results))
-    return render(request, 'get_all_orders.html', context)
+    return render(request, 'get_all_orders_test.html', context)
     
 
 def get_order_details(request, id, name):
@@ -455,9 +455,10 @@ async def set_shipment_list_async(request, ids, secret):
 
 
 # @sync_to_async
-async def get_secret():
-    secret = sync_to_async(Secret.objects.get)(account__name='retset')
-    return await secret
+def get_secret(name):
+    # secret = await sync_to_async(Secret.objects.get)(account__name=name)
+    secret = Secret.objects.get(account__name=name)
+    return secret
 
 
 async def set_shipment_list_q(results, secret):
@@ -497,7 +498,7 @@ async def set_shipment_list_q(results, secret):
 async def get_user(secret):
     async with httpx.AsyncClient() as client:
         try:
-            url = f"https://api.allegro.pl.allegrosandbox.pl/sale/offer-contacts" 
+            url = f"https://api.allegro.pl.allegrosandbox.pl/me" 
             headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
 
             response = await client.get(url, headers=headers)
@@ -578,15 +579,12 @@ async def make_order(request, secret, commandId, pickup):
         # print('@@@@@@@@@ MAKE ORDER VALIDATION_ERROR @@@@@@@@@', result['errors'][0]["code"])
     
         if result["shipmentId"] is not None:
+            # if secret:
+            print('@@@@@@@@@ MAKE ORDER result["shipmentId"] @@@@@@@@@', result["shipmentId"])
             if pickup[0] == 'pickup':
-                # my_new_task.delay(result["shipmentId"], secret.access_token, commandId) #apply_async
-                # my_task.delay()
-                # print('@@@@@@@@@ CELERY RESULT IN VIEW @@@@@@@@@', resultFromC)
-                asyncio.create_task(async_proposals_and_courier(request, result["shipmentId"], secret, commandId))
+                asyncio.create_task(async_proposals_and_courier(request, result["shipmentId"], secret.access_token, commandId))
             return result["shipmentId"]
-    #     elif result['errors'][0]["code"]:
-    #         break
-    # return None
+
 
 
 async def get_shipment_status_id(request, name):
@@ -601,10 +599,11 @@ async def get_shipment_status_id(request, name):
         pickup = request.GET.getlist('pickup')
         print('@@@@@@@@@ ids @@@@@@@@@', ids)
         print('@@@@@@@@@ pickup @@@@@@@@@', pickup)
+
         secret = await sync_to_async(Secret.objects.get)(account__name=name)
+        # print('********************** TIME TIME TIME 0 SECONDS ****************************')
 
         # time.sleep(5)
-        # print('********************** TIME TIME TIME 5 SECONDS ****************************')
 
         parts_list = [
             part.split(':')
@@ -646,7 +645,7 @@ async def get_pickup_proposals(request, secret, shipmentId):
     async with httpx.AsyncClient() as client:
         try:
             url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickup-proposals" 
-            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
+            headers = {'Authorization': f'Bearer {secret}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
             payload = {
                   "shipmentIds": [
                     shipmentId
@@ -674,7 +673,7 @@ async def get_courier(request, shipmentId, commandId, pickupDateProposalId, secr
     async with httpx.AsyncClient() as client:
         try:
             url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickups/create-commands" 
-            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
+            headers = {'Authorization': f'Bearer {secret}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
             payload = {
                       "commandId": commandId,
                       "input": {
@@ -686,19 +685,19 @@ async def get_courier(request, shipmentId, commandId, pickupDateProposalId, secr
                     }
             response = await client.post(url, headers=headers, json=payload)
             result = response.json()
-            if 'error' in result:
-                error_code = result['error']
-                if error_code == 'invalid_token':
-                    # print('ERROR RESULT @@@@@@@@@', error_code)
-                    try:
-                        # Refresh the token
-                        new_token = get_next_token(request, secret.refresh_token, 'retset')
-                        # Retry fetching orders with the new token
-                        return get_order_details(request, id)
-                    except Exception as e:
-                        print('Exception @@@@@@@@@', e)
-                        context = {'name': 'retset'}
-                        return render(request, 'invalid_token.html', context)
+            # if 'error' in result:
+            #     error_code = result['error']
+            #     if error_code == 'invalid_token':
+            #         # print('ERROR RESULT @@@@@@@@@', error_code)
+            #         try:
+            #             # Refresh the token
+            #             new_token = get_next_token(request, secret.refresh_token, 'retset')
+            #             # Retry fetching orders with the new token
+            #             return get_order_details(request, id)
+            #         except Exception as e:
+            #             print('Exception @@@@@@@@@', e)
+            #             context = {'name': 'retset'}
+            #             return render(request, 'invalid_token.html', context)
             print('RESULT FOR COURIER @@@@@@@@@', json.dumps(result, indent=4))
             print('@@@@@@@@@ RESPONSE COURIER HEADERS 1 @@@@@@@@@', response.headers)
             # change_status(request, id, secret.account.name, 'SENT')

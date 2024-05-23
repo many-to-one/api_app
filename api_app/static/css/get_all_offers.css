@@ -85,8 +85,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 20px;
-    width: auto;
-    max-width: 80%;
+    width: 78%;
     /* border-radius: 10px; */
     margin-bottom: 10px;
     min-height: 90px;
@@ -95,6 +94,25 @@
     background-color: var(--light);
     /* box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset; */
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
+.order {
+    display: flex;
+    flex-direction: column;
+    width: 40vw;
+}
+
+.lineItems {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 5vw;
+}
+
+.skuCosts {
+    display: flex;
+    min-width: 80px;
+    justify-content: space-between; 
 }
 
 @media screen and (max-width: 1000px) {
@@ -136,7 +154,7 @@
 }
 
 .name {
-    width: 38vw;
+    width: 25vw;
     text-decoration: none;
     color: var(--dark);
 }

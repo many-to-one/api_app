@@ -72,20 +72,20 @@ async def test(secret, order_data, external_id, offer_name, descr, user):
     result = None
     if order_data["delivery"]["pickupPoint"] == None:
         if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
-            result = await cash_no_point_order(secret, order_data, external_id, offer_name, descr)
+            result = await cash_no_point_order(secret, order_data, external_id, offer_name, descr, user)
         else:
-            result = await no_pickup_point_order(secret,  order_data, external_id, offer_name, descr)
+            result = await no_pickup_point_order(secret,  order_data, external_id, offer_name, descr, user)
     else:
         if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
-            result = await cash_no_point_order(secret,  order_data, external_id, offer_name, descr)
+            result = await cash_no_point_order(secret,  order_data, external_id, offer_name, descr, user)
         # print('********************** pickupPoint ****************************', order_data["delivery"]["pickupPoint"])
         else:
             # result = pickup_point_order(secret,  order_data, external_id, offer_name, descr)
-            result = await pickup_point_order(secret,  order_data, external_id, offer_name, descr)
+            result = await pickup_point_order(secret,  order_data, external_id, offer_name, descr, user)
 
     return result
 
-async def pickup_point_order(secret, order_data, external_id, offer_name, descr):
+async def pickup_point_order(secret, order_data, external_id, offer_name, descr, user):
 
     """ Paczkomaty z podjazdem kuriera """
 
@@ -109,15 +109,15 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr)
                     "deliveryMethodId": order_data["delivery"]["method"]["id"],
                     # "credentialsId": "", #"b20ef9e1-faa2-4f25-9032-adbea23e5cb9#abcdef-ghij-klmn-opqrs123",#b20ef9e1-faa2-4f25-9032-adbea23e5cb9#
                     "sender": {
-                      "name": "Jan Kowalski",
-                      "company": "Allegro.pl sp. z o.o.",
+                      "name": f"{user['firstName']} {user['lastName']}",
+                      "company": user['company']['name'],
                       "street": "Główna",
                       "streetNumber": "30",
                       "postalCode": '64-700', #"52-340"(kod Wrocław),
                       "city": "Warszawa",
                       # "state": "AL",
                       "countryCode": "PL",
-                      "email": "8awgqyk6a5+cub31c122@allegrogroup.pl",
+                      "email": user['email'],#"8awgqyk6a5+cub31c122@allegrogroup.pl",
                       "phone": "+48500600700",
                     },
                     "receiver": {
@@ -133,18 +133,17 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr)
                       "phone": order_data["delivery"]["address"]["phoneNumber"], #str(order_data["delivery"]["address"]["phoneNumber"]), #+48500600700"
                       "point": order_data["delivery"]["pickupPoint"]["id"]
                     },
-                    "pickup": { # Niewymagane, dane miejsca odbioru przesyłki
-                      "name": "Jan Kowalski",
-                      "company": "Allegro.pl sp. z o.o.",
+                    "pickup": {
+                      "name": f"{user['firstName']} {user['lastName']}",
+                      "company": user['company']['name'],
                       "street": "Główna",
-                      "streetNumber": 30,
-                      "postalCode": "64-700",
+                      "streetNumber": "30",
+                      "postalCode": '64-700', #"52-340"(kod Wrocław),
                       "city": "Warszawa",
                       # "state": "AL",
                       "countryCode": "PL",
-                      "email": "8awgqyk6a5+cub31c122@allegromail.pl",
-                      "phone": "500600700", #"+48500600700",
-                      # "point": order_data["delivery"]["pickupPoint"]["id"]
+                      "email": user['email'],#"8awgqyk6a5+cub31c122@allegrogroup.pl",
+                      "phone": "+48500600700",
                     },
                     "referenceNumber": external_id,
                     "description": external_id,
@@ -203,15 +202,9 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr)
 
 
 
-async def cash_no_point_order(secret, order_data, external_id, offer_name, descr):
+async def cash_no_point_order(secret, order_data, external_id, offer_name, descr, user):
 
     """ Courier (cash) with pick up from seller """
-
-    # print(' ######################### cash_no_point_order secret ######################### ', secret)
-    # print(' ######################### cash_no_point_order order_data ######################### ', order_data)
-    # print(' ######################### cash_no_point_order external_id ######################### ', external_id)
-    # print(' ######################### cash_no_point_order offer_name ######################### ', offer_name)
-    # print(' ######################### cash_no_point_order descr ######################### ', descr)
 
     async with httpx.AsyncClient() as client:
       url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
@@ -220,18 +213,17 @@ async def cash_no_point_order(secret, order_data, external_id, offer_name, descr
                   # "commandId": "",
                   "input": {
                     "deliveryMethodId": order_data["delivery"]["method"]["id"],
-                    "sender": {
-                      "name": "Jan Kowalski",
-                      "company": "Allegro.pl sp. z o.o.",
+                     "sender": {
+                      "name": f"{user['firstName']} {user['lastName']}",
+                      "company": user['company']['name'],
                       "street": "Główna",
                       "streetNumber": "30",
-                      "postalCode": "64-700",
+                      "postalCode": '64-700', #"52-340"(kod Wrocław),
                       "city": "Warszawa",
                       # "state": "AL",
                       "countryCode": "PL",
-                      "email": "8awgqyk6a5+cub31c122@allegrogroup.pl",
+                      "email": user['email'],#"8awgqyk6a5+cub31c122@allegrogroup.pl",
                       "phone": "+48500600700",
-                      # "point": ""
                     },
                     "receiver": {
                       "name": "Jan Kowalski", #order_data["buyer"]["firstName"],
@@ -245,18 +237,17 @@ async def cash_no_point_order(secret, order_data, external_id, offer_name, descr
                       "email": order_data["buyer"]["email"],
                       "phone": "+48500600700", #order_data["delivery"]["address"]["phoneNumber"],
                     },
-                    "pickup": { # Niewymagane, dane miejsca odbioru przesyłki
-                      "name": "Jan Kowalski",
-                      "company": "Allegro.pl sp. z o.o.",
+                    "pickup": {
+                      "name": f"{user['firstName']} {user['lastName']}",
+                      "company": user['company']['name'],
                       "street": "Główna",
-                      "streetNumber": 30,
-                      "postalCode": "64-700",
+                      "streetNumber": "30",
+                      "postalCode": '64-700', #"52-340"(kod Wrocław),
                       "city": "Warszawa",
                       # "state": "AL",
                       "countryCode": "PL",
-                      "email": "8awgqyk6a5+cub31c122@allegromail.pl",
+                      "email": user['email'],#"8awgqyk6a5+cub31c122@allegrogroup.pl",
                       "phone": "+48500600700",
-                      # "point": "A1234567"
                     },
                     "referenceNumber": external_id,
                     "description": external_id,
@@ -315,15 +306,7 @@ async def cash_no_point_order(secret, order_data, external_id, offer_name, descr
 
 
 
-async def no_pickup_point_order(secret, order_data, external_id, offer_name, descr):
-    
-    # print(' ######################### no_pickup_point_order secret ######################### ', secret)
-    # print(' ######################### no_pickup_point_order order_data ######################### ', order_data)
-    # print(' ######################### no_pickup_point_order external_id ######################### ', external_id)
-    # print(' ######################### no_pickup_point_order offer_name ######################### ', offer_name)
-    # print(' ######################### no_pickup_point_order descr ######################### ', descr)
-    
-    # print(' ######################### pickupPoint ++ ######################### ', order_data["delivery"]["pickupPoint"])
+async def no_pickup_point_order(secret, order_data, external_id, offer_name, descr, user):
     
     """ Courier with pick up from seller """
     async with httpx.AsyncClient() as client:
@@ -334,17 +317,16 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
                   "input": {
                     "deliveryMethodId": order_data["delivery"]["method"]["id"],
                     "sender": {
-                      "name": "Jan Kowalski",
-                      "company": "Allegro.pl sp. z o.o.",
+                      "name": f"{user['firstName']} {user['lastName']}",
+                      "company": user['company']['name'],
                       "street": "Główna",
                       "streetNumber": "30",
-                      "postalCode": "64-700",
+                      "postalCode": '64-700', #"52-340"(kod Wrocław),
                       "city": "Warszawa",
                       # "state": "AL",
                       "countryCode": "PL",
-                      "email": "8awgqyk6a5+cub31c122@allegrogroup.pl",
+                      "email": user['email'],#"8awgqyk6a5+cub31c122@allegrogroup.pl",
                       "phone": "+48500600700",
-                      # "point": ""
                     },
                     "receiver": {
                       "name": "Jan Kowalski", #order_data["buyer"]["firstName"],
@@ -359,18 +341,17 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
                       "phone": "+48500600700", #order_data["delivery"]["address"]["phoneNumber"],
                       # "point": order_data["delivery"]["pickupPoint"]["id"]
                     },
-                    "pickup": { # Niewymagane, dane miejsca odbioru przesyłki
-                      "name": "Jan Kowalski",
-                      "company": "Allegro.pl sp. z o.o.",
+                    "pickup": {
+                      "name": f"{user['firstName']} {user['lastName']}",
+                      "company": user['company']['name'],
                       "street": "Główna",
-                      "streetNumber": 30,
-                      "postalCode": "64-700",
+                      "streetNumber": "30",
+                      "postalCode": '64-700', #"52-340"(kod Wrocław),
                       "city": "Warszawa",
                       # "state": "AL",
                       "countryCode": "PL",
-                      "email": "8awgqyk6a5+cub31c122@allegromail.pl",
+                      "email": user['email'],#"8awgqyk6a5+cub31c122@allegrogroup.pl",
                       "phone": "+48500600700",
-                      # "point": "A1234567"
                     },
                     "referenceNumber": external_id,
                     "description": external_id,

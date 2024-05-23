@@ -99,7 +99,7 @@
                             <p></p>
                         {% endif %}
                         <a class="name" href="{% url 'get_order_details' order.id name   %}">{{ item.offer.name }}</a> <!-- Product -->
-                        <p class="account" id="name_{{ order.id }}" value="{{ name }}">{{ name }}</p> <!-- Konto -->
+                        <!-- <p class="account" id="name_{{ order.id }}" value="{{ name }}">{{ name }}</p> Konto -->
                         <p class="sku">{{ item.offer.external.id }}</p> <!-- SKU -->
                         <p class="stock">{{ item.quantity }}</p> <!-- Ilość -->
 
@@ -171,12 +171,18 @@
                             value="{{ order.id }}:{{ name }}:{{ order.delivery.method.name }}:{{ order.lineItems.0.offer.id }}@"
                         {% endif %}
                     >
-                    {% for item in order.lineItems %}
-                        <a class="name" href="{% url 'get_order_details' order.id name   %}">{{ item.offer.name }}</a>
-                        <p class="account" id="name_{{ order.id }}" value="{{ name }}">{{ name }}</p> <!-- Konto -->
-                        <p class="sku">{{ item.offer.external.id }}</p> 
-                        <p class="stock">{{ item.quantity }}</p> 
-                    {% endfor %}
+                    <div class="order">
+                        {% for item in order.lineItems %}
+                            <div class="lineItems">
+                                <a class="name" href="{% url 'get_order_details' order.id name %}">{{ item.offer.name }}</a>
+                                <!-- <p class="account" id="name_{{ order.id }}" value="{{ name }}">{{ name }}</p> Konto -->
+                                <div class="skuCosts">
+                                    <p class="sku">{{ item.offer.external.id }}</p>
+                                    <p class="stock">{{ item.quantity }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
 
                     <p class="costs">{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</p> 
 
