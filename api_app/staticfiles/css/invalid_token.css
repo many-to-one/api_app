@@ -1,0 +1,12 @@
+.cont {
+    display: flex;
+    flex-direction: column;
+    background-color: aqua;
+    width: 100%;
+    height: auto;
+}
+
+.cont p {
+    text-align: center;
+    width: 60%;
+}

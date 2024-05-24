@@ -1,0 +1,15 @@
+body {
+    background-color: aliceblue;
+}
+
+:root {
+    --light: white;
+    --dark: black;
+    --success: rgb(132, 255, 159);
+    --dark_success: rgb(73, 155, 91);
+    --wait: rgb(245, 255, 104);
+    --bg_color: aliceblue;
+    --dbl: rgb(219, 219, 219);
+    --product: #005355;
+    --header: #006769;
+}

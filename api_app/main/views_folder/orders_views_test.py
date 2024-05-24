@@ -467,7 +467,7 @@ def get_secret(name):
 async def set_shipment_list_q(results, secret):
     # start_time = time.time()
 
-    print('********************** set_shipment_list_q results ****************************', results)
+    # print('********************** set_shipment_list_q results ****************************', results)
     print('********************** set_shipment_list_q secret ****************************', secret)
     # print('********************** results[0] ****************************', results[0])
     # print('********************** results[1] ****************************', results[1])
@@ -507,8 +507,8 @@ async def get_user(secret):
             response = await client.get(url, headers=headers)
             result = response.json()
 
-            print('@@@@@@@@@ RESULT GET USER @@@@@@@@@', json.dumps(result, indent=4))
-            print('@@@@@@@@@ RESPONSE GET USER HEADERS @@@@@@@@@', response.headers)
+            # print('@@@@@@@@@ RESULT GET USER @@@@@@@@@', json.dumps(result, indent=4))
+            # print('@@@@@@@@@ RESPONSE GET USER HEADERS @@@@@@@@@', response.headers)
             # change_status(request, id, secret.account.name, 'SENT')
             # time.sleep(7)
             return  result
@@ -578,16 +578,16 @@ async def make_order(request, secret, commandId, pickup):
                         return render(request, 'invalid_token.html', context)
                     
             if result["status"] == "ERROR":
-                print('@@@@@@@@@ MAKE ORDER VALIDATION_ERROR @@@@@@@@@', json.dumps(result, indent=4))
+                # print('@@@@@@@@@ MAKE ORDER VALIDATION_ERROR @@@@@@@@@', json.dumps(result, indent=4))
                 result["shipmentId"] == None
                 return result["shipmentId"]
 
-        print('@@@@@@@@@ MAKE ORDER RESULT @@@@@@@@@', json.dumps(result, indent=4))
+        # print('@@@@@@@@@ MAKE ORDER RESULT @@@@@@@@@', json.dumps(result, indent=4))
         print('@@@@@@@@@ MAKE ORDER HEADERS @@@@@@@@@', response.headers)
         # print('@@@@@@@@@ MAKE ORDER VALIDATION_ERROR @@@@@@@@@', result['errors'][0]["code"])
     
         if result["shipmentId"] is not None:
-            print('@@@@@@@@@ MAKE ORDER result["shipmentId"] @@@@@@@@@', result["shipmentId"])
+            # print('@@@@@@@@@ MAKE ORDER result["shipmentId"] @@@@@@@@@', result["shipmentId"])
             if pickup[0] == 'pickup':
                 asyncio.create_task(async_proposals_and_courier(request, result["shipmentId"], secret.access_token, commandId))
             return result["shipmentId"]

@@ -1,0 +1,173 @@
+.list__header_orders {
+    position: -webkit-sticky; /* For Safari */
+    width: 100vw;
+    height: 70px;
+    position: sticky;
+    top: 60px;
+    display: flex;
+    /* justify-content: flex-start; */
+    align-items: center;
+    padding: 5px;
+    background-color: var(--light);
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    /* border-radius: 10px; */
+    z-index: 10;
+    margin-bottom: 10vh;
+}
+
+.orders__line {
+    display: flex;
+    /* justify-content: space-between; */
+    align-items: center;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    height: 70px;
+    padding: 5px;
+    background-color: var(--light);
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+}
+
+
+.all_labels {
+    cursor: pointer;
+  }
+
+  #question {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25vh;
+    padding: 5px;
+    width: 100%;
+    height: 100px;
+    /* background-color: var(--success); */
+  }
+
+  #question button {
+    background-color: var(--dbl);
+    min-width: 100px;
+    max-width: 150px;
+    height: 50px;
+    border: none;
+  }
+
+  .btns_cont {
+    display: flex;
+    gap: 20px;
+  }
+
+  #questionOne {
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    width: 100%;
+    height: 70px;
+    background-color: var(--success);
+  }
+
+  #wait {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--wait);
+    padding: 5px;
+    width: 99.5%;
+    height: 70px;
+  }
+
+  #tdOne {
+    cursor: pointer;
+  }
+
+.print {
+    position: absolute;
+    left: 2%; 
+}
+
+.check_o {
+    position: absolute;
+    left: 12%;
+    height: 15px;
+    /* width: 20vw; */
+    font-style: bold;
+    text-decoration: none;
+    color: var(--black);
+}
+
+.name_o {
+    position: absolute;
+    left: 14%;
+    width: 20vw;
+    font-style: bold;
+    text-decoration: none;
+    color: var(--black);
+}
+
+/* .account_o {
+    position: absolute;
+    left: 46.7%;
+    font-style: bold;
+} */
+
+.sku_o {
+    position: absolute;
+    left: 43.5%;
+    font-style: bold;
+}
+
+.stock_o {
+    position: absolute;
+    left: 46%;
+    font-style: bold;
+}
+
+.costs_o {
+    position: absolute;
+    left: 53%;
+    font-style: bold;
+}
+
+.status_o {
+    position: absolute;
+    left: 58%;
+    font-style: bold;
+    width: 5vw;
+}
+
+.client_o {
+    position: absolute;
+    left: 63%;
+    font-style: bold;
+}
+
+.shipment_o {
+    position: absolute;
+    left: 70%;
+    font-style: bold;
+}
+
+.order_o {
+    position: absolute;
+    left: 80%;
+    font-style: bold;
+}
+
+.edit_o {
+    position: absolute;
+    left: 90.5%;
+    font-style: bold;
+}
+
+.label_o {
+    position: absolute;
+    left: 93%;
+    font-style: bold;
+}
+
+.prop_o {
+    position: absolute;
+    left: 98%;
+    font-style: bold;
+}
