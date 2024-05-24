@@ -43,3 +43,50 @@ class Secret(models.Model):
 
     def __str__(self):
         return self.account.name
+    
+
+class Address(models.Model):
+    firstName=models.CharField(
+        max_length=125,
+        null=True
+    )
+    lastName=models.CharField(
+        max_length=125,
+        null=True
+    )
+    company=models.CharField(
+        max_length=125,
+        null=True
+    )
+    street=models.CharField(
+        max_length=125,
+        null=True
+    )
+    streetNumber=models.CharField(
+        max_length=125,
+        null=True
+    )
+    postalCode=models.CharField(
+        max_length=125,
+        null=True
+    )
+    city=models.CharField(
+        max_length=125,
+        null=True
+    )
+    email=models.CharField(
+        max_length=125,
+        null=True
+    )
+    phone=models.CharField(
+        max_length=125,
+        null=True
+    )
+    name = models.ForeignKey(
+        Allegro,
+        on_delete=models.CASCADE,
+        null=True,
+    )
+
+    def __str__(self):
+        return self.lastName

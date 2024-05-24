@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Data Form</title>
+</head>
+
+{% block content %}
+<body>
+
+{% if addresses %}
+    {% for address in addresses %}
+        <div id="allAddresses">
+            <p>{{ address.firstName }}</p>
+            <p>{{ address.lastName }}</p>
+            <p>{{ address.company }}</p>
+            <p>{{ address.street }}</p>
+            <p>{{ address.streetNumber }}</p>
+            <p>{{ address.postalCode }}</p>
+            <p>{{ address.city }}</p>
+            <p>{{ address.email }}</p>
+            <p>{{ address.phone }}</p>
+            <button>Dodaj</button>
+        </div>
+    {% endfor %}
+{% else %}
+    <div id="allAddresses">
+        <button onclick="addAddress()">Dodaj</button>
+    </div>
+{% endif %}
+
+        <h2>Dodaj adres wysyłki</h2>
+        <form id="addressForm" method="post">
+            {% csrf_token %}
+            <label for="name">firstName:</label>
+            <input type="text" id="name" name="firstName" required><br><br>
+
+            <label for="name">lastName:</label>
+            <input type="text" id="name" name="lastName" required><br><br>
+
+            <label for="company">Company:</label>
+            <input type="text" id="company" name="company"><br><br>
+
+            <label for="street">Street:</label>
+            <input type="text" id="street" name="street" value="Główna" required><br><br>
+
+            <label for="streetNumber">Street Number:</label>
+            <input type="text" id="streetNumber" name="streetNumber" value="30" required><br><br>
+
+            <label for="postalCode">Postal Code:</label>
+            <input type="text" id="postalCode" name="postalCode" value="64-700" required><br><br>
+
+            <label for="city">City:</label>
+            <input type="text" id="city" name="city" value="Warszawa" required><br><br>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required><br><br>
+
+            <label for="phone">Phone:</label>
+            <input type="tel" id="phone" name="phone" required><br><br>
+
+            <input type="submit" value="Submit" id="okButton">
+        </form>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
+    <script>
+
+        var addressForm = document.getElementById('addressForm');
+        var allAddresses = document.getElementById('allAddresses');
+
+        function addAddress(){
+            allAddresses.style.display = 'none'
+            addressForm.style.display = 'flex';
+        }
+
+        document.getElementById('addressForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        // Get form data
+        const formData = new FormData(event.target);
+
+        var name = 'retset';
+
+        // Send POST request using Axios
+        axios.post('', formData)
+            .then(function(response) {
+                console.log(response.data.message);
+                addressForm.style.display = 'none';
+                allAddresses.style.display = 'flex'
+                
+                // document.getElementById('success').innerHTML = `Witaj, ${response.data.username}!`;
+                document.getElementById('okButton').style.display = 'none';
+                // if (response.data.message == 'success'){
+                //     window.location.href = `/add_address/${name}`;
+                //     addressForm.style.display = 'none';
+                //     allAddresses.style.display = 'flex'
+                // }
+        
+            })
+            .catch(function(error) {
+                console.error(error);
+                alert(error)
+            });
+        });
+
+    </script>    
+
+</body>
+{% endblock %}
+</html>

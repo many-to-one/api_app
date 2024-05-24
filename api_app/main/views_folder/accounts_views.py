@@ -37,7 +37,3 @@ def add_account(request):
             pass
 
     return render(request, 'add_account.html')
-
-
-def get_address(request):
-    pass

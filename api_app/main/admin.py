@@ -6,3 +6,4 @@ from .models import *
 admin.site.register(CustomUser)
 admin.site.register(Allegro)
 admin.site.register(Secret)
+admin.site.register(Address)

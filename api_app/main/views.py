@@ -324,4 +324,73 @@ def get_ids_all_categories(request):
         print('RESULT @@@@@@@@@', product_result.json())
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
+    
 
+def get_address(request, name):
+
+    addresses = Address.objects.filter(name__name=name)
+    context = {
+        'name': name,
+        'addresses': addresses,
+    }
+    return render(request, 'address.html', context)
+
+
+def add_address(request, name):
+
+    if request.method == 'POST':
+        firstName = request.POST.get('firstName')
+        lastName = request.POST.get('lastName')
+        company = request.POST.get('company')
+        street = request.POST.get('street')
+        streetNumber = request.POST.get('streetNumber')
+        postalCode = request.POST.get('postalCode')
+        city = request.POST.get('city')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+
+        try:
+
+            address = Address.objects.create(
+                firstName=firstName,
+                lastName=lastName,
+                company=company,
+                street=street,
+                streetNumber=streetNumber,
+                postalCode=postalCode,
+                city=city,
+                email=email,
+                phone=phone,
+            )
+            address.save()
+            # Print the values to the console
+            print("firstName:", firstName)
+            print("lastName:", lastName)
+            print("Company:", company)
+            print("Street:", street)
+            print("Street Number:", streetNumber)
+            print("Postal Code:", postalCode)
+            print("City:", city)
+            print("Email:", email)
+            print("Phone:", phone)
+            if address:
+                # return JsonResponse({
+                #     'message': 'success',
+                # })
+                return redirect('get_address name')
+            else:
+                print("SOMETHING GOES WRONG")
+                print("firstName:", firstName)
+                print("lastName:", lastName)
+                print("Company:", company)
+                print("Street:", street)
+                print("Street Number:", streetNumber)
+                print("Postal Code:", postalCode)
+                print("City:", city)
+                print("Email:", email)
+                print("Phone:", phone)
+        except Exception as e:
+            pass
+
+
+    # return redirect('get_address name')
