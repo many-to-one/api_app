@@ -1,16 +1,17 @@
 .list__header {
     position: -webkit-sticky; /* For Safari */
-    width: 100%;
+    width: 100vw;
     height: 70px;
     position: sticky;
     top: 60px;
-    /* display: flex;
-    justify-content: flex-start;
-    align-items: center; */
+    /* display: flex; */
+    /* justify-content: flex-start; */
+    /* align-items: center; */
     padding: 5px;
     background-color: white;
     box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
-    border-radius: 10px;
+    /* border-radius: 10px; */
+    margin-bottom: 10vh;
 }
 
 .list__header .cont {
@@ -26,6 +27,10 @@
     box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
 }
 
+.list__header_orders_media {
+    display: none;
+}
+
 #name {
     height: 30px;
 }
@@ -37,33 +42,33 @@
 
 .name_h {
     position: absolute;
-    left: 11%;
+    left: 18.5%;
 }
 
 .stock_h {
     position: absolute;
-    left: 58%;
+    left: 47%;
 }
 
 .status_h {
     position: absolute;
-    left: 65%;
+    left: 57.5%;
 }
 
 .sale_h {
     position: absolute;
-    left: 68%;
+    left: 62%;
 }
 
 .account_h {
     position: absolute;
-    left: 76%;
+    left: 71.5%;
 }
 
 .post_h {
     width: 6vw;
     position: absolute;
-    left: 84%;
+    left: 81%;
 }
 
 .details_h {
@@ -74,7 +79,7 @@
 
 .offers__cont {
     position: relative;
-    /* margin-top: 110px; */
+    /* margin-top: 15.5vh; */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -115,16 +120,6 @@
     justify-content: space-between; 
 }
 
-@media screen and (max-width: 1000px) {
-    .offers__line {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-    }
-}
-
 .dbl {
     background-color: var(--dbl);
 }
@@ -139,11 +134,6 @@
 
 .picked_up {
     background-color: var(--success);
-}
-
-.label {
-    width: 20px;
-    height: 20px;
 }
 
 .photo {
@@ -208,4 +198,65 @@
     border: none;
     padding-right: 10px;
     cursor: pointer;
+}
+
+
+@media screen and (max-width: 1345px) {
+    .offers__line {
+        width: 98%;
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    .offers__line {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .list__header_orders {
+        display: none;
+    }
+
+    .list__header_orders_media {
+        position: -webkit-sticky; /* For Safari */
+        width: 100vw;
+        height: 70px;
+        position: sticky;
+        top: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 5px;
+        background-color: var(--light);
+        box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+        /* border-radius: 10px; */
+        z-index: 10;
+        margin-bottom: 10vh;
+    }
+
+    .print {
+        position: relative;
+    }
+}
+
+
+@media screen and (max-width: 800px) {
+    .account_select {
+        width: 15vw;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .account_select {
+        width: 20vw;
+    }
+}
+
+@media screen and (max-width: 370px) {
+    .account_select {
+        width: 25vw;
+    }
 }

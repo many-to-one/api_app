@@ -38,6 +38,4 @@ urlpatterns = [
     path('send_message/', messages.send_message, name='send_message'),
 
     path('ebay_token/', ebay_token, name='ebay_token'),
-
-    path('get_ships/', get_ships, name='get_ships'),
 ] 

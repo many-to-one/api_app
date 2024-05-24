@@ -6,13 +6,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <link rel="stylesheet" href="get_orders.css"> -->
     <title>Zamówienia</title>
 
 </head>
 {% block content %}
 <body>
-    <h1>Zamówienia:</h1>
+    
     <div id="question">
         <p id="text"></p>
         <div>
@@ -20,25 +19,18 @@
             <button onclick="getYes()">Tak</button>
         </div>
     </div>
-    <!-- <div id="questionOne">
-        <p id="textOne"></p>
-        <div>
-            <button onclick="getNoPrintOne()">Nie</button>
-            <button onclick="getYesPrintOne()">Tak</button>
-        </div>
-    </div> -->
+
     <div id="wait">
         <p>Proczę czekać...</p>
-        <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
+        <img class="icon loading" src="{% static 'icons/load.png' %}" alt=""> 
     </div>
 
         <div class="offers__cont">
 >
                 <div class="list__header_orders">
-                    <p class="labels" onclick="allLabels()"  id="getName" value="{{ name }}">{{ name }}</p>
+                    <p class="print" onclick="allLabels()"  id="getName" value="{{ name }}">{{ name }}</p>
                     <input class="check_o labels" type="button" id="check-all-button">
                     <p class="name_o" >Produkt</p>
-                    <p class="account_o" >Konto</p>
                     <p class="sku_o" >SKU</p>
                     <p class="stock_o">Ilość</p>
                     <p class="costs_o">Koszty</p>
@@ -47,20 +39,49 @@
 
                     <select class="shipment_o account_select order" id="delivery_select">
                         <option selected value="all">Wysyłka</option>
+                        <option value="all">Wszystko</option>
                         <option value="Allegro Kurier Pocztex">Allegro Kurier Pocztex</option>
                         <option value="Allegro Kurier UPS">Allegro Kurier UPS</option>
                         <option value="Allegro Kurier DHL">Allegro Kurier DHL</option>
                         <option value="Allegro Kurier DPD">Allegro Kurier DPD</option>
                         <option value="Allegro Kurier DPD Pobranie">Allegro Kurier DPD Pobranie</option>
-                        <option value="Allegro Odbiór w Punkcie DPD Pickup">Allegro Odbiór w Punkcie DPD Pickup</option>
-                        <option value="Allegro Odbiór w Punkcie ORLEN Paczka">Allegro Odbiór w Punkcie ORLEN Paczka</option>
                         <option value="Allegro One Box, DPD">Allegro One Box, DPD</option>
                         <option value="Allegro One Box, UPS">Allegro One Box, UPS</option>
                         <option value="Allegro One Punkt, UPS">Allegro One Punkt, UPS</option>
                         <option value="Allegro One Punkt, DPD">Allegro One Punkt, DPD</option>
                         <option value="Allegro Odbiór w Punkcie ORLEN Paczka">Allegro Odbiór w Punkcie ORLEN Paczka</option>
+                        <option value="Allegro Odbiór w Punkcie Pocztex">Allegro Odbiór w Punkcie Pocztex</option>
                         <option value="Allegro Odbiór w Punkcie UPS">Allegro Odbiór w Punkcie UPS</option>
                         <option value="Allegro Odbiór w Punkcie DHL">Allegro Odbiór w Punkcie DHL</option>
+                        <option value="Allegro Odbiór w Punkcie DPD Pickup">Allegro Odbiór w Punkcie DPD Pickup</option>
+                        <option value="Allegro Automat DHL POP BOX">Allegro Automat DHL POP BOX</option>
+                        <option value="Allegro Automat ORLEN Paczka">Allegro Automat ORLEN Paczka</option>
+                        <option value="Allegro Automat Pocztex">Allegro Automat Pocztex</option>
+                    </select>
+
+                </div>
+
+                <div class="list__header_orders_media">
+                    <p class="print" onclick="allLabels()"  id="getName" value="{{ name }}">{{ name }}</p>
+                    <input class="check_o labels" type="button" id="check-all-button">
+
+                    <select class="shipment_o account_select order" id="delivery_select">
+                        <option selected value="all">Wysyłka</option>
+                        <option value="all">Wszystko</option>
+                        <option value="Allegro Kurier Pocztex">Allegro Kurier Pocztex</option>
+                        <option value="Allegro Kurier UPS">Allegro Kurier UPS</option>
+                        <option value="Allegro Kurier DHL">Allegro Kurier DHL</option>
+                        <option value="Allegro Kurier DPD">Allegro Kurier DPD</option>
+                        <option value="Allegro Kurier DPD Pobranie">Allegro Kurier DPD Pobranie</option>
+                        <option value="Allegro One Box, DPD">Allegro One Box, DPD</option>
+                        <option value="Allegro One Box, UPS">Allegro One Box, UPS</option>
+                        <option value="Allegro One Punkt, UPS">Allegro One Punkt, UPS</option>
+                        <option value="Allegro One Punkt, DPD">Allegro One Punkt, DPD</option>
+                        <option value="Allegro Odbiór w Punkcie ORLEN Paczka">Allegro Odbiór w Punkcie ORLEN Paczka</option>
+                        <option value="Allegro Odbiór w Punkcie UPS">Allegro Odbiór w Punkcie Pocztex</option>
+                        <option value="Allegro Odbiór w Punkcie UPS">Allegro Odbiór w Punkcie UPS</option>
+                        <option value="Allegro Odbiór w Punkcie DHL">Allegro Odbiór w Punkcie DHL</option>
+                        <option value="Allegro Odbiór w Punkcie DPD Pickup">Allegro Odbiór w Punkcie DPD Pickup</option>
                         <option value="Allegro Automat DHL POP BOX">Allegro Automat DHL POP BOX</option>
                         <option value="Allegro Automat ORLEN Paczka">Allegro Automat ORLEN Paczka</option>
                         <option value="Allegro Automat Pocztex">Allegro Automat Pocztex</option>

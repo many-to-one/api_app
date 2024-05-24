@@ -209,16 +209,19 @@ async def base64_to_pdf_bulk(base64_data_list):
         for base64_data in base64_data_list:
             # print(' @@@@@@@@@@@@@@@@@ INSIDE base64_data @@@@@@@@@@@@@@@@@ ', base64_data)
             # Decode the Base64 data
-            binary_data = base64_data #base64.b64decode(base64_data)
-            # print(' @@@@@@@@@@@@@@@@@ INSIDE binary_data @@@@@@@@@@@@@@@@@ ', binary_data)
+            if base64_data is not None:
+                binary_data = base64_data #base64.b64decode(base64_data)
+                # print(' @@@@@@@@@@@@@@@@@ INSIDE binary_data @@@@@@@@@@@@@@@@@ ', binary_data)
 
-            # Create a PdfReader object
-            pdf_reader = PyPDF2.PdfReader(io.BytesIO(binary_data))
-            # print(' @@@@@@@@@@@@@@@@@ INSIDE pdf_reader @@@@@@@@@@@@@@@@@ ', pdf_reader)
+                # Create a PdfReader object
+                pdf_reader = PyPDF2.PdfReader(io.BytesIO(binary_data))
+                # print(' @@@@@@@@@@@@@@@@@ INSIDE pdf_reader @@@@@@@@@@@@@@@@@ ', pdf_reader)
 
-            # Merge each page from the PdfReader object into the PdfWriter object
-            for page_num in range(len(pdf_reader.pages)):
-                pdf_writer.add_page(pdf_reader.pages[page_num])
+                # Merge each page from the PdfReader object into the PdfWriter object
+                for page_num in range(len(pdf_reader.pages)):
+                    pdf_writer.add_page(pdf_reader.pages[page_num])
+            else:
+                None
 
         # Create a BytesIO buffer to write the merged PDF
         output_buffer = io.BytesIO()
@@ -573,17 +576,22 @@ async def make_order(request, secret, commandId, pickup):
                         print('Exception @@@@@@@@@', e)
                         context = {'name': 'retset'}
                         return render(request, 'invalid_token.html', context)
+                    
+            if result["status"] == "ERROR":
+                print('@@@@@@@@@ MAKE ORDER VALIDATION_ERROR @@@@@@@@@', json.dumps(result, indent=4))
+                result["shipmentId"] == None
+                return result["shipmentId"]
 
         print('@@@@@@@@@ MAKE ORDER RESULT @@@@@@@@@', json.dumps(result, indent=4))
         print('@@@@@@@@@ MAKE ORDER HEADERS @@@@@@@@@', response.headers)
         # print('@@@@@@@@@ MAKE ORDER VALIDATION_ERROR @@@@@@@@@', result['errors'][0]["code"])
     
         if result["shipmentId"] is not None:
-            # if secret:
             print('@@@@@@@@@ MAKE ORDER result["shipmentId"] @@@@@@@@@', result["shipmentId"])
             if pickup[0] == 'pickup':
                 asyncio.create_task(async_proposals_and_courier(request, result["shipmentId"], secret.access_token, commandId))
             return result["shipmentId"]
+
 
 
 
@@ -593,44 +601,52 @@ async def get_shipment_status_id(request, name):
     tasks = []
     # pickup_tasks = []
     courier_tasks = []
-    while True:
-        labels = []
-        ids = request.GET.getlist('ids')
-        pickup = request.GET.getlist('pickup')
-        print('@@@@@@@@@ ids @@@@@@@@@', ids)
-        print('@@@@@@@@@ pickup @@@@@@@@@', pickup)
+    # while True:
+    labels = []
+    ids = request.GET.getlist('ids')
+    pickup = request.GET.getlist('pickup')
+    print('@@@@@@@@@ ids @@@@@@@@@', ids)
+    print('@@@@@@@@@ pickup @@@@@@@@@', pickup)
 
-        secret = await sync_to_async(Secret.objects.get)(account__name=name)
+    secret = await sync_to_async(Secret.objects.get)(account__name=name)
         # print('********************** TIME TIME TIME 0 SECONDS ****************************')
 
         # time.sleep(5)
 
-        parts_list = [
-            part.split(':')
-            for item in ids
-            for part in item.split(',')
-        ]
+    parts_list = [
+        part.split(':')
+        for item in ids
+        for part in item.split(',')
+    ]
 
-        order_tasks = [
-            tasks.append(asyncio.create_task(
-                label_print(
-                    request, 
-                    await make_order(request, secret, commandId, pickup), 
-                    secret
-                    )
-                ))
-            for commandId, name in parts_list
-        ]
+    order_tasks = [
+        tasks.append(asyncio.create_task(
+            label_print(
+                request, 
+                await make_order(request, secret, commandId, pickup), 
+                secret
+                )
+            ))
+        for commandId, name in parts_list
+    ]
 
-        labels = await asyncio.gather(*tasks)
+    labels = await asyncio.gather(*tasks)
         # return labels
 
-        if any(label is not None for label in labels):
-            print('@@@@@@@@@@@@@@@@@@ LABELS @@@@@@@@@@@@@@@@@@@@') #labels
-            end_time = time.time()
-            elapsed_time = end_time - start_time
-            print(f"********************** FINISH time: {elapsed_time} seconds **********************")
-            return await base64_to_pdf_bulk(labels)
+    # if any(label is not None for label in labels):
+    #     print('@@@@@@@@@@@@@@@@@@ LABELS @@@@@@@@@@@@@@@@@@@@') #labels
+    #     end_time = time.time()
+    #     elapsed_time = end_time - start_time
+    #     print(f"********************** FINISH time: {elapsed_time} seconds **********************")
+    #     return await base64_to_pdf_bulk(labels)
+
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f"********************** FINISH time: {elapsed_time} seconds **********************")
+    labelsPrint = await base64_to_pdf_bulk(labels)
+    if labelsPrint is None:
+        return JsonResponse({'message': 'No valid labels found'})
+    return labelsPrint
 
 
 async def async_proposals_and_courier(request, shipmentId, secret, commandId):

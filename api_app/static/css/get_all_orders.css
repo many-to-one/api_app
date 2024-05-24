@@ -1,6 +1,6 @@
 .list__header_orders {
     position: -webkit-sticky; /* For Safari */
-    width: 100%;
+    width: 100vw;
     height: 70px;
     position: sticky;
     top: 60px;
@@ -10,8 +10,9 @@
     padding: 5px;
     background-color: var(--light);
     box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
-    border-radius: 10px;
+    /* border-radius: 10px; */
     z-index: 10;
+    margin-bottom: 10vh;
 }
 
 .orders__line {
@@ -65,15 +66,14 @@
     cursor: pointer;
   }
 
-/* .labels {
+.print {
     position: absolute;
-    left: 0.5%;
-    font-style: bold;
-} */
+    left: 2%; 
+}
 
 .check_o {
     position: absolute;
-    left: 10.3%;
+    left: 11.5%;
     height: 15px;
     /* width: 20vw; */
     font-style: bold;
@@ -90,40 +90,40 @@
     color: var(--black);
 }
 
-.account_o {
+/* .account_o {
     position: absolute;
     left: 46.7%;
     font-style: bold;
-}
+} */
 
 .sku_o {
     position: absolute;
-    left: 50%;
+    left: 43.5%;
     font-style: bold;
 }
 
 .stock_o {
     position: absolute;
-    left: 52.5%;
+    left: 46%;
     font-style: bold;
 }
 
 .costs_o {
     position: absolute;
-    left: 56%;
+    left: 53%;
     font-style: bold;
 }
 
 .status_o {
     position: absolute;
-    left: 60%;
+    left: 58%;
     font-style: bold;
     width: 5vw;
 }
 
 .client_o {
     position: absolute;
-    left: 65%;
+    left: 63%;
     font-style: bold;
 }
 

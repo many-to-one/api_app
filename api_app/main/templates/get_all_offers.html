@@ -12,8 +12,6 @@
 {% block content %}
 <body>
 
-    <h1>Oferty:</h1>
-
     <div id="error_13" style="display: none;">
         Nieprawidłowa zawartość EAN
         <button onclick="closeError()">X</button>
@@ -32,15 +30,18 @@
             </div>
         </div> -->
 
-        <div class="list__header">
-            <p class="photo_h" id="name" value="{{ name }}">{{name}}</p>
+        <div class="list__header_orders">
+            <p class="print" id="name" value="{{ name }}">{{name}}</p>
             <p class="name_h">Tytuł</p>
             <p class="stock_h">Stan</p>
             <p class="status_h">Status</p>
             <p class="sale_h">Sprzedaż</p>
             <p class="account_h">Konto</p>
             <p class="post_h">Wystawić produkt</p>
-            <!-- <p class="details_h">Szczegóły</p> -->
+        </div>
+
+        <div class="list__header_orders_media">
+            <p class="print" id="name" value="{{ name }}">{{name}}</p>
         </div>
 
         {% for offer in result.offers %}
