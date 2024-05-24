@@ -11,10 +11,10 @@
 </head>
 {% block content %}
 <body>
-    
+
     <div id="question">
         <p id="text"></p>
-        <div>
+        <div class="btns_cont">
             <button onclick="getNo()">Nie</button>
             <button onclick="getYes()">Tak</button>
         </div>
@@ -25,7 +25,7 @@
         <img class="icon loading" src="{% static 'icons/load.png' %}" alt=""> 
     </div>
 
-        <div class="offers__cont">
+        <div class="offers__cont" id="of_cont">
 >
                 <div class="list__header_orders">
                     <p class="print" onclick="allLabels()"  id="getName" value="{{ name }}">{{ name }}</p>
@@ -267,6 +267,9 @@
             text.innerHTML = '';
             text.textContent = "Wydrukować etykiety?";
 
+            var offers = document.getElementById('of_cont');
+            offers.style.display = 'none';
+
         }
 
 
@@ -278,6 +281,8 @@
 
             var getName = document.getElementById('getName')
             var name = getName.getAttribute('value');
+
+            var offers = document.getElementById('of_cont');
 
             // Get all checkboxes with the name "selected_items"
             var checkboxes = document.querySelectorAll('input[name="selected_items"]');
@@ -307,6 +312,7 @@
             var url = `/set_shipment_list/${name}/?ids=` + checkedItems;
             window.location.href = url;
             wait.style.display = 'none';
+            offers.style.display = 'flex';
 
         }
 

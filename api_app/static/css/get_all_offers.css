@@ -125,7 +125,12 @@
 }
 
 .sent {
-    background-color: var(--dark_success);
+    background-color: var(--product);
+    color: var(--light);
+}
+
+.sent a{
+    color: var(--light);
 }
 
 .canceled {

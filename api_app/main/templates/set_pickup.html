@@ -20,7 +20,7 @@
 
             <div id="question">
                 <p id="text"></p>
-                <div>
+                <div class="btns_cont">
                     <button onclick="getNo()">Bez podjazdu</button>
                     <button onclick="setToSend()">Zamówić Podjazd Kuriera</button>
                 </div>
@@ -64,6 +64,8 @@
                 var wait = document.getElementById('wait');
                 wait.style.display = 'flex';
 
+                question.style.display = 'flex';
+
                 var seller = document.getElementById('seller').getAttribute('data-value');
 
                 var links = document.querySelectorAll('div[name="link"]');
@@ -77,6 +79,7 @@
                 var url = `/get_shipment_status_id/${seller}/?ids=` + context + '&pickup=' + 'pickup';
                 window.location.href = url;
                 wait.style.display = 'none';
+                question.style.display = 'none';
                 
             }
 
@@ -85,6 +88,8 @@
 
                 var wait = document.getElementById('wait');
                 wait.style.display = 'flex';
+
+                question.style.display = 'flex';
 
                 var seller = document.getElementById('seller').getAttribute('data-value');
 
@@ -101,6 +106,7 @@
                 // var url = '/get_orders/' + seller + '/';
                 window.location.href = url;
                 wait.style.display = 'none';
+                question.style.display = 'none';
 
             }
 
