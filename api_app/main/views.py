@@ -326,17 +326,10 @@ def get_ids_all_categories(request):
         raise SystemExit(err)
     
 
-def get_address(request, name):
-
-    addresses = Address.objects.filter(name__name=name)
-    context = {
-        'name': name,
-        'addresses': addresses,
-    }
-    return render(request, 'address.html', context)
-
 
 def add_address(request, name):
+
+    allegro = Allegro.objects.get(name=name)
 
     if request.method == 'POST':
         firstName = request.POST.get('firstName')
@@ -349,8 +342,9 @@ def add_address(request, name):
         email = request.POST.get('email')
         phone = request.POST.get('phone')
 
-        try:
+        print('name', name)
 
+        try:
             address = Address.objects.create(
                 firstName=firstName,
                 lastName=lastName,
@@ -361,36 +355,23 @@ def add_address(request, name):
                 city=city,
                 email=email,
                 phone=phone,
+                name=allegro,
             )
             address.save()
-            # Print the values to the console
-            print("firstName:", firstName)
-            print("lastName:", lastName)
-            print("Company:", company)
-            print("Street:", street)
-            print("Street Number:", streetNumber)
-            print("Postal Code:", postalCode)
-            print("City:", city)
-            print("Email:", email)
-            print("Phone:", phone)
-            if address:
-                # return JsonResponse({
-                #     'message': 'success',
-                # })
-                return redirect('get_address name')
-            else:
-                print("SOMETHING GOES WRONG")
-                print("firstName:", firstName)
-                print("lastName:", lastName)
-                print("Company:", company)
-                print("Street:", street)
-                print("Street Number:", streetNumber)
-                print("Postal Code:", postalCode)
-                print("City:", city)
-                print("Email:", email)
-                print("Phone:", phone)
         except Exception as e:
-            pass
+            # return error.html
+            print('************ ERROR *************', e)
 
 
-    # return redirect('get_address name')
+    return redirect('get_address', name=name)
+
+
+def get_address(request, name):
+
+    addresses = Address.objects.filter(name__name=name)
+    context = {
+        'name': name,
+        'addresses': addresses,
+    }
+
+    return render(request, 'add_address.html', context)

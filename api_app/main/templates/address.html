@@ -9,8 +9,8 @@
     <title>User Data Form</title>
 </head>
 
-{% block content %}
 <body>
+    {% block content %}
 
 {% if addresses %}
     {% for address in addresses %}
@@ -34,10 +34,10 @@
 {% endif %}
 
         <h2>Dodaj adres wysyłki</h2>
-        <form id="addressForm" method="post">
+        <form id="addressForm" >
             {% csrf_token %}
             <label for="name">firstName:</label>
-            <input type="text" id="name" name="firstName" required><br><br>
+            <input type="text" id="firstName" name="firstName" required><br><br>
 
             <label for="name">lastName:</label>
             <input type="text" id="name" name="lastName" required><br><br>
@@ -63,7 +63,7 @@
             <label for="phone">Phone:</label>
             <input type="tel" id="phone" name="phone" required><br><br>
 
-            <input type="submit" value="Submit" id="okButton">
+            <button onclick="addIt()">Dodaj</button>
         </form>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
@@ -77,27 +77,36 @@
             addressForm.style.display = 'flex';
         }
 
+        function addIt() {
+            var firstName = document.getElementById('firstName');
+            console.log('firstName', firstName)
+        }
+
         document.getElementById('addressForm').addEventListener('submit', function(event) {
         event.preventDefault(); // Prevent the default form submission
 
         // Get form data
-        const formData = new FormData(event.target);
+        const formData_ = new FormData(event.target);
+        console.log('formData', formData_)
+
+
 
         var name = 'retset';
 
         // Send POST request using Axios
-        axios.post('', formData)
+        axios.post('', formData_)
             .then(function(response) {
                 console.log(response.data.message);
                 addressForm.style.display = 'none';
                 allAddresses.style.display = 'flex'
+                alert('Address added successfully!');
                 
                 // document.getElementById('success').innerHTML = `Witaj, ${response.data.username}!`;
                 document.getElementById('okButton').style.display = 'none';
                 // if (response.data.message == 'success'){
-                //     window.location.href = `/add_address/${name}`;
-                //     addressForm.style.display = 'none';
-                //     allAddresses.style.display = 'flex'
+                    // window.location.href = `/get_address/${name}`;
+                    // addressForm.style.display = 'none';
+                    // allAddresses.style.display = 'flex'
                 // }
         
             })
@@ -109,6 +118,6 @@
 
     </script>    
 
-</body>
 {% endblock %}
+</body>
 </html>

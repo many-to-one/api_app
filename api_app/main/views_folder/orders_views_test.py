@@ -18,7 +18,7 @@ from .offer_views import get_one_offer
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import asyncio
 import httpx
-from asgiref.sync import sync_to_async
+from asgiref.sync import sync_to_async, async_to_sync
 
 REDIRECT_URI = os.getenv('REDIRECT_URI')      # wprowadź redirect_uri
 AUTH_URL = os.getenv('AUTH_URL')
@@ -264,7 +264,7 @@ async def create_label(request, id, name, secret):
                         print('Exception @@@@@@@@@', e)
                         context = {'name': name}
                         return render(request, 'invalid_token.html', context)
-            print('@@@@@@@@@ PUNKT ODBIORU ID @@@@@@@@@', json.dumps(result, indent=4))
+            print('@@@@@@@@@ CRETAE LABEL ID @@@@@@@@@', json.dumps(result, indent=4))
             print('@@@@@@@@@ CRETAE LABEL HEADERS @@@@@@@@@', product_result.headers)
 
             return result
@@ -425,11 +425,17 @@ async def get_offer_descr(request, id, secret):
         raise SystemExit(err)
     
 
-async def combined_task(request, id, name, offerId, secret):
-    return await create_label(request, id, name, secret), await get_offer_descr(request, offerId, secret), await get_user(secret)
+async def combined_task(request, id, name, offerId, secret, address):
+    # return await create_label(request, id, name, secret), await get_offer_descr(request, offerId, secret), await get_user(name)
+    label, offer_descr = await asyncio.gather(
+        create_label(request, id, name, secret),
+        get_offer_descr(request, offerId, secret),
+        # get_user(name)
+    )
+    return label, offer_descr, address
 
 
-async def set_shipment_list_async(request, ids, secret):
+async def set_shipment_list_async(request, ids, secret, address):
 
     tasks = []
     # secret = await sync_to_async(Secret.objects.get)(account__name=name)
@@ -448,7 +454,7 @@ async def set_shipment_list_async(request, ids, secret):
  
                 tasks.append(asyncio.create_task(get_shipment_id(request, secret, name, deliveryMethod)))
                 tasks.append(asyncio.create_task(
-                    combined_task(request, id, name, offerId, secret)
+                    combined_task(request, id, name, offerId, secret, address)
                     ))
                 # tasks.append(asyncio.create_task(get_offer_descr(request, offerId, secret)))
 
@@ -467,7 +473,7 @@ def get_secret(name):
 async def set_shipment_list_q(results, secret):
     # start_time = time.time()
 
-    # print('********************** set_shipment_list_q results ****************************', results)
+    print('********************** set_shipment_list_q results ****************************', results)
     print('********************** set_shipment_list_q secret ****************************', secret)
     # print('********************** results[0] ****************************', results[0])
     # print('********************** results[1] ****************************', results[1])
@@ -475,45 +481,72 @@ async def set_shipment_list_q(results, secret):
     from ..utils import pickup_point_order, no_pickup_point_order, cash_no_point_order, test
 
     tasks = []
+    externalId = None
 
     if results:
+        for order_data in results:
+            if isinstance(order_data, tuple):
+                for line_item in order_data[0]['lineItems']:
+                    externalId = line_item['offer']['external']['id']
+                    tasks.append(asyncio.create_task(
+                        test(
+                            secret, 
+                            order_data[0],
+                            externalId,
+                            externalId,  
+                            order_data[1],
+                            order_data[2],
+                        )
+                    ))
+
+    # if results:
         
-            [
-                tasks.append(asyncio.create_task(
-                test(
-                    secret, 
-                    order_data[0],
-                    order_data[0]['lineItems'][0]['offer']['external']['id'],
-                    order_data[0]['lineItems'][0]['offer']["name"][:15],
-                    order_data[1],
-                    order_data[2],
-                )
-                ))
-                for order_data in results
-                if isinstance(order_data, tuple)
-            ]
-    
+    #         [
+    #             tasks.append(asyncio.create_task(
+    #             test(
+    #                 secret, 
+    #                 order_data[0],
+    #                 order_data[0]['lineItems'], #[0]['offer']['external']['id'],
+    #                 order_data[0]['lineItems'], #[0]['offer']["name"][:15],
+    #                 order_data[1],
+    #                 order_data[2],
+    #             )
+    #             ))
+    #             for order_data in results
+    #             if isinstance(order_data, tuple)
+    #         ]
+
+    #         for order_data in results:
+    #             for i in order_data[0]['lineItems']:
+    #                 externalId = i[0]['offer']['external']['id']   
+
 
     # return HttpResponse('ok')
     return await asyncio.gather(*tasks)
 
 
-async def get_user(secret):
-    async with httpx.AsyncClient() as client:
-        try:
-            url = f"https://api.allegro.pl.allegrosandbox.pl/me" 
-            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
+async def get_user(name):
+    try:
+        user = await sync_to_async(Address.objects.get)(firstName='Tester')
+        print(f"User found: {user}")
+        return user
+    except Address.DoesNotExist:
+        print("User does not exist")
+        return None
+    except Exception as e:
+        print(f"Error in get_user: {e}")
+        return None
+    # async with httpx.AsyncClient() as client:
+    #     try:
+    #         url = f"https://api.allegro.pl.allegrosandbox.pl/me" 
+    #         headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
 
-            response = await client.get(url, headers=headers)
-            result = response.json()
+    #         response = await client.get(url, headers=headers)
+    #         result = response.json()
 
-            # print('@@@@@@@@@ RESULT GET USER @@@@@@@@@', json.dumps(result, indent=4))
-            # print('@@@@@@@@@ RESPONSE GET USER HEADERS @@@@@@@@@', response.headers)
-            # change_status(request, id, secret.account.name, 'SENT')
-            # time.sleep(7)
-            return  result
-        except requests.exceptions.HTTPError as err:
-            raise SystemExit(err)
+    #         return  result
+    #     except requests.exceptions.HTTPError as err:
+    #         raise SystemExit(err)
 
 
 # @sync_to_async
@@ -526,9 +559,12 @@ def set_shipment_list(request, name):
 
     pickup = request.GET.getlist('pickup')
     secret = Secret.objects.get(account__name=name)
+    address = Address.objects.get(name__name=name)
     # time.sleep(2)
     print('********************** secret @@@ ****************************', secret)
-    results = asyncio.run(set_shipment_list_async(request, ids, secret))#[0]
+    print('********************** address @@@ ****************************', address)
+    if address:
+        results = asyncio.run(set_shipment_list_async(request, ids, secret, address))#[0]
     # print('********************** /// results /// ****************************', results)  #results[1][1]
     # time.sleep(1)
     if results:
@@ -578,7 +614,7 @@ async def make_order(request, secret, commandId, pickup):
                         return render(request, 'invalid_token.html', context)
                     
             if result["status"] == "ERROR":
-                # print('@@@@@@@@@ MAKE ORDER VALIDATION_ERROR @@@@@@@@@', json.dumps(result, indent=4))
+                print('@@@@@@@@@ MAKE ORDER VALIDATION_ERROR @@@@@@@@@', json.dumps(result, indent=4))
                 result["shipmentId"] == None
                 return result["shipmentId"]
 
