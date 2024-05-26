@@ -481,23 +481,70 @@ async def set_shipment_list_q(results, secret):
     from ..utils import pickup_point_order, no_pickup_point_order, cash_no_point_order, test
 
     tasks = []
-    externalId = None
+    externalId = set()
 
     if results:
         for order_data in results:
             if isinstance(order_data, tuple):
-                for line_item in order_data[0]['lineItems']:
-                    externalId = line_item['offer']['external']['id']
+                for _ in range(int(order_data[0]["delivery"]["calculatedNumberOfPackages"])):
+                    for line_item in order_data[0]['lineItems']:
+                        externalId.add(f"{line_item['offer']['external']['id']} x {line_item['quantity']}")
+                    external_id = ', '.join(sorted(externalId))
                     tasks.append(asyncio.create_task(
                         test(
                             secret, 
                             order_data[0],
-                            externalId,
-                            externalId,  
+                            external_id,
+                            external_id,  
                             order_data[1],
                             order_data[2],
                         )
                     ))
+
+    # if results:
+    #     # quantity_arr = []
+    #     for order_data in results:
+    #         if isinstance(order_data, tuple):
+    #             num_packages = int(order_data[0]["delivery"]["calculatedNumberOfPackages"])
+    #             print("************* num_packages ****************", num_packages)
+    #             for q in range(num_packages):
+    #                 for line_item in order_data[0]['lineItems']:
+    #                     base_quantity = int(line_item['quantity']) // num_packages
+    #                     print("************* base_quantity ****************", base_quantity)
+    #                     remainder = int(line_item['quantity']) % num_packages
+    #                     print("************* remainder ****************", remainder)
+    #                     quantity_arr = [base_quantity] * num_packages
+    #                     for i in range(remainder):
+    #                         quantity_arr[i] += 1
+    #                     print("************* quantity_arr ****************", quantity_arr)
+    #                     externalId = f"{line_item['offer']['external']['id']} x {quantity_arr[q-1]}" #f"{line_item['offer']['external']['id']} x {line_item['quantity']}"
+    #                     tasks.append(asyncio.create_task(
+    #                         test(
+    #                             secret, 
+    #                             order_data[0],
+    #                             externalId,
+    #                             externalId,  
+    #                             order_data[1],
+    #                             order_data[2],
+    #                         )
+    #                     ))
+
+
+    # if results:
+    #     for order_data in results:
+    #         if isinstance(order_data, tuple):
+    #             for line_item in order_data[0]['lineItems']:
+    #                 externalId = line_item['offer']['external']['id']
+    #                 tasks.append(asyncio.create_task(
+    #                     test(
+    #                         secret, 
+    #                         order_data[0],
+    #                         externalId,
+    #                         externalId,  
+    #                         order_data[1],
+    #                         order_data[2],
+    #                     )
+    #                 ))
 
     # if results:
         
