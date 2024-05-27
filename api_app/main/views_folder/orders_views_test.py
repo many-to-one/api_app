@@ -501,50 +501,7 @@ async def set_shipment_list_q(results, secret):
                         )
                     ))
 
-    # if results:
-    #     # quantity_arr = []
-    #     for order_data in results:
-    #         if isinstance(order_data, tuple):
-    #             num_packages = int(order_data[0]["delivery"]["calculatedNumberOfPackages"])
-    #             print("************* num_packages ****************", num_packages)
-    #             for q in range(num_packages):
-    #                 for line_item in order_data[0]['lineItems']:
-    #                     base_quantity = int(line_item['quantity']) // num_packages
-    #                     print("************* base_quantity ****************", base_quantity)
-    #                     remainder = int(line_item['quantity']) % num_packages
-    #                     print("************* remainder ****************", remainder)
-    #                     quantity_arr = [base_quantity] * num_packages
-    #                     for i in range(remainder):
-    #                         quantity_arr[i] += 1
-    #                     print("************* quantity_arr ****************", quantity_arr)
-    #                     externalId = f"{line_item['offer']['external']['id']} x {quantity_arr[q-1]}" #f"{line_item['offer']['external']['id']} x {line_item['quantity']}"
-    #                     tasks.append(asyncio.create_task(
-    #                         test(
-    #                             secret, 
-    #                             order_data[0],
-    #                             externalId,
-    #                             externalId,  
-    #                             order_data[1],
-    #                             order_data[2],
-    #                         )
-    #                     ))
-
-
-    # if results:
-    #     for order_data in results:
-    #         if isinstance(order_data, tuple):
-    #             for line_item in order_data[0]['lineItems']:
-    #                 externalId = line_item['offer']['external']['id']
-    #                 tasks.append(asyncio.create_task(
-    #                     test(
-    #                         secret, 
-    #                         order_data[0],
-    #                         externalId,
-    #                         externalId,  
-    #                         order_data[1],
-    #                         order_data[2],
-    #                     )
-    #                 ))
+    
 
     # if results:
         
@@ -561,39 +518,60 @@ async def set_shipment_list_q(results, secret):
     #             ))
     #             for order_data in results
     #             if isinstance(order_data, tuple)
-    #         ]
-
-    #         for order_data in results:
-    #             for i in order_data[0]['lineItems']:
-    #                 externalId = i[0]['offer']['external']['id']   
+    #         ] 
 
 
     # return HttpResponse('ok')
     return await asyncio.gather(*tasks)
 
 
-async def get_user(name):
-    try:
-        user = await sync_to_async(Address.objects.get)(firstName='Tester')
-        print(f"User found: {user}")
-        return user
-    except Address.DoesNotExist:
-        print("User does not exist")
-        return None
-    except Exception as e:
-        print(f"Error in get_user: {e}")
-        return None
-    # async with httpx.AsyncClient() as client:
-    #     try:
-    #         url = f"https://api.allegro.pl.allegrosandbox.pl/me" 
-    #         headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
+async def get_user(name, secret):
 
-    #         response = await client.get(url, headers=headers)
-    #         result = response.json()
+    async with httpx.AsyncClient() as client:
+        try:
+            url = f"https://api.allegro.pl.allegrosandbox.pl/me" 
+            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
 
-    #         return  result
-    #     except requests.exceptions.HTTPError as err:
-    #         raise SystemExit(err)
+            response = await client.get(url, headers=headers)
+            result = response.json()
+
+            return  result
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)
+
+
+async def get_invoice(results, secret, name):
+
+    # print('********************** get_invoice results ****************************', results)
+
+    tasks = []
+    for res in results:
+        # print('********************** get_invoice res ****************************', res)
+        if isinstance(res, (tuple)):
+            for i in res[0]:
+                if isinstance(i, (dict)):
+                    print('********************** get_invoice i ****************************', type(i))
+                # for key, value in i.items():
+                #     if key == "invoice" and value.get('required') is True:
+                #         print('********************** get_invoice value ****************************', value.get('required'))
+
+            # invoices = [
+            #     print('********************** get_invoice value ****************************', value.get('address')) 
+            #     # tasks.append(value.get('address'))
+            #     for i in res[0] 
+            #     if isinstance(i, (dict))
+            #     for key, value in i.items()
+            #     if key == "invoice"
+            #     if value.get('required') is True
+            # ]
+
+    # user = await get_user(name, secret)
+    # # print('********************** get_invoice user ****************************', user)
+    # tasks.append(user)
+
+    invoice_result = await asyncio.gather(get_user(name, secret))
+        
+    return invoice_result, tasks
 
 
 # @sync_to_async
@@ -618,6 +596,8 @@ def set_shipment_list(request, name):
         if secret:
             results_ = asyncio.run(set_shipment_list_q(results, secret))
             # print('**********************  /// results_secret /// ****************************', secret)
+            invoice = asyncio.run(get_invoice(results, secret, name) )
+            print('********************** get_invoice ****************************', invoice)
 
     context = {
         'result': results_,
