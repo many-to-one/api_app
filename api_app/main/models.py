@@ -90,3 +90,12 @@ class Address(models.Model):
 
     def __str__(self):
         return self.lastName
+    
+
+# class Order(models.Model):
+
+#     order_id = models.CharField(
+#         null=True,
+#         blank=True,
+#     )
+#     pdf_file = models.FileField(upload_to='invoices/')

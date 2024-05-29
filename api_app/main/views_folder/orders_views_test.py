@@ -540,20 +540,20 @@ async def get_user(name, secret):
             raise SystemExit(err)
 
 
-async def get_invoice(results, secret, name):
-
-    # print('********************** get_invoice results ****************************', results)
+async def get_invoice(request, results, secret, name):
 
     tasks = []
     for res in results:
-        # print('********************** get_invoice res ****************************', res)
         if isinstance(res, (tuple)):
-            for i in res[0]:
+            for i in res:
                 if isinstance(i, (dict)):
-                    print('********************** get_invoice i ****************************', type(i))
-                # for key, value in i.items():
-                #     if key == "invoice" and value.get('required') is True:
-                #         print('********************** get_invoice value ****************************', value.get('required'))
+                    for key, value in i.items():
+                        if key == "payment":
+                            tasks.append(value)
+                        if key == "lineItems":
+                            tasks.append(value)
+                        if key == "invoice" and value.get('required') is True:
+                            tasks.append(value.get('address'))
 
             # invoices = [
             #     print('********************** get_invoice value ****************************', value.get('address')) 
@@ -565,13 +565,82 @@ async def get_invoice(results, secret, name):
             #     if value.get('required') is True
             # ]
 
-    # user = await get_user(name, secret)
-    # # print('********************** get_invoice user ****************************', user)
-    # tasks.append(user)
-
-    invoice_result = await asyncio.gather(get_user(name, secret))
+    seller = await asyncio.gather(get_user(name, secret))
+    invoice_result = await asyncio.gather(invoice_template(request, seller, tasks, secret))
         
-    return invoice_result, tasks
+    return seller, tasks
+
+
+async def invoice_template(request, seller, invoce, secret):
+    print('******************* invoice_template ******************',seller, invoce)
+
+    context = {
+            'seller': seller[0],  
+            'payment': invoce[0],
+            'customer': invoce[1],  
+            'order': invoce[2],  
+        }
+    
+    print('&&&&&&&&&&&&&&&&&&& LOGIN &&&&&&&&&&&&&&&&&&&&', seller[0]["login"])
+    
+    pdf = await html_to_pdf('invoice_template.html', context)
+
+    print('&&&&&&&&&&&&&&&&&&& pdf &&&&&&&&&&&&&&&&&&&&', pdf)
+    
+    async with httpx.AsyncClient() as client:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/messaging/messages"
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-Type': "application/vnd.allegro.public.v1+json"}
+
+        pdf_base64 = base64.b64encode(pdf).decode("utf-8")
+
+        data = {
+          "recipient": {
+            "login": "alfapro" #seller[0]["login"]
+          },
+          "text": "test invoice",
+          "attachments": [
+              pdf_base64
+            # {"id": pdf_base64}
+          ]
+        }
+
+        response = await client.post(url, headers=headers, json=data)
+        result = response.json()
+
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token, 'retset')
+                    # Retry fetching orders with the new token
+                    return get_order_details(request, id)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    context = {'name': 'retset'}
+                    return render(request, 'invalid_token.html', context)
+                    
+        print('@@@@@@@@@ INVOICE @@@@@@@@@', json.dumps(result, indent=4))
+
+
+from django.http import HttpResponse
+from django.views.generic import View
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+async def html_to_pdf(template_src, context_dict={}):
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    result = io.BytesIO()
+    pdf = pisa.pisaDocument(io.BytesIO(html.encode("ISO-8859-2")), result)
+
+    # cleaned_html = html.replace('\u0142', 'l')
+    # pdf = pisa.pisaDocument(io.BytesIO(cleaned_html.encode("ISO-8859-1")), result)
+
+    if not pdf.err:
+        # return HttpResponse(result.getvalue(), content_type='application/pdf')
+        return result.getvalue()
+    # return None
 
 
 # @sync_to_async
@@ -596,7 +665,7 @@ def set_shipment_list(request, name):
         if secret:
             results_ = asyncio.run(set_shipment_list_q(results, secret))
             # print('**********************  /// results_secret /// ****************************', secret)
-            invoice = asyncio.run(get_invoice(results, secret, name) )
+            invoice = asyncio.run(get_invoice(request, results, secret, name) )
             print('********************** get_invoice ****************************', invoice)
 
     context = {
