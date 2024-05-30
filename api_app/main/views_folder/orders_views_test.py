@@ -8,9 +8,10 @@ import time
 import io
 import zipfile
 import PyPDF2
+from django.conf import settings
 from dotenv import load_dotenv
 
-from ..celery_tasks.orders_tasks import my_task, my_new_task
+from ..celery_tasks.invoices_tasks import *
 load_dotenv()
 from ..models import *
 from ..utils import *
@@ -525,12 +526,12 @@ async def set_shipment_list_q(results, secret):
     return await asyncio.gather(*tasks)
 
 
-async def get_user(name, secret):
+async def get_user(secret):
 
     async with httpx.AsyncClient() as client:
         try:
             url = f"https://api.allegro.pl.allegrosandbox.pl/me" 
-            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
+            headers = {'Authorization': f'Bearer {secret["access_token"]}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
 
             response = await client.get(url, headers=headers)
             result = response.json()
@@ -542,108 +543,23 @@ async def get_user(name, secret):
 
 async def get_invoice(request, results, secret, name):
 
-    tasks = []
-    for res in results:
-        if isinstance(res, (tuple)):
-            for i in res:
-                if isinstance(i, (dict)):
-                    for key, value in i.items():
-                        if key == "payment":
-                            tasks.append(value)
-                        if key == "lineItems":
-                            tasks.append(value)
-                        if key == "invoice" and value.get('required') is True:
-                            tasks.append(value.get('address'))
+    tasks_ = []
 
-            # invoices = [
-            #     print('********************** get_invoice value ****************************', value.get('address')) 
-            #     # tasks.append(value.get('address'))
-            #     for i in res[0] 
-            #     if isinstance(i, (dict))
-            #     for key, value in i.items()
-            #     if key == "invoice"
-            #     if value.get('required') is True
-            # ]
+    seller = await asyncio.gather(get_user(secret))
+    # seller=True
+    # secret_ = await ser_secret(secret)
+    if seller:
+        invoice_task_res = get_invoice_task.apply_async(args=[request.META['QUERY_STRING'], results, secret, name, seller])
+        print('@@@@@@@@@@@@@ _TASKS_ @@@@@@@@@@@@@', results)
 
-    seller = await asyncio.gather(get_user(name, secret))
-    invoice_result = await asyncio.gather(invoice_template(request, seller, tasks, secret))
-        
-    return seller, tasks
+    return seller, tasks_
 
+# async def ser_secret(secret):
+#     return {
+#         'token':secret.access_token
+#     }
 
-async def invoice_template(request, seller, invoce, secret):
-    print('******************* invoice_template ******************',seller, invoce)
-
-    context = {
-            'seller': seller[0],  
-            'payment': invoce[0],
-            'customer': invoce[1],  
-            'order': invoce[2],  
-        }
-    
-    print('&&&&&&&&&&&&&&&&&&& LOGIN &&&&&&&&&&&&&&&&&&&&', seller[0]["login"])
-    
-    pdf = await html_to_pdf('invoice_template.html', context)
-
-    print('&&&&&&&&&&&&&&&&&&& pdf &&&&&&&&&&&&&&&&&&&&', pdf)
-    
-    async with httpx.AsyncClient() as client:
-        url = f"https://api.allegro.pl.allegrosandbox.pl/messaging/messages"
-        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-Type': "application/vnd.allegro.public.v1+json"}
-
-        pdf_base64 = base64.b64encode(pdf).decode("utf-8")
-
-        data = {
-          "recipient": {
-            "login": "alfapro" #seller[0]["login"]
-          },
-          "text": "test invoice",
-          "attachments": [
-              pdf_base64
-            # {"id": pdf_base64}
-          ]
-        }
-
-        response = await client.post(url, headers=headers, json=data)
-        result = response.json()
-
-        if 'error' in result:
-            error_code = result['error']
-            if error_code == 'invalid_token':
-                # print('ERROR RESULT @@@@@@@@@', error_code)
-                try:
-                    # Refresh the token
-                    new_token = get_next_token(request, secret.refresh_token, 'retset')
-                    # Retry fetching orders with the new token
-                    return get_order_details(request, id)
-                except Exception as e:
-                    print('Exception @@@@@@@@@', e)
-                    context = {'name': 'retset'}
-                    return render(request, 'invalid_token.html', context)
-                    
-        print('@@@@@@@@@ INVOICE @@@@@@@@@', json.dumps(result, indent=4))
-
-
-from django.http import HttpResponse
-from django.views.generic import View
-from django.template.loader import get_template
-from xhtml2pdf import pisa
-async def html_to_pdf(template_src, context_dict={}):
-    template = get_template(template_src)
-    html = template.render(context_dict)
-    result = io.BytesIO()
-    pdf = pisa.pisaDocument(io.BytesIO(html.encode("ISO-8859-2")), result)
-
-    # cleaned_html = html.replace('\u0142', 'l')
-    # pdf = pisa.pisaDocument(io.BytesIO(cleaned_html.encode("ISO-8859-1")), result)
-
-    if not pdf.err:
-        # return HttpResponse(result.getvalue(), content_type='application/pdf')
-        return result.getvalue()
-    # return None
-
-
-# @sync_to_async
+from .serializers import *
 def set_shipment_list(request, name):
 
     start_time = time.time()
@@ -654,19 +570,24 @@ def set_shipment_list(request, name):
     pickup = request.GET.getlist('pickup')
     secret = Secret.objects.get(account__name=name)
     address = Address.objects.get(name__name=name)
+    secret_data = SecretSerializer(secret).data
+    address_data = AddressSerializer(address).data
     # time.sleep(2)
     print('********************** secret @@@ ****************************', secret)
     print('********************** address @@@ ****************************', address)
     if address:
-        results = asyncio.run(set_shipment_list_async(request, ids, secret, address))#[0]
+        results = asyncio.run(set_shipment_list_async(request, ids, secret, address_data))#[0]
     # print('********************** /// results /// ****************************', results)  #results[1][1]
     # time.sleep(1)
     if results:
         if secret:
             results_ = asyncio.run(set_shipment_list_q(results, secret))
             # print('**********************  /// results_secret /// ****************************', secret)
-            invoice = asyncio.run(get_invoice(request, results, secret, name) )
-            print('********************** get_invoice ****************************', invoice)
+
+            # get_invoice_task.apply_async(args=['8'])
+            invoice = asyncio.run(get_invoice(request, results, secret_data, name) )
+            # invoice_task_res = invoice_task.delay('5')
+            # print('********************** get_invoice ****************************', invoice)
 
     context = {
         'result': results_,
