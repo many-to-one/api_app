@@ -5,21 +5,27 @@ from django.shortcuts import render
 from celery import shared_task
 from ..views_folder.orders_views_test import *
 
+from django.core.handlers.asgi import ASGIRequest
+from io import BytesIO
+
 
 
 def create_request(query_string, path='/'):
-    from django.core.handlers.asgi import ASGIRequest
-    from io import StringIO
 
-    env = {
-        'REQUEST_METHOD': 'GET',
-        'PATH_INFO': path,
-        'QUERY_STRING': query_string,
-        'wsgi.input': StringIO()
+    scope = {
+        'type': 'http',
+        'http_version': '1.1',
+        'method': 'GET',
+        'path': path,
+        'raw_path': path.encode('utf-8'),
+        'query_string': query_string.encode('utf-8'),
+        'headers': [],
     }
 
-    req = ASGIRequest(environ=env)
-    # req.user = request_user
+    async def receive():
+        return {'type': 'http.request', 'body': b''}
+
+    req = ASGIRequest(scope, receive)
     return req
 
 
@@ -41,6 +47,7 @@ def get_user(secret):
         raise SystemExit(err)
 
 
+
 @shared_task
 def get_invoice_task(query_string, results, secret, name, seller):
 
@@ -49,36 +56,51 @@ def get_invoice_task(query_string, results, secret, name, seller):
     tasks_ = []
 
     for res in results:
-        if isinstance(res, (tuple)):
+        print('@@@@@@@@@@@@@ RES  @@@@@@@@@@@@@', res)
+        if isinstance(res, (list)):
+            print('@@@@@@@@@@@@@ RES TUPLE @@@@@@@@@@@@@', res)
             tasks = []
             for i in res:
+                print('@@@@@@@@@@@@@ I I I  @@@@@@@@@@@@@', i)
                 if isinstance(i, (dict)):
                     for key, value in i.items():
                         if key == "payment":
+                            print('@@@@@@@@@@@@@ VALUE 1 @@@@@@@@@@@@@', value)
                             tasks.append(value)
                         if key == "lineItems":
+                            print('@@@@@@@@@@@@@ VALUE 2 @@@@@@@@@@@@@', value)
                             tasks.append(value)
                         if key == "invoice" and value.get('required') is True:
+                            print('@@@@@@@@@@@@@ VALUE 3 @@@@@@@@@@@@@', value)
                             tasks.append(value.get('address')) 
             # print('@@@@@@@@@@@@@ TASKS @@@@@@@@@@@@@', tasks)
 
             tasks_.append(invoice_template(request, seller, tasks, secret))
+            time.sleep(2)
+    # invoice_template(request, seller, tasks, secret)
 
-            # invoices = [
-            #     print('********************** get_invoice value ****************************', value.get('address')) 
-            #     # tasks.append(value.get('address'))
-            #     for i in res[0] 
-            #     if isinstance(i, (dict))
-            #     for key, value in i.items()
-            #     if key == "invoice"
-            #     if value.get('required') is True
-            # ]
+    # get_test(request, seller, tasks, secret)
+    # invoices = [
+    #     print('********************** get_invoice value ****************************', value.get('address')) 
+    #     # tasks.append(value.get('address'))
+    #     for i in res[0] 
+    #     if isinstance(i, (dict))
+    #     for key, value in i.items()
+    #     if key == "invoice"
+    #     if value.get('required') is True
+    # ]
 
     # seller = await asyncio.gather(get_user(name, secret))
     # invoice_result = await asyncio.gather(*tasks_)  
-    print('@@@@@@@@@@@@@ TASKS @@@@@@@@@@@@@', results, secret, name, seller)      
+    # invoice_result = asyncio.run(*tasks_) 
+    print('@@@@@@@@@@@@@ TASKS @@@@@@@@@@@@@', secret)   
+    return tasks_ #invoice_template(request, seller, tasks, secret)   
     # return seller, tasks_
 
+
+def get_test(request, seller, tasks, secret):
+    print('$$$$$$$$$$$$$$$$$ TESTS TESTS $$$$$$$$$$$$$$$$$$$$$$', seller, tasks, secret)
+    return tasks
 
 def invoice_template(request, seller, invoice, secret):
     print('******************* invoice_template ******************',seller, invoice)
@@ -95,54 +117,55 @@ def invoice_template(request, seller, invoice, secret):
         
     print('&&&&&&&&&&&&&&&&&&& LOGIN &&&&&&&&&&&&&&&&&&&&', seller[0]["login"])
         
-    pdf, size = await html_to_pdf('invoice_template.html', context)
+    pdf, size = html_to_pdf('invoice_template.html', context)
     # pdf_base64 = base64.b64encode(pdf).decode("utf-8")
-    attachment_id = await get_attachment_id(request, pdf, size, secret)
-    print('&&&&&&&&&&&&&&&&&&& pdf &&&&&&&&&&&&&&&&&&&&', pdf)
+    if pdf:
+        attachment_id = get_attachment_id(request, pdf, size, secret)
+        print('&&&&&&&&&&&&&&&&&&& pdf &&&&&&&&&&&&&&&&&&&&', pdf)
+        print('&&&&&&&&&&&&&&&&&&& attachment_id &&&&&&&&&&&&&&&&&&&&', attachment_id["id"])
         
     if attachment_id:
-        async with httpx.AsyncClient() as client:
-            url = f"https://api.allegro.pl.allegrosandbox.pl/messaging/messages"
-            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-Type': "application/vnd.allegro.public.v1+json"}
-
-            data = {
-                "recipient": {
-                    "login": "alfapro" #seller[0]["login"]
-                },
-                "text": "tests-2",
-                "attachments": [
-                    # {"id": attachment_id}
-                ]
-            }
-
-            response = await client.post(url, headers=headers, json=data)
-            result = response.json()
-
-            if 'error' in result:
-                pass
-                            
-            print('@@@@@@@@@ INVOICE @@@@@@@@@', json.dumps(result, indent=4))
-
-
-async def get_attachment_id(request, pdf_base64, size, secret):
-    # print('******************* invoice_template ******************',seller, invoce)
-    
-    async with httpx.AsyncClient() as client:
-        url = f"https://api.allegro.pl.allegrosandbox.pl/messaging/message-attachments"  #messaging/messages"
-        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-Type': "application/vnd.allegro.public.v1+json"}
+        url = f"https://api.allegro.pl.allegrosandbox.pl/messaging/messages"
+        headers = {'Authorization': f'Bearer {secret["access_token"]}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-Type': "application/vnd.allegro.public.v1+json"}
 
         data = {
-            "filename": pdf_base64,
-            "size": size
+            "recipient": {
+                "login": "alfapro" #seller[0]["login"]
+            },
+            "text": "tests-7",
+            "attachments": [
+                {"id": attachment_id["id"]}
+            ]
         }
 
-        response = await client.post(url, headers=headers, json=data)
+        response = requests.post(url, headers=headers, json=data)
         result = response.json()
 
         if 'error' in result:
             pass
+                            
+        print('@@@@@@@@@ INVOICE @@@@@@@@@', json.dumps(result, indent=4))
+        print('@@@@@@@@@ INVOICE HEADERS @@@@@@@@@', response.headers)
+
+
+def get_attachment_id(request, pdf_base64, size, secret):
+    # print('******************* invoice_template ******************',seller, invoce)
+    
+    url = f"https://api.allegro.pl.allegrosandbox.pl/messaging/message-attachments"  #messaging/messages"
+    headers = {'Authorization': f'Bearer {secret["access_token"]}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-Type': "application/vnd.allegro.public.v1+json"}
+
+    data = {
+        "filename": pdf_base64,
+        "size": size
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+    result = response.json()
+
+    if 'error' in result:
+        pass
                     
-        print('@@@@@@@@@ ATTACHMENT_ID @@@@@@@@@', json.dumps(result, indent=4))
+    print('@@@@@@@@@ ATTACHMENT_ID @@@@@@@@@', json.dumps(result, indent=4))
 
     return result
 
@@ -151,7 +174,7 @@ from django.http import HttpResponse
 from django.views.generic import View
 from django.template.loader import get_template
 from xhtml2pdf import pisa
-async def html_to_pdf(template_src, context_dict={}):
+def html_to_pdf(template_src, context_dict={}):
     template = get_template(template_src)
     html = template.render(context_dict)
     result = io.BytesIO()
@@ -162,11 +185,11 @@ async def html_to_pdf(template_src, context_dict={}):
     os.makedirs(os.path.dirname(pdf_file_path), exist_ok=True)
 
     if not pdf.err:
-        with open("invoice.pdf", "wb") as pdf_file:
+        with open(pdf_file_path, "wb") as pdf_file:
             pdf_file.write(result.getvalue())
         pdf_size = result.tell()
         # return HttpResponse(result.getvalue(), content_type='application/pdf')
-        return "invoice.pdf", pdf_size
+        return pdf_file_path, pdf_size
     # return None
 
 
