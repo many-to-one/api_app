@@ -151,3 +151,7 @@ AUTH_USER_MODEL = 'users.CustomUser'
 # Celery settings
 CELERY_BROKER_URL = 'redis://localhost:6379/0' # TO RUN REDIS ON WINDOWS LOCALY #https://github.com/MSOpenTech/redis/releases/download/win-3.2.100/Redis-x64-3.2.100.zip 
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'

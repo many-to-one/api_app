@@ -56,58 +56,41 @@ def get_invoice_task(query_string, results, secret, name, seller):
     tasks_ = []
 
     for res in results:
-        print('@@@@@@@@@@@@@ RES  @@@@@@@@@@@@@', res)
+        # print('@@@@@@@@@@@@@ RES  @@@@@@@@@@@@@', res)
         if isinstance(res, (list)):
-            print('@@@@@@@@@@@@@ RES TUPLE @@@@@@@@@@@@@', res)
+            # print('@@@@@@@@@@@@@ RES TUPLE @@@@@@@@@@@@@', res)
             tasks = []
             for i in res:
-                print('@@@@@@@@@@@@@ I I I  @@@@@@@@@@@@@', i)
+                # print('@@@@@@@@@@@@@ I I I  @@@@@@@@@@@@@', i)
                 if isinstance(i, (dict)):
                     for key, value in i.items():
                         if key == "payment":
-                            print('@@@@@@@@@@@@@ VALUE 1 @@@@@@@@@@@@@', value)
+                            # print('@@@@@@@@@@@@@ VALUE 1 @@@@@@@@@@@@@', value)
                             tasks.append(value)
                         if key == "lineItems":
-                            print('@@@@@@@@@@@@@ VALUE 2 @@@@@@@@@@@@@', value)
+                            # print('@@@@@@@@@@@@@ VALUE 2 @@@@@@@@@@@@@', value)
                             tasks.append(value)
                         if key == "invoice" and value.get('required') is True:
-                            print('@@@@@@@@@@@@@ VALUE 3 @@@@@@@@@@@@@', value)
+                            # print('@@@@@@@@@@@@@ VALUE 3 @@@@@@@@@@@@@', value)
                             tasks.append(value.get('address')) 
+                        if key == "buyer":
+                            # print('@@@@@@@@@@@@@ login @@@@@@@@@@@@@', value.get('login'))
+                            tasks.append(value.get('login'))
             # print('@@@@@@@@@@@@@ TASKS @@@@@@@@@@@@@', tasks)
 
             tasks_.append(invoice_template(request, seller, tasks, secret))
             time.sleep(2)
-    # invoice_template(request, seller, tasks, secret)
 
-    # get_test(request, seller, tasks, secret)
-    # invoices = [
-    #     print('********************** get_invoice value ****************************', value.get('address')) 
-    #     # tasks.append(value.get('address'))
-    #     for i in res[0] 
-    #     if isinstance(i, (dict))
-    #     for key, value in i.items()
-    #     if key == "invoice"
-    #     if value.get('required') is True
-    # ]
+    # print('@@@@@@@@@@@@@ TASKS @@@@@@@@@@@@@', secret)   
+    return tasks_    
 
-    # seller = await asyncio.gather(get_user(name, secret))
-    # invoice_result = await asyncio.gather(*tasks_)  
-    # invoice_result = asyncio.run(*tasks_) 
-    print('@@@@@@@@@@@@@ TASKS @@@@@@@@@@@@@', secret)   
-    return tasks_ #invoice_template(request, seller, tasks, secret)   
-    # return seller, tasks_
-
-
-def get_test(request, seller, tasks, secret):
-    print('$$$$$$$$$$$$$$$$$ TESTS TESTS $$$$$$$$$$$$$$$$$$$$$$', seller, tasks, secret)
-    return tasks
 
 def invoice_template(request, seller, invoice, secret):
-    print('******************* invoice_template ******************',seller, invoice)
+    # print('******************* invoice_template ******************',seller, invoice)
 
     #iterate invoice!!!
     # for invoice in invoices:
-    print('&&&&&&&&&&&&&&&&&&& invoice &&&&&&&&&&&&&&&&&&&&', invoice)
+    # print('&&&&&&&&&&&&&&&&&&& invoice &&&&&&&&&&&&&&&&&&&&', invoice)
     context = {
             'seller': seller[0],  
             'payment': invoice[0],
@@ -115,47 +98,29 @@ def invoice_template(request, seller, invoice, secret):
             'order': invoice[2],  
         }
         
-    print('&&&&&&&&&&&&&&&&&&& LOGIN &&&&&&&&&&&&&&&&&&&&', seller[0]["login"])
+    # print('&&&&&&&&&&&&&&&&&&& LOGIN &&&&&&&&&&&&&&&&&&&&', invoice[0]) #seller[0]["login"]
         
     pdf, size = html_to_pdf('invoice_template.html', context)
-    # pdf_base64 = base64.b64encode(pdf).decode("utf-8")
+
     if pdf:
         attachment_id = get_attachment_id(request, pdf, size, secret)
-        print('&&&&&&&&&&&&&&&&&&& pdf &&&&&&&&&&&&&&&&&&&&', pdf)
-        print('&&&&&&&&&&&&&&&&&&& attachment_id &&&&&&&&&&&&&&&&&&&&', attachment_id["id"])
         
-    if attachment_id:
-        url = f"https://api.allegro.pl.allegrosandbox.pl/messaging/messages"
-        headers = {'Authorization': f'Bearer {secret["access_token"]}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-Type': "application/vnd.allegro.public.v1+json"}
+        if attachment_id:
+            pdf_id = put_attachment_id(attachment_id, pdf, secret)
 
-        data = {
-            "recipient": {
-                "login": "alfapro" #seller[0]["login"]
-            },
-            "text": "tests-7",
-            "attachments": [
-                {"id": attachment_id["id"]}
-            ]
-        }
-
-        response = requests.post(url, headers=headers, json=data)
-        result = response.json()
-
-        if 'error' in result:
-            pass
-                            
-        print('@@@@@@@@@ INVOICE @@@@@@@@@', json.dumps(result, indent=4))
-        print('@@@@@@@@@ INVOICE HEADERS @@@@@@@@@', response.headers)
+            if pdf_id:
+                send_message(attachment_id, secret, invoice[0])
 
 
-def get_attachment_id(request, pdf_base64, size, secret):
-    # print('******************* invoice_template ******************',seller, invoce)
+def get_attachment_id(request, pdf, size, secret):
     
     url = f"https://api.allegro.pl.allegrosandbox.pl/messaging/message-attachments"  #messaging/messages"
     headers = {'Authorization': f'Bearer {secret["access_token"]}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-Type': "application/vnd.allegro.public.v1+json"}
 
+    # print('@@@@@@@@@ filename @@@@@@@@@', os.path.basename(pdf))
+
     data = {
-        "filename": pdf_base64,
+        "filename": os.path.basename(pdf),
         "size": size
     }
 
@@ -165,7 +130,7 @@ def get_attachment_id(request, pdf_base64, size, secret):
     if 'error' in result:
         pass
                     
-    print('@@@@@@@@@ ATTACHMENT_ID @@@@@@@@@', json.dumps(result, indent=4))
+    # print('@@@@@@@@@ ATTACHMENT_ID @@@@@@@@@', json.dumps(result, indent=4))
 
     return result
 
@@ -190,7 +155,60 @@ def html_to_pdf(template_src, context_dict={}):
         pdf_size = result.tell()
         # return HttpResponse(result.getvalue(), content_type='application/pdf')
         return pdf_file_path, pdf_size
-    # return None
+    
+
+def put_attachment_id(attachment_id, pdf, secret):
+    
+    url = f"https://api.allegro.pl.allegrosandbox.pl/messaging/message-attachments/{attachment_id['id']}"
+    headers = {
+        'Authorization': f'Bearer {secret["access_token"]}', 
+        'Accept': "application/vnd.allegro.public.v1+json", 
+        'Content-Type': "application/pdf"
+        }
+        
+    with open(pdf, 'rb') as f:
+        file_content = f.read()
+        
+    files = {
+        'file': (os.path.basename(pdf), file_content, 'application/pdf')
+    }
+
+    response = requests.put(url, headers=headers, files=files)
+    result = response.json()
+
+    # print('@@@@@@@@@ ATTCH @@@@@@@@@', json.dumps(result, indent=4))
+    # print('@@@@@@@@@ ATTCH HEADERS @@@@@@@@@', response.headers)
+
+    if 'error' in result:
+        pass
+
+    return result
+
+
+def send_message(attachment_id, secret, recipient):
+    
+    url = f"https://api.allegro.pl.allegrosandbox.pl/messaging/messages"
+    headers = {'Authorization': f'Bearer {secret["access_token"]}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-Type': "application/vnd.allegro.public.v1+json"}
+
+    data = {
+        "recipient": {
+            "login": recipient
+        },
+        "text": "tests-8",
+        "attachments": [
+            {"id": attachment_id['id']}
+        ]
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+    result = response.json()
+
+    if 'error' in result:
+        pass
+                                
+    # print('@@@@@@@@@ INVOICE @@@@@@@@@', json.dumps(result, indent=4))
+    # print('@@@@@@@@@ INVOICE HEADERS @@@@@@@@@', response.headers)
+
 
 
 
