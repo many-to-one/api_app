@@ -8,7 +8,7 @@ from ..views_folder.orders_views_test import *
 from django.core.handlers.asgi import ASGIRequest
 from io import BytesIO
 
-
+# celery -A api_app worker -l info
 
 def create_request(query_string, path='/'):
 
@@ -90,9 +90,10 @@ def invoice_template(request, seller, invoice, secret):
 
     #iterate invoice!!!
     # for invoice in invoices:
-    # print('&&&&&&&&&&&&&&&&&&& invoice &&&&&&&&&&&&&&&&&&&&', invoice)
+    print('&&&&&&&&&&&&&&&&&&& seller &&&&&&&&&&&&&&&&&&&&', seller)
+    print('&&&&&&&&&&&&&&&&&&& invoice &&&&&&&&&&&&&&&&&&&&', invoice)
     context = {
-            'seller': seller[0],  
+            'seller': seller,  
             'payment': invoice[0],
             'customer': invoice[1],  
             'order': invoice[2],  
@@ -100,7 +101,8 @@ def invoice_template(request, seller, invoice, secret):
         
     # print('&&&&&&&&&&&&&&&&&&& LOGIN &&&&&&&&&&&&&&&&&&&&', invoice[0]) #seller[0]["login"]
         
-    pdf, size = html_to_pdf('invoice_template.html', context)
+    # pdf, size = html_to_pdf('invoice_template.html', context)
+    pdf, size = generate_pdf(seller, invoice)
 
     if pdf:
         attachment_id = get_attachment_id(request, pdf, size, secret)
@@ -135,26 +137,324 @@ def get_attachment_id(request, pdf, size, secret):
     return result
 
 
-from django.http import HttpResponse
-from django.views.generic import View
-from django.template.loader import get_template
-from xhtml2pdf import pisa
-def html_to_pdf(template_src, context_dict={}):
-    template = get_template(template_src)
-    html = template.render(context_dict)
-    result = io.BytesIO()
-    pdf = pisa.pisaDocument(io.BytesIO(html.encode("ISO-8859-2")), result)
+import os
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import cm
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 
-    pdf_file_path = os.path.join(settings.BASE_DIR, 'invoices', 'myfile.pdf')
+def generate_pdf(seller, invoice):
+    pdf_file_path = os.path.join('invoices', 'myfile.pdf')
     # Ensure the directory exists
     os.makedirs(os.path.dirname(pdf_file_path), exist_ok=True)
 
-    if not pdf.err:
-        with open(pdf_file_path, "wb") as pdf_file:
-            pdf_file.write(result.getvalue())
-        pdf_size = result.tell()
-        # return HttpResponse(result.getvalue(), content_type='application/pdf')
-        return pdf_file_path, pdf_size
+    buyer_info = {
+        'name': invoice[2]['company']['name'],
+        'taxId': invoice[2]['company']['taxId'],
+        'street': invoice[2]['street'],
+        'city': invoice[2]['city'],
+        'zipCode': invoice[2]['zipCode'],
+        'countryCode': invoice[2]['countryCode']
+    }
+
+    products = [
+        {
+            'id': item['id'],
+            'offer': {
+                'id': item['offer']['id'],
+                'name': item['offer']['name'],
+                'external': item['offer']['external'],
+                'productSet': item['offer']['productSet']
+            },
+            'quantity': item['quantity'],
+            'price': item['price'],
+            'tax': item['tax'],
+            'reconciliation': item['reconciliation'],
+            'selectedAdditionalServices': item['selectedAdditionalServices'],
+            'vouchers': item['vouchers'],
+            'boughtAt': item['boughtAt']
+        }
+        for item in invoice[3]
+    ]
+
+    c = canvas.Canvas(pdf_file_path, pagesize=A4)
+    width, height = A4
+
+    from reportlab.pdfbase.ttfonts import TTFont
+    from reportlab.pdfbase import pdfmetrics
+    pdfmetrics.registerFont(TTFont('DejaVuSans', 'DejaVuSans.ttf'))
+
+    # Set up styles
+    styles = getSampleStyleSheet()
+    normal_style = styles['Normal']
+    title_style = styles['Title']
+    normal_style.wordWrap = 'CJK'  # Enable wrapping
+    normal_style.fontSize = 6
+    normal_style.fontName = 'DejaVuSans'  # Set the font to the registered font supporting Polish characters
+    normal_style.encoding = 'utf-8'  # Set the encoding to UTF-8
+
+    # Add title
+    c.setFont("Helvetica-Bold", 20)
+    c.drawString(2 * cm, height - 2 * cm, "Faktura")
+    c.setFont("Helvetica", 12)
+    c.drawString(2 * cm, height - 2.5 * cm, "nr: 4/2021")
+
+    # Add seller info
+    c.drawString(2 * cm, height - 4 * cm, "Sprzedawca:")
+    c.drawString(2 * cm, height - 4.5 * cm, f"{seller['company'].encode('latin-1').decode('utf-8')}")
+    c.drawString(2 * cm, height - 5 * cm, f"ul. {seller['street']} {seller['streetNumber']}, {seller['postalCode']} {seller['city']}")
+    c.drawString(2 * cm, height - 5.5 * cm, f"NIP {seller['id']}")
+    c.drawString(2 * cm, height - 6 * cm, f"Telefon {seller['phone']}")
+    c.drawString(2 * cm, height - 6.5 * cm, f"E-mail: {seller['email']}")
+
+    # Add buyer info
+    c.drawString(12 * cm, height - 4 * cm, "Nabywca:")
+    c.drawString(12 * cm, height - 4.5 * cm, buyer_info['name'])
+    c.drawString(12 * cm, height - 5 * cm, f"ul. {buyer_info['street'].encode('latin-1').decode('utf-8')}, {buyer_info['zipCode']} {buyer_info['city']}")
+    c.drawString(12 * cm, height - 5.5 * cm, f"NIP {buyer_info['taxId']}")
+
+    # Tekst z polskimi znakami diakrytycznymi
+    import unicodedata
+    text_with_polish_chars = {'text': "Data zakończenia dostawy/usługi: 07-03-2021"}
+
+    # Normalizacja tekstu
+    # normalized_text = unicodedata.normalize('NFKD', text_with_polish_chars).encode('latin-1').decode('utf-8')
+
+    # Add invoice details
+    c.drawString(2 * cm, height - 7.5 * cm, "Wystawiona w dniu: 07-03-2021, Warszawa")
+    c.drawString(2 * cm, height - 8 * cm, Paragraph(text_with_polish_chars['text'], normal_style))
+
+    # Table data
+    data = [
+        ["Lp.", "Nazwa towaru lub usługi", "Jm", "Ilość", "Cena netto", "Wartość netto", "VAT", "Kwota VAT", "Wartość brutto"]
+    ]
+
+    total_netto = 0
+    total_vat = 0
+    total_brutto = 0
+
+    for i, product in enumerate(products, start=1):
+        name = Paragraph(product['offer']['name'], normal_style) 
+        # name = Paragraph(product['offer']['name'])
+        quantity = product['quantity']
+        price_netto = float(product['price']['amount'])
+        value_netto = price_netto * quantity
+        vat_rate = float(product['tax']['rate'])
+        vat_value = value_netto * (vat_rate / 100)
+        value_brutto = value_netto + vat_value
+
+        total_netto += value_netto
+        total_vat += vat_value
+        total_brutto += value_brutto
+
+        data.append([
+            str(i), name, "szt.", str(quantity), f"{price_netto:.2f} PLN", f"{value_netto:.2f} PLN", f"{vat_rate:.2f}%", f"{vat_value:.2f} PLN", f"{value_brutto:.2f} PLN"
+        ])
+
+    data.append(["", "", "", "", "Razem:", f"{total_netto:.2f} PLN", "", f"{total_vat:.2f} PLN", f"{total_brutto:.2f} PLN"])
+
+    # Create table #["Lp.", "Nazwa towaru lub usługi", "Jm", "Ilość", "Cena netto", "Wartość netto", "VAT", "Kwota VAT", "Wartość brutto"]
+    table = Table(data, colWidths=[1 * cm, 6 * cm, 1 * cm, 1 * cm, 2 * cm, 2 * cm, 1.5 * cm, 2 * cm, 2 * cm])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
+
+    # Draw the table
+    table.wrapOn(c, width, height)
+    table.drawOn(c, 2 * cm, height - 16 * cm)
+
+    # Add total amount
+    c.drawString(2 * cm, height - 17 * cm, f"Razem do zapłaty: {total_brutto:.2f} PLN")
+    c.drawString(2 * cm, height - 17.5 * cm, "Słownie złotych: (jeden tysiąc dziewięćset dziewięćdziesiąt jeden PLN 37/100)")
+
+    # Signature placeholders
+    c.drawString(2 * cm, height - 21 * cm, "_______________________________")
+    c.drawString(2 * cm, height - 21.5 * cm, "podpis osoby upoważnionej do odbioru faktury")
+
+    c.drawString(12 * cm, height - 21 * cm, "_______________________________")
+    c.drawString(12 * cm, height - 21.5 * cm, "podpis osoby upoważnionej do wystawienia faktury")
+
+    # Save the PDF
+    c.save()
+
+    pdf_size = os.path.getsize(pdf_file_path)
+    return pdf_file_path, pdf_size
+
+
+
+
+# from reportlab.lib.pagesizes import A4
+# from reportlab.lib.units import cm
+# from reportlab.pdfgen import canvas
+# from reportlab.lib import colors
+# from reportlab.lib.styles import getSampleStyleSheet
+# from reportlab.platypus import Table, TableStyle
+# def generate_pdf(seller, invoice):
+
+#     pdf_file_path = os.path.join(settings.BASE_DIR, 'invoices', 'myfile.pdf')
+#     # Ensure the directory exists
+#     os.makedirs(os.path.dirname(pdf_file_path), exist_ok=True)
+#     pdf_size = os.path.getsize(pdf_file_path)
+
+#     buyer_info = {
+#         'name': invoice[2]['company']['name'],
+#         'taxId': invoice[2]['company']['taxId'],
+#         'street': invoice[2]['street'],
+#         'city': invoice[2]['city'],
+#         'zipCode': invoice[2]['zipCode'],
+#         'countryCode': invoice[2]['countryCode']
+#     }
+
+#     products = [
+#         {
+#             'id': item['id'],
+#             'offer': {
+#                 'id': item['offer']['id'],
+#                 'name': item['offer']['name'],
+#                 'external': item['offer']['external'],
+#                 'productSet': item['offer']['productSet']
+#             },
+#             'quantity': item['quantity'],
+#             'price': item['price'],
+#             'tax': item['tax'],
+#             'reconciliation': item['reconciliation'],
+#             'selectedAdditionalServices': item['selectedAdditionalServices'],
+#             'vouchers': item['vouchers'],
+#             'boughtAt': item['boughtAt']
+#         }
+#         for item in invoice[3]
+#     ]
+
+#     c = canvas.Canvas(pdf_file_path, pagesize=A4)
+#     width, height = A4
+
+#     # Set up styles
+#     styles = getSampleStyleSheet()
+#     normal_style = styles['Normal']
+#     title_style = styles['Title']
+
+#     # Add title
+#     c.setFont("Helvetica-Bold", 20)
+#     c.drawString(2 * cm, height - 2 * cm, "Faktura")
+#     c.setFont("Helvetica", 12)
+#     c.drawString(2 * cm, height - 2.5 * cm, "nr: 4/2021")
+
+#     # Add seller info
+#     c.drawString(2 * cm, height - 4 * cm, "Sprzedawca:")
+#     c.drawString(2 * cm, height - 4.5 * cm, f"{seller['company']}")
+#     c.drawString(2 * cm, height - 5 * cm, f"ul. {seller['street']} {seller['streetNumber']}, {seller['postalCode']} {seller['city']}")
+#     c.drawString(2 * cm, height - 5.5 * cm, f"NIP {seller['id']}")
+#     c.drawString(2 * cm, height - 6 * cm, f"Telefon {seller['phone']}")
+#     c.drawString(2 * cm, height - 6.5 * cm, f"E-mail: {seller['email']}")
+
+#     # Add buyer info
+#     c.drawString(12 * cm, height - 4 * cm, "Nabywca:")
+#     c.drawString(12 * cm, height - 4.5 * cm, buyer_info['name'])
+#     c.drawString(12 * cm, height - 5 * cm, f"ul. {buyer_info['street']}, {buyer_info['zipCode']} {buyer_info['city']}")
+#     c.drawString(12 * cm, height - 5.5 * cm, f"NIP {buyer_info['taxId']}")
+
+#     # Add invoice details
+#     c.drawString(2 * cm, height - 7.5 * cm, "Wystawiona w dniu: 07-03-2021, Warszawa")
+#     c.drawString(2 * cm, height - 8 * cm, "Data zakończenia dostawy/usługi: 07-03-2021")
+
+#     # Table data
+#     data = [
+#         ["Lp.", "Nazwa towaru lub usługi", "Jm", "Ilość", "Cena netto", "Wartość netto", "VAT", "Kwota VAT", "Wartość brutto"]
+#     ]
+
+#     total_netto = 0
+#     total_vat = 0
+#     total_brutto = 0
+
+#     for i, product in enumerate(products, start=1):
+#         name = product['offer']['name']
+#         quantity = product['quantity']
+#         price_netto = float(product['price']['amount'])
+#         value_netto = price_netto * quantity
+#         vat_rate = float(product['tax']['rate'])
+#         vat_value = value_netto * (vat_rate / 100)
+#         value_brutto = value_netto + vat_value
+
+#         total_netto += value_netto
+#         total_vat += vat_value
+#         total_brutto += value_brutto
+
+#         data.append([
+#             str(i), name, "szt.", str(quantity), f"{price_netto:.2f} PLN", f"{value_netto:.2f} PLN", f"{vat_rate:.2f}%", f"{vat_value:.2f} PLN", f"{value_brutto:.2f} PLN"
+#         ])
+
+#     data.append(["", "", "", "", "Razem:", f"{total_netto:.2f} PLN", "", f"{total_vat:.2f} PLN", f"{total_brutto:.2f} PLN"])
+
+#     # Create table
+#     table = Table(data, colWidths=[1 * cm, 6 * cm, 1.5 * cm, 1.5 * cm, 2.5 * cm, 3 * cm, 1.5 * cm, 3 * cm, 3 * cm])
+#     table.setStyle(TableStyle([
+#         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+#         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+#         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+#         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+#         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+#         ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+#         ('GRID', (0, 0), (-1, -1), 1, colors.black),
+#     ]))
+
+#     # Draw the table
+#     table.wrapOn(c, width, height)
+#     table.drawOn(c, 2 * cm, height - 16 * cm)
+
+#     # Add total amount
+#     c.drawString(2 * cm, height - 17 * cm, f"Razem do zapłaty: {total_brutto:.2f} PLN")
+#     c.drawString(2 * cm, height - 17.5 * cm, "Słownie złotych: (jeden tysiąc dziewięćset dziewięćdziesiąt jeden PLN 37/100)")
+
+#     # Signature placeholders
+#     c.drawString(2 * cm, height - 21 * cm, "_______________________________")
+#     c.drawString(2 * cm, height - 21.5 * cm, "podpis osoby upoważnionej do odbioru faktury")
+
+#     c.drawString(12 * cm, height - 21 * cm, "_______________________________")
+#     c.drawString(12 * cm, height - 21.5 * cm, "podpis osoby upoważnionej do wystawienia faktury")
+
+#     # Save the PDF
+#     c.save()
+
+#     return pdf_file_path, pdf_size
+    
+
+    # if not c.err:
+    #     with open(pdf_file_path, "wb") as pdf_file:
+    #         pdf_file.write(c)
+    #     pdf_size = c
+    #     # return HttpResponse(result.getvalue(), content_type='application/pdf')
+    #     return pdf_file_path, pdf_size
+
+# ******************************************************
+
+# from django.http import HttpResponse
+# from django.views.generic import View
+# from django.template.loader import get_template
+# from xhtml2pdf import pisa
+# def html_to_pdf(template_src, context_dict={}):
+#     template = get_template(template_src)
+#     html = template.render(context_dict)
+#     result = io.BytesIO()
+#     pdf = pisa.pisaDocument(io.BytesIO(html.encode("ISO-8859-2")), result)
+
+#     pdf_file_path = os.path.join(settings.BASE_DIR, 'invoices', 'myfile.pdf')
+#     # Ensure the directory exists
+#     os.makedirs(os.path.dirname(pdf_file_path), exist_ok=True)
+
+#     if not pdf.err:
+#         with open(pdf_file_path, "wb") as pdf_file:
+#             pdf_file.write(result.getvalue())
+#         pdf_size = result.tell()
+#         # return HttpResponse(result.getvalue(), content_type='application/pdf')
+#         return pdf_file_path, pdf_size
     
 
 def put_attachment_id(attachment_id, pdf, secret):

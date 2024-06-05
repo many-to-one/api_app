@@ -541,7 +541,7 @@ async def get_user(secret):
             raise SystemExit(err)
 
 
-async def get_invoice(request, results, secret, name):
+async def get_invoice(request, results, secret, name, address_data):
 
     tasks_ = []
 
@@ -549,7 +549,7 @@ async def get_invoice(request, results, secret, name):
     # seller=True
     # secret_ = await ser_secret(secret)
     if seller:
-        invoice_task_res = get_invoice_task.apply_async(args=[request.META['QUERY_STRING'], results, secret, name, seller])
+        invoice_task_res = get_invoice_task.apply_async(args=[request.META['QUERY_STRING'], results, secret, name, address_data])
         print('@@@@@@@@@@@@@ _TASKS_ @@@@@@@@@@@@@', results)
 
     return seller, tasks_
@@ -585,7 +585,7 @@ def set_shipment_list(request, name):
             # print('**********************  /// results_secret /// ****************************', secret)
 
             # get_invoice_task.apply_async(args=['8'])
-            invoice = asyncio.run(get_invoice(request, results, secret_data, name) )
+            invoice = asyncio.run(get_invoice(request, results, secret_data, name, address_data) )
             # invoice_task_res = invoice_task.delay('5')
             # print('********************** get_invoice ****************************', invoice)
 

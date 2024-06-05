@@ -3,11 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Faktura</title>
+
+    <style type="text/css">
+
+        .main_cont {
+            display: flex;
+            flex-direction: column;
+            font-size: 15px;
+        }
+
+        .line_cont {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 10px;
+        }
+
+        .mini_col_cont {
+            display: flex;
+            flex-direction: column;
+        }
+    	
+    </style>
+
 </head>
 
 <body>
-    <h1>TEST INVOICE</h1>
+
+    <div class="main_cont">
+
+        <div class="line_cont">
+            <p>LOGO</p>
+            <div class="mini_col_cont">
+                <p>Faktura nr/1</p>
+                <p>Wystawiona w dniu: 05.06.2024</p>
+            </div>
+        </div>
+
+        <div class="line_cont">
+            <div class="mini_col_cont">
+                <h4>Sprzedawca:</h4>
+                <p>jakieś dane</p>
+                <p>jakieś dane</p>
+                <p>jakieś dane</p>
+            </div>
+            <div class="mini_col_cont">
+                <h4>Nabywca:</h4>
+                <p>jakieś dane</p>
+                <p>jakieś dane</p>
+                <p>jakieś dane</p>
+            </div>
+        </div>
+
+    </div>
+
+
 </body>
 
 </html>
