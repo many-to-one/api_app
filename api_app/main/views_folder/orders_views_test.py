@@ -37,9 +37,10 @@ CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 #     return render(request, 'get_accounts.html', context)
 
 
-def get_orders(request, name, delivery):
+def get_orders(request, name, delivery, status):
 
     print('*********************** delivery **********************', delivery)
+    print('*********************** status **********************', status)
 
     all_results = []
     result_with_name = []
@@ -71,6 +72,20 @@ def get_orders(request, name, delivery):
         # print('*********************** ALL ORDERS IN **********************', json.dumps(result, indent=4))
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
+    
+    if status == 'all': 
+        for result in all_results:
+            pass
+            # print('***************** RESULTS FOR STATUS *******************', json.dumps(result, indent=4))
+    elif status != 'all':
+        for result in all_results:
+            # print('***************** RESULTS FOR STATUS *******************', json.dumps(result, indent=4))
+            for res in result["checkoutForms"]:
+                # print('***************** RESULTS FOR STATUS *******************', json.dumps(res, indent=4))
+                if res['fulfillment']['status'] == status:
+                    result_with_name.append(res)
+            # print('***************** RESULTS FOR STATUS *******************', json.dumps(result, indent=4))
+
 
     if delivery == 'all': 
         for result in all_results:

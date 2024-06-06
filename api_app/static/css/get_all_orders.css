@@ -144,7 +144,13 @@
 
 .shipment_o {
     position: absolute;
-    left: 70%;
+    left: 67%;
+    font-style: bold;
+}
+
+.status_o {
+    position: absolute;
+    left: 77%;
     font-style: bold;
 }
 

@@ -10,6 +10,8 @@ body {
     --wait: rgb(245, 255, 104);
     --bg_color: aliceblue;
     --dbl: rgb(219, 219, 219);
-    --product: #005355;
-    --header: #006769;
+    /* --product: #005355;
+    --header: #006769; */
+    --product: #2c2c2c;
+    --header: #ff0000;
 }
