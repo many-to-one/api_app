@@ -196,14 +196,13 @@ def generate_pdf(seller, invoice):
     normal_style.encoding = 'utf-8'  # Set the encoding to UTF-8
 
     # Add title
-    c.setFont("Helvetica-Bold", 20)
+    c.setFont("DejaVuSans", 10)
     c.drawString(2 * cm, height - 2 * cm, "Faktura")
-    c.setFont("Helvetica", 12)
     c.drawString(2 * cm, height - 2.5 * cm, "nr: 4/2021")
 
     # Add seller info
     c.drawString(2 * cm, height - 4 * cm, "Sprzedawca:")
-    c.drawString(2 * cm, height - 4.5 * cm, f"{seller['company'].encode('latin-1').decode('utf-8')}")
+    c.drawString(2 * cm, height - 4.5 * cm, f"{seller['company']}")
     c.drawString(2 * cm, height - 5 * cm, f"ul. {seller['street']} {seller['streetNumber']}, {seller['postalCode']} {seller['city']}")
     c.drawString(2 * cm, height - 5.5 * cm, f"NIP {seller['id']}")
     c.drawString(2 * cm, height - 6 * cm, f"Telefon {seller['phone']}")
@@ -212,7 +211,7 @@ def generate_pdf(seller, invoice):
     # Add buyer info
     c.drawString(12 * cm, height - 4 * cm, "Nabywca:")
     c.drawString(12 * cm, height - 4.5 * cm, buyer_info['name'])
-    c.drawString(12 * cm, height - 5 * cm, f"ul. {buyer_info['street'].encode('latin-1').decode('utf-8')}, {buyer_info['zipCode']} {buyer_info['city']}")
+    c.drawString(12 * cm, height - 5 * cm, f"ul. {buyer_info['street']}, {buyer_info['zipCode']} {buyer_info['city']}")
     c.drawString(12 * cm, height - 5.5 * cm, f"NIP {buyer_info['taxId']}")
 
     # Tekst z polskimi znakami diakrytycznymi
@@ -224,7 +223,7 @@ def generate_pdf(seller, invoice):
 
     # Add invoice details
     c.drawString(2 * cm, height - 7.5 * cm, "Wystawiona w dniu: 07-03-2021, Warszawa")
-    c.drawString(2 * cm, height - 8 * cm, Paragraph(text_with_polish_chars['text'], normal_style))
+    c.drawString(2 * cm, height - 8 * cm, text_with_polish_chars['text'])
 
     # Table data
     data = [
@@ -261,7 +260,8 @@ def generate_pdf(seller, invoice):
         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTNAME', (0, 0), (-1, 0), 'DejaVuSans'),
+        ('FONTSIZE', (0, 0), (-1, -1), 6),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
         ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
@@ -280,7 +280,8 @@ def generate_pdf(seller, invoice):
     c.drawString(2 * cm, height - 21.5 * cm, "podpis osoby upoważnionej do odbioru faktury")
 
     c.drawString(12 * cm, height - 21 * cm, "_______________________________")
-    c.drawString(12 * cm, height - 21.5 * cm, "podpis osoby upoważnionej do wystawienia faktury")
+    c.drawString(12 * cm, height - 21.5 * cm, "podpis osoby upoważnionej")
+    c.drawString(12 * cm, height - 22 * cm, "do wystawienia faktury")
 
     # Save the PDF
     c.save()
