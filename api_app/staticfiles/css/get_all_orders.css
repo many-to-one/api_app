@@ -98,28 +98,46 @@
 
 .name_o {
     position: absolute;
-    left: 14%;
+    left: 15%;
     width: 20vw;
     font-style: bold;
     text-decoration: none;
     color: var(--black);
 }
 
-/* .account_o {
-    position: absolute;
-    left: 46.7%;
-    font-style: bold;
-} */
+.name_ord {
+    display: flex;
+    flex-direction: column;
+    width: 25vw;
+    color: var(--dark);
+}
+
+.ord_line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 24vw;
+}
+
+.name_ord a {
+    text-decoration: none;
+    color: var(--dark);
+}
+
+.name_ord p {
+    font-size: 10px;
+    color: var(--dark);
+}
 
 .sku_o {
     position: absolute;
-    left: 43.5%;
+    left: 44.5%;
     font-style: bold;
 }
 
 .stock_o {
     position: absolute;
-    left: 46%;
+    left: 47.5%;
     font-style: bold;
 }
 
@@ -138,8 +156,9 @@
 
 .client_o {
     position: absolute;
-    left: 63%;
+    left: 58%;
     font-style: bold;
+    width: 100px;
 }
 
 .shipment_o {
@@ -152,6 +171,14 @@
     position: absolute;
     left: 77%;
     font-style: bold;
+}
+
+.search_o {
+    position: absolute;
+    left: 86%;
+    font-style: bold; 
+    width: 50px;
+    height: 30px;
 }
 
 .order_o {

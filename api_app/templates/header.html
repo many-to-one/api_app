@@ -26,7 +26,7 @@
                     <span>Zamówienia</span>
                     <div class="dropdown-content">
                         {% for name in accounts  %}
-                        <a href="{% url 'get_orders' name 'all' 'all' %}">{{ name }}</a>
+                        <a href="{% url 'get_orders' name 'all' 'all' 'all' %}">{{ name }}</a>
                         {% endfor %}
                     </div>
                 </li>

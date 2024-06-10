@@ -133,6 +133,10 @@
     color: var(--light);
 }
 
+.sent p{
+    color: var(--light);
+}
+
 .canceled {
     background-color: var(--wait);
 }
@@ -159,7 +163,7 @@
     height: 20px;
 }
 
-.account, .sku, .costs {
+.account, .sku, .costs{
     min-width: 40px;
     width: auto;
     white-space: nowrap;

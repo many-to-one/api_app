@@ -35,7 +35,8 @@
                     <p class="stock_o">Ilość</p>
                     <p class="costs_o">Koszty</p>
                     <!-- <p class="status_o">Status</p> -->
-                    <p class="client_o">Klient</p>
+                    <!-- <p class="client_o">Klient</p> -->
+                    <input type="text" class="client_o" id="client" placeholder="Klient...">
 
                     <select class="shipment_o var_select order" id="delivery_select">
                         <option selected value="all">Wysyłka</option>
@@ -69,6 +70,8 @@
                         <option value="SENT">WYSŁANE</option>
                         <option value="PICKED_UP">DOSTARCZONE</option>
                     </select>
+
+                    <button id="search_o" class="search_o" onclick="searchRes()">Submit</button>
 
                 </div>
 
@@ -125,7 +128,15 @@
                     <div class="order">
                         {% for item in order.lineItems %}
                             <div class="lineItems">
-                                <a class="name" href="{% url 'get_order_details' order.id name %}">{{ item.offer.name }}</a>
+                                <div class="name_ord">
+                                    <a href="{% url 'get_order_details' order.id name %}">{{ item.offer.name }}</a>
+                                    {% with date=item.boughtAt|slice:":10" time=item.boughtAt|slice:"11:16" %}
+                                        <div class="ord_line">
+                                            <p>{{ order.marketplace.id }}</p>
+                                            <p>{{ date }} {{ time }}</p>
+                                        </div>
+                                    {% endwith %}
+                                </div>
                                 <!-- <p class="account" id="name_{{ order.id }}" value="{{ name }}">{{ name }}</p> Konto -->
                                 <div class="skuCosts">
                                     <p class="sku">{{ item.offer.external.id }}</p>
@@ -147,11 +158,11 @@
                         <p value="{{ order.id }}_{{ order.status }}" class="status"></p>
                     {% endif %}
 
-                    <p class="client">{{ order.buyer.login }}</p>
+                    <p class="client" onclick="ordersByLogin('{{ order.buyer.login }}')">{{ order.buyer.login }}</p>
                     <p class="shipment">{{ order.delivery.method.name }}</p>
-
+                    <!-- WYSŁANE -->
                     <select class="account_select order" id="status_select_{{ order.id }}">
-                        <option id="status_{{ order.id }}" value="SENT" {% if order.fulfillment.status == 'SENT' %} selected {% endif %}>WYSŁANE</option>
+                        <option id="status_{{ order.id }}" value="SENT" {% if order.fulfillment.status == 'SENT' %} selected {% endif %}>WYSŁANE</option> 
                         <option id="status_{{ order.id }}" value="READY_FOR_PROCESSING" {% if order.fulfillment.status == 'NEW' %} selected {% endif %}>NOWE</option>
                         <option id="status_{{ order.id }}" value="CANCELLED" {% if order.fulfillment.status == 'CANCELLED' %} selected {% endif %}>ANULOWANE</option>
                         <option id="status_{{ order.id }}" value="PICKED_UP" {% if order.fulfillment.status == 'PICKED_UP' %} selected {% endif %}>DOSTARCZONE</option>
@@ -188,7 +199,8 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
 
-    <script>
+    <!-- <script>
+
         document.addEventListener('DOMContentLoaded', (event) => {
             var defaultOption = "all";  // Set your default option value here
             var selectElement = document.getElementById('delivery_select');
@@ -240,6 +252,45 @@
         });
     });
 
+</script> -->
+
+<script>
+    function searchRes() {
+        var getName = document.getElementById('getName');
+        var name = getName.getAttribute('value');
+        var selectedStatus = document.getElementById('status_select').value;
+        var deliveryMethod = document.getElementById('delivery_select').value;
+        var inputElement = document.getElementById('client');
+        var client = inputElement.value;
+
+        console.log('client', client)
+
+        if (client === '') {
+            var url = `/get_orders/${name}/${deliveryMethod}/${selectedStatus}/all/`
+        } else {
+            var url = `/get_orders/${name}/${deliveryMethod}/${selectedStatus}/${client}/`
+        }
+
+        window.location.href = url;
+
+    }
+</script>
+
+<script>
+    function ordersByLogin(login) {
+        var selectedStatus = document.getElementById('status_select').value;
+        var deliveryMethod = document.getElementById('delivery_select').value;
+        var getName = document.getElementById('getName');
+        var name = getName.getAttribute('value');
+
+        console.log('login', login)
+        console.log('name', name)
+        console.log('selectedStatus', selectedStatus)
+        console.log('deliveryMethod', deliveryMethod)
+
+        var url = `/get_orders_by_client/${name}/${deliveryMethod}/${selectedStatus}/${login}/`
+        window.location.href = url;
+    }
 </script>
 
     <script>
@@ -365,7 +416,7 @@
 
     </script>
 
-    <script>
+    <!-- <script>
         document.getElementById('delivery_select').addEventListener('change', function() {
             var delivery = this.value;
             var getName = document.getElementById('getName')
@@ -388,7 +439,7 @@
         var url = `/get_orders/${name}/${delivery}/${status_}/`
         window.location.href = url;
     });
-</script>
+</script> -->
    
 </body>
 {% endblock %}

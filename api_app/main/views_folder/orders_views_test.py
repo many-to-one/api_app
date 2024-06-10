@@ -37,12 +37,14 @@ CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 #     return render(request, 'get_accounts.html', context)
 
 
-def get_orders(request, name, delivery, status):
+def get_orders(request, name, delivery, status, client):
 
     print('*********************** delivery **********************', delivery)
     print('*********************** status **********************', status)
+    print('*********************** client **********************', client)
 
     all_results = []
+    all_client_results = []
     result_with_name = []
 
     secret = Secret.objects.get(account__name=name)
@@ -56,6 +58,15 @@ def get_orders(request, name, delivery, status):
         result = product_result.json()
         result.update({'name': secret.account.name})
         all_results.append(result)
+        if client == 'all':
+            all_client_results.append(result)
+        else:
+            print('&&&&&&&&&&&&&&&&& I HERE $$$$$$$$$$$$$$$$$')
+            for result in all_results:
+                for res in result["checkoutForms"]:
+                    if res["buyer"]["login"] == client:
+                        all_client_results.append(res)
+                        print('############### BUYER ###############', res["buyer"]["login"])
         if 'error' in result:
             error_code = result['error']
             if error_code == 'invalid_token':
@@ -74,33 +85,180 @@ def get_orders(request, name, delivery, status):
         raise SystemExit(err)
     
     if status == 'all': 
-        for result in all_results:
+        for result in all_client_results:
             pass
             # print('***************** RESULTS FOR STATUS *******************', json.dumps(result, indent=4))
-    elif status != 'all':
-        for result in all_results:
+    if status == 'all' and delivery != 'all' and client == 'all':
+        print('***************** status != all *******************')
+        for result in all_client_results:
             # print('***************** RESULTS FOR STATUS *******************', json.dumps(result, indent=4))
             for res in result["checkoutForms"]:
                 # print('***************** RESULTS FOR STATUS *******************', json.dumps(res, indent=4))
+                if res['delivery']['method']["name"] == delivery:
+                    result_with_name.append(res)
+            # print('***************** RESULTS FOR STATUS *******************', json.dumps(result, indent=4))
+    if status == 'all' and delivery != 'all' and client != 'all':
+        for result in all_client_results:
+            if result["buyer"]["login"] == client and result["delivery"]["method"]["name"] == delivery:
+                print('***************** RESULTS now*******************', json.dumps(result, indent=4))
+                result_with_name.append(result)
+
+
+    if delivery == 'all' and status != 'all' and client == 'all': 
+        print('***************** delivery == all *******************')
+        for result in all_client_results:
+            for res in result["checkoutForms"]:
                 if res['fulfillment']['status'] == status:
+                    result_with_name.append(res)
+    if status != 'all' and delivery == 'all' and client != 'all':
+        for result in all_client_results:
+            print('***************** RESULTS now*******************', result["fulfillment"]["status"])
+            if result["buyer"]["login"] == client and result["fulfillment"]["status"] == status:
+                # print('***************** RESULTS now*******************', json.dumps(result, indent=4))
+                result_with_name.append(result)
+
+    if delivery != 'all' and status != 'all' and client == 'all':
+        print('YYYYYYYYYYYYYYYYEEEEEEEEEEEEEEEESSSSSSSSSSSSSSSSSSSSs')
+        for result in all_client_results:
+            # print('***************** RESULTS FOR STATUS *******************', json.dumps(result, indent=4))
+            for res in result["checkoutForms"]:
+                # print('***************** RESULTS FOR STATUS *******************', json.dumps(res, indent=4))
+                if res['fulfillment']['status'] == status and res['delivery']['method']["name"] == delivery:
+                    # print('***************** RESULTS FOR STATUS *******************', json.dumps(res, indent=4))
+                    result_with_name.append(res)
+    if delivery != 'all' and status != 'all' and client != 'all':
+        print('@@@@@@@@@@@@@@ here @@@@@@@@@@@@@@@@@@')
+        for result in all_client_results:
+            print('@@@@@@@@@@@@@@ here @@@@@@@@@@@@@@@@@@', json.dumps(result, indent=4))
+            if result['fulfillment']['status'] == status and result['delivery']['method']["name"] == delivery and result['fulfillment']['status'] == status:
+                # print('***************** RESULTS FOR STATUS *******************', json.dumps(res, indent=4))
+                result_with_name.append(result)
+
+    if delivery == 'all' and status == 'all' and client == 'all':
+        for result in all_client_results:
+            # print('***************** COMMON *******************', json.dumps(result, indent=4))
+            for res in result["checkoutForms"]:
+                # print('***************** ALL RESULTS LOOP *******************', json.dumps(res, indent=4))
+                result_with_name.append(res)
+
+    if delivery == 'all' and status == 'all' and client != 'all':
+        for result in all_client_results:
+            print('***************** COMMON *******************', json.dumps(result, indent=4))
+            result_with_name.append(result)
+
+
+    # Paginate the results
+    paginator = Paginator(result_with_name, 50)  # Show 10 results per page
+    print('***************** paginator.count *******************', paginator.count)
+    print('***************** paginator.num_pages *******************', paginator.num_pages)
+
+    page_number = request.GET.get('page')
+    try:
+        paginated_results = paginator.page(page_number)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        paginated_results = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        paginated_results = paginator.page(paginator.num_pages)
+
+
+    # all_delivery_methods = get_all_delivery_methods(request, secret, name)
+    # print('*********************** all_delivery_methods **********************', all_delivery_methods)
+
+    context = {
+        'all_results': paginated_results, #sorted_results = sorted(all_results["checkoutForms"], key=lambda x: x["payment"]["finishedAt"])
+        "name": name,
+        # "deliveryMethods": all_delivery_methods,
+    }
+    # print('*********************** len all_results **********************', len(paginated_results))
+    return render(request, 'get_all_orders_test.html', context)
+
+
+def get_orders_by_client(request, name, delivery, status, client):
+
+    print('*********************** delivery **********************', delivery)
+    print('*********************** status **********************', status)
+
+    all_results = []
+    all_client_results = []
+    result_with_name = []
+
+    secret = Secret.objects.get(account__name=name)
+    # print('*********************** NAME get_orders **********************', secret.account.name)
+
+    try:
+        url = "https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms"
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+        # print('***********************secret.access_token**********************', secret.access_token)
+        product_result = requests.get(url, headers=headers, verify=True)
+        result = product_result.json()
+        result.update({'name': secret.account.name})
+        # print('############### RESULT ###############', result)
+        all_results.append(result)
+        for result in all_results:
+            for res in result["checkoutForms"]:
+                if res["buyer"]["login"] == client:
+                    all_client_results.append(res)
+                    print('############### BUYER ###############', res["buyer"]["login"])
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token, name)
+                    # Retry fetching orders with the new token
+                    return get_orders(request)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    context = {'name': name}
+                    return render(request, 'invalid_token.html', context)
+        # print('*********************** ALL ORDERS IN **********************', json.dumps(result, indent=4))
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+    
+
+    if status == 'all': 
+        for result in all_client_results:
+            pass
+            # print('***************** RESULTS FOR STATUS *******************', json.dumps(result, indent=4))
+    if status == 'all' and delivery != 'all':
+        # print('***************** status != all *******************')
+        for result in all_client_results:
+            # print('***************** RESULTS FOR STATUS *******************', json.dumps(result, indent=4))
+            for res in result["checkoutForms"]:
+                # print('***************** RESULTS FOR STATUS *******************', json.dumps(res, indent=4))
+                if res['delivery']['method']["name"] == delivery:
                     result_with_name.append(res)
             # print('***************** RESULTS FOR STATUS *******************', json.dumps(result, indent=4))
 
 
-    if delivery == 'all': 
-        for result in all_results:
+    if delivery == 'all' and status != 'all': 
+        # print('***************** delivery == all *******************')
+        for result in all_client_results:
             for res in result["checkoutForms"]:
-                result_with_name.append(res)
+                if res['fulfillment']['status'] == status:
+                    result_with_name.append(res)
                 # print('***************** RESULTS FOR PAGINATION *******************', json.dumps(res, indent=4))
         #         if res["fulfillment"]["status"] == 'NEW':
         #             print('***************** ALL RESULTS LOOP *******************', "NEW-tak")
 
-    else:
-        for result in all_results:
+    if delivery != 'all' and status != 'all':
+        # print('YYYYYYYYYYYYYYYYEEEEEEEEEEEEEEEESSSSSSSSSSSSSSSSSSSSs')
+        for result in all_client_results:
+            # print('***************** RESULTS FOR STATUS *******************', json.dumps(result, indent=4))
             for res in result["checkoutForms"]:
-                # print('***************** delivery method *******************', res['id'])
-                if res['delivery']['method']["name"] == delivery:
+                # print('***************** RESULTS FOR STATUS *******************', json.dumps(res, indent=4))
+                if res['fulfillment']['status'] == status and res['delivery']['method']["name"] == delivery:
+                    # print('***************** RESULTS FOR STATUS *******************', json.dumps(res, indent=4))
                     result_with_name.append(res)
+
+    if delivery == 'all' and status == 'all':
+        for result in all_client_results:
+            for res in result["checkoutForms"]:
+                # print('***************** ALL RESULTS LOOP *******************', json.dumps(res, indent=4))
+                result_with_name.append(res)
 
 
     # Paginate the results
