@@ -105,6 +105,14 @@
     color: var(--black);
 }
 
+.fv_o {
+    position: absolute;
+    left: 20%;
+    font-style: bold;
+    text-decoration: none;
+    color: var(--black);
+}
+
 .name_ord {
     display: flex;
     flex-direction: column;

@@ -1,6 +1,6 @@
 from django.urls import include, path
 from .views import *
-from .views_folder import errors_views, orders_views, orders_views_test, offer_views, accounts_views, messages
+from .views_folder import errors_views, orders_views, orders_views_test, offer_views, accounts_views, messages, generate_pdf
 from .ebay.views import *
 
 urlpatterns = [
@@ -42,4 +42,6 @@ urlpatterns = [
 
     path('add_address/<str:name>/', add_address, name='add_address'),
     path('get_address/<str:name>/', get_address, name='get_address'),
+
+    path('get_invoice_file/<str:name>/<str:buyer>/', generate_pdf.get_invoice_file, name='get_invoice_file'),
 ] 

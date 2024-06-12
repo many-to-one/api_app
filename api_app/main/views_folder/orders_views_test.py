@@ -129,9 +129,9 @@ def get_orders(request, name, delivery, status, client):
     if delivery != 'all' and status != 'all' and client != 'all':
         print('@@@@@@@@@@@@@@ here @@@@@@@@@@@@@@@@@@')
         for result in all_client_results:
-            print('@@@@@@@@@@@@@@ here @@@@@@@@@@@@@@@@@@', json.dumps(result, indent=4))
-            if result['fulfillment']['status'] == status and result['delivery']['method']["name"] == delivery and result['fulfillment']['status'] == status:
-                # print('***************** RESULTS FOR STATUS *******************', json.dumps(res, indent=4))
+            # print('@@@@@@@@@@@@@@ here @@@@@@@@@@@@@@@@@@', json.dumps(result, indent=4))
+            if result['fulfillment']['status'] == status and result['delivery']['method']["name"] == delivery and result["buyer"]["login"] == client:
+                print('***************** RESULTS FOR STATUS *******************', status, delivery, client)
                 result_with_name.append(result)
 
     if delivery == 'all' and status == 'all' and client == 'all':
