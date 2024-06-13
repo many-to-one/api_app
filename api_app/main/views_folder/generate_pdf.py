@@ -1,4 +1,6 @@
 import os
+import time
+from ..views import get_next_token
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
 from reportlab.pdfgen import canvas
@@ -9,8 +11,13 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from ..models import *
 from .serializers import *
 from django.http import HttpResponse
+from django.shortcuts import render
 import requests
 import json
+
+import io
+import PyPDF2
+from datetime import datetime
 
 
 
@@ -47,6 +54,8 @@ def get_order_details(request, id, name, secret):
 
 def get_invoice_file(request, name, buyer):
 
+    start_time = time.time()
+
     address = Address.objects.get(name__name=name)
     address_data = AddressSerializer(address).data
     secret = Secret.objects.get(account__name=name) 
@@ -55,19 +64,23 @@ def get_invoice_file(request, name, buyer):
     ids = request.GET.getlist('ids')
     # print('********************** IDS set_shipment_list IDS ****************************', ids)
 
+    separated_ids = []
+    for id_string in ids:
+        separated_ids.extend(id_string.split(','))
+
     results = []
-    for id in ids:
+    for id in separated_ids:
         res = get_order_details(request, id, name, secret)
         results.append(res)
         # print('********************** ORDER DETAILS ****************************', res)
 
-    print('********************** ORDER DETAILS ****************************', results)
+    # print('********************** ORDER DETAILS ****************************', results)
     tasks_ = []
 
     for res in results:
         # print('@@@@@@@@@@@@@ RES  @@@@@@@@@@@@@', res)
         if isinstance(res, (list)):
-            print('@@@@@@@@@@@@@ RES TUPLE @@@@@@@@@@@@@', res)
+            # print('@@@@@@@@@@@@@ RES TUPLE @@@@@@@@@@@@@', res)
             tasks = []
             for i in res:
                 # print('@@@@@@@@@@@@@ I I I  @@@@@@@@@@@@@', i)
@@ -85,16 +98,51 @@ def get_invoice_file(request, name, buyer):
                         if key == "buyer":
                             # print('@@@@@@@@@@@@@ login @@@@@@@@@@@@@', value.get('login'))
                             tasks.append(value.get('login'))
-            # print('@@@@@@@@@@@@@ TASKS @@@@@@@@@@@@@', tasks)
 
             tasks_.append(invoice_template(request, address_data, tasks, secret))
-            # time.sleep(2)
+    if tasks_:
+        response = base64_to_pdf_bulk(tasks_)
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f"********************** FINISH time: {elapsed_time} seconds **********************")
+    return response
 
-            # tasks_.append(tasks)
 
-    # print('@@@@@@@@@@@@@ TASKS @@@@@@@@@@@@@', tasks_)   
-    # return tasks_    
-    return HttpResponse('ok')
+def base64_to_pdf_bulk(base64_data_list):
+
+    pdf_writer = PyPDF2.PdfWriter()
+
+    try:
+        for base64_data in base64_data_list:
+            # print(' @@@@@@@@@@@@@@@@@ INSIDE base64_data @@@@@@@@@@@@@@@@@ ', base64_data)
+            # Decode the Base64 data
+            if base64_data is not None:
+                binary_data = base64_data #base64.b64decode(base64_data)
+                # print(' @@@@@@@@@@@@@@@@@ INSIDE binary_data @@@@@@@@@@@@@@@@@ ', binary_data)
+
+                # Create a PdfReader object
+                pdf_reader = PyPDF2.PdfReader(io.BytesIO(binary_data))
+                # print(' @@@@@@@@@@@@@@@@@ INSIDE pdf_reader @@@@@@@@@@@@@@@@@ ', pdf_reader)
+
+                # Merge each page from the PdfReader object into the PdfWriter object
+                for page_num in range(len(pdf_reader.pages)):
+                    pdf_writer.add_page(pdf_reader.pages[page_num])
+            else:
+                None
+
+        # Create a BytesIO buffer to write the merged PDF
+        output_buffer = io.BytesIO()
+        # print(' @@@@@@@@@@@@@@@@@ INSIDE output_buffer @@@@@@@@@@@@@@@@@ ') #output_buffer
+        pdf_writer.write(output_buffer)
+
+        # Set the appropriate content type for PDF
+        response = HttpResponse(output_buffer.getvalue(), content_type='application/pdf')
+
+        # Optionally, set a filename for the downloaded PDF
+        response['Content-Disposition'] = 'attachment; filename="fv.pdf"'
+        return response
+    except Exception as e:
+        print("Error:", e)
 
 
 def invoice_template(request, seller, invoice, secret):
@@ -102,8 +150,8 @@ def invoice_template(request, seller, invoice, secret):
 
     #iterate invoice!!!
     # for invoice in invoices:
-    print('&&&&&&&&&&&&&&&&&&& seller &&&&&&&&&&&&&&&&&&&&', seller)
-    print('&&&&&&&&&&&&&&&&&&& invoice &&&&&&&&&&&&&&&&&&&&', invoice)
+    # print('&&&&&&&&&&&&&&&&&&& seller &&&&&&&&&&&&&&&&&&&&', seller)
+    # print('&&&&&&&&&&&&&&&&&&& invoice &&&&&&&&&&&&&&&&&&&&', invoice)
     context = {
             'seller': seller,  
             'payment': invoice[0],
@@ -113,13 +161,20 @@ def invoice_template(request, seller, invoice, secret):
         
     # print('&&&&&&&&&&&&&&&&&&& LOGIN &&&&&&&&&&&&&&&&&&&&', invoice[0]) #seller[0]["login"]
 
-    pdf, size = generate_pdf(seller, invoice)
+    pdf = generate_pdf(seller, invoice)
+    return pdf
 
 
 def generate_pdf(seller, invoice):
-    pdf_file_path = os.path.join('invoices', 'myfile.pdf')
-    # Ensure the directory exists
-    os.makedirs(os.path.dirname(pdf_file_path), exist_ok=True)
+
+    now = datetime.now()
+
+    # day = now.day
+    # month = now.month
+    year = now.year
+    formatted_date = now.strftime("%d-%m-%Y")
+
+    buffer = io.BytesIO()
 
     buyer_info = {
         'name': invoice[2]['company']['name'],
@@ -150,7 +205,7 @@ def generate_pdf(seller, invoice):
         for item in invoice[3]
     ]
 
-    c = canvas.Canvas(pdf_file_path, pagesize=A4)
+    c = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
 
     from reportlab.pdfbase.ttfonts import TTFont
@@ -169,7 +224,7 @@ def generate_pdf(seller, invoice):
     # Add title
     c.setFont("DejaVuSans", 10)
     c.drawString(2 * cm, height - 2 * cm, "Faktura")
-    c.drawString(2 * cm, height - 2.5 * cm, "nr: 4/2021")
+    c.drawString(2 * cm, height - 2.5 * cm, f"nr: 4/{year}")
 
     # Add seller info
     c.drawString(2 * cm, height - 4 * cm, "Sprzedawca:")
@@ -187,13 +242,13 @@ def generate_pdf(seller, invoice):
 
     # Tekst z polskimi znakami diakrytycznymi
     import unicodedata
-    text_with_polish_chars = {'text': "Data zakończenia dostawy/usługi: 07-03-2021"}
+    text_with_polish_chars = {'text': f"Data zakończenia dostawy/usługi: {formatted_date}"}
 
     # Normalizacja tekstu
     # normalized_text = unicodedata.normalize('NFKD', text_with_polish_chars).encode('latin-1').decode('utf-8')
 
     # Add invoice details
-    c.drawString(2 * cm, height - 7.5 * cm, "Wystawiona w dniu: 07-03-2021, Warszawa")
+    c.drawString(2 * cm, height - 7.5 * cm, f"Wystawiona w dniu: {formatted_date}, {seller['city']}")
     c.drawString(2 * cm, height - 8 * cm, text_with_polish_chars['text'])
 
     # Table data
@@ -207,7 +262,6 @@ def generate_pdf(seller, invoice):
 
     for i, product in enumerate(products, start=1):
         name = Paragraph(product['offer']['name'], normal_style) 
-        # name = Paragraph(product['offer']['name'])
         quantity = product['quantity']
         price_netto = float(product['price']['amount'])
         value_netto = price_netto * quantity
@@ -244,7 +298,7 @@ def generate_pdf(seller, invoice):
 
     # Add total amount
     c.drawString(2 * cm, height - 17 * cm, f"Razem do zapłaty: {total_brutto:.2f} PLN")
-    c.drawString(2 * cm, height - 17.5 * cm, "Słownie złotych: (jeden tysiąc dziewięćset dziewięćdziesiąt jeden PLN 37/100)")
+    # c.drawString(2 * cm, height - 17.5 * cm, f"Słownie złotych: ({num2words(total_brutto, lang='pl')} PLN 37/100)")
 
     # Signature placeholders
     c.drawString(2 * cm, height - 21 * cm, "_______________________________")
@@ -257,5 +311,7 @@ def generate_pdf(seller, invoice):
     # Save the PDF
     c.save()
 
-    pdf_size = os.path.getsize(pdf_file_path)
-    return pdf_file_path, pdf_size
+    pdf_content = buffer.getvalue()
+    buffer.close()
+    
+    return pdf_content

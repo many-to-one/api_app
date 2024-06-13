@@ -111,6 +111,7 @@ def invoice_template(request, seller, invoice, secret):
             pdf_id = put_attachment_id(attachment_id, pdf, secret)
 
             if pdf_id:
+                print('&&&&&&&&&&&&&&&&&&& pdf_id &&&&&&&&&&&&&&&&&&&&', pdf_id)
                 send_message(attachment_id, secret, invoice[0])
 
 
@@ -144,10 +145,20 @@ from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from datetime import datetime
 
 def generate_pdf(seller, invoice):
+
+    # buffer = io.BytesIO()
+
+    now = datetime.now()
+
+    # day = now.day
+    # month = now.month
+    year = now.year
+    formatted_date = now.strftime("%d-%m-%Y")
+
     pdf_file_path = os.path.join('invoices', 'myfile.pdf')
-    # Ensure the directory exists
     os.makedirs(os.path.dirname(pdf_file_path), exist_ok=True)
 
     buyer_info = {
@@ -198,7 +209,7 @@ def generate_pdf(seller, invoice):
     # Add title
     c.setFont("DejaVuSans", 10)
     c.drawString(2 * cm, height - 2 * cm, "Faktura")
-    c.drawString(2 * cm, height - 2.5 * cm, "nr: 4/2021")
+    c.drawString(2 * cm, height - 2.5 * cm, f"nr: 4/{year}")
 
     # Add seller info
     c.drawString(2 * cm, height - 4 * cm, "Sprzedawca:")
@@ -216,13 +227,13 @@ def generate_pdf(seller, invoice):
 
     # Tekst z polskimi znakami diakrytycznymi
     import unicodedata
-    text_with_polish_chars = {'text': "Data zakończenia dostawy/usługi: 07-03-2021"}
+    text_with_polish_chars = {'text': f"Data zakończenia dostawy/usługi: {formatted_date}"}
 
     # Normalizacja tekstu
     # normalized_text = unicodedata.normalize('NFKD', text_with_polish_chars).encode('latin-1').decode('utf-8')
 
     # Add invoice details
-    c.drawString(2 * cm, height - 7.5 * cm, "Wystawiona w dniu: 07-03-2021, Warszawa")
+    c.drawString(2 * cm, height - 7.5 * cm, f"Wystawiona w dniu: {formatted_date}, {seller['city']}")
     c.drawString(2 * cm, height - 8 * cm, text_with_polish_chars['text'])
 
     # Table data
@@ -273,7 +284,7 @@ def generate_pdf(seller, invoice):
 
     # Add total amount
     c.drawString(2 * cm, height - 17 * cm, f"Razem do zapłaty: {total_brutto:.2f} PLN")
-    c.drawString(2 * cm, height - 17.5 * cm, "Słownie złotych: (jeden tysiąc dziewięćset dziewięćdziesiąt jeden PLN 37/100)")
+    # c.drawString(2 * cm, height - 17.5 * cm, f"Słownie złotych: ({num2words(total_brutto, lang='pl')} PLN 37/100)")
 
     # Signature placeholders
     c.drawString(2 * cm, height - 21 * cm, "_______________________________")
@@ -288,6 +299,12 @@ def generate_pdf(seller, invoice):
 
     pdf_size = os.path.getsize(pdf_file_path)
     return pdf_file_path, pdf_size
+
+    # pdf_content = buffer.getvalue()
+    # size = len(pdf_content)
+    # buffer.close()
+
+    # return pdf_content, size
 
 
 

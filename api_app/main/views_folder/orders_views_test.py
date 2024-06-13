@@ -857,14 +857,6 @@ async def get_shipment_status_id(request, name):
     ]
 
     labels = await asyncio.gather(*tasks)
-        # return labels
-
-    # if any(label is not None for label in labels):
-    #     print('@@@@@@@@@@@@@@@@@@ LABELS @@@@@@@@@@@@@@@@@@@@') #labels
-    #     end_time = time.time()
-    #     elapsed_time = end_time - start_time
-    #     print(f"********************** FINISH time: {elapsed_time} seconds **********************")
-    #     return await base64_to_pdf_bulk(labels)
 
     end_time = time.time()
     elapsed_time = end_time - start_time
@@ -1168,6 +1160,6 @@ def get_shipment_status(request, commandId, secret):
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
     
-    return HttpResponse('ok')
+    # return HttpResponse('ok')
 
 
