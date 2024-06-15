@@ -87,7 +87,7 @@
                     </div>
                 </a>
 
-                <a onclick="getOffer('{{ offer.id }}')">
+                <a id="dscr_{{ offer.id }}_{{ forloop.counter }}" onclick="getDescr('{{ offer.id }}', '{{ forloop.counter }}')">
                     <img class="icon" src="{% static 'icons/enter.png' %}" alt="">
                 </a>
             </div>
@@ -126,6 +126,24 @@
                 }
             }
             return cookieValue;
+        }
+
+
+        function getDescr(offerId, counter) {
+
+            console.log('getDescr - lister, ean, counter', lister, counter);
+
+            var csrftoken = getCookie('csrftoken');
+
+            var url = `/get_description/${offerId}/${lister}`;
+            window.location.href = url;
+
+            // axios.post('/get_description/' + offerId + '/', { lister: lister }, {
+            //     headers: {
+            //             'X-CSRFToken': csrftoken
+            //         }
+            // })
+
         }
         
 

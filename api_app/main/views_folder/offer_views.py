@@ -1,8 +1,9 @@
-import json
+import csv
+import io
+import json, requests
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from ..utils import *
-import requests
 from ..models import *
 
 
@@ -114,6 +115,107 @@ def get_one_offer(request, id):
         raise SystemExit(err)
     
 
+def get_description(request, id, lister):
+
+    # data = json.loads(request.body.decode('utf-8'))
+    # lister = data.get('lister')
+
+    secret = Secret.objects.get(account__name=lister)
+
+    print(f"************ get_description ************ {lister}, {secret}")
+
+    csv_resp = None
+
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+        product_result = requests.get(url, headers=headers, verify=True)
+        result = product_result.json()
+        # Headers of the response
+        # print(" ************* Headers of the response: *************", product_result.headers)
+        # print('RESULT @@@@@@@@@', result)
+        if 'errors' in result:
+            # Handle errors in the response
+            errors = result['errors']
+            print(f"************ ERROR MESSAGE IN ERRORS ************ {errors}")
+            for error in errors:
+                code = error.get('code')
+                message = error.get('message')
+                # print(f"************ ERROR MESSAGE IN ERRORS ************ {code}: {message}")
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token)
+                    # Retry fetching orders with the new token
+                    return get_one_offer(request, id)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    return redirect('invalid_token')
+        # print('RESULT - post_new_offer - @@@@@@@@@', json.dumps(result, indent=4))
+
+        csv_content = create_csv(result)
+        # Create a response object and set the appropriate headers for CSV
+        response = HttpResponse(csv_content, content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="output.csv"'
+        return response
+    
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+    
+
+
+def create_csv(json_data):
+
+    ########### SAVE FILE IN THE APP LOGIC ###############
+    # Specify the CSV file name
+    # csv_file_name = "output.csv"
+
+    # # Open the CSV file in write mode
+    # with open(csv_file_name, 'w', newline='') as csv_file:
+
+    #     csv_writer = csv.writer(csv_file)
+
+    #     headers = json_data.keys()
+    #     # print('+++++++++ headers ++++++++', headers)
+    #     csv_writer.writerow(headers)
+
+    #     rows = json_data.values()
+    #     # print('+++++++++ headers ++++++++', rows)
+    #     csv_writer.writerow(rows)
+    #######################################################
+
+    #######################################################
+    ########### OPEN FILE IN THE BROWSER LOGIC ############
+    # Create an in-memory file-like object
+    output = io.StringIO()
+    
+    # Create a CSV writer object
+    csv_writer = csv.writer(output)
+
+    # Write headers
+    headers = json_data.keys()
+    csv_writer.writerow(headers)
+
+    # Write rows
+    rows = json_data.values()
+    csv_writer.writerow(rows)
+    
+    # Get the CSV content
+    csv_content = output.getvalue()
+
+    print('@@@@@@@@@@@ csv @@@@@@@@@@@@@', csv_content)
+    
+    # Close the in-memory file
+    output.close()
+    
+    return csv_content
+
+
+
+
 def post_new_offer(request, id):
 
     data = json.loads(request.body.decode('utf-8'))
@@ -121,9 +223,9 @@ def post_new_offer(request, id):
     lister = data.get('lister')
     ean = data.get('ean')
 
-    print('************** name **************', name)
-    print('************** lister **************', lister)
-    print('************** ean **************', ean)
+    # print('************** name **************', name)
+    # print('************** lister **************', lister)
+    # print('************** ean **************', ean)
 
     account = Allegro.objects.get(name=name)
     secret = Secret.objects.get(account=account)
@@ -141,8 +243,8 @@ def post_new_offer(request, id):
         product_result = requests.get(url, headers=headers, verify=True)
         result = product_result.json()
         # Headers of the response
-        print(" ************* Headers of the response: *************", product_result.headers)
-        print('RESULT @@@@@@@@@', result)
+        # print(" ************* Headers of the response: *************", product_result.headers)
+        # print('RESULT @@@@@@@@@', result)
         if 'errors' in result:
             # Handle errors in the response
             errors = result['errors']
@@ -197,7 +299,7 @@ def post_product_from_lister(request, secret, ean, post_data):
     # account = Allegro.objects.get(user=request.user)
     # secret = Secret.objects.get(account=account)
 
-    # print('************** post_data **************', post_data)
+    print('************** POST DATA **************', post_data)
     # print('************** ean **************', ean)
 
     if "delivery" in post_data:
@@ -254,7 +356,7 @@ def post_product_from_lister(request, secret, ean, post_data):
         del afterSalesServices["returnPolicy"]["id"]
         # print('************** afterSalesServices **************', afterSalesServices)
 
-    print('************** POST DATA **************', json.dumps(post_data["productSet"], indent=4))
+    print('************** POST DATA **************', json.dumps(post_data, indent=4))
 
     data = {
     'name': name,

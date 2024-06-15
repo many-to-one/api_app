@@ -104,7 +104,7 @@ def get_invoice_file(request, name, buyer):
         response = base64_to_pdf_bulk(tasks_)
     end_time = time.time()
     elapsed_time = end_time - start_time
-    print(f"********************** FINISH time: {elapsed_time} seconds **********************")
+    # print(f"********************** FINISH time: {elapsed_time} seconds **********************")
     return response
 
 
@@ -146,10 +146,7 @@ def base64_to_pdf_bulk(base64_data_list):
 
 
 def invoice_template(request, seller, invoice, secret):
-    # print('******************* invoice_template ******************',seller, invoice)
 
-    #iterate invoice!!!
-    # for invoice in invoices:
     # print('&&&&&&&&&&&&&&&&&&& seller &&&&&&&&&&&&&&&&&&&&', seller)
     # print('&&&&&&&&&&&&&&&&&&& invoice &&&&&&&&&&&&&&&&&&&&', invoice)
     context = {
