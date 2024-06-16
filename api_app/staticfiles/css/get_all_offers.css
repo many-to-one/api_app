@@ -71,6 +71,13 @@
     left: 81%;
 }
 
+.csv_h {
+    width: 6vw;
+    position: absolute;
+    left: 88%;
+    cursor: pointer;
+}
+
 .details_h {
     position: absolute;
     left: 95.5%;

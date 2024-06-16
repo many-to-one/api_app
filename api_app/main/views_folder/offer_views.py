@@ -117,14 +117,9 @@ def get_one_offer(request, id):
 
 def get_description(request, id, lister):
 
-    # data = json.loads(request.body.decode('utf-8'))
-    # lister = data.get('lister')
-
     secret = Secret.objects.get(account__name=lister)
 
-    print(f"************ get_description ************ {lister}, {secret}")
-
-    csv_resp = None
+    # print(f"************ get_description ************ {lister}, {secret}")
 
     try:
         url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
@@ -154,10 +149,9 @@ def get_description(request, id, lister):
                 except Exception as e:
                     print('Exception @@@@@@@@@', e)
                     return redirect('invalid_token')
-        # print('RESULT - post_new_offer - @@@@@@@@@', json.dumps(result, indent=4))
+        print('RESULT - get_description - @@@@@@@@@', json.dumps(result, indent=4))
 
         csv_content = create_csv(result)
-        # Create a response object and set the appropriate headers for CSV
         response = HttpResponse(csv_content, content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="output.csv"'
         return response
@@ -185,28 +179,21 @@ def create_csv(json_data):
     #     rows = json_data.values()
     #     # print('+++++++++ headers ++++++++', rows)
     #     csv_writer.writerow(rows)
-    #######################################################
+    #######################################################    
 
     #######################################################
     ########### OPEN FILE IN THE BROWSER LOGIC ############
     # Create an in-memory file-like object
     output = io.StringIO()
-    
-    # Create a CSV writer object
-    csv_writer = csv.writer(output)
 
-    # Write headers
-    headers = json_data.keys()
-    csv_writer.writerow(headers)
+    csv_writer = csv.DictWriter(output, fieldnames=json_data.keys())
+        
+    # Write the header
+    csv_writer.writeheader()
 
-    # Write rows
-    rows = json_data.values()
-    csv_writer.writerow(rows)
-    
-    # Get the CSV content
+    # Write the single row
+    csv_writer.writerow(json_data)
     csv_content = output.getvalue()
-
-    print('@@@@@@@@@@@ csv @@@@@@@@@@@@@', csv_content)
     
     # Close the in-memory file
     output.close()
@@ -560,3 +547,91 @@ def edit_offer_stock(request, id):
             )
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
+    
+
+
+def edit_offers_csv(request, name):
+
+    print(' ##################### edit_offers_csv ##################### ', name)
+
+    secret = Secret.objects.get(account__name=name)
+
+    if request.method == 'POST':
+        # Check if the file is in the request
+        if 'file' in request.FILES:
+            csv_file = request.FILES['file']
+            
+            # Ensure it's a CSV file
+            if not csv_file.name.endswith('.csv'):
+                return HttpResponse('This is not a CSV file')
+            
+            # Read and decode the CSV file
+            data_set = csv_file.read().decode('UTF-8')
+            io_string = io.StringIO(data_set)
+            csv_reader = csv.DictReader(io_string)  # Use DictReader for automatic header handling
+
+            csv_data = list(csv_reader)
+            
+            # Convert CSV rows to a list of dictionaries
+            json_data_ = json.dumps(csv_data, ensure_ascii=False, indent=4)
+            print(' ##################### json_data_ ##################### ', json_data_)
+            
+            # Convert the list of dictionaries to a JSON string
+            json_data = json.loads(json_data_)
+
+            edit_product(request, name, json_data)
+            
+            # Return JSON response
+            return HttpResponse(json_data, content_type='application/json')
+        else:
+            return HttpResponse('No file uploaded', status=400)
+    else:
+        # Render the upload form if not POST request
+        # return render(request, 'your_template.html')
+        return HttpResponse('Something wents wrong...')
+    
+import ast
+def edit_product(request, secret, json_data):
+
+    print(' ##################### type ##################### ', type(json_data))
+    print(' ##################### ID ##################### ', json_data[0]['productSet']) #[0]['productSet']
+    json_id = json_data[0]['productSet']
+    id = ast.literal_eval(json_id)
+    print(' ##################### ID liter ##################### ', id[0]['product']['id'])  #['product']['id']
+
+    # return HttpResponse(json_data)
+
+    try:
+        print(' ##################### try ok ##################### ', id[0]['product']['id'])
+        url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id[0]['product']['id']}"
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+        product_result = requests.patch(url, headers=headers, verify=True)
+        result = product_result.json()
+        # Headers of the response
+        print(" ************* Headers of the response: *************", product_result.headers)
+        print(" ************* response body: *************", product_result.body)
+        print(" ************* response: *************", product_result)
+        print('RESULT @@@@@@@@@', result)
+        if 'errors' in result:
+            # Handle errors in the response
+            errors = result['errors']
+            print(f"************ ERROR MESSAGE IN ERRORS ************ {errors}")
+            for error in errors:
+                code = error.get('code')
+                message = error.get('message')
+                # print(f"************ ERROR MESSAGE IN ERRORS ************ {code}: {message}")
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token)
+                    # Retry fetching orders with the new token
+                    return get_one_offer(request, id)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    return redirect('invalid_token')
+        print('RESULT - get_description - @@@@@@@@@', json.dumps(result, indent=4))
+    except Exception as err:
+        return HttpResponse(err)

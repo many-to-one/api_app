@@ -34,6 +34,7 @@ urlpatterns = [
     path('post_new_offer/<str:id>/', offer_views.post_new_offer, name='post_new_offer'),
     path('get_ean/', offer_views.get_ean, name='get_ean'),
     path('get_description/<str:id>/<str:lister>/', offer_views.get_description, name='get_description'),
+    path('edit_offers_csv/<str:name>/', offer_views.edit_offers_csv, name='edit_offers_csv'),
 
     path('all_messages/<str:name>/', messages.all_messages, name='all_messages'),
     path('get_one_message/', messages.get_one_message, name='get_one_message'),

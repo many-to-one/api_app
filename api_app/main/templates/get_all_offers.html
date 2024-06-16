@@ -38,6 +38,11 @@
             <p class="sale_h">Sprzedaż</p>
             <p class="account_h">Konto</p>
             <p class="post_h">Wystawić produkt</p>
+            <form class="csv_h" action="{% url 'edit_offers_csv' name %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="file" placeholder="csv">CSV</input>
+                <button >Upload</button>
+            </form>
         </div>
 
         <div class="list__header_orders_media">
@@ -47,6 +52,15 @@
         {% for offer in result.offers %}
 
             <div class="offers__line">
+                <input 
+                        class="labels" 
+                        type="checkbox" 
+                        name="selected_items" 
+                        data-fulfillment-status="{{ order.fulfillment.status }}"
+                        data-order-data="{{ order.id }}"
+                        value="{{ order.id }}:{{ name }}:{{ order.delivery.method.name }}:{{ order.lineItems.0.offer.id }}@"
+                        
+                    >
                 <img class="photo" src="{{offer.primaryImage.url}}" alt="">
                 <p class="name">{{ offer.name }}</p>
                 <p>
