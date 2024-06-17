@@ -504,6 +504,7 @@ def edit_offer_stock(request, id):
 
     account = Allegro.objects.get(name=name)
     secret = Secret.objects.get(account=account)
+
     print('**************secret_access_token**************', secret.access_token)
     patch_data = {
         "stock": {
@@ -518,10 +519,10 @@ def edit_offer_stock(request, id):
         url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
         # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
         headers = {
-        'Authorization': f'Bearer {secret.access_token}',
-        'Accept': 'application/vnd.allegro.public.v1+json',
-        'Content-Type': 'application/vnd.allegro.public.v1+json'
-    }
+            'Authorization': f'Bearer {secret.access_token}',
+            'Accept': 'application/vnd.allegro.public.v1+json',
+            'Content-Type': 'application/vnd.allegro.public.v1+json'
+        }
         product_result = requests.patch(url, headers=headers, json=patch_data)
         result = product_result.json()
         if 'error' in result:
@@ -578,11 +579,16 @@ def edit_offers_csv(request, name):
             
             # Convert the list of dictionaries to a JSON string
             json_data = json.loads(json_data_)
+            print(' ##################### @ json_data @ ##################### ', json_data)
 
-            edit_product(request, name, json_data)
+        
+            # json.dumps(data, indent=4) logic
+
+            res = edit_product(request, secret, json_data)
+            return HttpResponse(res)
             
             # Return JSON response
-            return HttpResponse(json_data, content_type='application/json')
+            # return HttpResponse(json_data, content_type='application/json')
         else:
             return HttpResponse('No file uploaded', status=400)
     else:
@@ -593,23 +599,32 @@ def edit_offers_csv(request, name):
 import ast
 def edit_product(request, secret, json_data):
 
-    print(' ##################### type ##################### ', type(json_data))
-    print(' ##################### ID ##################### ', json_data[0]['productSet']) #[0]['productSet']
+    print(' ##################### type ##################### ', type(json_data[0]))
+    print(' ##################### secret ##################### ', secret.access_token) #[0]['productSet']
     json_id = json_data[0]['productSet']
     id = ast.literal_eval(json_id)
     print(' ##################### ID liter ##################### ', id[0]['product']['id'])  #['product']['id']
 
-    # return HttpResponse(json_data)
+    # edit_offer_stock(request, json_data[0]['id'], json_data)
+    return edit_edit(request, secret, json_data)
+
+def edit_edit(request, secret, json_data):
 
     try:
-        print(' ##################### try ok ##################### ', id[0]['product']['id'])
-        url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id[0]['product']['id']}"
-        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-        product_result = requests.patch(url, headers=headers, verify=True)
+        print(' ##################### try ok ##################### ', json_data)
+        url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{json_data[0]['id']}"
+        # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
+        headers = {
+            'Authorization': f'Bearer {secret.access_token}',
+            'Accept': 'application/vnd.allegro.public.v1+json',
+            'Content-Type': 'application/vnd.allegro.public.v1+json'
+        }
+        product_result = requests.patch(url, headers=headers, json=json_data)
         result = product_result.json()
+
         # Headers of the response
         print(" ************* Headers of the response: *************", product_result.headers)
-        print(" ************* response body: *************", product_result.body)
+        # print(" ************* response body: *************", product_result.body)
         print(" ************* response: *************", product_result)
         print('RESULT @@@@@@@@@', result)
         if 'errors' in result:
@@ -632,6 +647,16 @@ def edit_product(request, secret, json_data):
                 except Exception as e:
                     print('Exception @@@@@@@@@', e)
                     return redirect('invalid_token')
-        print('RESULT - get_description - @@@@@@@@@', json.dumps(result, indent=4))
-    except Exception as err:
-        return HttpResponse(err)
+        print('RESULT - edit_edit - @@@@@@@@@', json.dumps(result, indent=4))
+        return HttpResponse(
+                {
+                    'message': 'offer edited successfuly',
+                    # 'newValue': result.staus,
+                    'result': result,
+                }, 
+                status=200,
+            )
+    # except Exception as err:
+    #     return HttpResponse({'HttpResponse Exception @@@@@@@@@': err})
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
