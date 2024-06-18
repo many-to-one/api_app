@@ -550,6 +550,51 @@ def edit_offer_stock(request, id):
         raise SystemExit(err)
     
 
+def process_uploaded_csv(csv_file):
+    # Ensure it's a CSV file
+    if not csv_file.name.endswith('.csv'):
+        return HttpResponse('This is not a CSV file')
+
+    # Read and decode the CSV file
+    data_set = csv_file.read().decode('UTF-8')
+    print(' ##################### data_set ##################### ', data_set)
+    io_string = io.StringIO(data_set)
+    
+    # Use DictReader with specific delimiter
+    csv_reader = csv.DictReader(io_string, delimiter=',')  # Specify your consistent delimiter here
+
+    # Convert CSV rows to a list of dictionaries
+    csv_data = list(csv_reader)
+    
+    # Process each row to handle nested JSON fields
+    for row in csv_data:
+        for key, value in row.items():
+            if isinstance(value, str) and (value.startswith('{') or value.startswith('[')):
+                try:
+                    # Try to parse JSON-like strings
+                    row[key] = json.loads(value.replace("'", '"'))
+                except json.JSONDecodeError:
+                    pass  # If parsing fails, keep the original string
+
+    # Convert the processed data to a JSON string
+    json_data_ = json.dumps(csv_data, ensure_ascii=False, indent=4)
+    print(' ##################### json_data_ ##################### ', json_data_)
+    
+    # Convert the JSON string back to a Python object
+    json_data = json.loads(json_data_)
+    print(' ##################### @ json_data @ ##################### ', json_data)
+
+    return json_data
+
+
+    
+class MockFile:
+    def __init__(self, name, content):
+        self.name = name
+        self.content = content
+    
+    def read(self):
+        return self.content
 
 def edit_offers_csv(request, name):
 
@@ -576,9 +621,13 @@ def edit_offers_csv(request, name):
             # Convert CSV rows to a list of dictionaries
             json_data_ = json.dumps(csv_data, ensure_ascii=False, indent=4)
             print(' ##################### json_data_ ##################### ', json_data_)
+            mock_file = MockFile(name='example.csv', content=json_data_.encode('utf-8'))
+            # print(' ##################### mock_file ##################### ', mock_file)
+            processed_json = process_uploaded_csv(mock_file)
             
             # Convert the list of dictionaries to a JSON string
             json_data = json.loads(json_data_)
+            # json_data = json.dumps(processed_json, ensure_ascii=False, indent=4)
             print(' ##################### @ json_data @ ##################### ', json_data)
 
         
@@ -599,6 +648,10 @@ def edit_offers_csv(request, name):
 import ast
 def edit_product(request, secret, json_data):
 
+    # json_data_plus = json_data[0]
+    # jsnd = ast.literal_eval(json_data_plus)
+    # print(' ##################### jsnd ##################### ', jsnd)
+
     print(' ##################### type ##################### ', type(json_data[0]))
     print(' ##################### secret ##################### ', secret.access_token) #[0]['productSet']
     json_id = json_data[0]['productSet']
@@ -610,8 +663,55 @@ def edit_product(request, secret, json_data):
 
 def edit_edit(request, secret, json_data):
 
+    productSet = json_data[0]['productSet']
+    product_id = ast.literal_eval(productSet)
+
+    category = json_data[0]['category']
+    category_id = ast.literal_eval(category)
+
+    stock = json_data[0]['stock']
+    stock_available = ast.literal_eval(stock)
+
+    publication = json_data[0]['publication']
+    publication_data = ast.literal_eval(publication)
+
+    additionalMarketplaces = json_data[0]['additionalMarketplaces']
+    additionalMarketplaces_data = ast.literal_eval(additionalMarketplaces)
+
+    discounts = json_data[0]['discounts']
+    discounts_data = ast.literal_eval(discounts)
+
+    sellingMode = json_data[0]['sellingMode']
+    sellingMode_data = ast.literal_eval(sellingMode)
+
+    location = json_data[0]['location']
+    location_data = ast.literal_eval(location)
+
+    images = json_data[0]['images']
+    images_data = ast.literal_eval(images)
+
+    description = json_data[0]['description']
+    description_data = ast.literal_eval(description)
+
+    tax = json_data[0]['tax']
+    tax_data = ast.literal_eval(tax)
+
+    taxSettings = json_data[0]['taxSettings']
+    taxSettings_data = ast.literal_eval(taxSettings)
+
+    # category = json_data[0]['category']
+    # json_compatible_str = category.replace("'", '"')
+    # parsed_dict = json.loads(json_compatible_str)
+    # category_id = parsed_dict['id']
+
+    # stock = json_data[0]['stock']
+    # stock_str = stock.replace("'", '"')
+    # stock_dict = json.loads(stock_str)
+    # stock_available = stock_dict['available']
+
     try:
-        print(' ##################### try ok ##################### ', json_data)
+        print(' ##################### category_id ##################### ', category_id)
+        print(' ##################### stock_available ##################### ', stock_available['available'])
         url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{json_data[0]['id']}"
         # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
         headers = {
@@ -619,7 +719,202 @@ def edit_edit(request, secret, json_data):
             'Accept': 'application/vnd.allegro.public.v1+json',
             'Content-Type': 'application/vnd.allegro.public.v1+json'
         }
-        product_result = requests.patch(url, headers=headers, json=json_data)
+        edit_data = {
+  "productSet": [
+    {
+      "product": {
+        "name": json_data[0]['name'],
+        "category": category_id,
+        "id": product_id[0]['product']['id'],
+        "idType": "GTIN",
+        # "parameters": json_data[0]['parameters'],
+        # "images": json_data[0]['images']
+      },
+    #   "quantity": {
+    #     "value": stock_available['available']
+    #   },
+    #   "responsiblePerson": {
+    #     "id": "string",
+    #     "name": "string"
+    #   }
+    }
+  ],
+#   "b2b": json_data[0]['b2b'],
+#   "b2b": {
+#     "buyableOnlyByBusiness": false
+#   },
+#   "attachments": [
+#     {
+#       "id": "string"
+#     }
+#   ],
+#   "fundraisingCampaign": {
+#     "id": "string",
+#     "name": "string"
+#   },
+# "additionalServices": json_data[0]['additionalServices'],
+#   "additionalServices": {
+#     "id": "string",
+#     "name": "string"
+#   },
+#   "compatibilityList": {
+#     "items": [
+#       {
+#         "type": "TEXT",
+#         "text": "CITROËN C6 (TD_) 2005/09-2011/12 2.7 HDi 204KM/150kW"
+#       }
+#     ]
+#   },
+#   "delivery": {
+#     "handlingTime": "PT24H",
+#     # "shippingRates": null,
+#     "additionalInfo": "string",
+#     "shipmentDate": "2019-08-24T14:15:22Z"
+#   },
+  "stock": stock_available,
+  "publication":publication_data,
+#   "publication": {
+#     "duration": "PT24H",
+#     "endingAt": "2031-01-04T11:01:59Z",
+#     "startingAt": "2031-01-04T11:01:59Z",
+#     "status": "INACTIVE",
+#     "endedBy": "USER",
+#     "republish": false,
+#     "marketplaces": {}
+#   },
+  "additionalMarketplaces": additionalMarketplaces_data,
+#   "additionalMarketplaces": {
+#     "allegro-cz": {
+#       "sellingMode": {
+#         "price": {
+#           "amount": "233.01",
+#           "currency": "CZK"
+#         }
+#       }
+#     }
+#   },
+#   "language": "pl-PL",
+#   "category": {
+#     "id": "257931"
+#   },
+#   "parameters": [
+#     {
+#       "id": "string",
+#       "name": "string",
+#       "rangeValue": {
+#         "from": "string",
+#         "to": "string"
+#       },
+#       "values": [
+#         "string"
+#       ],
+#       "valuesIds": [
+#         "string"
+#       ]
+#     }
+#   ],
+#   "afterSalesServices": json_data[0]['afterSalesServices'],
+#   "afterSalesServices": {
+#     "impliedWarranty": {
+#       "id": "09f0b4cc-7880-11e9-8f9e-2a86e4085a59",
+#       "name": "string"
+#     },
+#     "returnPolicy": {
+#       "id": "09f0b4cc-7880-11e9-8f9e-2a86e4085a59",
+#       "name": "string"
+#     },
+#     "warranty": {
+#       "id": "09f0b4cc-7880-11e9-8f9e-2a86e4085a59",
+#       "name": "string"
+#     }
+#   },
+#   "sizeTable": {
+#     "id": "string",
+#     "name": "string"
+#   },
+#   "contact": json_data[0]['contact'], bo ""
+#   "contact": {
+#     "id": "string",
+#     "name": "string"
+#   },
+  "discounts": discounts_data,
+#   "discounts": {
+#     "wholesalePriceList": {
+#       "id": "string",
+#       "name": "string"
+#     }
+#   },
+#   "name": "string",
+#   "payments": {
+#     "invoice": "VAT"
+#   },
+  "sellingMode": sellingMode_data,
+#   "sellingMode": {
+#     "format": "BUY_NOW",
+#     "price": {
+#       "amount": "123.45",
+#       "currency": "PLN"
+#     },
+#     "minimalPrice": {
+#       "amount": "123.45",
+#       "currency": "PLN"
+#     },
+#     "startingPrice": {
+#       "amount": "123.45",
+#       "currency": "PLN"
+#     }
+#   },
+"location": location_data,
+#   "location": {
+#     "city": "string",
+#     "countryCode": "PL",
+#     "postCode": "00-999",
+#     "province": "string"
+#   },
+"images": images_data,
+#   "images": [
+#     "string"
+#   ],
+  "description": description_data,
+#   "description": {
+#     "sections": [
+#       {
+#         "items": [
+#           {
+#             "type": "string"
+#           }
+#         ]
+#       }
+#     ]
+#   },
+#   "external": {
+#     "id": "AH-129834"
+#   },
+  "tax": tax_data,
+#   "tax": {
+#     "id": "ae727432-8b72-4bfe-b732-6f163a2bf32a",
+#     "rate": "23.00",
+#     "subject": "GOODS",
+#     "exemption": "MONEY_EQUIVALENT",
+#     "percentage": "23.00"
+#   },
+"taxSettings": taxSettings_data,
+#   "taxSettings": {
+#     "rates": [
+#       {
+#         "rate": "23.00",
+#         "countryCode": "PL"
+#       }
+#     ],
+#     "subject": "GOODS",
+#     "exemption": "MONEY_EQUIVALENT"
+#   },
+#   "messageToSellerSettings": {
+#     "mode": "OPTIONAL",
+#     "hint": "string"
+#   }
+}
+        product_result = requests.patch(url, headers=headers, json=edit_data)
         result = product_result.json()
 
         # Headers of the response
