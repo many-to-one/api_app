@@ -664,6 +664,7 @@ async def set_shipment_list_q(results, secret):
                     for line_item in order_data[0]['lineItems']:
                         externalId.add(f"{line_item['offer']['external']['id']} x {line_item['quantity']}")
                     external_id = ', '.join(sorted(externalId))
+                    # print('********************** external_id ****************************', external_id)
                     tasks.append(asyncio.create_task(
                         test(
                             secret, 
@@ -674,6 +675,7 @@ async def set_shipment_list_q(results, secret):
                             order_data[2],
                         )
                     ))
+                    externalId = set()
 
     
 

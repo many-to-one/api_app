@@ -200,7 +200,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
 
-    <!-- <script>
+    <script>
 
         document.addEventListener('DOMContentLoaded', (event) => {
             var defaultOption = "all";  // Set your default option value here
@@ -226,34 +226,8 @@
             });
         });
 
-    </script>
+    </script> 
 
-<script>
-    document.addEventListener('DOMContentLoaded', (event) => {
-        var defaultOption = "all";  // Set your default option value here
-        var selectElement = document.getElementById('status_select');
-        
-        selectElement.value = defaultOption;
-    });
-
-    document.getElementById('check-all-button').addEventListener('click', function() {
-        // Select all checkboxes with the name 'selected_items'
-        var checkboxes = document.querySelectorAll('input[name="selected_items"]');
-        
-        // Loop through each checkbox
-        checkboxes.forEach(function(checkbox) {
-            // Check only if the fulfillment status is 'NEW' and it is currently unchecked
-            if (checkbox.dataset.fulfillmentStatus === 'NEW' && !checkbox.checked) {
-                checkbox.checked = true;
-                console.log('checkbox', checkbox.value)
-            }
-            else if (checkbox.checked) {
-                checkbox.checked = false;
-            }
-        });
-    });
-
-</script> -->
 
 <script>
     function searchRes() {

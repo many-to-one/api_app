@@ -145,7 +145,7 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr,
                       "email": user['email'],#"8awgqyk6a5+cub31c122@allegrogroup.pl",
                       "phone": user['phone'], #"+48500600700",
                     },
-                    "referenceNumber": external_id,
+                    # "referenceNumber": external_id,
                     "description": external_id,
                     "packages": [
                       {
@@ -249,7 +249,7 @@ async def cash_no_point_order(secret, order_data, external_id, offer_name, descr
                       "email": user['email'],#"8awgqyk6a5+cub31c122@allegrogroup.pl",
                       "phone": user['phone'], #"+48500600700",
                     },
-                    "referenceNumber": external_id,
+                    # "referenceNumber": external_id,
                     "description": external_id,
                     "packages": [
                       {
@@ -353,7 +353,7 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
                       "email": user['email'],#"8awgqyk6a5+cub31c122@allegrogroup.pl",
                       "phone": user['phone'], #"+48500600700",
                     },
-                    "referenceNumber": external_id,
+                    # "referenceNumber": external_id,
                     "description": external_id,
                     "packages": [
                       {
@@ -459,7 +459,7 @@ def nie_pickup_point_order(secret, order_data, external_id, offer_name, descr, c
                     "phone": "+48500600700",
                     # "point": "A1234567"
                   },
-                  "referenceNumber": external_id,
+                  # "referenceNumber": external_id,
                   "description": external_id,
                   "packages": [
                     {

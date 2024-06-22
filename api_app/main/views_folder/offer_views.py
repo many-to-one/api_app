@@ -152,7 +152,7 @@ def get_description(request, id, lister):
         print('RESULT - get_description - @@@@@@@@@', json.dumps(result, indent=4))
 
         csv_content = create_csv(result)
-        response = HttpResponse(csv_content, content_type='text/csv')
+        response = HttpResponse(csv_content, content_type='text/csv; charset=utf-8') #, content="pl"
         response['Content-Disposition'] = 'attachment; filename="output.csv"'
         return response
     
@@ -550,51 +550,51 @@ def edit_offer_stock(request, id):
         raise SystemExit(err)
     
 
-def process_uploaded_csv(csv_file):
-    # Ensure it's a CSV file
-    if not csv_file.name.endswith('.csv'):
-        return HttpResponse('This is not a CSV file')
+# def process_uploaded_csv(csv_file):
+#     # Ensure it's a CSV file
+#     if not csv_file.name.endswith('.csv'):
+#         return HttpResponse('This is not a CSV file')
 
-    # Read and decode the CSV file
-    data_set = csv_file.read().decode('UTF-8')
-    print(' ##################### data_set ##################### ', data_set)
-    io_string = io.StringIO(data_set)
+#     # Read and decode the CSV file
+#     data_set = csv_file.read().decode('UTF-8')
+#     print(' ##################### data_set ##################### ', data_set)
+#     io_string = io.StringIO(data_set)
     
-    # Use DictReader with specific delimiter
-    csv_reader = csv.DictReader(io_string, delimiter=',')  # Specify your consistent delimiter here
+#     # Use DictReader with specific delimiter
+#     csv_reader = csv.DictReader(io_string, delimiter=',')  # Specify your consistent delimiter here
 
-    # Convert CSV rows to a list of dictionaries
-    csv_data = list(csv_reader)
+#     # Convert CSV rows to a list of dictionaries
+#     csv_data = list(csv_reader)
     
-    # Process each row to handle nested JSON fields
-    for row in csv_data:
-        for key, value in row.items():
-            if isinstance(value, str) and (value.startswith('{') or value.startswith('[')):
-                try:
-                    # Try to parse JSON-like strings
-                    row[key] = json.loads(value.replace("'", '"'))
-                except json.JSONDecodeError:
-                    pass  # If parsing fails, keep the original string
+#     # Process each row to handle nested JSON fields
+#     for row in csv_data:
+#         for key, value in row.items():
+#             if isinstance(value, str) and (value.startswith('{') or value.startswith('[')):
+#                 try:
+#                     # Try to parse JSON-like strings
+#                     row[key] = json.loads(value.replace("'", '"'))
+#                 except json.JSONDecodeError:
+#                     pass  # If parsing fails, keep the original string
 
-    # Convert the processed data to a JSON string
-    json_data_ = json.dumps(csv_data, ensure_ascii=False, indent=4)
-    print(' ##################### json_data_ ##################### ', json_data_)
+#     # Convert the processed data to a JSON string
+#     json_data_ = json.dumps(csv_data, ensure_ascii=False, indent=4)
+#     print(' ##################### json_data_ ##################### ', json_data_)
     
-    # Convert the JSON string back to a Python object
-    json_data = json.loads(json_data_)
-    print(' ##################### @ json_data @ ##################### ', json_data)
+#     # Convert the JSON string back to a Python object
+#     json_data = json.loads(json_data_)
+#     print(' ##################### @ json_data @ ##################### ', json_data)
 
-    return json_data
+#     return json_data
 
 
     
-class MockFile:
-    def __init__(self, name, content):
-        self.name = name
-        self.content = content
+# class MockFile:
+#     def __init__(self, name, content):
+#         self.name = name
+#         self.content = content
     
-    def read(self):
-        return self.content
+#     def read(self):
+#         return self.content
 
 def edit_offers_csv(request, name):
 
@@ -613,20 +613,27 @@ def edit_offers_csv(request, name):
             
             # Read and decode the CSV file
             data_set = csv_file.read().decode('UTF-8')
+            print(' ##################### @ data_set @ ##################### ', data_set)
             io_string = io.StringIO(data_set)
-            csv_reader = csv.DictReader(io_string)  # Use DictReader for automatic header handling
+            csv_reader = csv.DictReader(io_string, delimiter=';')  # Use DictReader for automatic header handling
 
-            csv_data = list(csv_reader)
-            
+            # csv_data = list(csv_reader)
+            # data = [row for row in csv_reader]
+            kes_ = []
+            for row in csv_reader:
+                for k,v in row.items():
+                    print(' ##################### @ row k @ ##################### ', k)
+                    print(' ##################### @ row v @ ##################### ', v)
+            json_data = json.dumps(row, ensure_ascii=False, indent=4)
             # Convert CSV rows to a list of dictionaries
-            json_data_ = json.dumps(csv_data, ensure_ascii=False, indent=4)
-            print(' ##################### json_data_ ##################### ', json_data_)
-            mock_file = MockFile(name='example.csv', content=json_data_.encode('utf-8'))
+            # json_data_ = json.dumps(csv_data, ensure_ascii=False, indent=4)
+            # print(' ##################### data_set ##################### ', csv_file)
+            # mock_file = MockFile(name='example.csv', content=json_data_.encode('utf-8'))
             # print(' ##################### mock_file ##################### ', mock_file)
-            processed_json = process_uploaded_csv(mock_file)
+            # processed_json = process_uploaded_csv(mock_file)
             
             # Convert the list of dictionaries to a JSON string
-            json_data = json.loads(json_data_)
+            # json_data = json.dumps(data, ensure_ascii=False, indent=4)
             # json_data = json.dumps(processed_json, ensure_ascii=False, indent=4)
             print(' ##################### @ json_data @ ##################### ', json_data)
 
@@ -648,20 +655,26 @@ def edit_offers_csv(request, name):
 import ast
 def edit_product(request, secret, json_data):
 
-    # json_data_plus = json_data[0]
-    # jsnd = ast.literal_eval(json_data_plus)
-    # print(' ##################### jsnd ##################### ', jsnd)
+    json_data_plus = json_data #json_data[0]
+    jsnd = ast.literal_eval(json_data_plus)
+    print(' ##################### jsnd ##################### ', jsnd)
+    print(' ##################### type jsnd ##################### ', type(jsnd))
 
-    print(' ##################### type ##################### ', type(json_data[0]))
-    print(' ##################### secret ##################### ', secret.access_token) #[0]['productSet']
-    json_id = json_data[0]['productSet']
-    id = ast.literal_eval(json_id)
-    print(' ##################### ID liter ##################### ', id[0]['product']['id'])  #['product']['id']
+    # print(' ##################### type ##################### ', type(json_data[0]))
+    # print(' ##################### secret ##################### ', secret.access_token) #[0]['productSet']
+    # json_id = json_data[0]['productSet']
+    # id = ast.literal_eval(json_id)
+    # print(' ##################### ID liter ##################### ', id[0]['product']['id'])  #['product']['id']
 
     # edit_offer_stock(request, json_data[0]['id'], json_data)
-    return edit_edit(request, secret, json_data)
+    return edit_edit(request, secret, [jsnd])
 
 def edit_edit(request, secret, json_data):
+
+    print(' ##################### type ##################### ', type(json_data))
+
+    # name = json_data[0]['name']
+    # product_name = ast.literal_eval(name)
 
     productSet = json_data[0]['productSet']
     product_id = ast.literal_eval(productSet)
@@ -710,7 +723,7 @@ def edit_edit(request, secret, json_data):
     # stock_available = stock_dict['available']
 
     try:
-        print(' ##################### category_id ##################### ', category_id)
+        print(' ##################### product_name ##################### ', json_data[0]['name'])
         print(' ##################### stock_available ##################### ', stock_available['available'])
         url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{json_data[0]['id']}"
         # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
@@ -723,7 +736,7 @@ def edit_edit(request, secret, json_data):
   "productSet": [
     {
       "product": {
-        "name": json_data[0]['name'],
+        "name": 'Test', #json_data[0]['name'],
         "category": category_id,
         "id": product_id[0]['product']['id'],
         "idType": "GTIN",
@@ -955,3 +968,21 @@ def edit_edit(request, secret, json_data):
     #     return HttpResponse({'HttpResponse Exception @@@@@@@@@': err})
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
+    
+
+# def bulk_edit(request, name, ed_value):
+    
+#     ids = request.GET.getlist('ids')
+    
+#     offers = {}
+#     offers_list = []
+
+#     for id in ids:
+#         id_list = id.split(',')
+#         for id in id_list:
+#             offers['id'] = id
+#             offers_list.append(offers)
+#             # print('********************** IDS bulk_edit IDS ****************************', id)
+#     print('********************** IDS offers IDS ****************************', offers_list)
+#     print('********************** IDS ed_value IDS ****************************', ed_value, name)
+#     return HttpResponse('ok')

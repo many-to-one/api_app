@@ -21,6 +21,7 @@
         Wystąpił błąd, skontaktuj się z właścicielem aplikacji
         <button onclick="closeError()">X</button>
     </div>
+
     
     <div class="offers__cont">
 
@@ -32,6 +33,17 @@
 
         <div class="list__header_orders">
             <p class="print" id="name" value="{{ name }}">{{name}}</p>
+            <select class="edit_h var_select order" id="status_select" onchange="bulkEdit()">
+                <option selected value=" ">Edytuj...</option>
+                <option value="PRICE">Cena</option>
+                <option value="QUANTITY">Ilość</option>
+                <option value="STATUS">Status</option>
+                <option value="DELIVERY_PRICE">Cennik dostawy</option>
+                <option value="DELIVERY_TIME">Czas wysyłki</option>
+                <option value="BULK_PRICE">Cennik hurtowy</option> 
+                <option value="VAT_INFO">Informacje o fakturze</option>
+            </select>
+            <input class="check_o labels" type="button" id="check-all-button">
             <p class="name_h">Tytuł</p>
             <p class="stock_h">Stan</p>
             <p class="status_h">Status</p>
@@ -53,12 +65,12 @@
 
             <div class="offers__line">
                 <input 
-                        class="labels" 
-                        type="checkbox" 
-                        name="selected_items" 
-                        data-fulfillment-status="{{ order.fulfillment.status }}"
-                        data-order-data="{{ order.id }}"
-                        value="{{ order.id }}:{{ name }}:{{ order.delivery.method.name }}:{{ order.lineItems.0.offer.id }}@"
+                    class="labels" 
+                    type="checkbox" 
+                    name="selected_items" 
+                    data-fulfillment-status="{{ order.fulfillment.status }}"
+                    data-order-data="{{ order.id }}"
+                    value="{{ offer.id }}"
                         
                     >
                 <img class="photo" src="{{offer.primaryImage.url}}" alt="">
@@ -141,6 +153,27 @@
             }
             return cookieValue;
         }
+
+
+
+
+        document.getElementById('check-all-button').addEventListener('click', function() {
+            // Select all checkboxes with the name 'selected_items'
+            var checkboxes = document.querySelectorAll('input[name="selected_items"]');
+            
+            // Loop through each checkbox
+            checkboxes.forEach(function(checkbox) {
+                // Check only if the fulfillment status is 'NEW' and it is currently unchecked
+                if ( !checkbox.checked) {
+                    checkbox.checked = true;
+                    console.log('checkbox', checkbox.value)
+                }
+                else if (checkbox.checked) {
+                    checkbox.checked = false;
+                }
+            });
+        });
+
 
 
         function getDescr(offerId, counter) {
@@ -359,6 +392,32 @@
         } else if ( errorMain ) {
             errorMain.style.display = "none";
         }
+    }
+</script>
+
+
+<script>
+    function bulkEdit() {
+        var checkboxes = document.querySelectorAll('input[name="selected_items"]');
+
+        // Initialize an empty array to store the checked checkbox values
+        var checkedItems = [];
+
+        // Iterate over each checkbox
+        checkboxes.forEach(function(checkbox) {
+            // Check if the checkbox is checked
+            if (checkbox.checked) {
+                console.log('checkbox =>', checkbox.value)
+                checkedItems.push(checkbox.value);
+            }
+        });
+
+        var selectedStatus = document.getElementById('status_select').value;
+        console.log('selectedStatus, name =>', selectedStatus, name)
+
+        var url = `/bulk_edit/${name}/${selectedStatus}/?ids=` + checkedItems;
+        window.location.href = url;
+
     }
 </script>
 
