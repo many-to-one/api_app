@@ -498,10 +498,14 @@ def edit_offer_stock(request, id):
     data = json.loads(request.body.decode('utf-8'))
     new_stock = data.get('stock')
     new_costs = data.get('costs')
+    currency = data.get('currency')
+    status = data.get('status')
     name = data.get('name')
 
     print('**************new_stock**************', new_stock)
     print('**************new_costs**************', new_costs)
+    print('**************currency**************', currency)
+    print('**************status**************', status)
     print('**************name**************', name)
 
     # account = Allegro.objects.get(name=name)
@@ -521,10 +525,17 @@ def edit_offer_stock(request, id):
                 "format": "BUY_NOW",
                 "price": {
                 "amount": new_costs,
-                "currency": "PLN"
+                "currency": currency,
                 },
 
             },
+        }
+
+    if status:
+        patch_data = {
+            "publication": {
+                "status": status,
+            }
         }
 
     # return HttpResponse('ok')
@@ -558,6 +569,7 @@ def edit_offer_stock(request, id):
                     'message': 'Stock updated successfully',
                     'newValue': new_stock,
                     'newCosts': new_costs,
+                    'status': status,
                 }, 
                 status=200,
             )

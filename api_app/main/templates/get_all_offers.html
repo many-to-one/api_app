@@ -82,7 +82,7 @@
                         <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
                     </div>
                 </p>
-                <p class="costs_o_cont">
+                <p class="costs_o_cont_">
                     <input class="costs_o" type="text" id="costs_{{ offer.id }}" value="{{ offer.sellingMode.price.amount }}">
                     <p class="currency_o" id="currency_{{ offer.id }}" value="{{ offer.sellingMode.price.currency }}">{{ offer.sellingMode.price.currency }}</p>
                     <img id="c_edit_{{ offer.id }}" class="icon edit__stock" src="{% static 'icons/edit2.png' %}" onclick="editCosts('{{ offer.id }}')">
@@ -98,6 +98,14 @@
                 {% elif offer.publication.status == 'ENDED' %}
                     <img class="icon" src="{% static 'icons/ended.png' %}" alt="">
                 {% endif %}
+
+                <select class="var_select order" id="status_select_{{ offer.id }}" onchange="editStatus('{{ offer.id }}')">
+                    <option value="">Edytuj</option>
+                    <option value="ACTIVE">Wznów</option>
+                    <option value="INACTIVE">Ukryj</option>
+                    <option value="ENDED">Zakończ</option>
+                </select>
+
                 <p>{{ offer.stock.sold }}</p>
                 <select class="account_select" id="account_select_{{ order.id }}_{{ forloop.counter }}">
                     {% for nameIs in accounts  %}
@@ -275,7 +283,7 @@
             console.log('getCurrency', getCurrency)
 
             // Make an AJAX request to update the stock value
-            axios.patch('/edit_offer_stock/' + offerId + '/', { costs: newCosts, name: name }, {
+            axios.patch('/edit_offer_stock/' + offerId + '/', { costs: newCosts, name: name, currency: getCurrency}, {
             headers: {
                     'X-CSRFToken': csrftoken
                 }
@@ -288,6 +296,49 @@
                     edit.style.display = 'flex';
                     document.getElementById('costs_' + offerId).value = response.data.newCosts;
                     // location.reload();
+                    // console.log('Success', response.data.message)
+                }
+            })
+            .catch(function(error) {
+                // Handle error
+                console.error('Error updating stock:', error);
+            });
+        }
+
+
+
+        function editStatus(offerId) {
+
+            // Obtain CSRF token from cookie
+            var csrftoken = getCookie('csrftoken');
+
+            // const load = document.getElementById('load_'+ offerId)
+            // const edit = document.getElementById('edit_' + offerId);
+            // load.style.display = 'block';
+            // edit.style.display = 'none';
+
+            var nameId = document.getElementById('name');
+            var name = nameId.getAttribute('value');
+            console.log('editStatus name clicked', name);
+
+            // Get the value from the input field
+            // var newStatus = document.getElementById('stock_' + offerId).value;
+            var newStatus = document.getElementById('status_select_' + offerId).value;
+            console.log('newStatus', newStatus)
+
+            // Make an AJAX request to update the stock value
+            axios.patch('/edit_offer_stock/' + offerId + '/', { status: newStatus, name: name }, {
+            headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            })
+            .then(function(response) {
+                console.log('status', response.data.status)
+                if(response.status == 200) {
+                    // load.style.display = 'none';
+                    // edit.style.display = 'flex';
+                    document.getElementById('stock_' + offerId).value = response.data.status;
+                    location.reload();
                     // console.log('Success', response.data.message)
                 }
             })

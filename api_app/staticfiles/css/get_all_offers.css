@@ -181,6 +181,13 @@
     justify-content: center;
 }
 
+.costs_o_cont_ {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* margin-left: -40px; */
+}
+
 .costs_o {
     width: 25px;
     height: 20px;
@@ -188,7 +195,7 @@
 
 .currency_o {
     font-size: 10px;
-    margin-left: -20px;
+    margin-left: 90px;
 }
 
 .account, .sku, .costs{
