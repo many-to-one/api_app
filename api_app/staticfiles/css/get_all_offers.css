@@ -171,8 +171,24 @@
 }
 
 .stock {
-    width: 20px;
+    width: 25px;
     height: 20px;
+}
+
+.costs_o_cont {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.costs_o {
+    width: 25px;
+    height: 20px;
+}
+
+.currency_o {
+    font-size: 10px;
+    margin-left: -20px;
 }
 
 .account, .sku, .costs{

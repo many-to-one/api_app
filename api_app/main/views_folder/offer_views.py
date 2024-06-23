@@ -497,13 +497,15 @@ def edit_offer_stock(request, id):
 
     data = json.loads(request.body.decode('utf-8'))
     new_stock = data.get('stock')
+    new_costs = data.get('costs')
     name = data.get('name')
 
     print('**************new_stock**************', new_stock)
+    print('**************new_costs**************', new_costs)
     print('**************name**************', name)
 
-    account = Allegro.objects.get(name=name)
-    secret = Secret.objects.get(account=account)
+    # account = Allegro.objects.get(name=name)
+    secret = Secret.objects.get(account__name=name)
 
     print('**************secret_access_token**************', secret.access_token)
     patch_data = {
@@ -512,6 +514,18 @@ def edit_offer_stock(request, id):
         "unit": "UNIT"
         },
     }
+
+    if new_costs:
+        patch_data = {
+            "sellingMode": {
+                "format": "BUY_NOW",
+                "price": {
+                "amount": new_costs,
+                "currency": "PLN"
+                },
+
+            },
+        }
 
     # return HttpResponse('ok')
 
@@ -543,6 +557,7 @@ def edit_offer_stock(request, id):
                 {
                     'message': 'Stock updated successfully',
                     'newValue': new_stock,
+                    'newCosts': new_costs,
                 }, 
                 status=200,
             )
@@ -550,51 +565,6 @@ def edit_offer_stock(request, id):
         raise SystemExit(err)
     
 
-# def process_uploaded_csv(csv_file):
-#     # Ensure it's a CSV file
-#     if not csv_file.name.endswith('.csv'):
-#         return HttpResponse('This is not a CSV file')
-
-#     # Read and decode the CSV file
-#     data_set = csv_file.read().decode('UTF-8')
-#     print(' ##################### data_set ##################### ', data_set)
-#     io_string = io.StringIO(data_set)
-    
-#     # Use DictReader with specific delimiter
-#     csv_reader = csv.DictReader(io_string, delimiter=',')  # Specify your consistent delimiter here
-
-#     # Convert CSV rows to a list of dictionaries
-#     csv_data = list(csv_reader)
-    
-#     # Process each row to handle nested JSON fields
-#     for row in csv_data:
-#         for key, value in row.items():
-#             if isinstance(value, str) and (value.startswith('{') or value.startswith('[')):
-#                 try:
-#                     # Try to parse JSON-like strings
-#                     row[key] = json.loads(value.replace("'", '"'))
-#                 except json.JSONDecodeError:
-#                     pass  # If parsing fails, keep the original string
-
-#     # Convert the processed data to a JSON string
-#     json_data_ = json.dumps(csv_data, ensure_ascii=False, indent=4)
-#     print(' ##################### json_data_ ##################### ', json_data_)
-    
-#     # Convert the JSON string back to a Python object
-#     json_data = json.loads(json_data_)
-#     print(' ##################### @ json_data @ ##################### ', json_data)
-
-#     return json_data
-
-
-    
-# class MockFile:
-#     def __init__(self, name, content):
-#         self.name = name
-#         self.content = content
-    
-#     def read(self):
-#         return self.content
 
 def edit_offers_csv(request, name):
 

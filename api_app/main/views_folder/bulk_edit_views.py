@@ -28,7 +28,7 @@ def PRICE(request, name, offers):
         price = request.POST.get('price')
         percent = request.POST.get('percent')
 
-        print('********************** offers_list ****************************', offers_list)
+        print('********************** offers_list ****************************', len(offers_list))
         print('********************** price ****************************', price)
         print('********************** percent ****************************', percent)
 
