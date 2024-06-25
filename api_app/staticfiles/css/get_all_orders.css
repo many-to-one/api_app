@@ -12,7 +12,37 @@
     box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
     /* border-radius: 10px; */
     z-index: 10;
-    margin-bottom: 10vh;
+    margin-bottom: 12vh;
+}
+
+.offers_headers {
+    position: -webkit-sticky; /* For Safari */
+    width: 100vw;
+    height: 35px;
+    position: sticky;
+    top: 0px;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    background-color: transparent;
+    z-index: 10;
+    /* margin-top: 10vh; */
+}
+
+.all_orders__line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    width: 78%;
+    /* border-radius: 10px; */
+    margin-bottom: 10px;
+    min-height: 90px;
+    height: auto;
+    padding: 5px;
+    background-color: var(--light);
+    /* box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset; */
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
 
 .orders__line {

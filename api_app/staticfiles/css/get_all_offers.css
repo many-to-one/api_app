@@ -35,6 +35,14 @@
     height: 30px;
 }
 
+.search_h {
+    position: absolute;
+    width: 400px;
+    height: 30px;
+    left: 25%;
+    background-color: var(--bg_color);
+}
+
 .photo_h {
     position: absolute;
     left: 0.5%;
@@ -42,38 +50,39 @@
 
 .edit_h {
     position: absolute;
-    left: 6%; 
+    left: 15%; 
+    width: 200px;
 }
 
 .name_h {
     position: absolute;
-    left: 18.5%;
+    left: 19.5%;
 }
 
 .stock_h {
     position: absolute;
-    left: 47%;
-}
-
-.status_h {
-    position: absolute;
-    left: 57.5%;
+    left: 42%;
 }
 
 .sale_h {
     position: absolute;
-    left: 62%;
+    left: 53%;
+}
+
+.status_h {
+    position: absolute;
+    left: 61.5%;
 }
 
 .account_h {
     position: absolute;
-    left: 71.5%;
+    left: 76.5%;
 }
 
 .post_h {
     width: 6vw;
     position: absolute;
-    left: 81%;
+    left: 83%;
 }
 
 .csv_h {
@@ -97,12 +106,22 @@
     align-items: center;
 } 
 
+#offersContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .offers__line {
+    display: none;
+}
+
+.offers__line.show {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 20px;
-    width: 78%;
+    width: 93%;
     /* border-radius: 10px; */
     margin-bottom: 10px;
     min-height: 90px;
@@ -110,6 +129,20 @@
     padding: 5px;
     background-color: var(--light);
     /* box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset; */
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
+.offers__line__title {
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    width: 78%;
+    margin-bottom: 10px;
+    min-height: 90px;
+    height: auto;
+    padding: 5px;
+    background-color: var(--light);
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
 
@@ -164,10 +197,21 @@
     padding: 2px;
 }
 
+.name_offer {
+    display: flex;
+    flex-direction: column;
+    width: 25vw;
+    color: var(--dark);
+}
+
 .name {
     width: 25vw;
     text-decoration: none;
     color: var(--dark);
+}
+
+.name p {
+    font-size: 14px;
 }
 
 .stock {

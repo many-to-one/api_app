@@ -33,6 +33,7 @@
 
         <div class="list__header_orders">
             <p class="print" id="name" value="{{ name }}">{{name}}</p>
+            <input class="check_o labels" type="button" id="check-all-button">
             <select class="edit_h var_select order" id="status_select" onchange="bulkEdit()">
                 <option selected value=" ">Edytuj...</option>
                 <option value="PRICE">Cena</option>
@@ -43,13 +44,9 @@
                 <option value="BULK_PRICE">Cennik hurtowy</option> 
                 <option value="VAT_INFO">Informacje o fakturze</option>
             </select>
-            <input class="check_o labels" type="button" id="check-all-button">
-            <p class="name_h">Tytuł</p>
-            <p class="stock_h">Stan</p>
-            <p class="status_h">Status</p>
-            <p class="sale_h">Sprzedaż</p>
-            <p class="account_h">Konto</p>
-            <p class="post_h">Wystawić produkt</p>
+
+            <input type="search" class="search_h" id="searchInput" placeholder="Szukaj..." onkeyup="searchOffers()">
+    
             <form class="csv_h" action="{% url 'edit_offers_csv' name %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="file" name="file" placeholder="csv">CSV</input>
@@ -57,13 +54,23 @@
             </form>
         </div>
 
+        <div class="offers_headers">
+            <p class="name_h">Tytuł</p>
+            <p class="stock_h">Stan</p>
+            <p class="status_h">Status</p>
+            <p class="sale_h">Sprzedaż</p>
+            <p class="account_h">Konto</p>
+            <p class="post_h">Wystawić produkt</p>
+        </div>
+
         <div class="list__header_orders_media">
             <p class="print" id="name" value="{{ name }}">{{name}}</p>
         </div>
 
+        <div id="offersContainer">
         {% for offer in result.offers %}
 
-            <div class="offers__line">
+            <div class="offers__line" data-title="{{ offer.name }}" data-id="{{ offer.external.id }}">
                 <input 
                     class="labels" 
                     type="checkbox" 
@@ -74,7 +81,10 @@
                         
                     >
                 <img class="photo" src="{{offer.primaryImage.url}}" alt="">
-                <p class="name">{{ offer.name }}</p>
+                <div class="name_offer">
+                    <p class="name">{{ offer.name }}</p>
+                    <p class="name">{{ offer.external.id }}</p>
+                </div>
                 <p class="costs_o_cont">
                     <input class="stock" type="text" id="stock_{{ offer.id }}" value="{{ offer.stock.available }}">
                     <img id="edit_{{ offer.id }}" class="icon edit__stock" src="{% static 'icons/edit2.png' %}" onclick="editStock('{{ offer.id }}')">
@@ -135,6 +145,7 @@
             </div>
 
         {% endfor %}
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
@@ -524,6 +535,39 @@
         window.location.href = url;
 
     }
+</script>
+
+
+<script>
+    function searchOffers() {
+        // Get the search query
+        var query = document.getElementById('searchInput').value.toLowerCase();
+
+        // Get all the offers
+        var offers = document.querySelectorAll('#offersContainer .offers__line');
+
+        // Loop through the offers and filter them
+        offers.forEach(function(offer) {
+                var title = offer.getAttribute('data-title').toLowerCase();
+                var id = offer.getAttribute('data-id').toLowerCase();
+                if (title.includes(query) || id.includes(query)) {
+                    offer.classList.add('show');
+                    // console.log('query', offer)
+                } else {
+                    offer.classList.remove('show');
+                    // console.log('no-query', offer)
+                }
+            });
+    }
+</script>
+
+<script>
+    // Initially show all offers
+    document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('#offersContainer .offers__line').forEach(function(offer) {
+                offer.classList.add('show');
+            });
+        });
 </script>
 
 </body>
