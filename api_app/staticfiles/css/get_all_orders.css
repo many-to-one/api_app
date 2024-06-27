@@ -143,6 +143,28 @@
     color: var(--black);
 }
 
+.date_o_from {
+    position: absolute;
+    left: 25%;
+}
+
+.date_o_from_label {
+    position: absolute;
+    top: 5%;
+    left: 25%;
+}
+
+.date_o_to {
+    position: absolute;
+    left: 33%;
+}
+
+.date_o_to_label {
+    position: absolute;
+    top: 5%;
+    left: 33%;
+}
+
 .name_ord {
     display: flex;
     flex-direction: column;
@@ -194,9 +216,12 @@
 
 .client_o {
     position: absolute;
-    left: 58%;
+    left: 50%;
     font-style: bold;
-    width: 100px;
+    width: 200px;
+    height: 30px;
+    background-color: var(--bg_color);
+    border: none;
 }
 
 .shipment_o {
@@ -242,3 +267,24 @@
     left: 98%;
     font-style: bold;
 }
+
+.order.show {
+    display: flex;
+    flex-direction: column;
+    width: 40vw;
+}
+
+.order {
+    display: none;
+}
+
+.lineItems {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 5vw;
+}
+
+/* .lineItems {
+    display: none;
+} */

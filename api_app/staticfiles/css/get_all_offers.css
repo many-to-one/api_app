@@ -61,7 +61,7 @@
 
 .stock_h {
     position: absolute;
-    left: 42%;
+    left: 45.3%;
 }
 
 .sale_h {
@@ -71,7 +71,7 @@
 
 .status_h {
     position: absolute;
-    left: 61.5%;
+    left: 61%;
 }
 
 .account_h {
@@ -144,19 +144,6 @@
     padding: 5px;
     background-color: var(--light);
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-}
-
-.order {
-    display: flex;
-    flex-direction: column;
-    width: 40vw;
-}
-
-.lineItems {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-end;
-    gap: 5vw;
 }
 
 .skuCosts {

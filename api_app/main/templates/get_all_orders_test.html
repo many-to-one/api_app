@@ -28,16 +28,16 @@
         <div class="offers__cont" id="of_cont">
 >
                 <div class="list__header_orders">
-                    <p class="print" onclick="allLabels()"  id="getName" value="{{ name }}">{{ name }}</p>
+                    <p class="print">{{ name }}</p>
                     <input class="check_o labels" type="button" id="check-all-button">
-                    <p class="name_o">Produkt</p>
+                    <p class="name_o" onclick="allLabels()"  id="getName" value="{{ name }}">DRK</p>
                     <p class="fv_o" onclick="pdfFV()">FV</p>
-                    <p class="sku_o" >SKU</p>
-                    <p class="stock_o">Ilość</p>
-                    <p class="costs_o">Koszty</p>
-                    <!-- <p class="status_o">Status</p> -->
-                    <!-- <p class="client_o">Klient</p> -->
+                    <label class="date_o_from_label" for="fromDate">Od:</label>
+                    <input class="date_o_from" type="date" id="fromDate">
+                    <label class="date_o_to_label" for="toDate">Do:</label>
+                    <input class="date_o_to" type="date" id="toDate">
                     <input type="text" class="client_o" id="client" placeholder="Klient...">
+                    <!-- <button class="find_date_btn" onclick="filterAndSortOrders()">Find</button> -->
 
                     <select class="shipment_o var_select order" id="delivery_select">
                         <option selected value="all">Wysyłka</option>
@@ -76,6 +76,15 @@
 
                 </div>
 
+                <div class="offers_headers">
+                    <p class="name_o">Produkt</p>
+                    <p class="sku_o" >SKU</p>
+                    <p class="stock_o">Ilość</p>
+                    <p class="costs_o">Koszty</p>
+                    <!-- <p class="status_o">Status</p> -->
+                    <!-- <p class="client_o">Klient</p> -->
+                </div>
+
                 <div class="list__header_orders_media">
                     <p class="print" onclick="allLabels()"  id="getName" value="{{ name }}">{{ name }}</p>
                     <input class="check_o labels" type="button" id="check-all-button">
@@ -104,6 +113,7 @@
 
                 </div>
 
+
             {% for order in all_results %}       
 
                 <div 
@@ -128,7 +138,7 @@
                     >
                     <div class="order">
                         {% for item in order.lineItems %}
-                            <div class="lineItems">
+                            <div class="lineItems" data-boughtat="{{ item.boughtAt }}">
                                 <div class="name_ord">
                                     <a href="{% url 'get_order_details' order.id name %}">{{ item.offer.name }}</a>
                                     {% with date=item.boughtAt|slice:":10" time=item.boughtAt|slice:"11:16" %}
@@ -414,6 +424,93 @@
             var url = `/get_invoice_file/${name}/${buyer}/?ids=` + checkedItems;
             window.location.href = url;
         }
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // var orders = document.querySelectorAll('.order');
+            // orders.forEach(function(order){
+            //     order.classList.add('show');
+            // })
+            // Initially show all orders
+            filterAndSortOrders();
+
+            // Add event listeners to the date inputs
+            document.getElementById('fromDate').addEventListener('change', filterAndSortOrders);
+            document.getElementById('toDate').addEventListener('change', filterAndSortOrders);
+        });
+
+        function filterAndSortOrders() {
+            var fromDate = document.getElementById('fromDate').value;
+            var toDate = document.getElementById('toDate').value;
+
+            // Convert the date strings to Date objects
+            var fromDateObj = fromDate ? new Date(fromDate) : null;
+            var toDateObj = toDate ? new Date(toDate) : null;
+            //console.log('fromDateObj', fromDateObj)
+            // console.log('toDateObj', toDateObj)
+
+            var orders = document.querySelectorAll('.order');
+            // console.log('orders', orders)
+            // var lineItems = order.querySelectorAll('.lineItems');
+
+            // Loop through the orders and filter them
+            orders.forEach(function(order) {
+                // console.log('order', order)
+                var lineItems = order.querySelectorAll('.lineItems');
+                // console.log('lineItems', lineItems)
+                lineItems.forEach(function(lineItem) {
+                    var orderDate = new Date(lineItem.getAttribute('data-boughtat'));
+                    var title = lineItem.querySelector('.name_ord a').textContent.toLowerCase();
+                    // console.log('orderDate', orderDate);
+
+                    var show = true;
+
+                    // Apply the date filters
+                    if (fromDateObj && orderDate < fromDateObj) {
+                        console.log('orderDate fromDateObj', orderDate);
+                        show = false;
+                    }
+
+                    if (toDateObj && orderDate > toDateObj) {
+                        console.log('orderDate toDateObj', orderDate);
+                        show = false;
+                    }
+
+                    // Show or hide the order based on the date filters
+                    if (show) {
+                        order.classList.add('show');
+                        // lineItems.classList.add('show')
+                    } else {
+                        order.classList.remove('show');
+                        // lineItems.classList.remove('show')
+                    }
+
+                })
+                
+            });
+
+
+            // Sort the visible orders by date
+            // sortOrdersByDate();
+        }
+
+        // function sortOrdersByDate() {
+        //     var ordersContainer = document.getElementById('ordersContainer');
+        //     var orders = Array.from(ordersContainer.querySelectorAll('.order.show'));
+
+        //     orders.sort(function(a, b) {
+        //         var dateA = new Date(a.getAttribute('data-boughtat'));
+        //         var dateB = new Date(b.getAttribute('data-boughtat'));
+        //         return dateA - dateB; // Ascending order
+        //     });
+
+        //     // Reorder the DOM elements based on the sorted order
+        //     orders.forEach(function(order) {
+        //         ordersContainer.appendChild(order);
+        //     });
+        // }
     </script>
 
     <!-- <script>
