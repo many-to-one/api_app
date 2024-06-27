@@ -16,7 +16,7 @@ urlpatterns = [
     path('get_refresh_token/<str:authorization_code>', get_refresh_token, name='get_refresh_token'),
     path('post_product', post_product, name='post_product'),
 
-    path('get_orders/<str:name>/<str:delivery>/<str:status>/<str:client>/', orders_views_test.get_orders, name='get_orders'),
+    path('get_orders/<str:name>/<str:delivery>/<str:status>/<str:client>/<str:fromDate>/<str:toDate>/', orders_views_test.get_orders, name='get_orders'),
     path('get_orders_by_client/<str:name>/<str:delivery>/<str:status>/<str:client>/', orders_views_test.get_orders_by_client, name='get_orders_by_client'),
     path('get_order_details/<uuid:id>/<str:name>/', orders_views_test.get_order_details, name='get_order_details'),
     path('change_status/<uuid:id>/<str:name>/<str:status>/<str:delivery>/', orders_views.change_status, name='change_status'),

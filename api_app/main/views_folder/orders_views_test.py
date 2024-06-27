@@ -37,11 +37,16 @@ CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 #     return render(request, 'get_accounts.html', context)
 
 
-def get_orders(request, name, delivery, status, client):
+def get_orders(request, name, delivery, status, client, fromDate, toDate):
+
+    # from_date = request.GET.get('from_date')
+    # to_date = request.GET.get('to_date')
 
     print('*********************** delivery **********************', delivery)
     print('*********************** status **********************', status)
     print('*********************** client **********************', client)
+    print('*********************** fromDate **********************', fromDate)
+    print('*********************** toDate **********************', toDate)
 
     all_results = []
     all_client_results = []
@@ -83,6 +88,13 @@ def get_orders(request, name, delivery, status, client):
         # print('*********************** ALL ORDERS IN **********************', json.dumps(result, indent=4))
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
+    
+    if fromDate and toDate:
+        for result in all_client_results:
+            for res in result['checkoutForms']:
+                # print('***************** boughtAt ++ *******************', res['lineItems'][0]['boughtAt'][:10])
+                if res['lineItems'][0]['boughtAt'][:10] >= fromDate and res['lineItems'][0]['boughtAt'][:10] <= toDate:
+                    print('***************** boughtAt ++ *******************', res['lineItems'][0]['boughtAt'][:10])
     
     if status == 'all': 
         for result in all_client_results:

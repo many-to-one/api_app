@@ -45,6 +45,10 @@
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
 
+/* .all_orders__line {
+    display: none;
+} */
+
 .orders__line {
     display: flex;
     /* justify-content: space-between; */
@@ -268,13 +272,13 @@
     font-style: bold;
 }
 
-.order.show {
+.order_.show {
     display: flex;
     flex-direction: column;
     width: 40vw;
 }
 
-.order {
+.order_ {
     display: none;
 }
 

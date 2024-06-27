@@ -32,10 +32,12 @@
                     <input class="check_o labels" type="button" id="check-all-button">
                     <p class="name_o" onclick="allLabels()"  id="getName" value="{{ name }}">DRK</p>
                     <p class="fv_o" onclick="pdfFV()">FV</p>
-                    <label class="date_o_from_label" for="fromDate">Od:</label>
-                    <input class="date_o_from" type="date" id="fromDate">
-                    <label class="date_o_to_label" for="toDate">Do:</label>
-                    <input class="date_o_to" type="date" id="toDate">
+                    <!-- <form method="get"> -->
+                        <label class="date_o_from_label" for="fromDate">Od:</label>
+                        <input class="date_o_from" type="date" id="fromDate" name="from_date">
+                        <label class="date_o_to_label" for="toDate">Do:</label>
+                        <input class="date_o_to" type="date" id="toDate" name="to_date">
+                    <!-- </form> -->
                     <input type="text" class="client_o" id="client" placeholder="Klient...">
                     <!-- <button class="find_date_btn" onclick="filterAndSortOrders()">Find</button> -->
 
@@ -118,14 +120,10 @@
 
                 <div 
                     name="fulfillmentStatus"
-                    class="all_orders__line
-                    {% if order.fulfillment.status == 'SENT' %} 
-                        sent 
-                    {% elif order.fulfillment.status == 'CANCELLED' %}
-                        canceled
-                    {% elif order.fulfillment.status == 'PICKED_UP' %}
-                        picked_up
-                    {% endif %}"
+                    class="
+                    
+                    all_orders__line
+                    "
                 >
                     <input 
                         class="labels" 
@@ -187,11 +185,12 @@
 
             {% endfor %}
 
+
             <div class="pagination">
                 <span class="step-links">
                     {% if all_results.has_previous %}
-                        <a href="?page=1">&laquo; first</a>
-                        <a href="?page={{ all_results.previous_page_number }}">previous</a>
+                        <a href="?page=1">&laquo; 1</a>
+                        <a href="?page={{ all_results.previous_page_number }}"><<</a>
                     {% endif %}
             
                     <span class="current">
@@ -199,8 +198,8 @@
                     </span>
             
                     {% if all_results.has_next %}
-                        <a href="?page={{ all_results.next_page_number }}">next</a>
-                        <a href="?page={{ all_results.paginator.num_pages }}">last &raquo;</a>
+                        <a href="?page={{ all_results.next_page_number }}">>></a>
+                        <a href="?page={{ all_results.paginator.num_pages }}">ostatnia &raquo;</a>
                     {% endif %}
                 </span>
             </div>
@@ -248,12 +247,17 @@
         var inputElement = document.getElementById('client');
         var client = inputElement.value;
 
-        console.log('client', client)
+        var fromDate = document.getElementById('fromDate').value;
+        var toDate = document.getElementById('toDate').value;
+
+        // console.log('client', client)
+        console.log('fromDate', fromDate)
+        console.log('toDate', toDate)
 
         if (client === '') {
-            var url = `/get_orders/${name}/${deliveryMethod}/${selectedStatus}/all/`
+            var url = `/get_orders/${name}/${deliveryMethod}/${selectedStatus}/all/${fromDate}/${toDate}/`
         } else {
-            var url = `/get_orders/${name}/${deliveryMethod}/${selectedStatus}/${client}/`
+            var url = `/get_orders/${name}/${deliveryMethod}/${selectedStatus}/${client}/${fromDate}/${toDate}/`
         }
 
         window.location.href = url;
@@ -427,7 +431,7 @@
     </script>
 
 
-    <script>
+    <!-- <script>
         document.addEventListener('DOMContentLoaded', function() {
             // var orders = document.querySelectorAll('.order');
             // orders.forEach(function(order){
@@ -448,96 +452,71 @@
             // Convert the date strings to Date objects
             var fromDateObj = fromDate ? new Date(fromDate) : null;
             var toDateObj = toDate ? new Date(toDate) : null;
-            //console.log('fromDateObj', fromDateObj)
-            // console.log('toDateObj', toDateObj)
 
-            var orders = document.querySelectorAll('.order');
-            // console.log('orders', orders)
-            // var lineItems = order.querySelectorAll('.lineItems');
+            var orderLines = document.querySelectorAll('.all_orders__line');
 
-            // Loop through the orders and filter them
-            orders.forEach(function(order) {
-                // console.log('order', order)
-                var lineItems = order.querySelectorAll('.lineItems');
-                // console.log('lineItems', lineItems)
-                lineItems.forEach(function(lineItem) {
-                    var orderDate = new Date(lineItem.getAttribute('data-boughtat'));
-                    var title = lineItem.querySelector('.name_ord a').textContent.toLowerCase();
-                    // console.log('orderDate', orderDate);
+            orderLines.forEach(function(orderLine){
+                orderLine.classList.add('show')
+                // console.log('orderLine', orderLine)
 
-                    var show = true;
+                var orders = orderLine.querySelectorAll('.order_');
+                // console.log('orders', orders)
+                // Loop through the orders and filter them
+                orders.forEach(function(order) {
+                    // console.log('order', order)
+                    var lineItems = order.querySelectorAll('.lineItems');
+                    // console.log('lineItems', lineItems)
+                    lineItems.forEach(function(lineItem) {
+                        // console.log('lineItem', lineItem)
+                        var orderDate = new Date(lineItem.getAttribute('data-boughtat'));
+                        var title = lineItem.querySelector('.name_ord a').textContent.toLowerCase();
+                        // console.log('orderDate', orderDate);
 
-                    // Apply the date filters
-                    if (fromDateObj && orderDate < fromDateObj) {
-                        console.log('orderDate fromDateObj', orderDate);
-                        show = false;
-                    }
-
-                    if (toDateObj && orderDate > toDateObj) {
-                        console.log('orderDate toDateObj', orderDate);
-                        show = false;
-                    }
-
-                    // Show or hide the order based on the date filters
-                    if (show) {
+                        var show = true;
+                        // orderLine.classList.add('show');
                         order.classList.add('show');
-                        // lineItems.classList.add('show')
-                    } else {
-                        order.classList.remove('show');
-                        // lineItems.classList.remove('show')
-                    }
 
-                })
-                
-            });
+                        // Apply the date filters
+                        if (fromDateObj && orderDate < fromDateObj) {
+                            // console.log('orderDate fromDateObj', orderDate);
+                            show = false;
+                        }
 
+                        if (toDateObj && orderDate > toDateObj) {
+                            // console.log('orderDate toDateObj', orderDate);
+                            show = false;
+                        }
 
-            // Sort the visible orders by date
-            // sortOrdersByDate();
+                        // Show or hide the order based on the date filters
+                        if (show) {
+                            order.classList.add('show');
+                            orderLine.classList.add('show')
+                            // lineItem.classList.add('show')
+                        } else {
+                            order.classList.remove('show');
+                            orderLine.classList.remove('show')
+                            // lineItem.classList.add('show')
+                        }
+
+                    })
+                    
+                });
+
+            })
+
         }
 
-        // function sortOrdersByDate() {
-        //     var ordersContainer = document.getElementById('ordersContainer');
-        //     var orders = Array.from(ordersContainer.querySelectorAll('.order.show'));
-
-        //     orders.sort(function(a, b) {
-        //         var dateA = new Date(a.getAttribute('data-boughtat'));
-        //         var dateB = new Date(b.getAttribute('data-boughtat'));
-        //         return dateA - dateB; // Ascending order
-        //     });
-
-        //     // Reorder the DOM elements based on the sorted order
-        //     orders.forEach(function(order) {
-        //         ordersContainer.appendChild(order);
-        //     });
-        // }
-    </script>
-
-    <!-- <script>
-        document.getElementById('delivery_select').addEventListener('change', function() {
-            var delivery = this.value;
-            var getName = document.getElementById('getName')
-            var name = getName.getAttribute('value');
-
-            var url = `/get_orders/${name}/${delivery}/${status}/`
-            window.location.href = url;
-        });
-    </script>
-
-<script>
-    document.getElementById('status_select').addEventListener('change', function() {
-
-        var status_ = this.value;
-        var delivery = 'all';
-        console.log('STATUS', status_)
-        var getName = document.getElementById('getName')
-        var name = getName.getAttribute('value');
-
-        var url = `/get_orders/${name}/${delivery}/${status_}/`
-        window.location.href = url;
-    });
-</script> -->
+    </script> -->
+    
    
 </body>
 {% endblock %}
 </html>
+
+<!-- {% if order.fulfillment.status == 'SENT' %} 
+                        sent 
+                    {% elif order.fulfillment.status == 'CANCELLED' %}
+                        canceled
+                    {% elif order.fulfillment.status == 'PICKED_UP' %}
+                        picked_up
+                    {% endif %} -->
