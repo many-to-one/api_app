@@ -254,8 +254,12 @@
         console.log('fromDate', fromDate)
         console.log('toDate', toDate)
 
-        if (client === '') {
-            var url = `/get_orders/${name}/${deliveryMethod}/${selectedStatus}/all/${fromDate}/${toDate}/`
+        if (client === '' && fromDate ==='' && toDate === '') {
+            var url = `/get_orders/${name}/${deliveryMethod}/${selectedStatus}/all/all/all`
+        } else if (client === '') {
+            var url = `/get_orders/${name}/${deliveryMethod}/${selectedStatus}/all/${fromDate}/${toDate}/`       
+        } else if (fromDate ==='' && toDate === '') {
+            var url = `/get_orders/${name}/${deliveryMethod}/${selectedStatus}/${client}/all/all/`
         } else {
             var url = `/get_orders/${name}/${deliveryMethod}/${selectedStatus}/${client}/${fromDate}/${toDate}/`
         }
@@ -271,13 +275,15 @@
         var deliveryMethod = document.getElementById('delivery_select').value;
         var getName = document.getElementById('getName');
         var name = getName.getAttribute('value');
+        var fromDate = document.getElementById('fromDate').value;
+        var toDate = document.getElementById('toDate').value;
 
-        console.log('login', login)
-        console.log('name', name)
-        console.log('selectedStatus', selectedStatus)
-        console.log('deliveryMethod', deliveryMethod)
+        // console.log('login', login)
+        // console.log('name', name)
+        // console.log('selectedStatus', selectedStatus)
+        // console.log('deliveryMethod', deliveryMethod)
 
-        var url = `/get_orders_by_client/${name}/${deliveryMethod}/${selectedStatus}/${login}/`
+        var url = `/get_orders_by_client/${name}/${deliveryMethod}/${selectedStatus}/${login}/${fromDate}/${toDate}/`
         window.location.href = url;
     }
 </script>

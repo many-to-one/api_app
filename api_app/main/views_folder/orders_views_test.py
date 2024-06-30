@@ -89,18 +89,51 @@ def get_orders(request, name, delivery, status, client, fromDate, toDate):
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
     
-    if fromDate and toDate:
+    if fromDate and toDate and status == 'all' and delivery == 'all' and client == 'all':
         for result in all_client_results:
             for res in result['checkoutForms']:
                 # print('***************** boughtAt ++ *******************', res['lineItems'][0]['boughtAt'][:10])
                 if res['lineItems'][0]['boughtAt'][:10] >= fromDate and res['lineItems'][0]['boughtAt'][:10] <= toDate:
                     print('***************** boughtAt ++ *******************', res['lineItems'][0]['boughtAt'][:10])
+                    result_with_name.append(res)
+
+    if fromDate and toDate and status != 'all' and delivery == 'all' and client == 'all':
+        for result in all_client_results:
+            for res in result['checkoutForms']:
+                if res['lineItems'][0]['boughtAt'][:10] >= fromDate and res['lineItems'][0]['boughtAt'][:10] <= toDate and res["fulfillment"]["status"] == status:
+                    result_with_name.append(res)
+
+    if fromDate and toDate and status == 'all' and delivery != 'all' and client == 'all':
+        for result in all_client_results:
+            for res in result['checkoutForms']:
+                if res['lineItems'][0]['boughtAt'][:10] >= fromDate and res['lineItems'][0]['boughtAt'][:10] <= toDate and res['delivery']['method']["name"] == delivery:
+                    result_with_name.append(res)
+
+    if fromDate and toDate and status == 'all' and delivery == 'all' and client != 'all':
+        for result in all_client_results:
+            if result["buyer"]["login"] == client and result['lineItems'][0]['boughtAt'][:10] >= fromDate and result['lineItems'][0]['boughtAt'][:10] <= toDate:
+                result_with_name.append(result)
+
+    if fromDate and toDate and status != 'all' and delivery == 'all' and client != 'all':
+        for result in all_client_results:
+            if result["buyer"]["login"] == client and result['lineItems'][0]['boughtAt'][:10] >= fromDate and result['lineItems'][0]['boughtAt'][:10] <= toDate and result["fulfillment"]["status"] == status:
+                result_with_name.append(result)
+
+    if fromDate and toDate and status == 'all' and delivery != 'all' and client != 'all':
+        for result in all_client_results:
+            if result["buyer"]["login"] == client and result['lineItems'][0]['boughtAt'][:10] >= fromDate and result['lineItems'][0]['boughtAt'][:10] <= toDate and result['delivery']['method']["name"] == delivery:
+                result_with_name.append(result)
+
+    if fromDate and toDate and status != 'all' and delivery != 'all' and client != 'all':
+        for result in all_client_results:
+            if result["buyer"]["login"] == client and result['lineItems'][0]['boughtAt'][:10] >= fromDate and result['lineItems'][0]['boughtAt'][:10] <= toDate and result['delivery']['method']["name"] == delivery and result["fulfillment"]["status"] == status:
+                result_with_name.append(result)
     
     if status == 'all': 
         for result in all_client_results:
             pass
             # print('***************** RESULTS FOR STATUS *******************', json.dumps(result, indent=4))
-    if status == 'all' and delivery != 'all' and client == 'all':
+    if status == 'all' and delivery != 'all' and client == 'all' and fromDate == 'all' and toDate == 'all':
         print('***************** status != all *******************')
         for result in all_client_results:
             # print('***************** RESULTS FOR STATUS *******************', json.dumps(result, indent=4))
@@ -109,27 +142,27 @@ def get_orders(request, name, delivery, status, client, fromDate, toDate):
                 if res['delivery']['method']["name"] == delivery:
                     result_with_name.append(res)
             # print('***************** RESULTS FOR STATUS *******************', json.dumps(result, indent=4))
-    if status == 'all' and delivery != 'all' and client != 'all':
+    if status == 'all' and delivery != 'all' and client != 'all' and fromDate == 'all' and toDate == 'all':
         for result in all_client_results:
             if result["buyer"]["login"] == client and result["delivery"]["method"]["name"] == delivery:
                 print('***************** RESULTS now*******************', json.dumps(result, indent=4))
                 result_with_name.append(result)
 
 
-    if delivery == 'all' and status != 'all' and client == 'all': 
+    if delivery == 'all' and status != 'all' and client == 'all' and fromDate == 'all' and toDate == 'all': 
         print('***************** delivery == all *******************')
         for result in all_client_results:
             for res in result["checkoutForms"]:
                 if res['fulfillment']['status'] == status:
                     result_with_name.append(res)
-    if status != 'all' and delivery == 'all' and client != 'all':
+    if status != 'all' and delivery == 'all' and client != 'all' and fromDate == 'all' and toDate == 'all':
         for result in all_client_results:
             print('***************** RESULTS now*******************', result["fulfillment"]["status"])
             if result["buyer"]["login"] == client and result["fulfillment"]["status"] == status:
                 # print('***************** RESULTS now*******************', json.dumps(result, indent=4))
                 result_with_name.append(result)
 
-    if delivery != 'all' and status != 'all' and client == 'all':
+    if delivery != 'all' and status != 'all' and client == 'all' and fromDate == 'all' and toDate == 'all':
         print('YYYYYYYYYYYYYYYYEEEEEEEEEEEEEEEESSSSSSSSSSSSSSSSSSSSs')
         for result in all_client_results:
             # print('***************** RESULTS FOR STATUS *******************', json.dumps(result, indent=4))
@@ -138,7 +171,7 @@ def get_orders(request, name, delivery, status, client, fromDate, toDate):
                 if res['fulfillment']['status'] == status and res['delivery']['method']["name"] == delivery:
                     # print('***************** RESULTS FOR STATUS *******************', json.dumps(res, indent=4))
                     result_with_name.append(res)
-    if delivery != 'all' and status != 'all' and client != 'all':
+    if delivery != 'all' and status != 'all' and client != 'all' and fromDate == 'all' and toDate == 'all':
         print('@@@@@@@@@@@@@@ here @@@@@@@@@@@@@@@@@@')
         for result in all_client_results:
             # print('@@@@@@@@@@@@@@ here @@@@@@@@@@@@@@@@@@', json.dumps(result, indent=4))
@@ -146,14 +179,14 @@ def get_orders(request, name, delivery, status, client, fromDate, toDate):
                 print('***************** RESULTS FOR STATUS *******************', status, delivery, client)
                 result_with_name.append(result)
 
-    if delivery == 'all' and status == 'all' and client == 'all':
+    if delivery == 'all' and status == 'all' and client == 'all' and fromDate == 'all' and toDate == 'all':
         for result in all_client_results:
             # print('***************** COMMON *******************', json.dumps(result, indent=4))
             for res in result["checkoutForms"]:
                 # print('***************** ALL RESULTS LOOP *******************', json.dumps(res, indent=4))
                 result_with_name.append(res)
 
-    if delivery == 'all' and status == 'all' and client != 'all':
+    if delivery == 'all' and status == 'all' and client != 'all' and fromDate == 'all' and toDate == 'all':
         for result in all_client_results:
             print('***************** COMMON *******************', json.dumps(result, indent=4))
             result_with_name.append(result)
