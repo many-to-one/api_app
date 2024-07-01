@@ -496,6 +496,9 @@ async def create_label(request, id, name, secret):
 def change_status(request, id, name, status, delivery):
 
     secret = Secret.objects.get(account__name=name)
+    ids = request.GET.getlist('ids')
+    encoded_offers = ','.join(ids)
+    print('********************** change_status ids ****************************', ids)
 
     try:
         url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}/fulfillment"
@@ -513,7 +516,7 @@ def change_status(request, id, name, status, delivery):
             }
 
         response = requests.put(url, headers=headers, json=data)
-        # print('*********** change_status ***********', response)
+        print('*********** change_status ***********', response)
 
         return JsonResponse(
                 {

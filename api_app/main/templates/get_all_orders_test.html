@@ -31,7 +31,18 @@
                     <p class="print">{{ name }}</p>
                     <input class="check_o labels" type="button" id="check-all-button">
                     <p class="name_o" onclick="allLabels()"  id="getName" value="{{ name }}">DRK</p>
-                    <p class="fv_o" onclick="pdfFV()">FV</p>
+                    <!-- <p class="fv_o" onclick="pdfFV()">FV</p> -->
+                    <!-- <p class="fv_o" onclick="bulkUpdateOrderStatus()">FV</p> -->
+                    <select class="fv_o var_select order" id="status_select" onchange="bulkUpdateOrderStatus()">
+                        <option selected value=" ">Edytuj...</option>
+                        <option value="all">Wszystko</option>
+                        <option value="NEW">NOWE</option>
+                        <option value="READY_FOR_PROCESSING">OPŁACONE</option>
+                        <option value="READY_FOR_PROCESSING">W REALIZACJI</option>
+                        <option value="CANCELLED">ANULOWANE</option>
+                        <option value="SENT">WYSŁANE</option>
+                        <option value="PICKED_UP">DOSTARCZONE</option>
+                    </select>
                     <!-- <form method="get"> -->
                         <label class="date_o_from_label" for="fromDate">Od:</label>
                         <input class="date_o_from" type="date" id="fromDate" name="from_date">
@@ -147,7 +158,7 @@
                                     {% endwith %}
                                 </div>
                                 <!-- <p class="account" id="name_{{ order.id }}" value="{{ name }}">{{ name }}</p> Konto -->
-                                <div class="skuCosts">
+                                <div class="skuCosts" id="name_{{ order.id }}" value="{{ name }}">
                                     <p class="sku">{{ item.offer.external.id }}</p>
                                     <p class="stock">{{ item.quantity }}</p>
                                 </div>
@@ -301,7 +312,6 @@
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 
-
         function updateOrderStatus(offerId, selectId, deliveryMethod) {
 
             // console.log('updateOrderStatus offerId clicked', offerId)
@@ -319,10 +329,15 @@
             var selectElement = document.getElementById(selectId);
             var selectedStatus = selectElement.value;
 
-            console.log('Selected status:', selectedStatus);
+            // Encode the deliveryMethod to handle any special characters
+            deliveryMethod_ = encodeURIComponent(encodeURIComponent(deliveryMethod));
+
+            console.log('Selected deliveryMethod_:', deliveryMethod_);
 
             // Make an AJAX request to update the stock value
-            axios.put('/change_status/' + offerId + '/' + name + '/' + selectedStatus + '/' + deliveryMethod + '/')
+            // axios.put('/change_status/' + offerId + '/' + name + '/' + selectedStatus + '/' + deliveryMethod_ + '/',)
+            axios.put(`/change_status/${offerId}/${name}/${selectedStatus}/${deliveryMethod_}/`)
+
                 .then(function(response) {
                     console.log('status', response.data.newStatus)
                     if(response.status == 200) {
@@ -330,9 +345,7 @@
                         load.style.display = 'none';
                         edit.style.display = 'block';
                         document.getElementById('stock_' + offerId).value = response.data.newValue;
-                        // location.reload();
-                        // window.location.href = '/get_orders';
-                        console.log('Success', response.data.message)
+                        // console.log('Success', response.data.message)
                     }
                 })
                 .catch(function(error) {
@@ -340,6 +353,60 @@
                     console.error('Error updating stock:', error);
                 });
         }
+
+
+        function bulkUpdateOrderStatus() {
+
+            // console.log('updateOrderStatus offerId clicked', offerId)bulkUpdateOrderStatus
+            // console.log('updateOrderStatus selectId clicked', selectId)
+
+            var checkboxes = document.querySelectorAll('input[name="selected_items"]');
+
+            var checkedItems = [];
+
+            checkboxes.forEach(function(checkbox) {
+                if (checkbox.checked) {
+                    console.log('checkbox =>', checkbox.dataset.orderData)
+                    checkedItems.push(checkbox.dataset.orderData);
+                }
+            });
+
+            // const load = document.getElementById('load_'+ offerId)
+            // const edit = document.getElementById('edit_' + offerId);
+            // load.style.display = 'block';
+            // edit.style.display = 'none';
+
+            // var nameId = document.getElementById('name_' + offerId);
+            // var name = nameId.getAttribute('value');
+            // console.log('updateOrderStatus name clicked', name);
+
+            var selectElement = document.getElementById(selectId);
+            var selectedStatus = selectElement.value;
+
+            // Encode the deliveryMethod to handle any special characters
+            deliveryMethod_ = encodeURIComponent(encodeURIComponent(deliveryMethod));
+
+            console.log('Selected deliveryMethod_:', deliveryMethod_);
+
+            // Make an AJAX request to update the stock value
+            axios.put(`/change_status/${offerId}/${name}/${selectedStatus}/${deliveryMethod_}/?ids=` + checkedItems)
+
+                .then(function(response) {
+                    console.log('status', response.data.newStatus)
+                    if(response.status == 200) {
+                        document.getElementById('load_'+ offerId).style.display = 'none';
+                        load.style.display = 'none';
+                        edit.style.display = 'block';
+                        document.getElementById('stock_' + offerId).value = response.data.newValue;
+                        // console.log('Success', response.data.message)
+                    }
+                })
+                .catch(function(error) {
+                    // Handle error
+                    console.error('Error updating stock:', error);
+                });
+            }
+
 
 
         function allLabels() {
