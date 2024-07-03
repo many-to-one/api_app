@@ -30,18 +30,18 @@
                 <div class="list__header_orders">
                     <p class="print">{{ name }}</p>
                     <input class="check_o labels" type="button" id="check-all-button">
-                    <p class="name_o" onclick="allLabels()"  id="getName" value="{{ name }}">DRK</p>
+                    <!-- <p class="name_o" onclick="allLabels()"  id="getName" value="{{ name }}">DRK</p> -->
                     <!-- <p class="fv_o" onclick="pdfFV()">FV</p> -->
-                    <!-- <p class="fv_o" onclick="bulkUpdateOrderStatus()">FV</p> -->
-                    <select class="fv_o var_select order" id="status_select" onchange="bulkUpdateOrderStatus()">
-                        <option selected value=" ">Edytuj...</option>
-                        <option value="all">Wszystko</option>
-                        <option value="NEW">NOWE</option>
-                        <option value="READY_FOR_PROCESSING">OPŁACONE</option>
-                        <option value="READY_FOR_PROCESSING">W REALIZACJI</option>
-                        <option value="CANCELLED">ANULOWANE</option>
-                        <option value="SENT">WYSŁANE</option>
-                        <option value="PICKED_UP">DOSTARCZONE</option>
+                    <select class="name_o var_select order" id="option_select" onchange="bulkUpdateOrderStatus()">
+                        <option selected value=" ">Wybierz...</option>
+                        <option data-option="print" id="getName" value="{{ name }}">DRK</option>
+                        <option data-option="FV">FV</option>
+                        <option data-option="NEW">NOWE</option>
+                        <option data-option="READY_FOR_SHIPMENT">OPŁACONE</option>
+                        <option data-option="READY_FOR_SHIPMENT">W REALIZACJI</option>
+                        <option data-option="CANCELLED">ANULOWANE</option>
+                        <option data-option="SENT">WYSŁANE</option>
+                        <option data-option="PICKED_UP">DOSTARCZONE</option>
                     </select>
                     <!-- <form method="get"> -->
                         <label class="date_o_from_label" for="fromDate">Od:</label>
@@ -336,7 +336,7 @@
 
             // Make an AJAX request to update the stock value
             // axios.put('/change_status/' + offerId + '/' + name + '/' + selectedStatus + '/' + deliveryMethod_ + '/',)
-            axios.put(`/change_status/${offerId}/${name}/${selectedStatus}/${deliveryMethod_}/`)
+            axios.put(`/change_status/${offerId}/${name}/${selectedStatus}/`)
 
                 .then(function(response) {
                     console.log('status', response.data.newStatus)
@@ -345,12 +345,13 @@
                         load.style.display = 'none';
                         edit.style.display = 'block';
                         document.getElementById('stock_' + offerId).value = response.data.newValue;
-                        // console.log('Success', response.data.message)
+                        console.log('Success offerId', offerId)
                     }
                 })
                 .catch(function(error) {
                     // Handle error
                     console.error('Error updating stock:', error);
+                    console.log('Success offerId', offerId)
                 });
         }
 
@@ -360,52 +361,65 @@
             // console.log('updateOrderStatus offerId clicked', offerId)bulkUpdateOrderStatus
             // console.log('updateOrderStatus selectId clicked', selectId)
 
+            var getName = document.getElementById('getName')
+            var name = getName.getAttribute('value');
+
+            var optionSelect = document.getElementById('option_select');
+            var selectedOption = optionSelect.selectedOptions[0];
+            var dataOptionValue = selectedOption.getAttribute('data-option');
+            console.log('bulkUpdateOrderStatus optionSelect clicked', dataOptionValue)
+
             var checkboxes = document.querySelectorAll('input[name="selected_items"]');
 
             var checkedItems = [];
 
             checkboxes.forEach(function(checkbox) {
                 if (checkbox.checked) {
-                    console.log('checkbox =>', checkbox.dataset.orderData)
+                    // console.log('checkbox =>', checkbox.value)
                     checkedItems.push(checkbox.dataset.orderData);
                 }
             });
 
-            // const load = document.getElementById('load_'+ offerId)
-            // const edit = document.getElementById('edit_' + offerId);
-            // load.style.display = 'block';
-            // edit.style.display = 'none';
 
-            // var nameId = document.getElementById('name_' + offerId);
-            // var name = nameId.getAttribute('value');
-            // console.log('updateOrderStatus name clicked', name);
+            if (dataOptionValue === 'print') {
+                allLabels()
+            } else if (dataOptionValue === 'FV') {
+                pdfFV()
+            } else {
+                // Make an AJAX request to update the stock value
+                axios.put(`/run_option/${name}/${dataOptionValue}/?ids=` + checkedItems)
 
-            var selectElement = document.getElementById(selectId);
-            var selectedStatus = selectElement.value;
+                    .then(function(response) {
+                        console.log('status', response.data.newStatus)
+                        if(response.status == 200) {
+                            console.log('status', response.status)
+                            response.data.orders.forEach(function(id) {
+                                const offerId = id; // Assuming order object has an 'id' property
+                                console.log('offerId', id)
+                                
+                                // Update DOM elements for this specific order
+                                // document.getElementById('load_' + offerId).style.display = 'none';
+                                // document.getElementById('edit_' + offerId).style.display = 'block';
 
-            // Encode the deliveryMethod to handle any special characters
-            deliveryMethod_ = encodeURIComponent(encodeURIComponent(deliveryMethod));
-
-            console.log('Selected deliveryMethod_:', deliveryMethod_);
-
-            // Make an AJAX request to update the stock value
-            axios.put(`/change_status/${offerId}/${name}/${selectedStatus}/${deliveryMethod_}/?ids=` + checkedItems)
-
-                .then(function(response) {
-                    console.log('status', response.data.newStatus)
-                    if(response.status == 200) {
-                        document.getElementById('load_'+ offerId).style.display = 'none';
-                        load.style.display = 'none';
-                        edit.style.display = 'block';
-                        document.getElementById('stock_' + offerId).value = response.data.newValue;
-                        // console.log('Success', response.data.message)
-                    }
-                })
-                .catch(function(error) {
-                    // Handle error
-                    console.error('Error updating stock:', error);
-                });
+                                // If 'newValue' is provided in the response, update the stock value element
+                                if (response.data.newStatus) {
+                                    document.getElementById('stock_' + id).value = response.data.newStatus;
+                                }
+                            });
+                            // document.getElementById('load_'+ offerId).style.display = 'none';
+                            // load.style.display = 'none';
+                            // edit.style.display = 'block';
+                            // document.getElementById('stock_' + offerId).value = response.data.newValue;
+                            // console.log('Success', response.data.message)
+                        }
+                    })
+                    .catch(function(error) {
+                        // Handle error
+                        console.error('Error updating stock:', error);
+                    });
+                }
             }
+
 
 
 

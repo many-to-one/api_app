@@ -491,14 +491,12 @@ async def create_label(request, id, name, secret):
         raise SystemExit(err)
 
 
-
-
-def change_status(request, id, name, status, delivery):
+def change_status(request, id, name, status):
 
     secret = Secret.objects.get(account__name=name)
-    ids = request.GET.getlist('ids')
-    encoded_offers = ','.join(ids)
-    print('********************** change_status ids ****************************', ids)
+    # ids = request.GET.getlist('ids')
+    # encoded_offers = ','.join(ids)
+    # print('********************** change_status ids ****************************', ids)
 
     try:
         url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}/fulfillment"
@@ -516,6 +514,7 @@ def change_status(request, id, name, status, delivery):
             }
 
         response = requests.put(url, headers=headers, json=data)
+        print('*********** change_status ***********', id, name, status)
         print('*********** change_status ***********', response)
 
         return JsonResponse(
@@ -527,6 +526,73 @@ def change_status(request, id, name, status, delivery):
             )
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
+
+
+async def change_status_async(secret, option, order_id):
+
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{order_id}/fulfillment"
+        headers = {
+        'Authorization': f'Bearer {secret.access_token}',
+        'Accept': 'application/vnd.allegro.public.v1+json',
+        'Content-Type': 'application/vnd.allegro.public.v1+json'
+    }
+
+        data = {
+                "status": str(option),
+                "shipmentSummary": {
+                "lineItemsSent": "SOME"
+                }
+            }
+
+        response = requests.put(url, headers=headers, json=data)
+        print('*********** change_status ***********', response)
+
+        return response
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+    
+
+
+def run_option(request, name, option):
+
+    secret = Secret.objects.get(account__name=name)
+    ids = request.GET.getlist('ids')
+
+    result = asyncio.run(run_option_async(secret, option, ids))
+
+    print('*********** run_option main ***********', result)
+
+    individual_ids = []
+
+    # Iterate over each element in the 'ids' list
+    for id_group in ids:
+        # Split each string by commas and extend the individual_ids list with the resulting elements
+        individual_ids.extend(id_group.split(','))
+
+    return JsonResponse(
+                {
+                    'message': 'Stock updated successfully',
+                    'newStatus': option,
+                    'orders': individual_ids,
+                }, 
+                status=200,
+            )
+
+
+async def run_option_async(secret, option, ids):
+
+    tasks = []
+
+    for item in ids:
+        for order_id in item.split(','):
+            if order_id:
+                print('********************** run_option order_id ****************************', order_id)
+                tasks.append(asyncio.create_task(change_status_async(secret, option, order_id)))
+
+    results = await asyncio.gather(*tasks)
+
+    return results
     
 
 
@@ -785,6 +851,8 @@ async def get_invoice(request, results, secret, name, address_data):
 from .serializers import *
 def set_shipment_list(request, name):
 
+    print('********************** name @@@ ****************************', name)
+
     start_time = time.time()
 
     ids = request.GET.getlist('ids')
@@ -792,12 +860,16 @@ def set_shipment_list(request, name):
 
     pickup = request.GET.getlist('pickup')
     secret = Secret.objects.get(account__name=name)
-    address = Address.objects.get(name__name=name)
+    try:
+        address = Address.objects.get(name__name=name)
+    except:
+        return HttpResponse(f'{name} nie jest załogowany w allego w tym momencie, zaloguj i spróbuj ponownie')
     secret_data = SecretSerializer(secret).data
     address_data = AddressSerializer(address).data
     # time.sleep(2)
     print('********************** secret @@@ ****************************', secret)
     print('********************** address @@@ ****************************', address)
+    
     if address:
         results = asyncio.run(set_shipment_list_async(request, ids, secret, address_data))#[0]
     # print('********************** /// results /// ****************************', results)  #results[1][1]
