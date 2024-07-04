@@ -20,11 +20,6 @@
         </div>
     </div>
 
-    <div id="wait">
-        <p>Proczę czekać...</p>
-        <img class="icon loading" src="{% static 'icons/load.png' %}" alt=""> 
-    </div>
-
         <div class="offers__cont" id="of_cont">
 >
                 <div class="list__header_orders">
@@ -34,8 +29,8 @@
                     <!-- <p class="fv_o" onclick="pdfFV()">FV</p> -->
                     <select class="name_o var_select order" id="option_select" onchange="bulkUpdateOrderStatus()">
                         <option selected value=" ">Wybierz...</option>
-                        <option data-option="print" id="getName" value="{{ name }}">DRK</option>
-                        <option data-option="FV">FV</option>
+                        <option data-option="print" id="getName" value="{{ name }}">Drukuj Etykiety</option>
+                        <option data-option="FV">Generuj Faktury</option>
                         <option data-option="NEW">NOWE</option>
                         <option data-option="READY_FOR_SHIPMENT">OPŁACONE</option>
                         <option data-option="READY_FOR_SHIPMENT">W REALIZACJI</option>
@@ -72,6 +67,7 @@
                         <option value="Allegro Automat DHL POP BOX">Allegro Automat DHL POP BOX</option>
                         <option value="Allegro Automat ORLEN Paczka">Allegro Automat ORLEN Paczka</option>
                         <option value="Allegro Automat Pocztex">Allegro Automat Pocztex</option>
+                        <option value="Allegro Paczkomaty InPost">Allegro Paczkomaty InPost</option>
                     </select>
 
                     <select class="status_o var_select order" id="status_select">
@@ -79,7 +75,7 @@
                         <option value="all">Wszystko</option>
                         <option value="NEW">NOWE</option>
                         <option value="READY_FOR_PROCESSING">OPŁACONE</option>
-                        <option value="READY_FOR_PROCESSING">W REALIZACJI</option>
+                        <option value="READY_FOR_SHIPMENT">W REALIZACJI</option>
                         <option value="CANCELLED">ANULOWANE</option>
                         <option value="SENT">WYSŁANE</option>
                         <option value="PICKED_UP">DOSTARCZONE</option>
@@ -87,6 +83,11 @@
 
                     <button id="search_o" class="search_o" onclick="searchRes()">Submit</button>
 
+                </div>
+
+                <div id="wait">
+                    <p>Proczę czekać...</p>
+                    <img class="icon loading" src="{% static 'icons/load.png' %}" alt=""> 
                 </div>
 
                 <div class="offers_headers">
@@ -230,15 +231,16 @@
         });
 
         document.getElementById('check-all-button').addEventListener('click', function() {
+            console.log('check-all-button CLICKED!')
             // Select all checkboxes with the name 'selected_items'
             var checkboxes = document.querySelectorAll('input[name="selected_items"]');
             
             // Loop through each checkbox
             checkboxes.forEach(function(checkbox) {
                 // Check only if the fulfillment status is 'NEW' and it is currently unchecked
-                if (checkbox.dataset.fulfillmentStatus === 'NEW' && !checkbox.checked) {
+                if (!checkbox.checked) { //checkbox.dataset.fulfillmentStatus === 'NEW' && 
                     checkbox.checked = true;
-                    console.log('checkbox', checkbox.value)
+                    // console.log('checkbox', checkbox.value)
                 }
                 else if (checkbox.checked) {
                     checkbox.checked = false;
@@ -344,7 +346,7 @@
                         document.getElementById('load_'+ offerId).style.display = 'none';
                         load.style.display = 'none';
                         edit.style.display = 'block';
-                        document.getElementById('stock_' + offerId).value = response.data.newValue;
+                        document.getElementById('status_' + offerId).value = response.data.newValue;
                         console.log('Success offerId', offerId)
                     }
                 })
@@ -358,8 +360,8 @@
 
         function bulkUpdateOrderStatus() {
 
-            // console.log('updateOrderStatus offerId clicked', offerId)bulkUpdateOrderStatus
-            // console.log('updateOrderStatus selectId clicked', selectId)
+            const wait = document.getElementById('wait');
+            wait.style.display = 'flex';
 
             var getName = document.getElementById('getName')
             var name = getName.getAttribute('value');
@@ -387,30 +389,30 @@
                 pdfFV()
             } else {
                 // Make an AJAX request to update the stock value
-                axios.put(`/run_option/${name}/${dataOptionValue}/?ids=` + checkedItems)
+                axios.put(`/run_option/${name}/${dataOptionValue}/?ids=` + checkedItems,
+                    {
+                        headers: { 'Cache-Control': 'no-cache' }
+                    }
+                )
 
                     .then(function(response) {
                         console.log('status', response.data.newStatus)
-                        if(response.status == 200) {
-                            console.log('status', response.status)
-                            response.data.orders.forEach(function(id) {
-                                const offerId = id; // Assuming order object has an 'id' property
-                                console.log('offerId', id)
-                                
-                                // Update DOM elements for this specific order
-                                // document.getElementById('load_' + offerId).style.display = 'none';
-                                // document.getElementById('edit_' + offerId).style.display = 'block';
+                        if(response.status === 200) {
+                            setTimeout(() => {
+                                window.location.reload(true); // Force reload without cache
+                                wait.style.display = 'none';
+                                // response.data.orders.forEach(function(id) {
+                                // const offerId = id; // Assuming order object has an 'id' property
+                                // console.log('offerId', id)
 
-                                // If 'newValue' is provided in the response, update the stock value element
-                                if (response.data.newStatus) {
-                                    document.getElementById('stock_' + id).value = response.data.newStatus;
-                                }
-                            });
-                            // document.getElementById('load_'+ offerId).style.display = 'none';
-                            // load.style.display = 'none';
-                            // edit.style.display = 'block';
-                            // document.getElementById('stock_' + offerId).value = response.data.newValue;
-                            // console.log('Success', response.data.message)
+                                // if (response.data.newStatus) {
+                                //     document.getElementById('status_' + id).value = response.data.newStatus;
+                                // }
+                                // });
+                            }, 1000);
+
+                            console.log('status', response.status)
+                    
                         }
                     })
                     .catch(function(error) {
