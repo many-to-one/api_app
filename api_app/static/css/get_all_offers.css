@@ -35,40 +35,61 @@
     height: 30px;
 }
 
+.search_h {
+    position: absolute;
+    width: 400px;
+    height: 30px;
+    left: 25%;
+    background-color: var(--bg_color);
+}
+
 .photo_h {
     position: absolute;
     left: 0.5%;
 }
 
+.edit_h {
+    position: absolute;
+    left: 15%; 
+    width: 200px;
+}
+
 .name_h {
     position: absolute;
-    left: 18.5%;
+    left: 19.5%;
 }
 
 .stock_h {
     position: absolute;
-    left: 47%;
-}
-
-.status_h {
-    position: absolute;
-    left: 57.5%;
+    left: 45.3%;
 }
 
 .sale_h {
     position: absolute;
-    left: 62%;
+    left: 53%;
+}
+
+.status_h {
+    position: absolute;
+    left: 61%;
 }
 
 .account_h {
     position: absolute;
-    left: 71.5%;
+    left: 76.5%;
 }
 
 .post_h {
     width: 6vw;
     position: absolute;
-    left: 81%;
+    left: 83%;
+}
+
+.csv_h {
+    width: 6vw;
+    position: absolute;
+    left: 88%;
+    cursor: pointer;
 }
 
 .details_h {
@@ -85,12 +106,22 @@
     align-items: center;
 } 
 
+#offersContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .offers__line {
+    display: none;
+}
+
+.offers__line.show {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 20px;
-    width: 78%;
+    width: 93%;
     /* border-radius: 10px; */
     margin-bottom: 10px;
     min-height: 90px;
@@ -101,17 +132,18 @@
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
 
-.order {
-    display: flex;
-    flex-direction: column;
-    width: 40vw;
-}
-
-.lineItems {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-end;
-    gap: 5vw;
+.offers__line__title {
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    width: 78%;
+    margin-bottom: 10px;
+    min-height: 90px;
+    height: auto;
+    padding: 5px;
+    background-color: var(--light);
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
 
 .skuCosts {
@@ -133,6 +165,10 @@
     color: var(--light);
 }
 
+.sent p{
+    color: var(--light);
+}
+
 .canceled {
     background-color: var(--wait);
 }
@@ -148,18 +184,52 @@
     padding: 2px;
 }
 
+.name_offer {
+    display: flex;
+    flex-direction: column;
+    width: 25vw;
+    color: var(--dark);
+}
+
 .name {
     width: 25vw;
     text-decoration: none;
     color: var(--dark);
 }
 
+.name p {
+    font-size: 14px;
+}
+
 .stock {
-    width: 20px;
+    width: 25px;
     height: 20px;
 }
 
-.account, .sku, .costs {
+.costs_o_cont {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.costs_o_cont_ {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* margin-left: -40px; */
+}
+
+.costs_o {
+    width: 25px;
+    height: 20px;
+}
+
+.currency_o {
+    font-size: 10px;
+    margin-left: 90px;
+}
+
+.account, .sku, .costs{
     min-width: 40px;
     width: auto;
     white-space: nowrap;

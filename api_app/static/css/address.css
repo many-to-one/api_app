@@ -10,6 +10,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    /* justify-content: center; */
     margin-top: 10vh;
+} 
+
+#allAddresses input, button {
+    width: 200px;
+    height: 30px;
 }

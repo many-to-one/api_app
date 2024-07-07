@@ -43,6 +43,7 @@
                 <option value="DELIVERY_TIME">Czas wysyłki</option>
                 <option value="BULK_PRICE">Cennik hurtowy</option> 
                 <option value="VAT_INFO">Informacje o fakturze</option>
+                <option value="POST_OFFERS">Wystaw oferty</option>
             </select>
 
             <input type="search" class="search_h" id="searchInput" placeholder="Szukaj..." onkeyup="searchOffers()">
@@ -51,7 +52,7 @@
                 {% csrf_token %}
                 <input type="file" name="file" placeholder="csv">CSV</input>
                 <button >Upload</button>
-            </form>
+            </form> 
         </div>
 
         <div class="offers_headers">
@@ -75,8 +76,8 @@
                     class="labels" 
                     type="checkbox" 
                     name="selected_items" 
-                    data-fulfillment-status="{{ order.fulfillment.status }}"
-                    data-order-data="{{ order.id }}"
+                    data-fulfillment-status="{{ offer.fulfillment.status }}"
+                    data-forloop-counter="{{ forloop.counter }}"
                     value="{{ offer.id }}"
                         
                     >
@@ -515,6 +516,8 @@
 <script>
     function bulkEdit() {
         var checkboxes = document.querySelectorAll('input[name="selected_items"]');
+        var selectedStatus = document.getElementById('status_select').value;
+        console.log('selectedStatus, name =>', selectedStatus, name)
 
         // Initialize an empty array to store the checked checkbox values
         var checkedItems = [];
@@ -523,16 +526,24 @@
         checkboxes.forEach(function(checkbox) {
             // Check if the checkbox is checked
             if (checkbox.checked) {
-                console.log('checkbox =>', checkbox.value)
-                checkedItems.push(checkbox.value);
+                if (selectedStatus === 'POST_OFFERS') {
+                    // checkedItems.push(checkbox.orderData);
+                    console.log('checkbox id =>', checkbox.value)
+                    console.log('checkbox loop c =>', checkbox.dataset.forloopCounter)
+                    console.log('lister', document.getElementById('account_select__' + checkbox.value + '_' + checkbox.dataset.forloopCounter).value)
+                } else {
+                    console.log('checkbox =>', checkbox.value)
+                    checkedItems.push(checkbox.value);
+                }
             }
         });
 
-        var selectedStatus = document.getElementById('status_select').value;
-        console.log('selectedStatus, name =>', selectedStatus, name)
-
-        var url = `/bulk_edit/${name}/${selectedStatus}/?ids=` + checkedItems;
-        window.location.href = url;
+        if (selectedStatus === 'POST_OFFERS') {
+            console.log('POST_OFFERS =>', checkedItems)
+        } else {
+            var url = `/bulk_edit/${name}/${selectedStatus}/?ids=` + checkedItems;
+            window.location.href = url;
+        }
 
     }
 </script>

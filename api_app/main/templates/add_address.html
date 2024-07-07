@@ -11,22 +11,34 @@
 
 {% block content %}
 <body>
-
     
     {% if addresses %}
         {% for address in addresses %}
-            <div id="allAddresses">
-                <p>{{ address.firstName }}</p>
-                <p>{{ address.lastName }}</p>
-                <p>{{ address.company }}</p>
-                <p>{{ address.street }}</p>
-                <p>{{ address.streetNumber }}</p>
-                <p>{{ address.postalCode }}</p>
-                <p>{{ address.city }}</p>
-                <p>{{ address.email }}</p>
-                <p>{{ address.phone }}</p>
-                <button>Dodaj</button>
-            </div>
+            <form method="post" id="allAddresses" action="{% url 'edit_address' name %}">
+                {% csrf_token %}
+
+                <label for="name">Imię:</label>
+                <input type="text" name="firstName" value="{{ address.firstName }}">
+                <label for="name">Nazwisko:</label>
+                <input type="text" name="lastName" value="{{ address.lastName }}">
+                <label for="company">Firma:</label>
+                <input type="text" name="company" value="{{ address.company }}">
+                <label for="street">Ulica:</label>
+                <input type="text" name="street" value="{{ address.street }}">
+                <label for="streetNumber">Numer domu:</label>
+                <input type="text" name="streetNumber" value="{{ address.streetNumber }}">
+                <label for="postalCode">Kod pocztowy:</label>
+                <input type="text" name="postalCode" value="{{ address.postalCode }}">
+                <label for="city">Miasto:</label>
+                <input type="text" name="city" value="{{ address.city }}">
+                <label for="email">Email:</label>
+                <input type="email" name="email" value="{{ address.email }}">
+                <label for="email">Telefon:</label>
+                <input type="text" name="phone" value="{{ address.phone }}">
+                <br>
+                <button type="submit">Zapisz</button>
+
+            </form>
         {% endfor %}
     {% else %}
         <div id="allAddresses">
@@ -36,35 +48,37 @@
 
     <form method="post" id="addressForm" action="{% url 'add_address' name %}">
         {% csrf_token %}
-            <label for="name">firstName:</label>
+            <label for="name">Imię:</label>
             <input type="text" id="firstName" name="firstName" required><br><br>
 
-            <label for="name">lastName:</label>
+            <label for="name">Nazwisko:</label>
             <input type="text" id="name" name="lastName" required><br><br>
 
-            <label for="company">Company:</label>
+            <label for="company">Firma:</label>
             <input type="text" id="company" name="company"><br><br>
 
-            <label for="street">Street:</label>
+            <label for="street">Ulica:</label>
             <input type="text" id="street" name="street" value="Główna" required><br><br>
 
-            <label for="streetNumber">Street Number:</label>
+            <label for="streetNumber">Numer domu:</label>
             <input type="text" id="streetNumber" name="streetNumber" value="30" required><br><br>
 
-            <label for="postalCode">Postal Code:</label>
+            <label for="postalCode">Kod pocztowy:</label>
             <input type="text" id="postalCode" name="postalCode" value="64-700" required><br><br>
 
-            <label for="city">City:</label>
+            <label for="city">Miasto:</label>
             <input type="text" id="city" name="city" value="Warszawa" required><br><br>
 
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required><br><br>
 
-            <label for="phone">Phone:</label>
+            <label for="phone">Telefon:</label>
             <input type="tel" id="phone" name="phone" required><br><br>
 
             <button type="submit">Dodaj</button>
     </form>
+
+    
 
 
 
@@ -74,8 +88,15 @@
         var allAddresses = document.getElementById('allAddresses');
 
         function addAddress(){
+            console.log('addAddress clicked')
             allAddresses.style.display = 'none'
             addressForm.style.display = 'flex';
+        }
+    </script>
+
+    <script>
+        function saveAddress() {
+
         }
     </script>
     

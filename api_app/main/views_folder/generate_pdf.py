@@ -23,89 +23,93 @@ from datetime import datetime
 
 def get_order_details(request, id, name, secret):
 
-    try:
-        url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}"
-        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-        product_result = requests.get(url, headers=headers, verify=True)
-        result = product_result.json()
-        if 'error' in result:
-            error_code = result['error']
-            if error_code == 'invalid_token':
-                # print('ERROR RESULT @@@@@@@@@', error_code)
-                try:
-                    # Refresh the token
-                    new_token = get_next_token(request, secret.refresh_token, name)
-                    # Retry fetching orders with the new token
-                    return get_order_details(request, id)
-                except Exception as e:
-                    print('Exception @@@@@@@@@', e)
-                    context = {'name': name}
-                    return render(request, 'invalid_token.html', context)
+    if request.user.is_authenticated:
 
-        # print('@@@@@@@@@ GET ORDER DETAILS @@@@@@@@@', json.dumps(result, indent=4))
-        context = {
-            'order': product_result.json()
-        }
-        return [result]
-    except requests.exceptions.HTTPError as err:
-        raise SystemExit(err)
+        try:
+            url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}"
+            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+            product_result = requests.get(url, headers=headers, verify=True)
+            result = product_result.json()
+            if 'error' in result:
+                error_code = result['error']
+                if error_code == 'invalid_token':
+                    # print('ERROR RESULT @@@@@@@@@', error_code)
+                    try:
+                        # Refresh the token
+                        new_token = get_next_token(request, secret.refresh_token, name)
+                        # Retry fetching orders with the new token
+                        return get_order_details(request, id)
+                    except Exception as e:
+                        print('Exception @@@@@@@@@', e)
+                        context = {'name': name}
+                        return render(request, 'invalid_token.html', context)
+
+            # print('@@@@@@@@@ GET ORDER DETAILS @@@@@@@@@', json.dumps(result, indent=4))
+            context = {
+                'order': product_result.json()
+            }
+            return [result]
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)
 
 
 
 def get_invoice_file(request, name, buyer):
 
-    start_time = time.time()
+    if request.user.is_authenticated:
 
-    address = Address.objects.get(name__name=name)
-    address_data = AddressSerializer(address).data
-    secret = Secret.objects.get(account__name=name) 
-    # print('********************** SECRET ****************************', secret)
+        start_time = time.time()
 
-    ids = request.GET.getlist('ids')
-    # print('********************** IDS set_shipment_list IDS ****************************', ids)
+        address = Address.objects.get(name__name=name)
+        address_data = AddressSerializer(address).data
+        secret = Secret.objects.get(account__name=name) 
+        # print('********************** SECRET ****************************', secret)
 
-    separated_ids = []
-    for id_string in ids:
-        separated_ids.extend(id_string.split(','))
+        ids = request.GET.getlist('ids')
+        # print('********************** IDS set_shipment_list IDS ****************************', ids)
 
-    results = []
-    for id in separated_ids:
-        res = get_order_details(request, id, name, secret)
-        results.append(res)
-        # print('********************** ORDER DETAILS ****************************', res)
+        separated_ids = []
+        for id_string in ids:
+            separated_ids.extend(id_string.split(','))
 
-    # print('********************** ORDER DETAILS ****************************', results)
-    tasks_ = []
+        results = []
+        for id in separated_ids:
+            res = get_order_details(request, id, name, secret)
+            results.append(res)
+            # print('********************** ORDER DETAILS ****************************', res)
 
-    for res in results:
-        # print('@@@@@@@@@@@@@ RES  @@@@@@@@@@@@@', res)
-        if isinstance(res, (list)):
-            # print('@@@@@@@@@@@@@ RES TUPLE @@@@@@@@@@@@@', res)
-            tasks = []
-            for i in res:
-                # print('@@@@@@@@@@@@@ I I I  @@@@@@@@@@@@@', i)
-                if isinstance(i, (dict)):
-                    for key, value in i.items():
-                        if key == "payment":
-                            # print('@@@@@@@@@@@@@ VALUE 1 @@@@@@@@@@@@@', value)
-                            tasks.append(value)
-                        if key == "lineItems":
-                            # print('@@@@@@@@@@@@@ VALUE 2 @@@@@@@@@@@@@', value)
-                            tasks.append(value)
-                        if key == "invoice" and value.get('required') is True:
-                            # print('@@@@@@@@@@@@@ VALUE 3 @@@@@@@@@@@@@', value)
-                            tasks.append(value.get('address')) 
-                        if key == "buyer":
-                            # print('@@@@@@@@@@@@@ login @@@@@@@@@@@@@', value.get('login'))
-                            tasks.append(value.get('login'))
+        # print('********************** ORDER DETAILS ****************************', results)
+        tasks_ = []
 
-            tasks_.append(invoice_template(request, address_data, tasks, secret))
-    if tasks_:
-        response = base64_to_pdf_bulk(tasks_)
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    # print(f"********************** FINISH time: {elapsed_time} seconds **********************")
-    return response
+        for res in results:
+            # print('@@@@@@@@@@@@@ RES  @@@@@@@@@@@@@', res)
+            if isinstance(res, (list)):
+                # print('@@@@@@@@@@@@@ RES TUPLE @@@@@@@@@@@@@', res)
+                tasks = []
+                for i in res:
+                    # print('@@@@@@@@@@@@@ I I I  @@@@@@@@@@@@@', i)
+                    if isinstance(i, (dict)):
+                        for key, value in i.items():
+                            if key == "payment":
+                                # print('@@@@@@@@@@@@@ VALUE 1 @@@@@@@@@@@@@', value)
+                                tasks.append(value)
+                            if key == "lineItems":
+                                # print('@@@@@@@@@@@@@ VALUE 2 @@@@@@@@@@@@@', value)
+                                tasks.append(value)
+                            if key == "invoice" and value.get('required') is True:
+                                # print('@@@@@@@@@@@@@ VALUE 3 @@@@@@@@@@@@@', value)
+                                tasks.append(value.get('address')) 
+                            if key == "buyer":
+                                # print('@@@@@@@@@@@@@ login @@@@@@@@@@@@@', value.get('login'))
+                                tasks.append(value.get('login'))
+
+                tasks_.append(invoice_template(request, address_data, tasks, secret))
+        if tasks_:
+            response = base64_to_pdf_bulk(tasks_)
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        # print(f"********************** FINISH time: {elapsed_time} seconds **********************")
+        return response
 
 
 def base64_to_pdf_bulk(base64_data_list):
@@ -147,19 +151,21 @@ def base64_to_pdf_bulk(base64_data_list):
 
 def invoice_template(request, seller, invoice, secret):
 
-    # print('&&&&&&&&&&&&&&&&&&& seller &&&&&&&&&&&&&&&&&&&&', seller)
-    # print('&&&&&&&&&&&&&&&&&&& invoice &&&&&&&&&&&&&&&&&&&&', invoice)
-    context = {
-            'seller': seller,  
-            'payment': invoice[0],
-            'customer': invoice[1],  
-            'order': invoice[2],  
-        }
-        
-    # print('&&&&&&&&&&&&&&&&&&& LOGIN &&&&&&&&&&&&&&&&&&&&', invoice[0]) #seller[0]["login"]
+    if request.user.is_authenticated:
 
-    pdf = generate_pdf(seller, invoice)
-    return pdf
+        # print('&&&&&&&&&&&&&&&&&&& seller &&&&&&&&&&&&&&&&&&&&', seller)
+        # print('&&&&&&&&&&&&&&&&&&& invoice &&&&&&&&&&&&&&&&&&&&', invoice)
+        context = {
+                'seller': seller,  
+                'payment': invoice[0],
+                'customer': invoice[1],  
+                'order': invoice[2],  
+            }
+            
+        # print('&&&&&&&&&&&&&&&&&&& LOGIN &&&&&&&&&&&&&&&&&&&&', invoice[0]) #seller[0]["login"]
+
+        pdf = generate_pdf(seller, invoice)
+        return pdf
 
 
 def generate_pdf(seller, invoice):

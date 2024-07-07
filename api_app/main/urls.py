@@ -48,6 +48,7 @@ urlpatterns = [
     path('ebay_token/', ebay_token, name='ebay_token'),
 
     path('add_address/<str:name>/', add_address, name='add_address'),
+    path('edit_address/<str:name>/', edit_address, name='edit_address'),
     path('get_address/<str:name>/', get_address, name='get_address'),
 
     path('get_invoice_file/<str:name>/<str:buyer>/', generate_pdf.get_invoice_file, name='get_invoice_file'),

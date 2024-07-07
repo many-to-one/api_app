@@ -1,6 +1,6 @@
 import json
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .utils import *
 import requests
 import os
@@ -26,127 +26,136 @@ def success(request, text):
 
 
 def get_new_authorization_code(request, name):
-    account = Allegro.objects.get(name=name)
-    secret = Secret.objects.get(account=account)
-    print('******************* name ***********************', secret.CLIENT_ID, account)
-    # return HttpResponse('name', name)
+    if request.user.is_authenticated:
+        account = Allegro.objects.get(name=name)
+        secret = Secret.objects.get(account=account)
+        print('******************* name ***********************', secret.CLIENT_ID, account)
+        # return HttpResponse('name', name)
 
-    REDIRECT_URI_ =f' http://localhost:8000/get_new_code/{name}&promt=confirm'  
+        REDIRECT_URI_ =f' http://localhost:8000/get_new_code/{name}&promt=confirm'  
 
-    try: 
+        try: 
 
-        user = get_user(request)
+            user = get_user(request)
 
-        authorization_redirect_url = AUTH_URL + '?response_type=code&client_id=' + secret.CLIENT_ID + \
-                                 '&redirect_uri=' + REDIRECT_URI_ 
-        # print("Zaloguj do Allegro - skorzystaj z url w swojej przeglądarce oraz wprowadź authorization code ze zwróconego url: ")
-        # print("---  " + authorization_redirect_url + "  ---")
+            authorization_redirect_url = AUTH_URL + '?response_type=code&client_id=' + secret.CLIENT_ID + \
+                                    '&redirect_uri=' + REDIRECT_URI_ 
+            # print("Zaloguj do Allegro - skorzystaj z url w swojej przeglądarce oraz wprowadź authorization code ze zwróconego url: ")
+            # print("---  " + authorization_redirect_url + "  ---")
 
-        return redirect(authorization_redirect_url)
-    except Exception as e:
-        print("An error occurred:", e)
-        return redirect('logout_user')
+            return redirect(authorization_redirect_url)
+        except Exception as e:
+            print("An error occurred:", e)
+            return redirect('logout_user')
 
 
 def get_new_code(request, name):
-    context = {
-        'name': name
-    }
-    return render(request, 'get_new_code.html', context)
+    if request.user.is_authenticated:
+        context = {
+            'name': name
+        }
+        return render(request, 'get_new_code.html', context)
 
     
 def get_code(request):
-    return render(request, 'get_code.html')
+    if request.user.is_authenticated:
+        return render(request, 'get_code.html')
 
 
 def get_authorization_code(request):
 
-    REDIRECT_URI_ =' http://localhost:8000/get_code'  
+    if request.user.is_authenticated:
 
-    try: 
+        REDIRECT_URI_ =' http://localhost:8000/get_code'  
 
-        user = get_user(request)
+        try: 
 
-        authorization_redirect_url = AUTH_URL + '?response_type=code&client_id=' + user.CLIENT_ID + \
-                                 '&redirect_uri=' + REDIRECT_URI_
-        # print("Zaloguj do Allegro - skorzystaj z url w swojej przeglądarce oraz wprowadź authorization code ze zwróconego url: ")
-        # print("---  " + authorization_redirect_url + "  ---")
+            user = get_user(request)
 
-        return redirect(authorization_redirect_url)
-    except Exception as e:
-        print("An error occurred:", e)
-        return redirect('logout_user')
+            authorization_redirect_url = AUTH_URL + '?response_type=code&client_id=' + user.CLIENT_ID + \
+                                    '&redirect_uri=' + REDIRECT_URI_
+            # print("Zaloguj do Allegro - skorzystaj z url w swojej przeglądarce oraz wprowadź authorization code ze zwróconego url: ")
+            # print("---  " + authorization_redirect_url + "  ---")
+
+            return redirect(authorization_redirect_url)
+        except Exception as e:
+            print("An error occurred:", e)
+            return redirect('logout_user')
         
     
 def get_access_token(request, authorization_code, name):
  
-    # user = get_user(request)
+    if request.user.is_authenticated:
 
-    account = Allegro.objects.get(name=name)
-    secret = Secret.objects.get(account=account)
+        account = Allegro.objects.get(name=name)
+        secret = Secret.objects.get(account=account)
 
-    print('************SECRETS************', secret.CLIENT_ID)
+        print('************SECRETS************', secret.CLIENT_ID)
 
-    try:
-        data = {'grant_type': 'authorization_code', 'code': authorization_code, 'redirect_uri': f'http://localhost:8000/get_new_code/{name}'}
-        access_token_response = requests.post(TOKEN_URL, data=data, verify=True,
-                                              allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
-        print("RESPONSE CONTENT:", access_token_response.status_code)
-        tokens = json.loads(access_token_response.text)
-        access_token = tokens['access_token']
-        refresh_token = tokens['refresh_token']
-        if access_token:
-            secret.access_token = access_token
-            secret.refresh_token = refresh_token
-            secret.save()
-            print(f'@#@#@#@# tokens #@#@#@# --------- {tokens}')
-            return JsonResponse({
-                   'message': tokens,
-               })
-    except requests.exceptions.HTTPError as err:
-        raise SystemExit(err)
+        try:
+            data = {'grant_type': 'authorization_code', 'code': authorization_code, 'redirect_uri': f'http://localhost:8000/get_new_code/{name}'}
+            access_token_response = requests.post(TOKEN_URL, data=data, verify=True,
+                                                allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
+            print("RESPONSE CONTENT:", access_token_response.status_code)
+            tokens = json.loads(access_token_response.text)
+            access_token = tokens['access_token']
+            refresh_token = tokens['refresh_token']
+            if access_token:
+                secret.access_token = access_token
+                secret.refresh_token = refresh_token
+                secret.save()
+                print(f'@#@#@#@# tokens #@#@#@# --------- {tokens}')
+                return JsonResponse({
+                    'message': tokens,
+                })
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)
 
     
 
 def get_refresh_token(request, authorization_code):
 
-    account = Allegro.objects.get(user=request.user)
-    secret = Secret.objects.get(account=account)
+    if request.user.is_authenticated:
 
-    try:
-        data = {'grant_type': 'authorization_code', 'code': authorization_code, 'redirect_uri': 'http://localhost:8000/get_code'}
-        access_token_response = requests.post(TOKEN_URL, data=data, verify=False,
-                                              allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
-        print("RESPONSE ******* get_refresh_token ******* :", access_token_response)
-        print("RESPONSE CONTENT:", access_token_response.status_code)
-        tokens = json.loads(access_token_response.text)
-        access_token = tokens['refresh_token']
-        get_next_token(access_token)
-    except requests.exceptions.HTTPError as err:
-        raise SystemExit(err)
+        account = Allegro.objects.get(user=request.user)
+        secret = Secret.objects.get(account=account)
+
+        try:
+            data = {'grant_type': 'authorization_code', 'code': authorization_code, 'redirect_uri': 'http://localhost:8000/get_code'}
+            access_token_response = requests.post(TOKEN_URL, data=data, verify=False,
+                                                allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
+            print("RESPONSE ******* get_refresh_token ******* :", access_token_response)
+            print("RESPONSE CONTENT:", access_token_response.status_code)
+            tokens = json.loads(access_token_response.text)
+            access_token = tokens['refresh_token']
+            get_next_token(access_token)
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)
     
 
 def get_next_token(request, access_token):
+        
+    if request.user.is_authenticated:
     
-    account = Allegro.objects.get(user=request.user)
-    secret = Secret.objects.get(account=account)
+        account = Allegro.objects.get(user=request.user)
+        secret = Secret.objects.get(account=account)
 
-    try:
-        data = {'grant_type': 'refresh_token', 'refresh_token': access_token, 'redirect_uri': 'http://localhost:8000/get_code'}
-        access_token_response = requests.post(TOKEN_URL, data=data, verify=False,
-                                              allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
-        print("RESPONSE CONTENT:", access_token_response.status_code)
-        tokens = json.loads(access_token_response.text)
-        access_token = tokens['access_token']
-        if access_token:
-            secret.access_token = access_token
-            secret.save()
-            print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {tokens}')
-            return JsonResponse({
-                   'message': tokens,
-               })
-    except requests.exceptions.HTTPError as err:
-        raise SystemExit(err)
+        try:
+            data = {'grant_type': 'refresh_token', 'refresh_token': access_token, 'redirect_uri': 'http://localhost:8000/get_code'}
+            access_token_response = requests.post(TOKEN_URL, data=data, verify=False,
+                                                allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
+            print("RESPONSE CONTENT:", access_token_response.status_code)
+            tokens = json.loads(access_token_response.text)
+            access_token = tokens['access_token']
+            if access_token:
+                secret.access_token = access_token
+                secret.save()
+                print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {tokens}')
+                return JsonResponse({
+                    'message': tokens,
+                })
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)
 
 
 
@@ -311,67 +320,111 @@ def post_product(request):
     
 
 def get_ids_all_categories(request):
+        
+    if request.user.is_authenticated:
 
-    account = Allegro.objects.get(user=request.user)
-    secret = Secret.objects.get(account=account)
+        account = Allegro.objects.get(user=request.user)
+        secret = Secret.objects.get(account=account)
 
-    try:
-        url = "https://api.allegro.pl.allegrosandbox.pl/sale/categories"
-        # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
-        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-        product_result = requests.get(url, headers=headers, verify=True)
-        # return main_categories_result
-        print('RESULT @@@@@@@@@', product_result.json())
-    except requests.exceptions.HTTPError as err:
-        raise SystemExit(err)
+        try:
+            url = "https://api.allegro.pl.allegrosandbox.pl/sale/categories"
+            # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
+            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+            product_result = requests.get(url, headers=headers, verify=True)
+            # return main_categories_result
+            print('RESULT @@@@@@@@@', product_result.json())
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)
     
 
 
 def add_address(request, name):
 
-    allegro = Allegro.objects.get(name=name)
+    if request.user.is_authenticated:
 
-    if request.method == 'POST':
-        firstName = request.POST.get('firstName')
-        lastName = request.POST.get('lastName')
-        company = request.POST.get('company')
-        street = request.POST.get('street')
-        streetNumber = request.POST.get('streetNumber')
-        postalCode = request.POST.get('postalCode')
-        city = request.POST.get('city')
-        email = request.POST.get('email')
-        phone = request.POST.get('phone')
+        allegro = Allegro.objects.get(name=name)
 
-        print('name', name)
+        if request.method == 'POST':
 
-        try:
-            address = Address.objects.create(
-                firstName=firstName,
-                lastName=lastName,
-                company=company,
-                street=street,
-                streetNumber=streetNumber,
-                postalCode=postalCode,
-                city=city,
-                email=email,
-                phone=phone,
-                name=allegro,
-            )
-            address.save()
-        except Exception as e:
-            # return error.html
-            print('************ ERROR *************', e)
+            firstName = request.POST.get('firstName')
+            lastName = request.POST.get('lastName')
+            company = request.POST.get('company')
+            street = request.POST.get('street')
+            streetNumber = request.POST.get('streetNumber')
+            postalCode = request.POST.get('postalCode')
+            city = request.POST.get('city')
+            email = request.POST.get('email')
+            phone = request.POST.get('phone')
 
+            print('name', name)
+
+            try:
+                address = Address.objects.create(
+                    firstName=firstName,
+                    lastName=lastName,
+                    company=company,
+                    street=street,
+                    streetNumber=streetNumber,
+                    postalCode=postalCode,
+                    city=city,
+                    email=email,
+                    phone=phone,
+                    name=allegro,
+                )
+                address.save()
+            except Exception as e:
+                # return error.html
+                print('************ ERROR *************', e)
 
     return redirect('get_address', name=name)
 
 
+def edit_address(request, name):
+
+    if request.user.is_authenticated:
+
+        allegro = Allegro.objects.get(name=name)
+
+        if request.method == 'POST':
+
+            try:
+                # Function to safely extract the first element if value is a tuple
+                def get_value(value):
+                    if isinstance(value, tuple):
+                        return value[0]
+                    return value
+                
+                # Extracting values and converting tuples to strings if necessary
+                address = get_object_or_404(Address, name__name=name)
+                address.firstName = get_value(request.POST.get('firstName'))
+                address.lastName = get_value(request.POST.get('lastName'))
+                address.company = get_value(request.POST.get('company'))
+                address.street = get_value(request.POST.get('street'))
+                address.streetNumber = get_value(request.POST.get('streetNumber'))
+                address.postalCode = get_value(request.POST.get('postalCode'))
+                address.city = get_value(request.POST.get('city'))
+                address.email = get_value(request.POST.get('email'))
+                address.phone = get_value(request.POST.get('phone'))
+                address.save()
+            except Exception as e:
+                # return error.html
+                print('************ ERROR *************', e)
+        
+        return redirect('get_address', name=name)
+
+
 def get_address(request, name):
+        
+    if request.user.is_authenticated:
 
-    addresses = Address.objects.filter(name__name=name)
-    context = {
-        'name': name,
-        'addresses': addresses,
-    }
+        secret = Secret.objects.get(account__name=name)
+        addresses = Address.objects.filter(name__name=name)
+        context = {
+            'name': name,
+            'addresses': addresses,
+            'secret': secret
+        }
 
-    return render(request, 'add_address.html', context)
+        print('************ secret *************', secret.CLIENT_ID)
+
+        return render(request, 'add_address.html', context)
