@@ -44,9 +44,11 @@
                 <option value="BULK_PRICE">Cennik hurtowy</option> 
                 <option value="VAT_INFO">Informacje o fakturze</option>
                 <option value="POST_OFFERS">Wystaw oferty</option>
+                <option value="JSON_OFFERS">Zapisz oferty (json)</option>
             </select>
 
             <input type="search" class="search_h" id="searchInput" placeholder="Szukaj..." onkeyup="searchOffers()">
+            <a class="" href="{% url 'download_all_offers' name %}">Download Offers as JSON</a>
     
             <form class="csv_h" action="{% url 'edit_offers_csv' name %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
@@ -118,7 +120,7 @@
                 </select>
 
                 <p>{{ offer.stock.sold }}</p>
-                <select class="account_select" id="account_select_{{ order.id }}_{{ forloop.counter }}">
+                <select class="account_select" id="account_select_{{ offer.id }}_{{ forloop.counter }}">
                     {% for nameIs in accounts  %}
                         <option id="status_{{ offer.id }}_{{ forloop.counter }}" value="{{ nameIs }}">
                             {{ nameIs }}
@@ -133,7 +135,7 @@
                     <img class="icon" src="{% static 'icons/post.png' %}" alt="">
                 </a>
 
-                <a id="pst_{{ offer.id }}_{{ forloop.counter }}" onclick="postOffer('{{ offer.id }}', '{{ forloop.counter }}', document.getElementById('account_select_{{ order.id }}_{{ forloop.counter }}').value)" style="display: none;">
+                <a id="pst_{{ offer.id }}_{{ forloop.counter }}" onclick="postOffer('{{ offer.id }}', '{{ forloop.counter }}')" style="display: none;">
                     <img id="pstIcon_{{ offer.id }}_{{ forloop.counter }}" class="icon" src="{% static 'icons/accept.png' %}" alt="">
                     <div id="loadPst_{{ offer.id }}_{{ forloop.counter }}" style="display: none;">
                         <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
@@ -222,13 +224,13 @@
         }
         
 
-        function postOfferTest(offerId, counter, selectedValue) {
-            // Your existing postOffer logic here
+        // function postOfferTest(offerId, counter, selectedValue) {
+        //     // Your existing postOffer logic here
 
-            console.log('offerId - account:', counter);
+        //     console.log('offerId - account:', counter);
 
-            // Perform other actions based on the selected value
-        }
+        //     // Perform other actions based on the selected value
+        // }
 
         function editStock(offerId) {
 
@@ -416,7 +418,8 @@
                 headers: {
                     'X-CSRFToken': csrftoken
                 }
-            })
+            }) 
+
             .then(function(response) {
                 // console.log('status', response.data.newValue)
                 if(response.status == 200) {
@@ -435,71 +438,73 @@
 
         }
 
-//         document.getElementById('account_select_{{ order.id }}').addEventListener('change', function() {
-//     var selectedValue = this.value; // Get the selected value
 
-//     // Now you can use the selected value in your logic
-//     console.log('Selected account:', selectedValue);
+        // Find an selected account for postOffer and bulkPost
+        function getSelectedAccountValue(offerId, counter) {
 
-//     // You can perform other actions based on the selected value
-//     // For example, you can make an AJAX request or update other parts of the page
-// });
+            const selectId = `account_select_${offerId}_${counter}`;
+            const selectElement = document.getElementById(selectId);
+            const selectedValue = selectElement.value;
 
+            console.log('getSelectedAccountValue =>', selectedValue)
 
-        function postOffer(offerId, counter, name) {
-
-        // Obtain CSRF token from cookie
-        var csrftoken = getCookie('csrftoken');
-
-        // var posto = document.getElementById('status_' + offerId)
-        // console.log('posto', posto)
-        // var postVal = posto.value;
-
-        const loadPst = document.getElementById('loadPst_' + offerId + '_' + counter)
-        const pstIcon = document.getElementById('pstIcon_' + offerId + '_' + counter);
-        loadPst.style.display = 'block';
-        pstIcon.style.display = 'none';
-
-        // Get the name value of Lister
-        // var listerId = document.getElementById('name');
-        // var lister = listerId.getAttribute('value');
-        // console.log('lister chacked', lister);
-
-        var ean = document.getElementById('ean_' + offerId + '_' + counter);
-        console.log('postOffer - name lister, ean, clicked', name, lister, ean.value);
-
-        axios.post('/post_new_offer/' + offerId + '/', { name: name, lister: lister, ean: ean.value }, {
-            headers: {
-                    'X-CSRFToken': csrftoken
-                }
-        })
-            .then(function(response) {
-                console.log('status', response.data)
-                if(response.status == 200) {
-                    if(response.data.message == 'Success') {
-                        loadPst.style.display = 'none';
-                        pstIcon.style.display = 'flex';
-                        // var context = response.data.context
-                        console.log('Success post_new_offer')
-                        // window.location.reload();
-                        // window.location.href = '/get_all_offers/' + name + '/';
-                    } else {
-                        console.log('ERROR 13')
-                        error_13.style.display = 'flex';
-                    }
-                }
-            })
-            .catch(function(error) {
-                // Handle error
-                console.error('Error updating stock:', error);
-                error.style.display = 'flex';
-                // window.location.reload();
-            });
+            return selectedValue;
         }
 
-    </script>
 
-<script>
+        function postOffer(offerId, counter) {
+
+            // Obtain CSRF token from cookie
+            var csrftoken = getCookie('csrftoken');
+
+            var error_13 = document.getElementById('error_13');
+            var error = document.getElementById('error');
+            // var postVal = posto.value;
+
+            const loadPst = document.getElementById('loadPst_' + offerId + '_' + counter)
+            const pstIcon = document.getElementById('pstIcon_' + offerId + '_' + counter);
+            loadPst.style.display = 'block';
+            pstIcon.style.display = 'none';
+
+            // Get the name value of Lister
+            // var listerId = document.getElementById('name');
+            // var lister = listerId.getAttribute('value');
+            console.log('lister chacked', lister);
+
+            var selectedAccount = getSelectedAccountValue(offerId, counter)
+            var ean = document.getElementById('ean_' + offerId + '_' + counter);
+            console.log('postOffer - name lister, ean, clicked', selectedAccount, lister, ean.value);
+
+            axios.post('/post_new_offer/' + offerId + '/', { name: selectedAccount, lister: lister, ean: ean.value }, {
+                headers: {
+                        'X-CSRFToken': csrftoken
+                    }
+            })
+  
+                .then(function(response) {
+                    console.log('status', response.data)
+                    if(response.status == 200) {
+                        if(response.data.message == 'Success') {
+                            loadPst.style.display = 'none';
+                            pstIcon.style.display = 'flex';
+                            // var context = response.data.context
+                            console.log('Success post_new_offer')
+                            // window.location.reload();
+                            // window.location.href = '/get_all_offers/' + name + '/';
+                        } else {
+                            console.log('ERROR 13')
+                            error_13.style.display = 'flex';
+                        }
+                    }
+                })
+                .catch(function(error) {
+                    // Handle error
+                    console.error('Error updating stock:', error);
+                    error.style.display = 'flex';
+                    // window.location.reload();
+                });
+        }
+
     function closeError() {
         var errorElement = document.getElementById("error_13");
         var errorMain = document.getElementById("error");
@@ -510,11 +515,9 @@
             errorMain.style.display = "none";
         }
     }
-</script>
 
+    async function bulkEdit() {
 
-<script>
-    function bulkEdit() {
         var checkboxes = document.querySelectorAll('input[name="selected_items"]');
         var selectedStatus = document.getElementById('status_select').value;
         console.log('selectedStatus, name =>', selectedStatus, name)
@@ -528,13 +531,15 @@
             if (checkbox.checked) {
                 if (selectedStatus === 'POST_OFFERS') {
                     // checkedItems.push(checkbox.orderData);
-                    console.log('checkbox id =>', checkbox.value)
-                    console.log('checkbox loop c =>', checkbox.dataset.forloopCounter)
-                    console.log('lister', document.getElementById('account_select__' + checkbox.value + '_' + checkbox.dataset.forloopCounter).value)
+                    // console.log('checkbox id =>', checkbox.value)
+                    // console.log('checkbox loop c =>', checkbox.dataset.forloopCounter)
+                    // console.log('lister', getSelectedAccountValue(checkbox.value, checkbox.dataset.forloopCounter))
+                    postOffer(checkbox.value, checkbox.dataset.forloopCounter)
                 } else {
                     console.log('checkbox =>', checkbox.value)
                     checkedItems.push(checkbox.value);
                 }
+                
             }
         });
 

@@ -16,6 +16,7 @@ def bulk_edit(request, name, ed_value):
         ids = request.GET.getlist('ids')
         encoded_offers = ','.join(ids)
         print('********************** ids ****************************', ids)
+        print('********************** ed_value ****************************', ed_value)
 
         return redirect(f'{ed_value}', name=name, offers=encoded_offers)
 
@@ -167,4 +168,23 @@ def QUANTITY(request, name, offers):
                 raise SystemExit(err)
 
 
+        return render(request, 'bulk_quantity.html')
+
+
+def JSON_OFFERS(request, name, offers):
+
+    if request.user.is_authenticated:
+        print(' ******************* JSON_OFFERS ******************* ', offers)
+
+
+        # buffer = io.BytesIO()
+        # json_string = json.dumps(result, indent=4)
+        # buffer.write(json_string.encode('utf-8'))
+        # buffer.seek(0)
+
+        # # Serve the file as a downloadable response
+        # response = HttpResponse(buffer, content_type='application/json')
+        # response['Content-Disposition'] = f'attachment; filename="{name}_offers.json"'
+        # return response 
+        
         return render(request, 'bulk_quantity.html')

@@ -2,9 +2,82 @@ import csv
 import io
 import json, requests
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from ..utils import *
 from ..models import *
+
+
+async def download_all_offers(request, id, name, secret):
+
+    ''' 
+     This function returns a json description of the offer by id into the bulk_editview.py
+     to download all offers like json file. Next step is to create async logic for bulk operation
+    '''
+
+    if request.user.is_authenticated:
+
+        try:
+            url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
+            # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
+            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+            product_result = requests.get(url, headers=headers, verify=True)
+            result = product_result.json()
+            # Headers of the response
+            # print(" ************* Headers of the response: *************", product_result.headers)
+            # print('RESULT @@@@@@@@@', result)
+
+            if 'error' in result:
+                error_code = result['error']
+                if error_code == 'invalid_token':
+                    # print('ERROR RESULT @@@@@@@@@', error_code)
+                    try:
+                        # Refresh the token
+                        new_token = get_next_token(request, secret.refresh_token)
+                        # Retry fetching orders with the new token
+                        return get_one_offer(request, id)
+                    except Exception as e:
+                        print('Exception @@@@@@@@@', e)
+                        return redirect('invalid_token')
+            # print('RESULT - download_all_offers - @@@@@@@@@', json.dumps(result, indent=4))
+
+            return  result       
+            
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)
+
+# DO NOT USE
+def download_all_offers_not_use(request, name):
+    if request.user.is_authenticated:
+        # account = get_object_or_404(Allegro, name=name)
+        secret = get_object_or_404(Secret, account__name=name)
+
+        try:
+            url = "https://api.allegro.pl.allegrosandbox.pl/sale/offers"
+            # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
+            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+            # print('******* product_result ********', result)
+            product_result = requests.get(url, headers=headers, verify=True)
+            product_result.raise_for_status()  # Raise an error for bad HTTP status codes
+
+            result = product_result.json()
+            # print('RESULT - download_all_offers - @@@@@@@@@', json.dumps(result, indent=4))
+
+            # Create an in-memory file-like object
+            # Create an in-memory file-like object
+            buffer = io.BytesIO()
+            json_string = json.dumps(result, indent=4)
+            buffer.write(json_string.encode('utf-8'))
+            buffer.seek(0)
+
+            # Serve the file as a downloadable response
+            response = HttpResponse(buffer, content_type='application/json')
+            response['Content-Disposition'] = f'attachment; filename="{name}_offers.json"'
+            return response
+
+        except requests.exceptions.HTTPError as err:
+            return JsonResponse({'error': str(err)}, status=500)
+    else:
+        return JsonResponse({'error': 'User not authenticated'}, status=401)
 
 
 def get_all_offers(request, name):
@@ -12,9 +85,7 @@ def get_all_offers(request, name):
     if request.user.is_authenticated:
 
         # print('******* name ********', name)
-        account = Allegro.objects.get(name=name)
-        # print('******* account ********', account)
-        secret = Secret.objects.get(account=account)
+        secret = Secret.objects.get(account__name=name)
         # print('******* secret ********', secret)
         # print('******* secret.access_token ********', secret.access_token)
 
