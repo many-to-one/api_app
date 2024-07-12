@@ -4,28 +4,43 @@ import json, requests
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 
-from .offer_views import get_all_offers
+from .offer_views import get_all_offers, download_all_offers
 from ..utils import *
 from ..models import *
 import uuid
 
+
 def bulk_edit(request, name, ed_value):
 
     if request.user.is_authenticated:
+
+        secret = Secret.objects.get(account__name=name)
 
         ids = request.GET.getlist('ids')
         encoded_offers = ','.join(ids)
         print('********************** ids ****************************', ids)
         print('********************** ed_value ****************************', ed_value)
 
-        return redirect(f'{ed_value}', name=name, offers=encoded_offers)
+        if ed_value == 'JSON_OFFERS':
+            result = asyncio.run(download_all_offers(request, ids, secret.access_token))
+            buffer = io.BytesIO()
+            json_string = json.dumps(result, indent=4)
+            buffer.write(json_string.encode('utf-8'))
+            buffer.seek(0)
+
+            # Serve the file as a downloadable response
+            response = HttpResponse(buffer, content_type='application/json')
+            response['Content-Disposition'] = f'attachment; filename="{name}_offers.json"'
+            return response
+        else:
+            return redirect(f'{ed_value}', name=name, secret=secret.access_token, offers=encoded_offers)
 
 
-def PRICE(request, name, offers):
+def PRICE(request, name, secret, offers):
 
     if request.user.is_authenticated:
 
-        secret = Secret.objects.get(account__name=name)
+        # secret = Secret.objects.get(account__name=name)
         commandId = uuid.uuid4()
         offers_list = [{'id': offer_id} for offer_id in offers.split(',')]
 
@@ -106,11 +121,11 @@ def PRICE(request, name, offers):
 
 
 
-def QUANTITY(request, name, offers):
+def QUANTITY(request, name, secret, offers):
 
     if request.user.is_authenticated:
 
-        secret = Secret.objects.get(account__name=name)
+        # secret = Secret.objects.get(account__name=name)
         commandId = uuid.uuid4()
         offers_list = [{'id': offer_id} for offer_id in offers.split(',')]
 
@@ -171,20 +186,25 @@ def QUANTITY(request, name, offers):
         return render(request, 'bulk_quantity.html')
 
 
-def JSON_OFFERS(request, name, offers):
+def JSON_OFFERS(request):
 
     if request.user.is_authenticated:
-        print(' ******************* JSON_OFFERS ******************* ', offers)
+        data = json.loads(request.body.decode('utf-8'))
+        name = data.get('name')
+        ids = data.get('ids')
+        secret = Secret.objects.get(account__name=name)
+        print(' ******************* JSON_OFFERS offers ******************* ', ids)
 
+        result = asyncio.run(download_all_offers(request, ids, secret.access_token))
+        buffer = io.BytesIO()
+        json_string = json.dumps(result, indent=4, ensure_ascii=False) # ensure_ascii=False for polish symbols
+        buffer.write(json_string.encode('utf-8'))
+        buffer.seek(0)
 
-        # buffer = io.BytesIO()
-        # json_string = json.dumps(result, indent=4)
-        # buffer.write(json_string.encode('utf-8'))
-        # buffer.seek(0)
-
-        # # Serve the file as a downloadable response
-        # response = HttpResponse(buffer, content_type='application/json')
-        # response['Content-Disposition'] = f'attachment; filename="{name}_offers.json"'
-        # return response 
+        # Serve the file as a downloadable response
+        response = HttpResponse(buffer, content_type='application/json')
+        response['Content-Disposition'] = f'attachment; filename="{name}_offers.json"'
+        return response
+    else:
+        return HttpResponse(status=401, content='User not authenticated')
         
-        return render(request, 'bulk_quantity.html')

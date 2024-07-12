@@ -162,10 +162,10 @@
     var error_13 = document.getElementById('error_13');
     var error = document.getElementById('error');
 
-        // function getCSRFToken() {
-        //     const cookieValue = document.cookie.match(/csrftoken=([^ ;]+)/)[1];
-        //     return cookieValue;
-        // }
+        function getCSRFToken() {
+            const cookieValue = document.cookie.match(/csrftoken=([^ ;]+)/)[1];
+            return cookieValue;
+        }
 
         // Function to get CSRF token from cookie
         function getCookie(name) {
@@ -520,7 +520,8 @@
 
         var checkboxes = document.querySelectorAll('input[name="selected_items"]');
         var selectedStatus = document.getElementById('status_select').value;
-        console.log('selectedStatus, name =>', selectedStatus, name)
+        // console.log('selectedStatus, name =>', selectedStatus, name)
+        var csrftoken = getCookie('csrftoken');
 
         // Initialize an empty array to store the checked checkbox values
         var checkedItems = [];
@@ -545,6 +546,31 @@
 
         if (selectedStatus === 'POST_OFFERS') {
             console.log('POST_OFFERS =>', checkedItems)
+        } else if (selectedStatus === 'JSON_OFFERS') {
+            // Send the checked items as a POST request
+            axios.post('/JSON_OFFERS/', {
+            name: name,  // Ensure this variable is defined elsewhere
+            ids: checkedItems
+        }, {
+            headers: {
+                'X-CSRFToken': getCSRFToken()
+            },
+            responseType: 'blob'  // Ensure the response is treated as a Blob
+        }).then(function(response) {
+            console.log('Response:', response);
+            if (response.status === 200) {
+                // Create a link to download the file
+                const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/json' }));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `${name}_offers.json`);  // Ensure name is defined
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }).catch(function(error) {
+            console.error('Error:', error);
+        });
         } else {
             var url = `/bulk_edit/${name}/${selectedStatus}/?ids=` + checkedItems;
             window.location.href = url;

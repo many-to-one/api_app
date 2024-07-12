@@ -88,7 +88,7 @@ def get_access_token(request, authorization_code, name):
     if request.user.is_authenticated:
 
         account = Allegro.objects.get(name=name)
-        secret = Secret.objects.get(account=account)
+        secret = Secret.objects.get(account__name=name)
 
         print('************SECRETS************', secret.CLIENT_ID)
 

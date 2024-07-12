@@ -39,9 +39,9 @@ urlpatterns = [
     path('download_all_offers/<str:name>/', offer_views.download_all_offers, name='download_all_offers'),
 
     path('bulk_edit/<str:name>/<str:ed_value>/', bulk_edit_views.bulk_edit, name='bulk_edit'),
-    path('PRICE/<str:name>/<str:offers>/', bulk_edit_views.PRICE, name='PRICE'),
-    path('QUANTITY/<str:name>/<str:offers>/', bulk_edit_views.QUANTITY, name='QUANTITY'),
-    path('JSON_OFFERS/<str:name>/<str:offers>/', bulk_edit_views.JSON_OFFERS, name='JSON_OFFERS'),
+    path('PRICE/<str:name>/<str:secret>/<str:offers>/', bulk_edit_views.PRICE, name='PRICE'),
+    path('QUANTITY/<str:name>/<str:secret>/<str:offers>/', bulk_edit_views.QUANTITY, name='QUANTITY'),
+    path('JSON_OFFERS/', bulk_edit_views.JSON_OFFERS, name='JSON_OFFERS'),
 
     path('all_messages/<str:name>/', messages.all_messages, name='all_messages'),
     path('get_one_message/', messages.get_one_message, name='get_one_message'),

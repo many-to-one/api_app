@@ -7,7 +7,7 @@ from ..utils import *
 from ..models import *
 
 
-async def download_all_offers(request, id, name, secret):
+async def return_async_offer(request, secret, id):
 
     ''' 
      This function returns a json description of the offer by id into the bulk_editview.py
@@ -17,67 +17,67 @@ async def download_all_offers(request, id, name, secret):
     if request.user.is_authenticated:
 
         try:
-            url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
-            # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
-            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-            product_result = requests.get(url, headers=headers, verify=True)
-            result = product_result.json()
-            # Headers of the response
-            # print(" ************* Headers of the response: *************", product_result.headers)
-            # print('RESULT @@@@@@@@@', result)
+            async with httpx.AsyncClient() as client:
+                url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
+                headers = {'Authorization': f'Bearer {secret}', 'Accept': "application/vnd.allegro.public.v1+json"}
+                product_result = await client.get(url, headers=headers)
+                result = product_result.json()
 
-            if 'error' in result:
-                error_code = result['error']
-                if error_code == 'invalid_token':
-                    # print('ERROR RESULT @@@@@@@@@', error_code)
-                    try:
-                        # Refresh the token
-                        new_token = get_next_token(request, secret.refresh_token)
-                        # Retry fetching orders with the new token
-                        return get_one_offer(request, id)
-                    except Exception as e:
-                        print('Exception @@@@@@@@@', e)
+                if 'error' in result:
+                    error_code = result['error']
+                    if error_code == 'invalid_token':
                         return redirect('invalid_token')
-            # print('RESULT - download_all_offers - @@@@@@@@@', json.dumps(result, indent=4))
+                # print('RESULT - download_all_offers - @@@@@@@@@', json.dumps(result, indent=4))
 
-            return  result       
+                return  result       
             
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
 
-# DO NOT USE
-def download_all_offers_not_use(request, name):
-    if request.user.is_authenticated:
-        # account = get_object_or_404(Allegro, name=name)
-        secret = get_object_or_404(Secret, account__name=name)
 
-        try:
-            url = "https://api.allegro.pl.allegrosandbox.pl/sale/offers"
-            # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
-            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-            # print('******* product_result ********', result)
-            product_result = requests.get(url, headers=headers, verify=True)
-            product_result.raise_for_status()  # Raise an error for bad HTTP status codes
 
-            result = product_result.json()
-            # print('RESULT - download_all_offers - @@@@@@@@@', json.dumps(result, indent=4))
+# async def return_async_offer(request, secret, id):
 
-            # Create an in-memory file-like object
-            # Create an in-memory file-like object
-            buffer = io.BytesIO()
-            json_string = json.dumps(result, indent=4)
-            buffer.write(json_string.encode('utf-8'))
-            buffer.seek(0)
+#     ''' 
+#      This function returns a json description of the offer by id into the bulk_editview.py
+#      to download all offers like json file. Next step is to create async logic for bulk operation
+#     '''
 
-            # Serve the file as a downloadable response
-            response = HttpResponse(buffer, content_type='application/json')
-            response['Content-Disposition'] = f'attachment; filename="{name}_offers.json"'
-            return response
+#     if request.user.is_authenticated:
 
-        except requests.exceptions.HTTPError as err:
-            return JsonResponse({'error': str(err)}, status=500)
-    else:
-        return JsonResponse({'error': 'User not authenticated'}, status=401)
+#         try:
+#             url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
+#             headers = {'Authorization': f'Bearer {secret}', 'Accept': "application/vnd.allegro.public.v1+json"}
+#             product_result = requests.get(url, headers=headers)
+#             result = product_result.json()
+#             if 'error' in result:
+#                 error_code = result['error']
+#                 if error_code == 'invalid_token':
+#                     return redirect('invalid_token')
+#             print('RESULT - download_all_offers - @@@@@@@@@', json.dumps(result, indent=4))
+#             return  result       
+            
+#         except requests.exceptions.HTTPError as err:
+#             raise SystemExit(err)
+
+
+
+async def download_all_offers(request, offers, secret):
+
+    tasks = []
+
+    for id in offers:
+        print('@@@@@@@@@ - download_all_offers id - @@@@@@@@@', id)
+        tasks.append(asyncio.create_task(return_async_offer(request, secret, id)))
+
+    # [tasks.append(asyncio.create_task(return_async_offer(request, secret, id))) for id in offers]
+
+    results = await asyncio.gather(*tasks)
+
+    print('RESULT - download_all_offers - @@@@@@@@@', json.dumps(results, indent=4))
+
+    return results
+
 
 
 def get_all_offers(request, name):
@@ -292,6 +292,7 @@ def post_new_offer(request, id):
         # print('************** name **************', name)
         # print('************** lister **************', lister)
         # print('************** ean **************', ean)
+        print('************** post_new_offer id **************', id)
 
         account = Allegro.objects.get(name=name)
         secret = Secret.objects.get(account=account)
@@ -331,7 +332,7 @@ def post_new_offer(request, id):
                     except Exception as e:
                         print('Exception @@@@@@@@@', e)
                         return redirect('invalid_token')
-            # print('RESULT - post_new_offer - @@@@@@@@@', json.dumps(result, indent=4))
+            print('RESULT - post_new_offer - @@@@@@@@@', json.dumps(result, indent=4))
             context = {
                 'result': product_result.json()
             }
