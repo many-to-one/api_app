@@ -1,7 +1,7 @@
 import csv
 import io
 import json, requests
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
 from ..utils import *
 from ..models import *
@@ -1044,19 +1044,19 @@ def edit_edit(request, secret, json_data):
             raise SystemExit(err)
     
 
-# def bulk_edit(request, name, ed_value):
+def upload_json_offers(request):
     
-#     ids = request.GET.getlist('ids')
-    
-#     offers = {}
-#     offers_list = []
+    if request.method == 'POST':
+        if not request.FILES.get('jsonFile'):
+            return HttpResponseBadRequest('No file uploaded.')
 
-#     for id in ids:
-#         id_list = id.split(',')
-#         for id in id_list:
-#             offers['id'] = id
-#             offers_list.append(offers)
-#             # print('********************** IDS bulk_edit IDS ****************************', id)
-#     print('********************** IDS offers IDS ****************************', offers_list)
-#     print('********************** IDS ed_value IDS ****************************', ed_value, name)
-#     return HttpResponse('ok')
+        json_file = request.FILES['jsonFile']
+        offers = json.load(json_file)
+        name = request.POST.get('name')
+
+        print('********************** upload_json_offers offers ****************************', offers)
+        print('********************** IDS name ****************************', name)
+
+        for offer in offers:
+            print('********************** offer ****************************', offer['name'])
+    return HttpResponse('ok')
