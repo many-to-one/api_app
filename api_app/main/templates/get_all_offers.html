@@ -48,17 +48,27 @@
             </select>
 
             <input type="search" class="search_h" id="searchInput" placeholder="Szukaj..." onkeyup="searchOffers()">
-            <form method="post" id="uploadForm" enctype="multipart/form-data">
+            <select class="delivery_select var_select" id="deliverySelect">
+                {% for method in deliveries  %}
+                    <!-- <option selected value=" ">Dostawa ...</option> -->
+                    <option id="method_{{ forloop.counter }}" value="{{ method }}">
+                        {{ method }}
+                    </option>
+                {% endfor %}  
+                <!-- Add more options for other statuses if needed -->
+            </select>
+            <button class="jsn_start" id="jsnStart" onclick="jsnStartGo()">Załaduj aukcję</button>
+            <form class="jsn_h" method="post" id="uploadForm" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="file" id="jsonFile" name="jsonFile" accept="application/json">
                 <button type="button" onclick="uploadFile()">Upload</button>
             </form>
     
-            <form class="csv_h" action="{% url 'edit_offers_csv' name %}" method="post" enctype="multipart/form-data">
+            <!-- <form class="csv_h" action="{% url 'edit_offers_csv' name %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="file" name="file" placeholder="csv">CSV</input>
                 <button >Upload</button>
-            </form> 
+            </form>  -->
         </div>
 
         <div class="offers_headers">
@@ -584,13 +594,29 @@
 
 
     // Upload offers like json file
+    const jsnStart = document.getElementById('jsnStart');
+    const uploadFormB = document.getElementById('uploadForm');
+    const searchInput = document.getElementById('searchInput');
+    const deliverySelect = document.getElementById('deliverySelect');
+
+    function jsnStartGo () {
+
+        searchInput.style.display = 'none';
+        jsnStart.style.display = 'none';
+        deliverySelect.style.display = 'block';
+        uploadFormB.style.display = 'flex';
+        console.log('uploadFile style test', jsnStart, uploadFormB)
+        
+    }
+
     function uploadFile() {
-            const fileInput = document.getElementById('jsonFile');
-            const file = fileInput.files[0];
-            console.log('file:', file);
-            const formData = new FormData();
-            formData.append('jsonFile', file);
-            formData.append('name', name); 
+
+        const fileInput = document.getElementById('jsonFile');
+        const file = fileInput.files[0];
+        console.log('file:', file);
+        const formData = new FormData();
+        formData.append('jsonFile', file);
+        formData.append('name', name); 
 
             axios.post('/upload_json_offers/',
             
@@ -605,6 +631,10 @@
             // .then(response => response.json())
             .then(response => {
                 console.log('Success:', response.data);
+                searchInput.style.display = 'block';
+                deliverySelect.style.display = 'none';
+                jsnStart.style.display = 'flex';
+                uploadFormB.style.display = 'none';
                 // Handle success response
             })
             .catch(error => {

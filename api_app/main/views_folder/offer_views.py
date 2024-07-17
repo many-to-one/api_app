@@ -1053,10 +1053,163 @@ def upload_json_offers(request):
         json_file = request.FILES['jsonFile']
         offers = json.load(json_file)
         name = request.POST.get('name')
+        secret = Secret.objects.get(account__name=name)
 
-        print('********************** upload_json_offers offers ****************************', offers)
+        print('********************** upload_json_offers offers ****************************', json.dumps(offers[0], indent=4))
         print('********************** IDS name ****************************', name)
 
-        for offer in offers:
-            print('********************** offer ****************************', offer['name'])
+        for offer in offers[:1]:
+            print('********************** offer ****************************', offer['delivery']['shippingRates']['id'])
+            post_product(offer, secret.access_token)
     return HttpResponse('ok')
+
+
+def post_product(offer, secret_access_token):
+ 
+    url = f'https://api.allegro.pl.allegrosandbox.pl/sale/product-offers'
+
+    headers = {
+        'Authorization': f'Bearer {secret_access_token}',
+        'Accept': 'application/vnd.allegro.public.v1+json',
+        'Content-Type': 'application/vnd.allegro.public.v1+json'
+    }
+
+    data = offer
+    offer['delivery']['shippingRates'] = None
+    
+#     data = {
+#     'productSet': [{
+#         'product': {
+#             'category': {
+#                 'id': '112627' #'112627'
+#             },
+#             'name': 'Fajny product 8',
+#             'images': ['https://inoxtrade.com.pl/AfterBuy/ats/1.jpg'],
+#             'parameters': [{
+#                 'name': 'EAN (GTIN)',
+#                 'values': ['5904659181460']
+#             },
+#             {
+#                 'name': 'Kod producenta',
+#                 'values': ['008']
+#             },
+#             {
+#                 'name': 'Marka',
+#                 'values': ['DK']
+#             },
+#             {
+#                 'name': 'Nazwa handlowa',
+#                 'values': ['Fajny produkt']
+#             },
+#             {
+#                 'name': 'Pojemność',
+#                 'values': [350.0]
+#             },
+#             {
+#                 'name': 'Produkt nie zawiera',
+#                 'values': ['glutenu']
+#             }
+# ]}}],
+
+#         'external': {
+#                 'id': '007' #sygnatura
+#             },
+
+#         'images': [ #'https://inoxtrade.com.pl/AfterBuy/ats/1.jpg', 
+#                    'https://inoxtrade.com.pl/AfterBuy/ats/2.jpg', 'https://inoxtrade.com.pl/AfterBuy/ats/3.jpg'], 
+#         'description': {
+#             'sections': [{
+#                 'items': [{
+#                     'type': 'IMAGE',
+#                     'url': 'https://inoxtrade.com.pl/AfterBuy/ats/2.jpg'
+#                 }]
+#                 }, 
+#                 {
+#                     'items': [{
+#                         'type': 'TEXT',
+#                         'content': '<p> Pierwszy blok opisu</p>'
+#                     },
+#                     {
+#                         'type': 'IMAGE',
+#                         'url': 'https://inoxtrade.com.pl/AfterBuy/ats/3.jpg'
+#                     }]
+#                 }, 
+#                 {
+#                     'items': [{
+#                         'type': 'TEXT',
+#                         'content': '<p> Drugi blok opisu</p>'
+#                     }]
+#                 },
+#                 {
+#                     'items': [{
+#                         'type': 'IMAGE',
+#                         'url': 'https://inoxtrade.com.pl/AfterBuy/ats/1.jpg'
+#                     }]
+#                 }
+#             ]},
+#     'location': {
+#         'countryCode': 'PL',
+#         'province': 'MAZOWIECKIE',
+#         'city': 'Warszawa',
+#         'postCode': '02-822'
+#     },
+#     'stock': {
+#         'available': 10
+#     },
+#     'sellingMode': {
+#         'format': 'BUY_NOW',
+#         'price': {
+#             'amount': '37.90',
+#             'currency': 'PLN'
+#         }},
+#     'payments': {
+#         'invoice': 'VAT'
+#     },
+#     "taxSettings": {
+#     "rates": [
+#             {
+#                 "rate": "23.00",
+#                 "countryCode": "PL"
+#             }
+#         ],
+#         "subject": "GOODS",
+#         # "exemption": "MONEY_EQUIVALENT"
+#     },
+#     'delivery': {
+#         'shippingRates': {
+#             'name': 'Standardowy'
+#     },
+#         "handlingTime": "PT48H"
+#     },
+#     'afterSalesServices': {
+#         'id': 'standard'
+#     },
+#     "discounts": {
+#         "wholesalePriceList": {
+#             # "id": "Hurtowy min",
+#             "name": "Hurtowy min"
+#         }
+#     },
+#     "messageToSellerSettings": {
+#         "mode": "OPTIONAL",
+#         "hint": "Wybierz wzór"
+#     }
+# }
+
+    response = requests.post(url, headers=headers, json=data)
+
+    # print(response.status_code)
+    # print(response.json())
+
+    try:
+        response_json = response.json()
+        print("Response JSON:")
+        print(response_json)
+    except requests.exceptions.JSONDecodeError:
+        print("No JSON response")
+
+    # Additional error handling based on specific use case
+    if response.status_code != 200:
+        print(f"Error: {response.text}")
+
+    return redirect('index')

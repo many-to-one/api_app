@@ -47,12 +47,16 @@ def get_next_token(request, access_token, name):
             # print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {access_token}')
             print(' ************* NEXT TOKEN WAS CREATED ************* ')
             return access_token
+        if tokens['error']:
+            print(f'@#@#@#@# NEXT TOKENS ERROR ERROR ERROR #@#@#@# --------- ')
+            # If the exceptions will repeat, I need to create logic
+            # to get a new token o smth to login to allegro 
+            # via secret.CLIENT_ID, secret.CLIENT_SECRET
+            # to get a new access/refresh_token
+            
     except requests.exceptions.HTTPError as err:
         # raise SystemExit(err)
         print(f'******** requests.exceptions.HTTPError ******** --------- {err}')
-
-
-
 
 
 
