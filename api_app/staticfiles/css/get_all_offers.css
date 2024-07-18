@@ -44,6 +44,12 @@
     background-color: var(--bg_color);
 }
 
+.aftersale_select {
+    display: none;
+    position: absolute;
+    left: 58%;
+}
+
 .delivery_select {
     display: none;
     position: absolute;

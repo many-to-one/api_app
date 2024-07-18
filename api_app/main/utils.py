@@ -2,6 +2,7 @@ import asyncio
 import math
 import time
 from users.models import CustomUser
+from users.views import logout_user
 from .models import *
 import requests
 from django.http import JsonResponse
@@ -11,6 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 TOKEN_URL = os.getenv('TOKEN_URL')
 import httpx
+from django.shortcuts import redirect
 
 
 def get_user(request):
@@ -31,32 +33,34 @@ def get_next_token(request, access_token, name):
     secret = Secret.objects.get(account=account)
     print(f'@#@#@#@# secret #@#@#@# --------- {secret}')
 
-    try:
-        data = {'grant_type': 'refresh_token', 'refresh_token': secret.refresh_token, 'redirect_uri': 'http://localhost:8000/get_code'}
-        access_token_response = requests.post(TOKEN_URL, data=data, verify=False,
-                                              allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
-        # print("RESPONSE CONTENT:", access_token_response.status_code)
-        tokens = json.loads(access_token_response.text)
-        print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {tokens}')
-        access_token = tokens['access_token']
-        # refresh_token = tokens['refresh_token']
-        if access_token:
-            secret.access_token = access_token
-            # secret.refresh_token = refresh_token
-            secret.save()
-            # print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {access_token}')
-            print(' ************* NEXT TOKEN WAS CREATED ************* ')
-            return access_token
-        if tokens['error']:
-            print(f'@#@#@#@# NEXT TOKENS ERROR ERROR ERROR #@#@#@# --------- ')
-            # If the exceptions will repeat, I need to create logic
-            # to get a new token o smth to login to allegro 
-            # via secret.CLIENT_ID, secret.CLIENT_SECRET
-            # to get a new access/refresh_token
+    # try:
+    data = {'grant_type': 'refresh_token', 'refresh_token': secret.refresh_token, 'redirect_uri': 'http://localhost:8000/get_code'}
+    access_token_response = requests.post(TOKEN_URL, data=data, verify=False,
+                                          allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
+    # print("RESPONSE CONTENT:", access_token_response.status_code)
+    tokens = json.loads(access_token_response.text)
+    print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {tokens}')
+    access_token = tokens['access_token']
+    error_token = tokens['error']
+    # refresh_token = tokens['refresh_token']
+    if access_token:
+        secret.access_token = access_token
+        # secret.refresh_token = refresh_token
+        secret.save()
+        # print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {access_token}')
+        print(' ************* NEXT TOKEN WAS CREATED ************* ')
+        return access_token
+    if error_token:
+        print(f'@#@#@#@# NEXT TOKENS ERROR ERROR ERROR #@#@#@# --------- ', error_token)
+        # If the exceptions will repeat, I need to create logic
+        # to get a new token o smth to login to allegro 
+        # via secret.CLIENT_ID, secret.CLIENT_SECRET
+        # to get a new access/refresh_token
+        return redirect(logout_user())
             
-    except requests.exceptions.HTTPError as err:
-        # raise SystemExit(err)
-        print(f'******** requests.exceptions.HTTPError ******** --------- {err}')
+    # except requests.exceptions.HTTPError as err:
+    #     # raise SystemExit(err)
+    #     print(f'******** requests.exceptions.HTTPError ******** --------- {err}')
 
 
 

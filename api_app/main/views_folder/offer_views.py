@@ -80,12 +80,79 @@ async def download_all_offers(request, offers, secret):
 
 
 
+def get_aftersale_services(request, name):
+
+    if request.user.is_authenticated:
+
+        secret = Secret.objects.get(account__name=name)
+
+        try:
+            url = "https://api.allegro.pl.allegrosandbox.pl/after-sales-service-conditions/return-policies"  
+            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+            product_result = requests.get(url, headers=headers, verify=True)
+            result = product_result.json()
+            # print('******* product_result ********', result)
+            if 'error' in result:
+                error_code = result['error']
+                if error_code == 'invalid_token':
+                    # print('ERROR RESULT @@@@@@@@@', error_code)
+                    try:
+                        # Refresh the token
+                        new_token = get_next_token(request, secret.refresh_token, name)
+                        # Retry fetching orders with the new token
+                        return get_all_offers(request, name)
+                    except Exception as e:
+                        print('Exception @@@@@@@@@', e)
+                        context = {'name': name}
+                        return render(request, 'invalid_token.html', context)
+            print('RESULT - get_aftersale_services - @@@@@@@@@', json.dumps(result, indent=4))
+            return result
+        except Exception as e:
+            return HttpResponse({e})
+
+
+
+def get_shipping_rates(request, name):
+
+    if request.user.is_authenticated:
+
+        secret = Secret.objects.get(account__name=name)
+
+        try:
+            url = "https://api.allegro.pl.allegrosandbox.pl/sale/shipping-rates" 
+            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+            product_result = requests.get(url, headers=headers, verify=True)
+            result = product_result.json()
+            # print('******* product_result ********', result)
+            if 'error' in result:
+                error_code = result['error']
+                if error_code == 'invalid_token':
+                    # print('ERROR RESULT @@@@@@@@@', error_code)
+                    try:
+                        # Refresh the token
+                        new_token = get_next_token(request, secret.refresh_token, name)
+                        # Retry fetching orders with the new token
+                        return get_all_offers(request, name)
+                    except Exception as e:
+                        print('Exception @@@@@@@@@', e)
+                        context = {'name': name}
+                        return render(request, 'invalid_token.html', context)
+            # print('RESULT - shipping_rates - @@@@@@@@@', json.dumps(result, indent=4))
+            return result
+        except Exception as e:
+            return HttpResponse({e})
+
+
+
+
 def get_all_offers(request, name):
 
     if request.user.is_authenticated:
 
         # print('******* name ********', name)
         secret = Secret.objects.get(account__name=name)
+        shipping_rates = get_shipping_rates(request, name)
+        aftersale_services = get_aftersale_services(request, name)
         # print('******* secret ********', secret)
         # print('******* secret.access_token ********', secret.access_token)
 
@@ -109,10 +176,14 @@ def get_all_offers(request, name):
                         print('Exception @@@@@@@@@', e)
                         context = {'name': name}
                         return render(request, 'invalid_token.html', context)
-            # print('RESULT - get_all_offers - @@@@@@@@@', json.dumps(result, indent=4))
+            # for k in shipping_rates:
+            print(" ############### shipping_rates ################## ", shipping_rates)
+            print(" ############### aftersale_services ################## ", aftersale_services)
             context = {
                 'result': product_result.json(),
                 'name': name,
+                'shipping_rates': shipping_rates,
+                'aftersale_services': aftersale_services,
             }
             return render(request, 'get_all_offers.html', context)
         except requests.exceptions.HTTPError as err:
@@ -1052,19 +1123,24 @@ def upload_json_offers(request):
 
         json_file = request.FILES['jsonFile']
         offers = json.load(json_file)
+        # shipping_rates_id = request.POST.get('shippingRatesId')
+        shipping_rates_id = request.headers.get('X-Selected-Method-Id')
+        after_sale_id = request.headers.get('X-Selected-Warranty-Id')
         name = request.POST.get('name')
         secret = Secret.objects.get(account__name=name)
 
         print('********************** upload_json_offers offers ****************************', json.dumps(offers[0], indent=4))
         print('********************** IDS name ****************************', name)
+        print('********************** shipping_rates_id ****************************', shipping_rates_id)
+        print('********************** after_sale_id ****************************', after_sale_id)
 
         for offer in offers[:1]:
             print('********************** offer ****************************', offer['delivery']['shippingRates']['id'])
-            post_product(offer, secret.access_token)
+            post_product(offer, shipping_rates_id, after_sale_id, secret.access_token)
     return HttpResponse('ok')
 
 
-def post_product(offer, secret_access_token):
+def post_product(offer, shipping_rates_id, after_sale_id, secret_access_token):
  
     url = f'https://api.allegro.pl.allegrosandbox.pl/sale/product-offers'
 
@@ -1075,8 +1151,51 @@ def post_product(offer, secret_access_token):
     }
 
     data = offer
-    offer['delivery']['shippingRates'] = None
-    
+
+    data["delivery"] = {
+        "shippingRates": {
+            "id": shipping_rates_id
+        },
+        # "handlingTime": "PT24H",
+        # "additionalInfo": null,
+        # "shipmentDate": null
+    }
+    data["tax"] = None
+    data["taxSettings"] = None
+    data["discounts"] = None
+    data["afterSalesServices"] = {
+        # "impliedWarranty": {
+        #     "id": "fce22b92-b86e-4cbf-a9ba-7cff4e92fb12"
+        # },
+        "returnPolicy": {
+            "id": after_sale_id
+        }
+        # "warranty": None
+    }
+    # data["tax"] = {
+    #     "percentage": "23.00",
+    #     "rate": "23.00",
+    #     "subject": "GOODS",
+    #     "exemption": null,
+    #     "id": "ed5b1dc0-55db-4821-a922-39b0a4a5c716"
+    # },
+    # "taxSettings": {
+    #     "subject": "GOODS",
+    #     "exemption": null,
+    #     "rates": [
+    #         {
+    #             "rate": "23.00",
+    #             "countryCode": "PL"
+    #         }
+    #     ]
+    # },
+    # "discounts": {
+    #     "wholesalePriceList": {
+    #         "id": "7d651938-3c03-4f1e-8741-d363c301be3f"
+    #     }
+    # },
+
+
 #     data = {
 #     'productSet': [{
 #         'product': {
