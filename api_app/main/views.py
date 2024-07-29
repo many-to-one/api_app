@@ -26,35 +26,32 @@ def success(request, text):
 
 
 def get_new_authorization_code(request, name):
-    if request.user.is_authenticated:
-        account = Allegro.objects.get(name=name)
-        secret = Secret.objects.get(account=account)
-        print('******************* name ***********************', secret.CLIENT_ID, account)
-        # return HttpResponse('name', name)
+    # if request.user.is_authenticated:
+    account = Allegro.objects.get(name=name)
+    secret = Secret.objects.get(account=account)
+    print('******************* name ***********************', secret.CLIENT_ID, account)
+    # return HttpResponse('name', name)
 
-        REDIRECT_URI_ =f' http://localhost:8000/get_new_code/{name}&promt=confirm'  
+    REDIRECT_URI_ =f' http://localhost:8000/get_new_code/{name}&promt=confirm'  
 
-        try: 
-
-            user = get_user(request)
-
-            authorization_redirect_url = AUTH_URL + '?response_type=code&client_id=' + secret.CLIENT_ID + \
-                                    '&redirect_uri=' + REDIRECT_URI_ 
-            # print("Zaloguj do Allegro - skorzystaj z url w swojej przeglądarce oraz wprowadź authorization code ze zwróconego url: ")
-            # print("---  " + authorization_redirect_url + "  ---")
-
-            return redirect(authorization_redirect_url)
-        except Exception as e:
-            print("An error occurred:", e)
-            return redirect('logout_user')
+    try: 
+        user = get_user(request)
+        authorization_redirect_url = AUTH_URL + '?response_type=code&client_id=' + secret.CLIENT_ID + \
+                                '&redirect_uri=' + REDIRECT_URI_ 
+        # print("Zaloguj do Allegro - skorzystaj z url w swojej przeglądarce oraz wprowadź authorization code ze zwróconego url: ")
+        # print("---  " + authorization_redirect_url + "  ---")
+        return redirect(authorization_redirect_url)
+    except Exception as e:
+        print("An error occurred:", e)
+        return redirect('logout_user')
 
 
 def get_new_code(request, name):
-    if request.user.is_authenticated:
-        context = {
-            'name': name
-        }
-        return render(request, 'get_new_code.html', context)
+    # if request.user.is_authenticated:
+    context = {
+        'name': name
+    }
+    return render(request, 'get_new_code.html', context)
 
     
 def get_code(request):

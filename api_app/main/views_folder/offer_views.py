@@ -74,7 +74,7 @@ async def download_all_offers(request, offers, secret):
 
     results = await asyncio.gather(*tasks)
 
-    print('RESULT - download_all_offers - @@@@@@@@@', json.dumps(results, indent=4))
+    # print('RESULT - download_all_offers - @@@@@@@@@', json.dumps(results, indent=4))
 
     return results
 
@@ -105,7 +105,7 @@ def get_aftersale_services(request, name):
                         print('Exception @@@@@@@@@', e)
                         context = {'name': name}
                         return render(request, 'invalid_token.html', context)
-            print('RESULT - get_aftersale_services - @@@@@@@@@', json.dumps(result, indent=4))
+            # print('RESULT - get_aftersale_services - @@@@@@@@@', json.dumps(result, indent=4))
             return result
         except Exception as e:
             return HttpResponse({e})
@@ -162,7 +162,8 @@ def get_all_offers(request, name):
             headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
             product_result = requests.get(url, headers=headers, verify=True)
             result = product_result.json()
-            # print('******* product_result ********', result)
+            # for of in result['offers']:
+                # print('******* get_all_offers ********', of)
             if 'error' in result:
                 error_code = result['error']
                 if error_code == 'invalid_token':
@@ -176,9 +177,8 @@ def get_all_offers(request, name):
                         print('Exception @@@@@@@@@', e)
                         context = {'name': name}
                         return render(request, 'invalid_token.html', context)
-            # for k in shipping_rates:
-            print(" ############### shipping_rates ################## ", shipping_rates)
-            print(" ############### aftersale_services ################## ", aftersale_services)
+            # print(" ############### shipping_rates ################## ", shipping_rates)
+            # print(" ############### aftersale_services ################## ", aftersale_services)
             context = {
                 'result': product_result.json(),
                 'name': name,
@@ -188,7 +188,8 @@ def get_all_offers(request, name):
             return render(request, 'get_all_offers.html', context)
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
-        # return HttpResponse ('Ok')
+    else:
+        return redirect('login_user')
     
 
 def get_one_offer(request, id):
@@ -297,7 +298,7 @@ def get_description(request, id, lister):
                     except Exception as e:
                         print('Exception @@@@@@@@@', e)
                         return redirect('invalid_token')
-            print('RESULT - get_description - @@@@@@@@@', json.dumps(result, indent=4))
+            # print('RESULT - get_description - @@@@@@@@@', json.dumps(result, indent=4))
 
             csv_content = create_csv(result)
             response = HttpResponse(csv_content, content_type='text/csv; charset=utf-8') #, content="pl"
@@ -403,7 +404,7 @@ def post_new_offer(request, id):
                     except Exception as e:
                         print('Exception @@@@@@@@@', e)
                         return redirect('invalid_token')
-            print('RESULT - post_new_offer - @@@@@@@@@', json.dumps(result, indent=4))
+            # print('RESULT - post_new_offer - @@@@@@@@@', json.dumps(result, indent=4))
             context = {
                 'result': product_result.json()
             }
@@ -442,13 +443,14 @@ def post_product_from_lister(request, secret, ean, post_data):
         print('************** POST DATA **************', post_data)
         # print('************** ean **************', ean)
 
+        name = post_data.get("name")
         if "delivery" in post_data:
             delivery_info = post_data["delivery"]
             if "shippingRates" in delivery_info:
-                delivery_info["shippingRates"]["name"] = "Standard"
+                delivery_info["shippingRates"]["name"] = get_shipping_rates(request, name) #"Standard"
                 del delivery_info["shippingRates"]["id"]
                 # print('************** delivery_info **************', delivery_info)
-        name = post_data.get("name")
+        # name = post_data.get("name")
         # print('************** name **************', name)
         category = post_data.get("category")
         # print('************** category **************', category["id"])
@@ -491,12 +493,12 @@ def post_product_from_lister(request, secret, ean, post_data):
             # print('************** messageToSellerSettings **************', messageToSellerSettings)
         if "afterSalesServices" in post_data:
             afterSalesServices = post_data["afterSalesServices"]
-            afterSalesServices["name"] = "Standard"
+            afterSalesServices["name"] = get_aftersale_services(request, name) #"Standard"
             del afterSalesServices["impliedWarranty"]["id"]
             del afterSalesServices["returnPolicy"]["id"]
             # print('************** afterSalesServices **************', afterSalesServices)
 
-        print('************** POST DATA **************', json.dumps(post_data, indent=4))
+        # print('************** POST DATA **************', json.dumps(post_data, indent=4))
 
         data = {
         'name': name,
@@ -568,7 +570,7 @@ def post_product_from_lister(request, secret, ean, post_data):
         response = requests.post(url, headers=headers, json=data)
         # Additional error handling based on specific use case
         if response.status_code != 200:
-            print(f"Error: {response.text}")
+            print(f"Error: {response.status_code}")
             print(response.headers)
 
             return redirect('index')
@@ -592,8 +594,8 @@ def get_ean(request):
         id = data.get('offerId')
         name = data.get('name')
 
-        print('************** get_ean name **************', name)
-        print('************** get_ean offerId **************', id)
+        # print('************** get_ean name **************', name)
+        # print('************** get_ean offerId **************', id)
 
         account = Allegro.objects.get(name=name)
         secret = Secret.objects.get(account=account)
@@ -629,7 +631,7 @@ def get_ean(request):
                     for parameter in parameters:
                         if "EAN" in parameter.get("name", ""):
                             values_list = parameter.get("values", [])
-                            print('****************** values_list ********************', values_list[0])
+                            # print('****************** values_list ********************', values_list[0])
                             break
 
             context = {
@@ -659,16 +661,16 @@ def edit_offer_stock(request, id):
         status = data.get('status')
         name = data.get('name')
 
-        print('**************new_stock**************', new_stock)
-        print('**************new_costs**************', new_costs)
-        print('**************currency**************', currency)
-        print('**************status**************', status)
-        print('**************name**************', name)
+        # print('**************new_stock**************', new_stock)
+        # print('**************new_costs**************', new_costs)
+        # print('**************currency**************', currency)
+        # print('**************status**************', status)
+        # print('**************name**************', name)
 
         # account = Allegro.objects.get(name=name)
         secret = Secret.objects.get(account__name=name)
 
-        print('**************secret_access_token**************', secret.access_token)
+        # print('**************secret_access_token**************', secret.access_token)
         patch_data = {
             "stock": {
             "available": new_stock,
@@ -720,7 +722,7 @@ def edit_offer_stock(request, id):
                         print('Exception @@@@@@@@@', e)
                         return redirect('invalid_token')
                 
-            print('RESULT - get_one_offer - @@@@@@@@@', json.dumps(result, indent=4))
+            # print('RESULT - get_one_offer - @@@@@@@@@', json.dumps(result, indent=4))
             return JsonResponse(
                     {
                         'message': 'Stock updated successfully',
@@ -754,7 +756,7 @@ def edit_offers_csv(request, name):
                 
                 # Read and decode the CSV file
                 data_set = csv_file.read().decode('UTF-8')
-                print(' ##################### @ data_set @ ##################### ', data_set)
+                # print(' ##################### @ data_set @ ##################### ', data_set)
                 io_string = io.StringIO(data_set)
                 csv_reader = csv.DictReader(io_string, delimiter=';')  # Use DictReader for automatic header handling
 
@@ -776,7 +778,7 @@ def edit_offers_csv(request, name):
                 # Convert the list of dictionaries to a JSON string
                 # json_data = json.dumps(data, ensure_ascii=False, indent=4)
                 # json_data = json.dumps(processed_json, ensure_ascii=False, indent=4)
-                print(' ##################### @ json_data @ ##################### ', json_data)
+                # print(' ##################### @ json_data @ ##################### ', json_data)
 
             
                 # json.dumps(data, indent=4) logic
@@ -800,8 +802,8 @@ def edit_product(request, secret, json_data):
 
         json_data_plus = json_data #json_data[0]
         jsnd = ast.literal_eval(json_data_plus)
-        print(' ##################### jsnd ##################### ', jsnd)
-        print(' ##################### type jsnd ##################### ', type(jsnd))
+        # print(' ##################### jsnd ##################### ', jsnd)
+        # print(' ##################### type jsnd ##################### ', type(jsnd))
 
         # print(' ##################### type ##################### ', type(json_data[0]))
         # print(' ##################### secret ##################### ', secret.access_token) #[0]['productSet']
@@ -816,7 +818,7 @@ def edit_edit(request, secret, json_data):
 
     if request.user.is_authenticated:
 
-        print(' ##################### type ##################### ', type(json_data))
+        # print(' ##################### type ##################### ', type(json_data))
 
         # name = json_data[0]['name']
         # product_name = ast.literal_eval(name)
@@ -868,8 +870,8 @@ def edit_edit(request, secret, json_data):
         # stock_available = stock_dict['available']
 
         try:
-            print(' ##################### product_name ##################### ', json_data[0]['name'])
-            print(' ##################### stock_available ##################### ', stock_available['available'])
+            # print(' ##################### product_name ##################### ', json_data[0]['name'])
+            # print(' ##################### stock_available ##################### ', stock_available['available'])
             url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{json_data[0]['id']}"
             # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
             headers = {
@@ -1100,7 +1102,7 @@ def edit_edit(request, secret, json_data):
                     except Exception as e:
                         print('Exception @@@@@@@@@', e)
                         return redirect('invalid_token')
-            print('RESULT - edit_edit - @@@@@@@@@', json.dumps(result, indent=4))
+            # print('RESULT - edit_edit - @@@@@@@@@', json.dumps(result, indent=4))
             return HttpResponse(
                     {
                         'message': 'offer edited successfuly',
@@ -1113,9 +1115,40 @@ def edit_edit(request, secret, json_data):
         #     return HttpResponse({'HttpResponse Exception @@@@@@@@@': err})
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
+        
+
+# Measure CPU and memory usage
+# def measure_resources(*args, **kwargs):
+#     # Measure memory usage before and after the function execution
+#     mem_before = psutil.Process().memory_info().rss / 1024 / 1024  # in MB
+#     cpu_before = psutil.cpu_percent(interval=0.1)
+
+#     start_time = time.time()
+#     mem_usage_before = memory_usage(-1, interval=0.1, timeout=1)
+
+#     result = func(*args, **kwargs)
+
+#     mem_usage_after = memory_usage(-1, interval=0.1, timeout=1)
+#     end_time = time.time()
+
+#     mem_after = psutil.Process().memory_info().rss / 1024 / 1024  # in MB
+#     cpu_after = psutil.cpu_percent(interval=0.1)
+
+#     elapsed_time = end_time - start_time
+
+#     print(f"Function result: {result}")
+#     print(f"Time taken: {elapsed_time:.2f} seconds")
+#     print(f"Memory usage before: {mem_before:.2f} MB")
+#     print(f"Memory usage after: {mem_after:.2f} MB")
+#     print(f"Peak memory usage: {max(mem_usage_after) - min(mem_usage_before):.2f} MB")
+#     print(f"CPU usage before: {cpu_before:.2f}%")
+#     print(f"CPU usage after: {cpu_after:.2f}%")
+
     
 
-def upload_json_offers(request):
+def upload_json_offers(request, shipping_rates_id, after_sale_id, vat):
+
+    start_time = time.time()
     
     if request.method == 'POST':
         if not request.FILES.get('jsonFile'):
@@ -1123,25 +1156,52 @@ def upload_json_offers(request):
 
         json_file = request.FILES['jsonFile']
         offers = json.load(json_file)
-        # shipping_rates_id = request.POST.get('shippingRatesId')
-        shipping_rates_id = request.headers.get('X-Selected-Method-Id')
-        after_sale_id = request.headers.get('X-Selected-Warranty-Id')
+        # shipping_rates_id = request.headers.get('X-Selected-Method-Id')
+        # after_sale_id = request.headers.get('X-Selected-Warranty-Id')
         name = request.POST.get('name')
         secret = Secret.objects.get(account__name=name)
 
-        print('********************** upload_json_offers offers ****************************', json.dumps(offers[0], indent=4))
-        print('********************** IDS name ****************************', name)
-        print('********************** shipping_rates_id ****************************', shipping_rates_id)
-        print('********************** after_sale_id ****************************', after_sale_id)
+        # print('********************** upload_json_offers offers ****************************', json.dumps(offers[0], indent=4))
+        # print('********************** IDS name ****************************', name)
+        # print('********************** shipping_rates_id ****************************', shipping_rates_id)
+        # print('********************** after_sale_id ****************************', after_sale_id)
+        # print('********************** VAT ****************************', vat)
 
-        for offer in offers[:1]:
-            print('********************** offer ****************************', offer['delivery']['shippingRates']['id'])
-            post_product(offer, shipping_rates_id, after_sale_id, secret.access_token)
-    return HttpResponse('ok')
+        res = asyncio.run(post_uploaded_products(offers, shipping_rates_id, after_sale_id, vat, secret.access_token))
+
+        if res:
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print('********************** FUNCTION TIME ****************************', elapsed_time)
+            
+        return JsonResponse({
+            "message": 'Success',
+            "status": 200 ,
+        })
+
+        # return redirect('get_all_offers', name=name)
+
+async def post_uploaded_products(offers, shipping_rates_id, after_sale_id, vat, secret_access_token):
+
+    tasks = []
+
+    res = [
+        tasks.append(asyncio.create_task(post_product(offer, shipping_rates_id, after_sale_id, vat, secret_access_token)))
+        for offer in offers
+    ]
+
+    # for offer in offers:
+    #         # print('********************** offer shippingRates id ****************************', offer['delivery']['shippingRates']['id'])
+    #         # print('********************** offer afterSalesServices ****************************', offer['afterSalesServices'])
+    #         tasks.append(asyncio.create_task(post_product(offer, shipping_rates_id, after_sale_id, vat, secret_access_token)))
+
+    await asyncio.gather(*tasks)
 
 
-def post_product(offer, shipping_rates_id, after_sale_id, secret_access_token):
- 
+
+async def post_product(offer, shipping_rates_id, after_sale_id, vat, secret_access_token):
+
+    # async with httpx.AsyncClient() as client:
     url = f'https://api.allegro.pl.allegrosandbox.pl/sale/product-offers'
 
     headers = {
@@ -1161,8 +1221,8 @@ def post_product(offer, shipping_rates_id, after_sale_id, secret_access_token):
         # "shipmentDate": null
     }
     data["tax"] = None
-    data["taxSettings"] = None
-    data["discounts"] = None
+    data["taxSettings"]["subject"] = "GOODS"
+    data["taxSettings"]["rates"][0]["rate"] = vat
     data["afterSalesServices"] = {
         # "impliedWarranty": {
         #     "id": "fce22b92-b86e-4cbf-a9ba-7cff4e92fb12"
@@ -1172,163 +1232,25 @@ def post_product(offer, shipping_rates_id, after_sale_id, secret_access_token):
         }
         # "warranty": None
     }
-    # data["tax"] = {
-    #     "percentage": "23.00",
-    #     "rate": "23.00",
-    #     "subject": "GOODS",
-    #     "exemption": null,
-    #     "id": "ed5b1dc0-55db-4821-a922-39b0a4a5c716"
-    # },
-    # "taxSettings": {
-    #     "subject": "GOODS",
-    #     "exemption": null,
-    #     "rates": [
-    #         {
-    #             "rate": "23.00",
-    #             "countryCode": "PL"
-    #         }
-    #     ]
-    # },
-    # "discounts": {
-    #     "wholesalePriceList": {
-    #         "id": "7d651938-3c03-4f1e-8741-d363c301be3f"
-    #     }
-    # },
+    data["discounts"] = None
 
 
-#     data = {
-#     'productSet': [{
-#         'product': {
-#             'category': {
-#                 'id': '112627' #'112627'
-#             },
-#             'name': 'Fajny product 8',
-#             'images': ['https://inoxtrade.com.pl/AfterBuy/ats/1.jpg'],
-#             'parameters': [{
-#                 'name': 'EAN (GTIN)',
-#                 'values': ['5904659181460']
-#             },
-#             {
-#                 'name': 'Kod producenta',
-#                 'values': ['008']
-#             },
-#             {
-#                 'name': 'Marka',
-#                 'values': ['DK']
-#             },
-#             {
-#                 'name': 'Nazwa handlowa',
-#                 'values': ['Fajny produkt']
-#             },
-#             {
-#                 'name': 'Pojemność',
-#                 'values': [350.0]
-#             },
-#             {
-#                 'name': 'Produkt nie zawiera',
-#                 'values': ['glutenu']
-#             }
-# ]}}],
-
-#         'external': {
-#                 'id': '007' #sygnatura
-#             },
-
-#         'images': [ #'https://inoxtrade.com.pl/AfterBuy/ats/1.jpg', 
-#                    'https://inoxtrade.com.pl/AfterBuy/ats/2.jpg', 'https://inoxtrade.com.pl/AfterBuy/ats/3.jpg'], 
-#         'description': {
-#             'sections': [{
-#                 'items': [{
-#                     'type': 'IMAGE',
-#                     'url': 'https://inoxtrade.com.pl/AfterBuy/ats/2.jpg'
-#                 }]
-#                 }, 
-#                 {
-#                     'items': [{
-#                         'type': 'TEXT',
-#                         'content': '<p> Pierwszy blok opisu</p>'
-#                     },
-#                     {
-#                         'type': 'IMAGE',
-#                         'url': 'https://inoxtrade.com.pl/AfterBuy/ats/3.jpg'
-#                     }]
-#                 }, 
-#                 {
-#                     'items': [{
-#                         'type': 'TEXT',
-#                         'content': '<p> Drugi blok opisu</p>'
-#                     }]
-#                 },
-#                 {
-#                     'items': [{
-#                         'type': 'IMAGE',
-#                         'url': 'https://inoxtrade.com.pl/AfterBuy/ats/1.jpg'
-#                     }]
-#                 }
-#             ]},
-#     'location': {
-#         'countryCode': 'PL',
-#         'province': 'MAZOWIECKIE',
-#         'city': 'Warszawa',
-#         'postCode': '02-822'
-#     },
-#     'stock': {
-#         'available': 10
-#     },
-#     'sellingMode': {
-#         'format': 'BUY_NOW',
-#         'price': {
-#             'amount': '37.90',
-#             'currency': 'PLN'
-#         }},
-#     'payments': {
-#         'invoice': 'VAT'
-#     },
-#     "taxSettings": {
-#     "rates": [
-#             {
-#                 "rate": "23.00",
-#                 "countryCode": "PL"
-#             }
-#         ],
-#         "subject": "GOODS",
-#         # "exemption": "MONEY_EQUIVALENT"
-#     },
-#     'delivery': {
-#         'shippingRates': {
-#             'name': 'Standardowy'
-#     },
-#         "handlingTime": "PT48H"
-#     },
-#     'afterSalesServices': {
-#         'id': 'standard'
-#     },
-#     "discounts": {
-#         "wholesalePriceList": {
-#             # "id": "Hurtowy min",
-#             "name": "Hurtowy min"
-#         }
-#     },
-#     "messageToSellerSettings": {
-#         "mode": "OPTIONAL",
-#         "hint": "Wybierz wzór"
-#     }
-# }
-
-    response = requests.post(url, headers=headers, json=data)
+    async with httpx.AsyncClient() as client:
+        response = await client.post(url, headers=headers, json=data)
+        response_json = response.json()
 
     # print(response.status_code)
     # print(response.json())
 
     try:
         response_json = response.json()
-        print("Response JSON:")
-        print(response_json)
+        # print("Response JSON:")
+        # print(response_json)
     except requests.exceptions.JSONDecodeError:
         print("No JSON response")
 
     # Additional error handling based on specific use case
     if response.status_code != 200:
-        print(f"Error: {response.text}")
+        print(f"Error: {response.status_code}")
 
     return redirect('index')

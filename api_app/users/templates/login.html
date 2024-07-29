@@ -44,7 +44,7 @@
         console.log("formData", formData);
 
         // Send POST request using Axios
-        axios.post('users/login_user/', formData, console.log("formData inside AXIOS POST", formData))
+        axios.post("{% url 'login_user' %}", formData, console.log("formData inside AXIOS POST", formData))
             .then(function(response) {
                 console.log(response.data.message);
                 

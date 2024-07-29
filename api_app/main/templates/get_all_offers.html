@@ -22,8 +22,12 @@
         <button onclick="closeError()">X</button>
     </div>
 
+    <div id="loadIcon" style="display: none;">
+        <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
+    </div>
+
     
-    <div class="offers__cont">
+    <div class="offers__cont" id="offers__cont">
 
         <!-- <div class="list__header">
             <div class="cont">
@@ -35,7 +39,7 @@
             <p class="print" id="name" value="{{ name }}">{{name}}</p>
             <input class="check_o labels" type="button" id="check-all-button">
             <select class="edit_h var_select order" id="status_select" onchange="bulkEdit()">
-                <option selected value=" ">Edytuj...</option>
+                <option selected disabled value=" ">Edytuj...</option>
                 <option value="PRICE">Cena</option>
                 <option value="QUANTITY">Ilość</option>
                 <option value="STATUS">Status</option>
@@ -49,6 +53,12 @@
 
             <input type="search" class="search_h" id="searchInput" placeholder="Szukaj..." onkeyup="searchOffers()">
 
+            <select class="vat__select var_select" id="vatSelect" required>
+                <option value="" selected disabled>VAT</option>
+                <option value="23.00">23%</option>
+                <option value="5.00">5%</option>
+            </select>
+
             <select class="aftersale_select var_select" id="afterSaleSelect" required>
                 <option value="" selected disabled>Reklamacja...</option>
                 {% for method in aftersale_services.returnPolicies %}
@@ -56,7 +66,6 @@
                         {{ method.name }}
                     </option>
                 {% endfor %}
-                <!-- Add more options for other statuses if needed -->
             </select>
 
             <select class="delivery_select var_select" id="deliverySelect" required>
@@ -486,7 +495,7 @@
             var error = document.getElementById('error');
             // var postVal = posto.value;
 
-            const loadPst = document.getElementById('loadPst_' + offerId + '_' + counter)
+            const loadPst = document.getElementById('loadPst_' + offerId + '_' + counter);
             const pstIcon = document.getElementById('pstIcon_' + offerId + '_' + counter);
             loadPst.style.display = 'block';
             pstIcon.style.display = 'none';
@@ -610,24 +619,56 @@
     const searchInput = document.getElementById('searchInput');
     const deliverySelect = document.getElementById('deliverySelect');
     const afterSaleSelect = document.getElementById('afterSaleSelect');
+    var vatSelect = document.getElementById('vatSelect');
     // Global variable to store the selected methodId
     var selectedMethodId = null;
     var selectedAfterSaleId = null;
+    var vatSelectId = null;
 
     document.addEventListener('DOMContentLoaded', function() {
         var deliverySelect = document.getElementById('deliverySelect');
         var afterSaleSelectVal = document.getElementById('afterSaleSelect');
+        var vatSelect = document.getElementById('vatSelect');
 
         deliverySelect.addEventListener('change', function() {
 
             var selectedOption = deliverySelect.options[deliverySelect.selectedIndex];
             selectedMethodId = selectedOption.value;
 
+            console.log('Method ID from another function:', selectedMethodId);
+
+        });
+
+        afterSaleSelectVal.addEventListener('change', function() {
+
             var afterSaledOption = afterSaleSelectVal.options[afterSaleSelectVal.selectedIndex];
             selectedAfterSaleId = afterSaledOption.value;
 
+            console.log('Warranty ID from another function:', selectedAfterSaleId);
+
         });
+
+        vatSelect.addEventListener('change', function() {
+
+            var vatSelectOption = vatSelect.options[vatSelect.selectedIndex];
+            vatSelectId = vatSelectOption.value;
+
+            console.log('TAX:', vatSelectId);
+
+        });
+
     });
+
+
+
+    function reloadPageWithTimeout(timeout) {
+        setTimeout(function() {
+            location.reload();
+        }, timeout);
+
+        return true
+    }
+
 
     function jsnStartGo () {
 
@@ -635,6 +676,7 @@
         jsnStart.style.display = 'none';
         deliverySelect.style.display = 'block';
         afterSaleSelect.style.display = 'block';
+        vatSelect.style.display = 'block';
         uploadFormB.style.display = 'flex';
         console.log('uploadFile style test', jsnStart, uploadFormB)
         
@@ -642,6 +684,8 @@
 
     function uploadFile() {
 
+        const loadIcon = document.getElementById('loadIcon');
+        const offersCont = document.getElementById('offers__cont');
         const fileInput = document.getElementById('jsonFile');
         const file = fileInput.files[0];
         console.log('file:', file);
@@ -649,31 +693,42 @@
         formData.append('jsonFile', file);
         formData.append('name', name); 
 
-        if (selectedMethodId !== null && selectedAfterSaleId !==null) {
+        if (selectedMethodId !== null && selectedAfterSaleId !==null && vatSelectId !== null) {
 
             console.log('Method ID from another function:', selectedMethodId);
             console.log('Warranty ID from another function:', selectedAfterSaleId);
-            axios.post('/upload_json_offers/',
+            console.log('Tax:', vatSelectId);
+            loadIcon.style.display = 'block';
+            offersCont.style.display = 'none';
+            axios.post(`/upload_json_offers/${selectedMethodId}/${selectedAfterSaleId}/${vatSelectId}/`,
             
                 formData,
                 {
                     headers: {
                         'X-CSRFToken': getCSRFToken(),
                         'Content-Type': 'multipart/form-data',
-                        'X-Selected-Method-Id': selectedMethodId,
-                        'X-Selected-Warranty-Id': selectedAfterSaleId,
+                        // 'X-Selected-Method-Id': selectedMethodId,
+                        // 'X-Selected-Warranty-Id': selectedAfterSaleId,
                     }
                 }
             )
             // .then(response => response.json())
             .then(response => {
-                console.log('Success:', response.data);
-                searchInput.style.display = 'block';
-                deliverySelect.style.display = 'none';
-                afterSaleSelect.style.display = 'none';
-                jsnStart.style.display = 'flex';
-                uploadFormB.style.display = 'none';
-                // Handle success response
+                console.log('Success:', response);
+                if (response.data.status === 200){
+                    loadIcon.style.display = 'none';
+                    offersCont.style.display = 'flex';
+                    reloadPageWithTimeout(2000)
+                    if (reloadPageWithTimeout === true) {
+                        searchInput.style.display = 'block';
+                        deliverySelect.style.display = 'none';
+                        afterSaleSelect.style.display = 'none';
+                        jsnStart.style.display = 'flex';
+                        uploadFormB.style.display = 'none';
+                        loadIcon.style.display = 'none';
+                        offersCont.style.display = 'flex';
+                    }
+                }
             })
             .catch(error => {
                 console.error('Error:', error);

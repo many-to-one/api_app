@@ -1,3 +1,8 @@
+#loadIcon {
+    margin-top: 20vh;
+    text-align: center;
+}
+
 .list__header {
     position: -webkit-sticky; /* For Safari */
     width: 100vw;
@@ -42,6 +47,12 @@
     height: 30px;
     left: 25%;
     background-color: var(--bg_color);
+}
+
+.vat__select {
+    display: none;
+    position: absolute;
+    left: 48%;
 }
 
 .aftersale_select {
