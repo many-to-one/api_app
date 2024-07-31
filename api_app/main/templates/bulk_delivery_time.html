@@ -17,12 +17,6 @@
     <br>
     <form method="post">
         {% csrf_token %}
-        <select name="shipping" id="">
-            <option value="" selected disabled>Cenniki dostawy</option>
-            {% for shipping in shipping_rates.shippingRates%}
-                <option value="{{ shipping.id }}">{{ shipping.name }}</option>
-            {% endfor%}
-        </select>
         <select name="shipping_time" id="">
             <option value="" selected disabled>Chas wysyłki</option>
             <option value="PT24H">1 dzień</option>
