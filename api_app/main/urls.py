@@ -41,6 +41,7 @@ urlpatterns = [
     path('bulk_edit/<str:name>/<str:ed_value>/', bulk_edit_views.bulk_edit, name='bulk_edit'),
     path('PRICE/<str:name>/<str:secret>/<str:offers>/', bulk_edit_views.PRICE, name='PRICE'),
     path('QUANTITY/<str:name>/<str:secret>/<str:offers>/', bulk_edit_views.QUANTITY, name='QUANTITY'),
+    path('DELIVERY_PRICE/<str:name>/<str:secret>/<str:offers>/', bulk_edit_views.DELIVERY_PRICE, name='DELIVERY_PRICE'),
     path('JSON_OFFERS/', bulk_edit_views.JSON_OFFERS, name='JSON_OFFERS'),
     path('upload_json_offers/<str:shipping_rates_id>/<str:after_sale_id>/<str:vat>/', offer_views.upload_json_offers, name='upload_json_offers'),
 

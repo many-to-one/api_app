@@ -104,6 +104,10 @@
             <p class="print" id="name" value="{{ name }}">{{name}}</p>
         </div>
 
+        {% if offers_list %}
+            <p>{{ offers_list }}</p>
+        {% endif %}
+
         <div id="offersContainer">
         {% for offer in result.offers %}
 

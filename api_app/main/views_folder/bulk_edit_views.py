@@ -184,6 +184,120 @@ def QUANTITY(request, name, secret, offers):
 
 
         return render(request, 'bulk_quantity.html')
+    
+
+def all_shipping_rates(request, name, secret,):
+
+    if request.user.is_authenticated:
+
+        try:
+            url = f"https://api.allegro.pl.allegrosandbox.pl/sale/shipping-rates" 
+            # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
+            headers = {
+                'Authorization': f'Bearer {secret}', 
+                'Accept': "application/vnd.allegro.public.v1+json",
+                'Content-Type': "application/vnd.allegro.public.v1+json",
+                }
+            product_result = requests.get(url, headers=headers)
+            result = product_result.json()
+            # print('******* product_result ********', result)
+            if 'error' in result:
+                error_code = result['error']
+                if error_code == 'invalid_token':
+                    # print('ERROR RESULT @@@@@@@@@', error_code)
+                    try:
+                        # Refresh the token
+                        new_token = get_next_token(request, secret.refresh_token, name)
+                        # Retry fetching orders with the new token
+                        return get_all_offers(request, name)
+                    except Exception as e:
+                        print('Exception @@@@@@@@@', e)
+                        context = {'name': name}
+                        return render(request, 'invalid_token.html', context)
+            print('RESULT - all_shipping_rates json - @@@@@@@@@', json.dumps(result, indent=4))
+            
+            return product_result.json()
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)
+    
+
+def DELIVERY_PRICE(request, name, secret, offers):
+
+    if request.user.is_authenticated:
+        shipping_rates = all_shipping_rates(request, name, secret)
+        print('RESULT - shipping_rates - @@@@@@@@@', shipping_rates)
+
+        # # secret = Secret.objects.get(account__name=name)
+        commandId = uuid.uuid4()
+        offers_list = [{'id': offer_id} for offer_id in offers.split(',')]
+
+        if request.method == 'POST':
+            shippingId = request.POST.get('shipping')
+
+            print('********************** offers_list ****************************', offers_list)
+            print('********************** shippingId ****************************', shippingId)
+
+            data = {
+                 "modification":
+                     {
+                         "delivery": {
+                             "shippingRates": {
+                             "id": shippingId
+                             }
+                         }
+                     },
+                   "offerCriteria":[
+                     {
+                         "type":"CONTAINS_OFFERS",
+                         "offers": offers_list,
+                     }
+                  ]
+                }
+
+
+            try:
+                url = f"https://api.allegro.pl.allegrosandbox.pl/sale/offer-modification-commands/{commandId}"
+                # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
+                headers = {
+                    'Authorization': f'Bearer {secret}', 
+                    'Accept': "application/vnd.allegro.public.v1+json",
+                    'Content-Type': "application/vnd.allegro.public.v1+json",
+                    }
+                product_result = requests.put(url, headers=headers, json=data)
+                result = product_result.json()
+                print('RESULT - DELIVERY_PRICE STATUS - @@@@@@@@@', product_result)
+                if product_result.status_code == 201:
+                    print('RESULT - DELIVERY_PRICE STATUS 201 - @@@@@@@@@')
+                # print('******* product_result ********', result)
+                # if 'error' in result:
+                #     error_code = result['error']
+                #     if error_code == 'invalid_token':
+                #         # print('ERROR RESULT @@@@@@@@@', error_code)
+                #         try:
+                #             # Refresh the token
+                #             new_token = get_next_token(request, secret.refresh_token, name)
+                #             # Retry fetching orders with the new token
+                #             return get_all_offers(request, name)
+                #         except Exception as e:
+                #             print('Exception @@@@@@@@@', e)
+                #             context = {'name': name}
+                #             return render(request, 'invalid_token.html', context)
+                    print('RESULT - DELIVERY_PRICE - @@@@@@@@@', json.dumps(result, indent=4))
+                    context = {
+                        'result': product_result.json(),
+                        'name': name,
+                        'offers_list': offers_list,
+                    }
+                    return redirect('get_all_offers', name=name)
+            except requests.exceptions.HTTPError as err:
+                raise SystemExit(err)
+        context = {
+                    'shipping_rates': shipping_rates,
+                    'name': name,
+                }
+
+
+        return render(request, 'bulk_shipping_rates.html', context)
 
 
 def JSON_OFFERS(request):
