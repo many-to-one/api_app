@@ -219,64 +219,130 @@ def all_shipping_rates(request, name, secret,):
             return product_result.json()
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
+        
+
+async def get_func_asyncio(bulk_data, secret):
+
+    print('bulk_data - @@@@@@@@@', bulk_data)
+    tasks = []
+    # for data in bulk_data:
+    #     tasks.append(asyncio.create_task(get_func(data, secret)))
+    [tasks.append(asyncio.create_task(get_func(data, secret))) for data in bulk_data]
+    results = await asyncio.gather(*tasks)
+
+    return results
+        
+
+async def get_func(data, secret):
+
+    commandId = uuid.uuid4()
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/sale/offer-modification-commands/{commandId}"
+        # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
+        headers = {
+            'Authorization': f'Bearer {secret}', 
+            'Accept': "application/vnd.allegro.public.v1+json",
+            'Content-Type': "application/vnd.allegro.public.v1+json",
+            }
+        product_result = requests.put(url, headers=headers, json=data)
+        result = product_result.json()
+        print('RESULT - DELIVERY_PRICE STATUS - @@@@@@@@@', product_result.content)
+        if product_result.status_code == 201:
+            print('RESULT - DELIVERY_PRICE STATUS 201 - @@@@@@@@@')
+            print('RESULT - DELIVERY_PRICE - @@@@@@@@@', json.dumps(result, indent=4))
+            return result
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
     
 
 def DELIVERY_PRICE(request, name, secret, offers):
 
     if request.user.is_authenticated:
         shipping_rates = all_shipping_rates(request, name, secret)
-        print('RESULT - shipping_rates - @@@@@@@@@', shipping_rates)
-
-        # # secret = Secret.objects.get(account__name=name)
-        commandId = uuid.uuid4()
+        # print('RESULT - shipping_rates - @@@@@@@@@', shipping_rates)
         offers_list = [{'id': offer_id} for offer_id in offers.split(',')]
 
+        bulk_data = []
+
         if request.method == 'POST':
+            count = 0
             shippingId = request.POST.get('shipping')
+            shipping_time = request.POST.get('shipping_time')
 
             print('********************** offers_list ****************************', offers_list)
             print('********************** shippingId ****************************', shippingId)
+            print('********************** shipping_time ****************************', shipping_time)
 
-            data = {
-                 "modification":
-                     {
-                         "delivery": {
-                             "shippingRates": {
-                             "id": shippingId
-                             }
-                         }
-                     },
-                   "offerCriteria":[
-                     {
-                         "type":"CONTAINS_OFFERS",
-                         "offers": offers_list,
-                     }
-                  ]
+            if shippingId is not None:
+                shippingId_data = {
+                    "modification":
+                        {
+                            "delivery": {
+                                "shippingRates": {
+                                "id": shippingId
+                                }
+                            }
+                        },
+                    "offerCriteria":[
+                        {
+                            "type":"CONTAINS_OFFERS",
+                            "offers": offers_list,
+                        }
+                    ]
                 }
-
-
-            try:
-                url = f"https://api.allegro.pl.allegrosandbox.pl/sale/offer-modification-commands/{commandId}"
-                # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
-                headers = {
-                    'Authorization': f'Bearer {secret}', 
-                    'Accept': "application/vnd.allegro.public.v1+json",
-                    'Content-Type': "application/vnd.allegro.public.v1+json",
-                    }
-                product_result = requests.put(url, headers=headers, json=data)
-                result = product_result.json()
-                print('RESULT - DELIVERY_PRICE STATUS - @@@@@@@@@', product_result)
-                if product_result.status_code == 201:
-                    print('RESULT - DELIVERY_PRICE STATUS 201 - @@@@@@@@@')
-                    print('RESULT - DELIVERY_PRICE - @@@@@@@@@', json.dumps(result, indent=4))
+                bulk_data.append(shippingId_data)
+                
+            if shipping_time is not None: 
+                shipping_time_data = {
+                    "modification":
+                        {
+                            "delivery": {
+                            "handlingTime": shipping_time, 
+                            }
+                        },
+                    "offerCriteria":[
+                        {
+                            "type":"CONTAINS_OFFERS",
+                            "offers": offers_list,
+                        }
+                    ]
+                }
+                bulk_data.append(shipping_time_data)
+            
+            if bulk_data:
+                result = asyncio.run(get_func_asyncio(bulk_data, secret))
+                if result:
                     context = {
-                        'result': product_result.json(),
+                        'result': result,
                         'name': name,
                         'offers_list': offers_list,
                     }
                     return redirect('get_all_offers', name=name)
-            except requests.exceptions.HTTPError as err:
-                raise SystemExit(err)
+                # print('############### bulk_data #################', bulk_data)
+
+
+            # try:
+            #     url = f"https://api.allegro.pl.allegrosandbox.pl/sale/offer-modification-commands/{commandId}"
+            #     # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
+            #     headers = {
+            #         'Authorization': f'Bearer {secret}', 
+            #         'Accept': "application/vnd.allegro.public.v1+json",
+            #         'Content-Type': "application/vnd.allegro.public.v1+json",
+            #         }
+            #     product_result = requests.put(url, headers=headers, json=data)
+            #     result = product_result.json()
+            #     print('RESULT - DELIVERY_PRICE STATUS - @@@@@@@@@', product_result)
+            #     if product_result.status_code == 201:
+            #         print('RESULT - DELIVERY_PRICE STATUS 201 - @@@@@@@@@')
+            #         print('RESULT - DELIVERY_PRICE - @@@@@@@@@', json.dumps(result, indent=4))
+            #         context = {
+            #             'result': product_result.json(),
+            #             'name': name,
+            #             'offers_list': offers_list,
+            #         }
+            #         return redirect('get_all_offers', name=name)
+            # except requests.exceptions.HTTPError as err:
+            #     raise SystemExit(err)
         context = {
                     'shipping_rates': shipping_rates,
                     'name': name,
