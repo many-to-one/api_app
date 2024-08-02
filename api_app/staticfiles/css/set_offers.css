@@ -1,0 +1,20 @@
+.set__offers__line {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--light);
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    gap: 20px;
+}
+
+.set__offers__line .conto {
+    display: flex;
+}
+
+.set__name {
+    font-size: 10px;
+    width: 100px;
+}
+
+.set__photo {
+    width: 80px;
+}

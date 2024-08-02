@@ -319,30 +319,6 @@ def DELIVERY_PRICE(request, name, secret, offers):
                     }
                     return redirect('get_all_offers', name=name)
                 # print('############### bulk_data #################', bulk_data)
-
-
-            # try:
-            #     url = f"https://api.allegro.pl.allegrosandbox.pl/sale/offer-modification-commands/{commandId}"
-            #     # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
-            #     headers = {
-            #         'Authorization': f'Bearer {secret}', 
-            #         'Accept': "application/vnd.allegro.public.v1+json",
-            #         'Content-Type': "application/vnd.allegro.public.v1+json",
-            #         }
-            #     product_result = requests.put(url, headers=headers, json=data)
-            #     result = product_result.json()
-            #     print('RESULT - DELIVERY_PRICE STATUS - @@@@@@@@@', product_result)
-            #     if product_result.status_code == 201:
-            #         print('RESULT - DELIVERY_PRICE STATUS 201 - @@@@@@@@@')
-            #         print('RESULT - DELIVERY_PRICE - @@@@@@@@@', json.dumps(result, indent=4))
-            #         context = {
-            #             'result': product_result.json(),
-            #             'name': name,
-            #             'offers_list': offers_list,
-            #         }
-            #         return redirect('get_all_offers', name=name)
-            # except requests.exceptions.HTTPError as err:
-            #     raise SystemExit(err)
         context = {
                     'shipping_rates': shipping_rates,
                     'name': name,

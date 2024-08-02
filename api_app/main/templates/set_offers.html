@@ -40,7 +40,6 @@
             <input class="check_o labels" type="button" id="check-all-button">
             <select class="edit_h var_select order" id="status_select" onchange="bulkEdit()">
                 <option selected disabled value=" ">Edytuj...</option>
-                <option value="SET">Zestawy offert</option>
                 <option value="PRICE">Cena</option>
                 <option value="QUANTITY">Ilość</option>
                 <option value="STATUS">Status</option>
@@ -112,8 +111,9 @@
         <div id="offersContainer">
         {% for offer in result.offers %}
 
-            <div class="offers__line" data-title="{{ offer.name }}" data-id="{{ offer.external.id }}">
-                <input 
+            <div class="set__offers__line" data-title="{{ offer.name }}" data-id="{{ offer.external.id }}">
+                <div class="conto">
+                    <input 
                     class="labels" 
                     type="checkbox" 
                     name="selected_items" 
@@ -122,26 +122,12 @@
                     value="{{ offer.id }}"
                         
                     >
-                <img class="photo" src="{{offer.primaryImage.url}}" alt="">
-                <div class="name_offer">
-                    <p class="name">{{ offer.name }}</p>
-                    <p class="name">{{ offer.external.id }}</p>
+                    <img class="set__photo" src="{{offer.primaryImage.url}}" alt="">
                 </div>
-                <p class="costs_o_cont">
-                    <input class="stock" type="text" id="stock_{{ offer.id }}" value="{{ offer.stock.available }}">
-                    <img id="edit_{{ offer.id }}" class="icon edit__stock" src="{% static 'icons/edit2.png' %}" onclick="editStock('{{ offer.id }}')">
-                    <div id="load_{{ offer.id }}" style="display: none;">
-                        <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
-                    </div>
-                </p>
-                <p class="costs_o_cont_">
-                    <input class="costs_o" type="text" id="costs_{{ offer.id }}" value="{{ offer.sellingMode.price.amount }}">
-                    <p class="currency_o" id="currency_{{ offer.id }}" value="{{ offer.sellingMode.price.currency }}">{{ offer.sellingMode.price.currency }}</p>
-                    <img id="c_edit_{{ offer.id }}" class="icon edit__stock" src="{% static 'icons/edit2.png' %}" onclick="editCosts('{{ offer.id }}')">
-                    <div id="c_load_{{ offer.id }}" style="display: none;">
-                        <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
-                    </div>
-                </p>
+                <!-- <div class="name_offer"> -->
+                    <p class="set__name">{{ offer.name }}</p>
+                <!-- </div> -->
+            
                 
                 {% if offer.publication.status == 'ACTIVE' %}
                     <img class="icon" src="{% static 'icons/active.png' %}" alt="">
@@ -151,39 +137,6 @@
                     <img class="icon" src="{% static 'icons/ended.png' %}" alt="">
                 {% endif %}
 
-                <select class="var_select order" id="status_select_{{ offer.id }}" onchange="editStatus('{{ offer.id }}')">
-                    <option value="">Edytuj</option>
-                    <option value="ACTIVE">Wznów</option>
-                    <option value="INACTIVE">Ukryj</option>
-                    <option value="ENDED">Zakończ</option>
-                </select>
-
-                <p>{{ offer.stock.sold }}</p>
-                <select class="account_select" id="account_select_{{ offer.id }}_{{ forloop.counter }}">
-                    {% for nameIs in accounts  %}
-                        <option id="status_{{ offer.id }}_{{ forloop.counter }}" value="{{ nameIs }}">
-                            {{ nameIs }}
-                        </option>
-                    {% endfor %}  
-                    <!-- Add more options for other statuses if needed -->
-                </select>
-
-                <input id="ean_{{ offer.id }}_{{ forloop.counter }}" type="text" style="display: none;" value="">
-
-                <a id="start_{{ offer.id }}_{{ forloop.counter }}" onclick="getEan('{{ offer.id }}', '{{ forloop.counter }}')" style="display: block;">
-                    <img class="icon" src="{% static 'icons/post.png' %}" alt="">
-                </a>
-
-                <a id="pst_{{ offer.id }}_{{ forloop.counter }}" onclick="postOffer('{{ offer.id }}', '{{ forloop.counter }}')" style="display: none;">
-                    <img id="pstIcon_{{ offer.id }}_{{ forloop.counter }}" class="icon" src="{% static 'icons/accept.png' %}" alt="">
-                    <div id="loadPst_{{ offer.id }}_{{ forloop.counter }}" style="display: none;">
-                        <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
-                    </div>
-                </a>
-
-                <a id="dscr_{{ offer.id }}_{{ forloop.counter }}" onclick="getDescr('{{ offer.id }}', '{{ forloop.counter }}')">
-                    <img class="icon" src="{% static 'icons/enter.png' %}" alt="">
-                </a>
             </div>
 
         {% endfor %}
@@ -610,10 +563,6 @@
         }).catch(function(error) {
             console.error('Error:', error);
         });
-        } else if ( selectedStatus === 'SET' ) {
-            var url = `/set_offers/${name}/`;
-            // console.log('checkedItems', checkedItems)
-            window.location.href = url;
         } else {
             var url = `/bulk_edit/${name}/${selectedStatus}/?ids=` + checkedItems;
             window.location.href = url;
