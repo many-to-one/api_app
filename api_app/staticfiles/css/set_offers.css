@@ -1,20 +1,61 @@
+.set__offers__cont {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.set__row {
+    display: flex;
+    gap: 1%;
+    width: 100%;
+}
+
 .set__offers__line {
     display: flex;
     flex-direction: column;
     background-color: var(--light);
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-    gap: 20px;
+    width: 12%;
+    margin-top: 10px;
 }
 
 .set__offers__line .conto {
     display: flex;
 }
 
+.so_mini_cont {
+    display: flex;
+    align-items: center;
+}
+
 .set__name {
     font-size: 10px;
     width: 100px;
+    margin-left: 10px;
 }
 
 .set__photo {
     width: 80px;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+.set_icon {
+    width: 10px;
+    margin-right: 10px;
+}
+
+.add__set {
+    margin-left: 25%;
+    cursor: pointer;
+}
+
+#search {
+    position: absolute;
+    top: 25%;
+    left:33%;
+    display: flex;
+    background-color: aqua;
+    width: 33%;
+    height: 23%;
 }
