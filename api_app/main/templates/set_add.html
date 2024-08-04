@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oferty</title>
+</head>
+
+{% block content %}
+<body>
+
+    <div id="error_13" style="display: none;">
+        Nieprawidłowa zawartość EAN
+        <button onclick="closeError()">X</button>
+    </div>
+
+    <div id="error" style="display: none;">
+        Wystąpił błąd, skontaktuj się z właścicielem aplikacji
+        <button onclick="closeError()">X</button>
+    </div>
+
+    <div id="loadIcon" style="display: none;">
+        <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
+    </div>
+
+    
+    <div class="offers__cont" id="offers__cont">
+
+        <div class="list__header_orders">
+            <p class="print" id="name">{{name}}</p>
+            <input class="check_o labels" type="button" id="check-all-button">
+            <select class="edit_h var_select order" id="status_select">
+                <option selected disabled value=" ">Według...</option>
+                <option value="title">Nazwa</option>
+                <option value="sku">SKU</option>
+                <option value="id">ID kategotii</option>
+                <option value="price">Zakres cen</option>
+                <option value="no_name">Wyklucz nazwę</option>
+                <option value="news">Najnowsze</option>
+                <option value="olds">Najstarsze</option>
+                <option value="high_price">Najdroższe</option>
+                <option value="low_price">Najtańsze</option>
+            </select>
+
+            <input type="search" class="search_h" id="searchInput" placeholder="Szukaj..." onkeyup="searchOffers()">
+
+            <button class="jsn_start" id="jsnStart" onclick="addOffer()">Dodaj +</button>
+    
+        </div>
+
+        <div class="offers_headers">
+            <p class="name_h">Tytuł</p>
+            <p class="stock_h">Stan</p>
+            <p class="status_h">Status</p>
+            <p class="sale_h">Sprzedaż</p>
+            <p class="account_h">Konto</p>
+            <p class="post_h">Wystawić produkt</p>
+        </div>
+
+        <div class="list__header_orders_media">
+            <p class="print" id="name" value="{{ name }}">{{name}}</p>
+        </div>
+
+        <div id="offersContainer">
+        {% for offer in result.offers %}
+
+            <div class="offers__line" data-title="{{ offer.name }}" data-id="{{ offer.external.id }}">
+                <input 
+                    class="labels" 
+                    type="checkbox" 
+                    name="selected_items" 
+                    data-fulfillment-status="{{ offer.fulfillment.status }}"
+                    data-forloop-counter="{{ forloop.counter }}"
+                    value="{{ offer.id }}"
+                        
+                    >
+                <img class="photo" src="{{offer.primaryImage.url}}" alt="">
+                <div class="name_offer">
+                    <p class="name">{{ offer.name }}</p>
+                    <p class="name">{{ offer.external.id }}</p>
+                
+                    {% if offer.publication.status == 'ACTIVE' %}
+                        <img class="icon" src="{% static 'icons/active.png' %}" alt="">
+                    {% elif offer.publication.status == 'INACTIVE' %}
+                        <img class="icon" src="{% static 'icons/inactive.png' %}" alt="">
+                    {% elif offer.publication.status == 'ENDED' %}
+                        <img class="icon" src="{% static 'icons/ended.png' %}" alt="">
+                    {% endif %}
+                </div>
+
+            </div>
+
+        {% endfor %}
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
+    <script>
+
+    var ean = document.getElementById('ean');
+    var listerId = document.getElementById('name');
+    var lister = listerId.getAttribute('value');
+    var name= document.getElementById('name').textContent;
+    var error_13 = document.getElementById('error_13');
+    var error = document.getElementById('error');
+
+        function getCSRFToken() {
+            const cookieValue = document.cookie.match(/csrftoken=([^ ;]+)/)[1];
+            return cookieValue;
+        }
+
+        // Function to get CSRF token from cookie
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    // Check if the cookie name matches the desired name
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+
+
+
+        document.getElementById('check-all-button').addEventListener('click', function() {
+            // Select all checkboxes with the name 'selected_items'
+            var checkboxes = document.querySelectorAll('input[name="selected_items"]');
+            
+            // Loop through each checkbox
+            checkboxes.forEach(function(checkbox) {
+                // Check only if the fulfillment status is 'NEW' and it is currently unchecked
+                if ( !checkbox.checked) {
+                    checkbox.checked = true;
+                    console.log('checkbox', checkbox.value)
+                }
+                else if (checkbox.checked) {
+                    checkbox.checked = false;
+                }
+            });
+        });
+
+
+        
+
+    function closeError() {
+        var errorElement = document.getElementById("error_13");
+        var errorMain = document.getElementById("error");
+        if ( errorElement ) {
+            errorElement.style.display = "none";
+            console.log('CLOSE');
+        } else if ( errorMain ) {
+            errorMain.style.display = "none";
+        }
+    }
+
+    function addOffer() {
+
+        var checkboxes = document.querySelectorAll('input[name="selected_items"]');
+        var selectedStatus = document.getElementById('status_select').value;
+        // console.log('selectedStatus, name =>', selectedStatus, name)
+        var csrftoken = getCSRFToken();
+
+        // Initialize an empty array to store the checked checkbox values
+        var checkedItems = [];
+
+        // Iterate over each checkbox
+        checkboxes.forEach(function(checkbox) {
+            // Check if the checkbox is checked
+            if (checkbox.checked) {
+                console.log('checkbox =>', checkbox.value)
+                checkedItems.push(checkbox.value);              
+            }
+        });
+
+        if ( checkedItems !== null ) {
+            postSet(checkedItems)
+            console.log('checkedItems !== null')
+        } else {
+            console.log('checkedItems is null')
+        }
+
+    }
+
+    function postSet(checkedItems) {
+        var csrftoken = getCSRFToken();
+        axios.post('/add_offers/', { offers: checkedItems, name: name}, {
+                headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            }) 
+
+            .then(function(response) {
+                // console.log('status', response.data.newValue)
+                if(response.status == 200) {
+                    console.log('postSet', response.data);
+                    // window.location.href = 'http://127.0.0.1:8000/';
+                }
+            })
+            .catch(function(error) {
+                // Handle error
+                console.error('Error updating stock:', error);
+            });
+    }
+
+</script>
+
+
+<script>
+    function searchOffers() {
+        // Get the search query
+        var query = document.getElementById('searchInput').value.toLowerCase();
+
+        // Get all the offers
+        var offers = document.querySelectorAll('#offersContainer .offers__line');
+
+        // Loop through the offers and filter them
+        offers.forEach(function(offer) {
+                var title = offer.getAttribute('data-title').toLowerCase();
+                var id = offer.getAttribute('data-id').toLowerCase();
+                if (title.includes(query) || id.includes(query)) {
+                    offer.classList.add('show');
+                    // console.log('query', offer)
+                } else {
+                    offer.classList.remove('show');
+                    // console.log('no-query', offer)
+                }
+            });
+    }
+</script>
+
+<script>
+    // Initially show all offers
+    document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('#offersContainer .offers__line').forEach(function(offer) {
+                offer.classList.add('show');
+            });
+        });
+</script>
+
+</body>
+{% endblock %}
+</html>

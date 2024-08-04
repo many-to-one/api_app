@@ -26,17 +26,8 @@
         <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
     </div>
 
-    
-    <div class="set__offers__cont" id="offers__cont">
-
-        <!-- <div class="list__header">
-            <div class="cont">
-                <h1 id="name" value="{{ name }}">{{ name }}</h1>
-            </div>
-        </div> -->
-
         <div class="list__header_orders">
-            <p class="print" id="name" value="{{ name }}">{{name}}</p>
+            <p class="print" id="name" >{{name}}</p>
             <input class="check_o labels" type="button" id="check-all-button">
             <select class="edit_h var_select order" id="status_select" onchange="bulkEdit()">
                 <option selected disabled value=" ">Edytuj...</option>
@@ -75,7 +66,6 @@
                         {{ method.name }}
                     </option>
                 {% endfor %}
-                <!-- Add more options for other statuses if needed -->
             </select>
             <button class="jsn_start" id="jsnStart" onclick="jsnStartGo()">Załaduj aukcję</button>
             <form class="jsn_h" method="post" id="uploadForm" enctype="multipart/form-data">
@@ -83,12 +73,6 @@
                 <input type="file" id="jsonFile" name="jsonFile" accept="application/json">
                 <button type="button" onclick="uploadFile()">Upload</button>
             </form>
-    
-            <!-- <form class="csv_h" action="{% url 'edit_offers_csv' name %}" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <input type="file" name="file" placeholder="csv">CSV</input>
-                <button >Upload</button>
-            </form>  -->
         </div>
 
         <div class="list__header_orders_media">
@@ -99,7 +83,7 @@
             <p>{{ offers_list }}</p>
         {% endif %}
 
-        <div id="SetOffersContainer">
+        <div id="SetOffersContainer" class="set__offers__cont">
         {% for offer in result.offers %}
 
             <div class="set__row">
@@ -113,26 +97,43 @@
                         data-forloop-counter="{{ forloop.counter }}"
                         value="{{ offer.id }}"               
                         >
-                        <img class="set__photo" src="{{offer.primaryImage.url}}" alt="">
-                    </div>
-                    <div class="so_mini_cont">
-                        <p class="set__name">{{ offer.name }}</p>    
-                    
-                        {% if offer.publication.status == 'ACTIVE' %}
-                            <img class="set_icon" src="{% static 'icons/active.png' %}" alt="" width="10px" height="10px">
-                        {% elif offer.publication.status == 'INACTIVE' %}
-                            <img class="set_icon" src="{% static 'icons/inactive.png' %}" alt="">
-                        {% elif offer.publication.status == 'ENDED' %}
-                            <img class="set_icon" src="{% static 'icons/ended.png' %}" alt="">
-                        {% endif %}
-    
+                        <div class="conto__column">
+                            <img class="set__photo" src="{{offer.primaryImage.url}}" alt="">
+                            <p class="set__name">{{ offer.name }}</p> 
+                        </div>
                     </div>    
                 </div>
 
                 <div class="set__offers__line">
                     <div class="conto">
-                        <img class="set__photo" src="{{offer.primaryImage.url}}" alt="">
+                        <div class="conto__column">
+                            <img class="set__photo" src="{{offer.primaryImage.url}}" alt="">
+                            <p class="set__name">{{ offer.name }}</p> 
+                        </div>
+                        <div class="conto__column">
+                            <div class="conto__row">
+                                <div class="add__set" onclick="setSearch()">+</div>
+                                <div class="add__set" onclick="setSearch()">+</div>
+                                <div class="add__set" onclick="setSearch()">+</div>
+                            </div>
+                            <div class="discount">
+                                <label for="">Rabat zł</label>
+                                <input type="text">
+                                <label for="">Rabat %</label>
+                                <input type="text">
+                                <label for="">Sztuki</label>
+                                <input type="text">
+                                <p>Cena do:</p>
+                                <p>Cena po:</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="set__offers__line">
+                    <div class="conto__row">
                         <div class="add__set" onclick="setSearch()">+</div>
+                        <div class="add__set" onclick="pasteSet()">>></div>
                     </div>
                 </div>
 
@@ -140,13 +141,11 @@
 
         {% endfor %}
 
-        <div id="search">Hello</div>
-
-    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
     <script>
 
+        var name = document.getElementById('name').textContent;
 
         function getCSRFToken() {
             const cookieValue = document.cookie.match(/csrftoken=([^ ;]+)/)[1];
@@ -171,7 +170,7 @@
         }
 
         function setSearch() {
-
+            window.location.href = `/set_add/${name}`;
         }
 
 
