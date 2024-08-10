@@ -1,3 +1,37 @@
+.message-box {
+    background-color: #f44336; /* Red background */
+    color: white; /* White text */
+    padding: 15px; /* Some padding */
+    margin-bottom: 15px; /* Space below the box */
+    border-radius: 5px; /* Rounded borders */
+    position: fixed; /* Position it fixed on the page */
+    top: 20vh; /* Position it at the top */
+    z-index: 1000; /* Ensure it appears above other content */
+    width: 300px; /* Width of the message box */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* A subtle shadow */
+}
+
+.message-box:hover {
+    display: none;
+}
+
+.close-button {
+    background: none; /* No background */
+    border: none; /* No border */
+    color: white; /* White text */
+    font-size: 20px; /* Large text */
+    font-weight: bold; /* Bold text */
+    position: absolute; /* Position it absolutely */
+    top: 5px; /* Position it at the top right corner */
+    left: 63%;
+    cursor: pointer; /* Cursor to pointer */
+}
+
+.close-button:hover {
+    color: #bbb; /* Change color on hover */
+}
+
+
 .set__offers__cont {
     display: flex;
     flex-direction: column;

@@ -21,6 +21,7 @@
         Wystąpił błąd, skontaktuj się z właścicielem aplikacji
         <button onclick="closeError()">X</button>
     </div>
+    
 
     <div id="loadIcon" style="display: none;">
         <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
@@ -65,6 +66,10 @@
         </div>
 
         <div id="offersContainer">
+            <div id="messageBox" class="message-box" style="display: none;">
+                <span id="messageText"></span>
+                <button id="closeButton" class="close-button" onclick="closeMessage()">&times;</button>
+            </div>
         {% for offer in result.offers %}
 
             <div class="offers__line" data-title="{{ offer.name }}" data-id="{{ offer.external.id }}">
@@ -131,6 +136,28 @@
 
 
 
+        function showMessage(message, status) {
+            const messageBox = document.getElementById('messageBox');
+            const messageText = document.getElementById('messageText');
+            messageText.textContent = message;
+            messageBox.style.display = 'block';  
+            if ( status === 200 ) {
+                messageBox.style.backgroundColor = 'green';
+            } else if ( status === 300 ) {
+                messageBox.style.backgroundColor = 'blue';
+            } else {
+                messageBox.style.backgroundColor = 'red';
+            }
+
+            setTimeout(closeMessage, 3000);
+        }
+
+        function closeMessage() {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.style.display = 'none';  // Hide the message box
+        }
+
+
 
         document.getElementById('check-all-button').addEventListener('click', function() {
             // Select all checkboxes with the name 'selected_items'
@@ -163,6 +190,8 @@
         }
     }
 
+
+
     function addOffer(main_offer_id) {
 
         var checkboxes = document.querySelectorAll('input[name="selected_items"]');
@@ -178,6 +207,12 @@
             // Check if the checkbox is checked
             if (checkbox.checked) {
                 console.log('checkbox =>', checkbox.value)
+                console.log('main_offer_id =>', main_offer_id)
+                if ( checkbox.value === main_offer_id ) {
+                    console.log('checkbox === main_offer_id')
+                    showMessage('Zestaw nie może zawierać dwóch takich samych ofert.', 404);
+                    return false;
+                }
                 checkedItems.push(checkbox.value);              
             }
         });
@@ -202,7 +237,15 @@
             .then(function(response) {
                 // console.log('status', response.data.newValue)
                 if(response.status == 200) {
-                    console.log('postSet', response.data.context.result);
+                    console.log('postSet', response.data.context);
+                    if ( response.data.context.status === 'ok' ) {
+                        showMessage(response.data.context.message, 200)
+                    } else if ( response.data.context.status === '!ok' ) {
+                        showMessage(response.data.context.message, 300)
+                    } else {
+                        console.log('postSet', 500);
+                        showMessage(response.data.context.message, 500)
+                    }
                     // window.location.href = 'http://127.0.0.1:8000/';
                 }
             })

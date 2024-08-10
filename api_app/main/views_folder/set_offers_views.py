@@ -60,18 +60,31 @@ def add_offers(request):
     main_offer_id = data.get('main_offer_id')
     print(' ######### offers ##########', offers)
     res = post_set_api(request, name, offers, main_offer_id)
-    print(' ######### res ##########', res)
-    # if res[0]['errors']:
-    #     print(' ######### res errors ##########', res[0]['errors'][0]['userMessage'])
-    #     context = {
-    #         'result': res[0]['errors'][0]['userMessage'],
-    #         'name': name,
-    #     }
-    # else:
-    context = {
-        'result': res,
-        'name': name,
-    }
+    print(' ######### res ##########', res[0])
+    if 'errors' in res[0]:
+        print(' ######### res errors ##########', res[0]['errors'][0]['userMessage'])
+        if any('id' in item for item in res):
+            print(' ######### res id in res[0] ##########', res)
+            context = {
+                'result': res,
+                'name': name,
+                'message': 'Stworzyłeś zestaw(y) offert, ale w zestawach podobny(e) już isnieje(ą)',
+                'status': '!ok',
+            }
+        else:
+            context = {
+                'result': res[0]['errors'][0]['userMessage'],
+                'name': name,
+                'message': res[0]['errors'][0]['userMessage'], 
+                'status': 'error'
+            }
+    else:
+        context = {
+            'result': res,
+            'name': name,
+            'message': 'Stworzyłeś zestaw(y) offert',
+            'status': 'ok',
+        }
     
     return JsonResponse(
                 {
