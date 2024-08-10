@@ -90,12 +90,13 @@
                 <div class="set__offers__line" data-title="{{ offer.name }}" data-id="{{ offer.external.id }}">
                     <div class="conto">
                         <input 
-                        class="labels" 
-                        type="checkbox" 
-                        name="selected_items" 
-                        data-fulfillment-status="{{ offer.fulfillment.status }}"
-                        data-forloop-counter="{{ forloop.counter }}"
-                        value="{{ offer.id }}"               
+                            class="labels" 
+                            id="offer_{{ forloop.counter }}"
+                            type="checkbox" 
+                            name="selected_items" 
+                            data-fulfillment-status="{{ offer.fulfillment.status }}"
+                            data-forloop-counter="{{ forloop.counter }}"
+                            value="{{ offer.id }}"               
                         >
                         <div class="conto__column">
                             <img class="set__photo" src="{{offer.primaryImage.url}}" alt="">
@@ -132,7 +133,7 @@
 
                 <div class="set__offers__line">
                     <div class="conto__row">
-                        <div class="add__set" onclick="setSearch()">+</div>
+                        <div class="add__set" onclick="setSearch('{{forloop.counter}}')">+</div>
                         <div class="add__set" onclick="pasteSet()">>></div>
                     </div>
                 </div>
@@ -169,8 +170,10 @@
             return cookieValue;
         }
 
-        function setSearch() {
-            window.location.href = `/set_add/${name}`;
+        function setSearch(forloopCounter) {
+            offerId = document.getElementById('offer_' + forloopCounter).value;
+            console.log('offerId', offerId)
+            window.location.href = `/set_add/${name}/${offerId}`;
         }
 
 

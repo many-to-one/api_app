@@ -47,7 +47,7 @@
 
             <input type="search" class="search_h" id="searchInput" placeholder="Szukaj..." onkeyup="searchOffers()">
 
-            <button class="jsn_start" id="jsnStart" onclick="addOffer()">Dodaj +</button>
+            <button class="jsn_start" id="jsnStart" onclick="addOffer('{{ main_offer_id }}')">Dodaj +</button>
     
         </div>
 
@@ -163,11 +163,11 @@
         }
     }
 
-    function addOffer() {
+    function addOffer(main_offer_id) {
 
         var checkboxes = document.querySelectorAll('input[name="selected_items"]');
         var selectedStatus = document.getElementById('status_select').value;
-        // console.log('selectedStatus, name =>', selectedStatus, name)
+        // console.log('main_offer_id =>', main_offer_id)
         var csrftoken = getCSRFToken();
 
         // Initialize an empty array to store the checked checkbox values
@@ -183,7 +183,7 @@
         });
 
         if ( checkedItems !== null ) {
-            postSet(checkedItems)
+            postSet(checkedItems, main_offer_id)
             console.log('checkedItems !== null')
         } else {
             console.log('checkedItems is null')
@@ -191,9 +191,9 @@
 
     }
 
-    function postSet(checkedItems) {
+    function postSet(checkedItems, main_offer_id) {
         var csrftoken = getCSRFToken();
-        axios.post('/add_offers/', { offers: checkedItems, name: name}, {
+        axios.post('/add_offers/', { main_offer_id: main_offer_id, offers: checkedItems, name: name}, {
                 headers: {
                     'X-CSRFToken': csrftoken
                 }
@@ -202,7 +202,7 @@
             .then(function(response) {
                 // console.log('status', response.data.newValue)
                 if(response.status == 200) {
-                    console.log('postSet', response.data);
+                    console.log('postSet', response.data.context.result);
                     // window.location.href = 'http://127.0.0.1:8000/';
                 }
             })

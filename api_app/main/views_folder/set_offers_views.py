@@ -42,11 +42,12 @@ def set_offers(request, name):
         return redirect('login_user')
     
 
-def set_add(request, name):
+def set_add(request, name, offer_id):
     result = get_all_offers_api(request, name)
     context = {
         'result': result[0],
         'name': name,
+        'main_offer_id': offer_id,
     }
     return render(request, 'set_add.html', context)
 
@@ -55,9 +56,18 @@ def add_offers(request):
 
     data = json.loads(request.body.decode('utf-8'))
     offers = data.get('offers')
-    name = data.get('name')
+    name = data.get('name') 
+    main_offer_id = data.get('main_offer_id')
     print(' ######### offers ##########', offers)
-    res = post_set_api(request, name, offers)
+    res = post_set_api(request, name, offers, main_offer_id)
+    print(' ######### res ##########', res)
+    # if res[0]['errors']:
+    #     print(' ######### res errors ##########', res[0]['errors'][0]['userMessage'])
+    #     context = {
+    #         'result': res[0]['errors'][0]['userMessage'],
+    #         'name': name,
+    #     }
+    # else:
     context = {
         'result': res,
         'name': name,
