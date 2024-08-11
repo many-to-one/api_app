@@ -48,7 +48,8 @@
 
             <input type="search" class="search_h" id="searchInput" placeholder="Szukaj..." onkeyup="searchOffers()">
 
-            <button class="jsn_start" id="jsnStart" onclick="addOffer('{{ main_offer_id }}')">Dodaj +</button>
+            <button class="jsn_start" id="jsnStart" onclick="addOffer('{{ main_offer_id }}')">Dodaj 1</button>
+            <button class="jsn_h jsn_h_btn" id="jsnStart" onclick="addOffers('{{ main_offer_id }}')">Dodaj max</button>
     
         </div>
 
@@ -192,6 +193,70 @@
 
 
 
+    function addOffers(main_offer_id) {
+
+        var checkboxes = document.querySelectorAll('input[name="selected_items"]');
+        var selectedStatus = document.getElementById('status_select').value;
+        // console.log('main_offer_id =>', main_offer_id)
+        var csrftoken = getCSRFToken();
+
+        // Initialize an empty array to store the checked checkbox values
+        var checkedItems = [];
+
+        // Iterate over each checkbox
+        checkboxes.forEach(function(checkbox) {
+            // Check if the checkbox is checked
+            if (checkbox.checked) {
+                console.log('checkbox =>', checkbox.value)
+                console.log('main_offer_id =>', main_offer_id)
+                if ( checkbox.value === main_offer_id ) {
+                    console.log('checkbox === main_offer_id')
+                    showMessage('Zestaw nie może zawierać dwóch takich samych ofert.', 404);
+                    return false;
+                }
+                checkedItems.push(checkbox.value);              
+            }
+        });
+
+        if ( checkedItems !== null ) {
+            postSets(checkedItems, main_offer_id)
+            console.log('checkedItems !== null')
+        } else {
+            console.log('checkedItems is null')
+        }
+
+    }
+
+    function postSets(checkedItems, main_offer_id) {
+        var csrftoken = getCSRFToken();
+        axios.post('/add_offers/', { main_offer_id: main_offer_id, offers: checkedItems, name: name}, {
+                headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            }) 
+
+            .then(function(response) {
+                // console.log('status', response.data.newValue)
+                if(response.status == 200) {
+                    console.log('postSet', response.data.context);
+                    if ( response.data.context.status === 'ok' ) {
+                        showMessage(response.data.context.message, 200)
+                    } else if ( response.data.context.status === '!ok' ) {
+                        showMessage(response.data.context.message, 300)
+                    } else {
+                        console.log('postSet', 500);
+                        showMessage(response.data.context.message, 500)
+                    }
+                    // window.location.href = 'http://127.0.0.1:8000/';
+                }
+            })
+            .catch(function(error) {
+                // Handle error
+                console.error('Error updating stock:', error);
+            });
+    }
+
+
     function addOffer(main_offer_id) {
 
         var checkboxes = document.querySelectorAll('input[name="selected_items"]');
@@ -226,9 +291,10 @@
 
     }
 
+
     function postSet(checkedItems, main_offer_id) {
         var csrftoken = getCSRFToken();
-        axios.post('/add_offers/', { main_offer_id: main_offer_id, offers: checkedItems, name: name}, {
+        axios.post('/add_offers_one/', { main_offer_id: main_offer_id, offers: checkedItems, name: name}, {
                 headers: {
                     'X-CSRFToken': csrftoken
                 }

@@ -129,6 +129,14 @@
     cursor: pointer;
 }
 
+.jsn_h_btn {
+    display: block;
+    width: auto;
+    background-color: var(--bg_color);
+    border: none;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
 .details_h {
     position: absolute;
     left: 95.5%;

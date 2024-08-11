@@ -33,6 +33,7 @@ urlpatterns = [
     path('set_offers/<str:name>/', set_offers_views.set_offers, name='set_offers'),
     path('set_add/<str:name>/<str:offer_id>/', set_offers_views.set_add, name='set_add'),
     path('add_offers/', set_offers_views.add_offers, name='add_offers'),
+    path('add_offers_one/', set_offers_views.add_offers_one, name='add_offers_one'),
     path('get_one_offer/<str:id>/', offer_views.get_one_offer, name='get_one_offer'),
     path('edit_offer_stock/<str:id>/', offer_views.edit_offer_stock, name='edit_offer_stock'),
     path('post_new_offer/<str:id>/', offer_views.post_new_offer, name='post_new_offer'),

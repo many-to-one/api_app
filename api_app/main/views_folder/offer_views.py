@@ -151,17 +151,45 @@ def get_all_offers(request, name):
 
     if request.user.is_authenticated:
 
+        secret = Secret.objects.get(account__name=name)
         shipping_rates = get_shipping_rates(request, name)
         aftersale_services = get_aftersale_services(request, name)
-        result = get_all_offers_api(request, name)
+        # result = get_all_offers_api(request, name)
         # print(" ############### get_all_offers_api ################## ", result[0])
-        context = {
-            'result': result[0],  #product_result.json(),
-            'name': name,
-            'shipping_rates': shipping_rates,
-            'aftersale_services': aftersale_services,
-        }
-        return render(request, 'get_all_offers.html', context)
+        try:
+            url = "https://api.allegro.pl.allegrosandbox.pl/sale/offers"
+            # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
+            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+            product_result = requests.get(url, headers=headers, verify=True)
+            result = product_result.json()
+            # for of in result['offers']:
+                # print('******* get_all_offers ********', of)
+            if 'error' in result:
+                error_code = result['error']
+                if error_code == 'invalid_token':
+                    # print('ERROR RESULT @@@@@@@@@', error_code)
+                    try:
+                        # Refresh the token
+                        new_token = get_next_token(request, secret.refresh_token, name)
+                        # Retry fetching orders with the new token
+                        return get_all_offers_api(request, name)
+                    except Exception as e:
+                        print('Exception @@@@@@@@@', e)
+                        context = {'name': name}
+                        return render(request, 'invalid_token.html', context)
+            # print(" ############### shipping_rates ################## ", shipping_rates)
+            # print(" ############### product_result.json() API ################## ", product_result.json())
+            context = {
+                'result': result,  #product_result.json(),
+                'name': name,
+                'shipping_rates': shipping_rates,
+                'aftersale_services': aftersale_services,
+            }
+            return render(request, 'get_all_offers.html', context)
+
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)
+        
     else:
         return redirect('login_user')
     
