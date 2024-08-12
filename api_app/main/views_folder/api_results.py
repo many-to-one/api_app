@@ -315,3 +315,84 @@ def get_all_sets_api(request, name):
             raise SystemExit(err)
     else:
         return redirect('login_user')
+    
+
+
+async def get_image_api(request, name, secret, offers):
+
+    if request.user.is_authenticated:
+
+        # print("############### get_image_api ##################", offers)
+        tasks = []
+
+        for offer in offers:
+            task = asyncio.create_task(get_image(request, name, secret, offer))
+            tasks.append(task)
+
+        res = await asyncio.gather(*tasks)
+
+        return res
+    
+
+async def get_image(request, name, secret, offer):
+
+    print('offer RESULT @@@@@@@@@', offer['id'])
+    id = offer['id']
+
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
+        # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+        # Allegro doesn't accept httpx in this case(maybe to fast for api call)
+        product_result = requests.get(url, headers=headers, verify=True) 
+        await asyncio.sleep(1)
+        result = product_result.json()
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token)
+                    # Retry fetching orders with the new token
+                    return await get_image(request, name, secret, offer)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    return redirect('invalid_token')
+        print('@@@@@@@@@ RESULT get_image productSet @@@@@@@@@', result)
+        return result
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+
+
+# async def get_image(request, name, secret, offer):
+
+#     print('offer RESULT @@@@@@@@@', offer['id'])
+#     id = offer['id']
+
+#     try:
+#         async with httpx.AsyncClient() as client:
+#             url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
+#             # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
+#             headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+#             # Allegro doesn't accept httpx in this case(maybe to fast for api call)
+#             product_result = await client.get(url, headers=headers) 
+#             result = product_result.json()
+#             if 'error' in result:
+#                 error_code = result['error']
+#                 if error_code == 'invalid_token':
+#                     # print('ERROR RESULT @@@@@@@@@', error_code)
+#                     try:
+#                         # Refresh the token
+#                         new_token = get_next_token(request, secret.refresh_token)
+#                         # Retry fetching orders with the new token
+#                         return await get_image(request, name, secret, offer)
+#                     except Exception as e:
+#                         print('Exception @@@@@@@@@', e)
+#                         return redirect('invalid_token')
+#             print('@@@@@@@@@ RESULT get_image productSet @@@@@@@@@', result)
+#             return result
+#     except requests.exceptions.HTTPError as err:
+#         raise SystemExit(err)
+
+

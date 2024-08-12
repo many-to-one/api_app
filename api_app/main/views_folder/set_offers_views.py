@@ -1,7 +1,7 @@
 import requests
 from django.shortcuts import render, redirect
 
-from .api_results import get_all_offers_api, post_set_api, post_set_api_one, get_all_sets_api
+from .api_results import get_all_offers_api, get_image_api, post_set_api, post_set_api_one, get_all_sets_api
 from ..utils import *
 from ..models import *
 
@@ -10,10 +10,17 @@ def set_offers(request, name):
     if request.user.is_authenticated:
 
         secret = Secret.objects.get(account__name=name)
-
         all_sets = get_all_sets_api(request, name)
-        # for set in all_sets[0]['promotions']:
-        #     print(" ############### set ################## ", set)
+
+        offers = []
+        # Iterate through each promotion in all_sets[0]['promotions']
+        for set_item in all_sets[0]['promotions']:
+            offer = set_item['offerCriteria'][0]['offers']
+            print("############### set ##################", offer)
+        #     offers.append(set_item['offerCriteria'][0]['offers'])
+        # # print("############### set_offers offers[] ##################", offers[0])
+        # res = asyncio.run(get_image_api(request, name, secret, offers[0]))
+        # # print("############### set_offers offer_image ##################", res)
 
         try:
             url = "https://api.allegro.pl.allegrosandbox.pl/sale/offers"
@@ -36,34 +43,46 @@ def set_offers(request, name):
             # print(" ############### shipping_rates ################## ", shipping_rates)
             # print(" ############### aftersale_services ################## ", aftersale_services)
 
+            offers_id = []
+            sets_id = []
+
             # for res in result["offers"]:
-            #     print(" ############### one res ################## ", res)
-
-
-
-            # Iterate through each promotion in all_sets[0]['promotions']
+                # print(" ############### one res * ################## ", res['id'])
+            
             for set_item in all_sets[0]['promotions']:
-                set_id = set_item['id']
-                print("############### set ##################", set_id)
+                # offers = set_item['offerCriteria'][0]['offers']
+                offers_id.append(set_item['offerCriteria'][0]['offers'][0])
+                sets = set_item['offerCriteria'][0]['offers'][1::][0]
+                sets_id.append(sets)
+                if set_item['offerCriteria'][0]['offers'][0] not in sets_id:
+                    sets_id.insert(0, set_item['offerCriteria'][0]['offers'][0])
+                # sets_id[0] = set_item['offerCriteria'][0]['offers'][0]
+                print("############### offers -- ##################", sets)
+                # for offer in offers:
+                #     offers_id.append(offer)
+                #     print("############### set -- ##################", offer)
 
-                # Now check if this id exists in any of the result["offers"]
-                for res_item in result["offers"]:
-                    res_id = res_item['id']
-                    print("############### one res ##################", res_id)
+                #     # Now check if this id exists in any of the result["offers"]
+                #     for res_item in result["offers"]:
+                #         res_id = res_item['id']
+                #         # print("############### one res ##################", res_id)
 
-                    # Check if the id in the promotion matches any id in the offers
-                    if set_id == res_id:
-                        print(f"Match found! ID {set_id} is present in both.")
-                        # You can break the inner loop if you only care about the first match
-                        break
-                else:
-                    print(f"No match found for ID {set_id} in result['offers'].")
+                #         # Check if the id in the promotion matches any id in the offers
+                #         if offer['id'] == res_id:
+                #             print(f"Match found! ID {offer} is present in both.")
+                #             # images.append(res_item['primaryImage']['url'])
+                #             # You can break the inner loop if you only care about the first match
+                #             break
+                        # else:
+                        #     print(f"No match found for ID {res['id']} in result['offers'].")
 
-
+            # print("############### images ##################", images)
             context = {
                 'result': result,
                 'name': name,
-                'sets': all_sets[0]['promotions']
+                'sets': all_sets[0]['promotions'],
+                'offers_id': offers_id,
+                'sets_id': sets_id,
             }
             return render(request, 'set_offers.html', context)
         except requests.exceptions.HTTPError as err:

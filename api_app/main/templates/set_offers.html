@@ -102,15 +102,25 @@
                             <img class="set__photo" src="{{offer.primaryImage.url}}" alt="">
                             <p class="set__name">{{ offer.name }}</p> 
                             <p>{{offer.publication.status}}</p>
+                            <p>{{ offer.id }}</p>
+                            <p>{{ id }}</p>
                         </div>
                     </div>    
                 </div>
 
+                {% for of in offers_id %}
+                    {% if of.id == offer.id %}
+
                 <div class="set__offers__line">
                     <div class="conto">
                         <div class="conto__column">
-                            <img class="set__photo" src="{{offer.primaryImage.url}}" alt="">
-                            <p class="set__name">{{ offer.name }}</p> 
+                            
+                                    <img class="set__photo" src="{{offer.primaryImage.url}}" alt="">
+                                    <p class="set__name">{{ offer.name }}</p>
+                                    {% for set in sets_id %}
+                                    <p class="set__name">{{ set.id }}</p>
+                                    {% endfor %}
+
                         </div>
                         <div class="conto__column">
                             <div class="conto__row">
@@ -131,6 +141,9 @@
                         </div>
                     </div>
                 </div>
+                
+                {% endif %}
+                {% endfor %}
 
                 {% if offer.publication.status == 'ACTIVE' %}
                     <div class="set__offers__line">
