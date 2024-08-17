@@ -109,10 +109,13 @@
     left: 83%;
 }
 
-.jsn_start {
-    display: block;
+.jsn_start_absl {
     position: absolute;
     left: 76%;
+}
+
+.jsn_start {
+    display: block;
     width: auto;
     background-color: var(--bg_color);
     border: none;
@@ -131,10 +134,13 @@
 
 .jsn_h_btn {
     display: block;
+    position: absolute;
+    left: 82%;
     width: auto;
     background-color: var(--bg_color);
     border: none;
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    cursor: pointer;
 }
 
 .details_h {

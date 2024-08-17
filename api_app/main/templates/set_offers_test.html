@@ -67,7 +67,7 @@
                     </option>
                 {% endfor %}
             </select>
-            <button class="jsn_start" id="jsnStart" onclick="jsnStartGo()">Załaduj aukcję</button>
+            <button class="jsn_start_absl jsn_start" id="jsnStart" onclick="jsnStartGo()">Załaduj aukcję</button>
             <form class="jsn_h" method="post" id="uploadForm" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="file" id="jsonFile" name="jsonFile" accept="application/json">
@@ -109,7 +109,7 @@
                 </div>
 
                 {% for set in sets %}
-                {% if set.0.id == offer.id %}
+                {% if set.1.0.id == offer.id %}
 
                 <div class="set__offers__line">
                     <div class="conto">
@@ -117,8 +117,9 @@
                             
                                 <img class="set__photo" src="{{offer.primaryImage.url}}" alt="">
                                 <p class="set__name">{{ offer.name }}</p>
-                            {% for s in set|slice:"1:" %}
-                                <p class="set__name">{{ s.id }}</p>
+                                <p class="set__name">{{ set.0.set_id }}</p>
+                            {% for s in set.1|slice:"1:" %}
+                                <!-- <p class="set__name">{{ s.id }}</p> -->
                                 {% for of in result.offers %}
                                     {% if s.id == of.id %}
                                         <img class="set__photo" src="{{of.primaryImage.url}}" alt="">
@@ -137,13 +138,14 @@
                             </div>
                             <div class="discount">
                                 <label for="">Rabat zł</label>
-                                <input type="text">
+                                <input id="disc__money" value="0.00" type="text">
                                 <label for="">Rabat %</label>
-                                <input type="text">
+                                <input id="disc__percent" value="0.00" type="text">
                                 <label for="">Sztuki</label>
-                                <input type="text">
+                                <input id="disc__piece" value="1" type="text">
                                 <p>Cena do:</p>
                                 <p>Cena po:</p>
+                                <button class="jsn_start" onclick="submitDiscount('{{ set.0.set_id }}')">Submit</button>
                             </div>
                         </div>
                     </div>
@@ -193,11 +195,58 @@
             return cookieValue;
         }
 
+
+        // SEARCH OFFERS AND SETS
         function setSearch(forloopCounter) {
             offerId = document.getElementById('offer_' + forloopCounter).value;
             console.log('offerId', offerId)
             window.location.href = `/set_add/${name}/${offerId}`;
         }
+
+
+
+        // SUBMIT DISCOUNT
+        function submitDiscount(set_id) {
+
+            console.log('set_id:', set_id);
+            var csrftoken = getCSRFToken();
+            const discMoney = parseFloat(document.getElementById('disc__money').value);
+            const discPercent = parseFloat(document.getElementById('disc__percent').value);
+            const discPiece = parseInt(document.getElementById('disc__piece').value);
+
+            console.log('discMoney:', discMoney);
+            console.log('discPercent:', discPercent);
+
+            if (discMoney !== 0 && discPercent !== 0) {
+                alert('Wybierz jeden rabat!');
+                return;
+            }
+
+            // Create the data object to send to the server
+            const data = {
+                set_id: set_id,
+                disc__money: discMoney || null,
+                disc__percent: discPercent || null,
+                disc__piece: discPiece || 1,
+            };
+
+            console.log('data:', data);
+
+
+            axios.post('/add_discount/', data, {
+                headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            })
+                .then(function (response) {
+                    console.log('Response:', response.data);
+                })
+                .catch(function (error) {
+                    console.error('There was an error!', error);
+                    alert('There was an error submitting the discount.', error);
+                });
+        }
+
 
         
 </script>

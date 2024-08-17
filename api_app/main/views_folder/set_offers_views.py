@@ -16,13 +16,17 @@ def set_offers(request, name):
         # Iterate through each promotion in all_sets[0]['promotions']
         for set_item in all_sets[0]['promotions']:
             offer = set_item['offerCriteria'][0]['offers']
-            print("############### set ##################", offer)
-            offers.append(offer)
+            # id = set_item['id']
+            # print("############### id *** ##################", id)
+            # print("############### set ##################", offer)
+            # offers.append({'id': id})
+            offers.append( [{'set_id': set_item['id']}, offer])
+            # offers.append({set_item['id']: offer})
+            # offers.append(offer)
         print("############### offers *** ##################", offers)
-        #     offers.append(set_item['offerCriteria'][0]['offers'])
-        # # print("############### set_offers offers[] ##################", offers[0])
-        # res = asyncio.run(get_image_api(request, name, secret, offers[0]))
-        # # print("############### set_offers offer_image ##################", res)
+        for of in offers:
+            print("############### of ##################", of)
+        # print("############### all_sets *** ##################", all_sets[0]['promotions'])
 
         try:
             url = "https://api.allegro.pl.allegrosandbox.pl/sale/offers"
@@ -42,50 +46,14 @@ def set_offers(request, name):
                         print('Exception @@@@@@@@@', e)
                         context = {'name': name}
                         return render(request, 'invalid_token.html', context)
-            # print(" ############### shipping_rates ################## ", shipping_rates)
-            # print(" ############### aftersale_services ################## ", aftersale_services)
 
-            offers_id = []
-            sets_id = []
 
-            # for res in result["offers"]:
-                # print(" ############### one res * ################## ", res['id'])
-            
-            for set_item in all_sets[0]['promotions']:
-                # offers = set_item['offerCriteria'][0]['offers']
-                offers_id.append(set_item['offerCriteria'][0]['offers'][0])
-                sets = set_item['offerCriteria'][0]['offers'][1::][0]
-                sets_id.append(sets)
-                if set_item['offerCriteria'][0]['offers'][0] not in sets_id:
-                    sets_id.insert(0, set_item['offerCriteria'][0]['offers'][0])
-                # sets_id[0] = set_item['offerCriteria'][0]['offers'][0]
-                print("############### offers -- ##################", sets)
-                # for offer in offers:
-                #     offers_id.append(offer)
-                #     print("############### set -- ##################", offer)
-
-                #     # Now check if this id exists in any of the result["offers"]
-                #     for res_item in result["offers"]:
-                #         res_id = res_item['id']
-                #         # print("############### one res ##################", res_id)
-
-                #         # Check if the id in the promotion matches any id in the offers
-                #         if offer['id'] == res_id:
-                #             print(f"Match found! ID {offer} is present in both.")
-                #             # images.append(res_item['primaryImage']['url'])
-                #             # You can break the inner loop if you only care about the first match
-                #             break
-                        # else:
-                        #     print(f"No match found for ID {res['id']} in result['offers'].")
-
-            # print("############### images ##################", images)
             context = {
                 'result': result,
                 'name': name,
                 'sets': offers, #all_sets[0]['promotions'],
-                'offers_id': offers_id,
-                'sets_id': sets_id,
             }
+
             return render(request, 'set_offers_test.html', context)
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
@@ -185,6 +153,26 @@ def add_offers_one(request):
                 {
                     'message': 'Stock updated successfully',
                     'context': context,
+                }, 
+                status=200,
+            )
+
+def add_discount(request):
+
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        set_id = data['set_id']
+        disc__money = data['disc__money']
+        disc__percent = data['disc__percent']
+        disc__piece = data['disc__piece']
+
+        print('************ add_discount *************', set_id, disc__money, disc__percent, disc__piece)
+
+        return JsonResponse(
+                {
+                    'message': 'Discount updated successfully',
+                    'userMessage': 'Rabat dodany poprawnie',
+                    'data': data,
                 }, 
                 status=200,
             )
