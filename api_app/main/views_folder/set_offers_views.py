@@ -17,6 +17,8 @@ def set_offers(request, name):
         for set_item in all_sets[0]['promotions']:
             offer = set_item['offerCriteria'][0]['offers']
             print("############### set ##################", offer)
+            offers.append(offer)
+        print("############### offers *** ##################", offers)
         #     offers.append(set_item['offerCriteria'][0]['offers'])
         # # print("############### set_offers offers[] ##################", offers[0])
         # res = asyncio.run(get_image_api(request, name, secret, offers[0]))
@@ -80,11 +82,11 @@ def set_offers(request, name):
             context = {
                 'result': result,
                 'name': name,
-                'sets': all_sets[0]['promotions'],
+                'sets': offers, #all_sets[0]['promotions'],
                 'offers_id': offers_id,
                 'sets_id': sets_id,
             }
-            return render(request, 'set_offers.html', context)
+            return render(request, 'set_offers_test.html', context)
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
     else:

@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oferty</title>
+</head>
+
+{% block content %}
+<body>
+
+    <div id="error_13" style="display: none;">
+        Nieprawidłowa zawartość EAN
+        <button onclick="closeError()">X</button>
+    </div>
+
+    <div id="error" style="display: none;">
+        Wystąpił błąd, skontaktuj się z właścicielem aplikacji
+        <button onclick="closeError()">X</button>
+    </div>
+
+    <div id="loadIcon" style="display: none;">
+        <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
+    </div>
+
+        <div class="list__header_orders">
+            <p class="print" id="name" >{{name}}</p>
+            <input class="check_o labels" type="button" id="check-all-button">
+            <select class="edit_h var_select order" id="status_select" onchange="bulkEdit()">
+                <option selected disabled value=" ">Edytuj...</option>
+                <option value="PRICE">Cena</option>
+                <option value="QUANTITY">Ilość</option>
+                <option value="STATUS">Status</option>
+                <option value="DELIVERY_PRICE">Cennik dostawy</option>
+                <option value="DELIVERY_TIME">Czas wysyłki</option>
+                <option value="BULK_PRICE">Cennik hurtowy</option> 
+                <option value="VAT_INFO">Informacje o fakturze</option>
+                <option value="POST_OFFERS">Wystaw oferty</option>
+                <option value="JSON_OFFERS">Zapisz oferty (json)</option>
+            </select>
+
+            <input type="search" class="search_h" id="searchInput" placeholder="Szukaj..." onkeyup="searchOffers()">
+
+            <select class="vat__select var_select" id="vatSelect" required>
+                <option value="" selected disabled>VAT</option>
+                <option value="23.00">23%</option>
+                <option value="5.00">5%</option>
+            </select>
+
+            <select class="aftersale_select var_select" id="afterSaleSelect" required>
+                <option value="" selected disabled>Reklamacja...</option>
+                {% for method in aftersale_services.returnPolicies %}
+                    <option id="method_{{ forloop.counter }}" value="{{ method.id }}">
+                        {{ method.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <select class="delivery_select var_select" id="deliverySelect" required>
+                <option value="" selected disabled>Dostawa...</option>
+                {% for method in shipping_rates.shippingRates %}
+                    <option id="method_{{ forloop.counter }}" value="{{ method.id }}">
+                        {{ method.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button class="jsn_start" id="jsnStart" onclick="jsnStartGo()">Załaduj aukcję</button>
+            <form class="jsn_h" method="post" id="uploadForm" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" id="jsonFile" name="jsonFile" accept="application/json">
+                <button type="button" onclick="uploadFile()">Upload</button>
+            </form>
+        </div>
+
+        <div class="list__header_orders_media">
+            <p class="print" id="name" value="{{ name }}">{{name}}</p>
+        </div>
+
+        {% if offers_list %}
+            <p>{{ offers_list }}</p>
+        {% endif %}
+
+        <div id="SetOffersContainer" class="set__offers__cont">
+        {% for offer in result.offers %}
+
+            <div class="set__row">
+                <div class="set__offers__line" data-title="{{ offer.name }}" data-id="{{ offer.external.id }}">
+                    <div class="conto">
+                        <input 
+                            class="labels" 
+                            id="offer_{{ forloop.counter }}"
+                            type="checkbox" 
+                            name="selected_items" 
+                            data-fulfillment-status="{{ offer.fulfillment.status }}"
+                            data-forloop-counter="{{ forloop.counter }}"
+                            value="{{ offer.id }}"               
+                        >
+                        <div class="conto__column">
+                            <img class="set__photo" src="{{offer.primaryImage.url}}" alt="">
+                            <p class="set__name">{{ offer.name }}</p> 
+                            <p>{{offer.publication.status}}</p>
+                            <p>{{ offer.id }}</p>
+                            <p>{{ id }}</p>
+                        </div>
+                    </div>    
+                </div>
+
+                {% for set in sets %}
+                {% if set.0.id == offer.id %}
+
+                <div class="set__offers__line">
+                    <div class="conto">
+                        <div class="conto__column">
+                            
+                                <img class="set__photo" src="{{offer.primaryImage.url}}" alt="">
+                                <p class="set__name">{{ offer.name }}</p>
+                            {% for s in set|slice:"1:" %}
+                                <p class="set__name">{{ s.id }}</p>
+                                {% for of in result.offers %}
+                                    {% if s.id == of.id %}
+                                        <img class="set__photo" src="{{of.primaryImage.url}}" alt="">
+                                        <p class="set__name">{{ of.name }}</p>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+
+
+                        </div>
+                        <div class="conto__column">
+                            <div class="conto__row">
+                                <div class="add__set" onclick="setSearch()">+</div>
+                                <div class="add__set" onclick="setSearchMore()">+</div>
+                                <div class="add__set" onclick="setSearch()">+</div>
+                            </div>
+                            <div class="discount">
+                                <label for="">Rabat zł</label>
+                                <input type="text">
+                                <label for="">Rabat %</label>
+                                <input type="text">
+                                <label for="">Sztuki</label>
+                                <input type="text">
+                                <p>Cena do:</p>
+                                <p>Cena po:</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% endif %}
+                {% endfor %}
+
+                {% if offer.publication.status == 'ACTIVE' %}
+                    <div class="set__offers__line">
+                        <div class="conto__row">
+                            <div class="add__set" onclick="setSearch('{{forloop.counter}}')">+</div>
+                            <div class="add__set" onclick="pasteSet()">>></div>
+                        </div>
+                    </div>
+                {% endif %}
+
+            </div>
+
+        {% endfor %}
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
+    <script>
+
+        var name = document.getElementById('name').textContent;
+
+        function getCSRFToken() {
+            const cookieValue = document.cookie.match(/csrftoken=([^ ;]+)/)[1];
+            return cookieValue;
+        }
+
+        // Function to get CSRF token from cookie
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    // Check if the cookie name matches the desired name
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function setSearch(forloopCounter) {
+            offerId = document.getElementById('offer_' + forloopCounter).value;
+            console.log('offerId', offerId)
+            window.location.href = `/set_add/${name}/${offerId}`;
+        }
+
+        
+</script>
+
+
+</body>
+{% endblock %}
+</html>
