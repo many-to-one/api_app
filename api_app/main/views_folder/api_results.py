@@ -44,6 +44,45 @@ def get_all_offers_api(request, name):
             raise SystemExit(err)
     else:
         return redirect('login_user')
+
+
+async def prepare_offer_by_id(request, secret, id):
+
+    res = await get_offer_by_id(request, secret, id)
+
+    print('############ prepare_offers res ##############', res)
+    return res
+
+
+def get_offer_by_id(request, secret, id):
+
+
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
+        # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
+        headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+        # Allegro doesn't accept httpx in this case(maybe to fast for api call)
+        product_result = requests.get(url, headers=headers, verify=True) 
+        result = product_result.json()
+        if 'error' in result:
+            error_code = result['error']
+            if error_code == 'invalid_token':
+                # print('ERROR RESULT @@@@@@@@@', error_code)
+                try:
+                    # Refresh the token
+                    new_token = get_next_token(request, secret.refresh_token)
+                    # Retry fetching orders with the new token
+                    return  get_offer_by_id(request, secret, id)
+                except Exception as e:
+                    print('Exception @@@@@@@@@', e)
+                    return redirect('invalid_token')
+        # print('@@@@@@@@@ RESULT get_image productSet @@@@@@@@@', result)
+        return result
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+
+
+
     
 
 def post_set_api(request, name, offers, main_offer_id):
@@ -216,10 +255,10 @@ async def contain_offers_one(request, name, secret, main_offer_id, offer):
                         # "thresholds": [
                         # {
                         #     "discount": {
-                        #     "percentage": "0.1"
+                        #     "percentage": "10"
                         #     }
                         # },
-                        # ]
+                        # ],
                         "value": {                         
                                                 
                             "amount": "0",
@@ -272,6 +311,147 @@ async def contain_offers_one(request, name, secret, main_offer_id, offer):
             return result
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
+    
+
+################################################################################################################################
+
+
+
+def get_set(request, name, secret, id):
+
+    # print('############ contain_offers ##############', offer)
+    try:
+
+            url = f"https://api.allegro.pl.allegrosandbox.pl/sale/loyalty/promotions/{id}" 
+            # headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+            headers = {
+                'Authorization': f'Bearer {secret.access_token}',
+                'Accept': 'application/vnd.allegro.public.v1+json',
+                'Content-Type': 'application/vnd.allegro.public.v1+json'
+            }
+            
+            product_result = requests.get(url, headers=headers, verify=True)
+            result = product_result.json()
+            # for of in result['offers']:
+                # print('******* get_all_offers ********', of)
+            if 'error' in result:
+                error_code = result['error']
+                if error_code == 'invalid_token':
+                    # print('ERROR RESULT @@@@@@@@@', error_code)
+                    try:
+                        # Refresh the token
+                        new_token = get_next_token(request, secret.refresh_token, name)
+                        # Retry fetching orders with the new token
+                        return get_set(request, secret, id)
+                    except Exception as e:
+                        print('Exception @@@@@@@@@', e)
+                        context = {'name': name}
+                        return render(request, 'invalid_token.html', context)
+            # print(" ############### shipping_rates ################## ", shipping_rates)
+            print(" ############### get_set ################## ", result)
+
+            return result
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+    
+
+
+def edit_set(request, secret, name, set, id):
+
+    # print('############ contain_offers ##############', offer)
+    try:
+            url = f"https://api.allegro.pl.allegrosandbox.pl/sale/loyalty/promotions/{id}" 
+            # headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+            headers = {
+                'Authorization': f'Bearer {secret.access_token}',
+                'Accept': 'application/vnd.allegro.public.v1+json',
+                'Content-Type': 'application/vnd.allegro.public.v1+json'
+            }
+
+            data = {
+                "benefits": [
+                    {
+                    "specification": {
+                        "type": "ORDER_FIXED_DISCOUNT",
+                        "value": {                         
+                                                
+                            "amount": set['benefits'][0]['specification']['value']['amount'],
+                            "currency": set['benefits'][0]['specification']['value']['currency']
+                        }
+                    }
+                    }
+                ],
+                "offerCriteria": [
+                    {
+                    "type": "CONTAINS_OFFERS",
+                    "offers": set['offerCriteria'][0]['offers'],
+                    }
+                ]
+                }
+            # data = {
+            #     "benefits": [
+            #         {
+            #         "specification": {
+            #             "type": "ORDER_FIXED_DISCOUNT",
+            #             # "thresholds": [
+            #             # {
+            #             #     "discount": {
+            #             #     "percentage": "10"
+            #             #     }
+            #             # },
+            #             # ],
+            #             "value": {                         
+                                                
+            #                 "amount": "1",
+            #                 "currency": "PLN"
+            #             }
+            #         }
+            #         }
+            #     ],
+            #     "offerCriteria": [
+            #         {
+            #         "type": "CONTAINS_OFFERS",
+            #         "offers": [
+            #             {
+            #                 "id": '7774746250',
+            #                 "quantity": 1, #offer['quantity'],
+            #                 "promotionEntryPoint": True, #offer['promotionEntryPoint']
+            #             },
+            #             {
+            #                 "id": '7774746241',
+            #                 "quantity": 1, #offer['quantity'],
+            #                 "promotionEntryPoint": False, #offer['promotionEntryPoint']
+            #             },
+            #         ],
+            #         }
+            #     ]
+            #     }
+            print('******* edit_set data ********', data)
+            product_result = requests.put(url, headers=headers, json=data)
+            result = product_result.json()
+            # for of in result['offers']:
+                # print('******* get_all_offers ********', of)
+            if 'error' in result:
+                error_code = result['error']
+                if error_code == 'invalid_token':
+                    # print('ERROR RESULT @@@@@@@@@', error_code)
+                    try:
+                        # Refresh the token
+                        new_token = get_next_token(request, secret.refresh_token, name)
+                        # Retry fetching orders with the new token
+                        return edit_set(request, secret, name, set, id)
+                    except Exception as e:
+                        print('Exception @@@@@@@@@', e)
+                        context = {'name': name}
+                        return render(request, 'invalid_token.html', context)
+            # print(" ############### shipping_rates ################## ", shipping_rates)
+            print(" ############### edit_set ################## ", result)
+
+            return result
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+    
+
     
 
 ################################################################################################################################
@@ -363,36 +543,4 @@ async def get_image(request, name, secret, offer):
         return result
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
-
-
-# async def get_image(request, name, secret, offer):
-
-#     print('offer RESULT @@@@@@@@@', offer['id'])
-#     id = offer['id']
-
-#     try:
-#         async with httpx.AsyncClient() as client:
-#             url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
-#             # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
-#             headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-#             # Allegro doesn't accept httpx in this case(maybe to fast for api call)
-#             product_result = await client.get(url, headers=headers) 
-#             result = product_result.json()
-#             if 'error' in result:
-#                 error_code = result['error']
-#                 if error_code == 'invalid_token':
-#                     # print('ERROR RESULT @@@@@@@@@', error_code)
-#                     try:
-#                         # Refresh the token
-#                         new_token = get_next_token(request, secret.refresh_token)
-#                         # Retry fetching orders with the new token
-#                         return await get_image(request, name, secret, offer)
-#                     except Exception as e:
-#                         print('Exception @@@@@@@@@', e)
-#                         return redirect('invalid_token')
-#             print('@@@@@@@@@ RESULT get_image productSet @@@@@@@@@', result)
-#             return result
-#     except requests.exceptions.HTTPError as err:
-#         raise SystemExit(err)
-
 

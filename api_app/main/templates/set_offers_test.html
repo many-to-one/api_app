@@ -117,17 +117,24 @@
                             
                                 <img class="set__photo" src="{{offer.primaryImage.url}}" alt="">
                                 <p class="set__name">{{ offer.name }}</p>
+                                <div class="price__cont">
+                                    <p class="set__name" id="{{priceOfferFalse}}_{{set.id}}">{{ offer.sellingMode.price.amount }}</p>
+                                    <p class="set__name" id="{{pcurrencyOfferFalse}}_{{set.id}}">{{ offer.sellingMode.price.currency }}</p>
+                                </div>
                                 <p class="set__name">{{ set.0.set_id }}</p>
-                            {% for s in set.1|slice:"1:" %}
-                                <!-- <p class="set__name">{{ s.id }}</p> -->
-                                {% for of in result.offers %}
-                                    {% if s.id == of.id %}
-                                        <img class="set__photo" src="{{of.primaryImage.url}}" alt="">
-                                        <p class="set__name">{{ of.name }}</p>
-                                    {% endif %}
+                                {% for s in set.1|slice:"1:" %}
+                                    <!-- <p class="set__name">{{ s.id }}</p> -->
+                                    {% for of in result.offers %}
+                                        {% if s.id == of.id %}
+                                            <img class="set__photo" src="{{of.primaryImage.url}}" alt="">
+                                            <p class="set__name">{{ of.name }}</p>
+                                            <div class="price__cont" >
+                                                <p class="set__name" id="{{priceSetFalse}}_{{of.id}}">{{ of.sellingMode.price.amount }}</p>
+                                                <p class="set__name" id="{{pcurrencySetFalse}}_{{of.id}}">{{ of.sellingMode.price.currency }}</p>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
                                 {% endfor %}
-                            {% endfor %}
-
 
                         </div>
                         <div class="conto__column">
@@ -143,9 +150,13 @@
                                 <input id="disc__percent" value="0.00" type="text">
                                 <label for="">Sztuki</label>
                                 <input id="disc__piece" value="1" type="text">
-                                <p>Cena do:</p>
+                                <div value="{{ set.2.price }}">
+                                    <p>Cena do:</p>
+                                    <p>{{ set.2.price }}</p>
+                                </div>
                                 <p>Cena po:</p>
-                                <button class="jsn_start" onclick="submitDiscount('{{ set.0.set_id }}')">Submit</button>
+                                <p>{{ set.3.discount }}</p>
+                                <button class="jsn_start" onclick="submitDiscount('{{ set.0.set_id }}', '{{ set.2.price }}')">Submit</button>
                             </div>
                         </div>
                     </div>
@@ -206,9 +217,10 @@
 
 
         // SUBMIT DISCOUNT
-        function submitDiscount(set_id) {
+        function submitDiscount(set_id, price) {
 
             console.log('set_id:', set_id);
+            console.log('price:', price);
             var csrftoken = getCSRFToken();
             const discMoney = parseFloat(document.getElementById('disc__money').value);
             const discPercent = parseFloat(document.getElementById('disc__percent').value);
@@ -233,7 +245,7 @@
             console.log('data:', data);
 
 
-            axios.post('/add_discount/', data, {
+            axios.post(`/add_discount/${name}/`, data, {
                 headers: {
                     'X-CSRFToken': csrftoken
                 }

@@ -78,7 +78,7 @@
                 {% endfor %}
                 <!-- Add more options for other statuses if needed -->
             </select>
-            <button class="jsn_start" id="jsnStart" onclick="jsnStartGo()">Załaduj aukcję</button>
+            <button class="jsn_start jsn_start_absl" id="jsnStart" onclick="jsnStartGo()">Załaduj aukcję</button>
             <form class="jsn_h" method="post" id="uploadForm" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="file" id="jsonFile" name="jsonFile" accept="application/json">

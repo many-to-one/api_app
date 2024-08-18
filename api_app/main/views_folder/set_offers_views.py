@@ -1,7 +1,9 @@
 import requests
 from django.shortcuts import render, redirect
 
-from .api_results import get_all_offers_api, get_image_api, post_set_api, post_set_api_one, get_all_sets_api
+from main.views_folder.offer_views import get_one_offer, return_async_offer
+
+from .api_results import edit_set, get_all_offers_api, get_image, get_image_api, get_offer_by_id, get_set, post_set_api, post_set_api_one, get_all_sets_api, prepare_offer_by_id
 from ..utils import *
 from ..models import *
 
@@ -10,23 +12,6 @@ def set_offers(request, name):
     if request.user.is_authenticated:
 
         secret = Secret.objects.get(account__name=name)
-        all_sets = get_all_sets_api(request, name)
-
-        offers = []
-        # Iterate through each promotion in all_sets[0]['promotions']
-        for set_item in all_sets[0]['promotions']:
-            offer = set_item['offerCriteria'][0]['offers']
-            # id = set_item['id']
-            # print("############### id *** ##################", id)
-            # print("############### set ##################", offer)
-            # offers.append({'id': id})
-            offers.append( [{'set_id': set_item['id']}, offer])
-            # offers.append({set_item['id']: offer})
-            # offers.append(offer)
-        print("############### offers *** ##################", offers)
-        for of in offers:
-            print("############### of ##################", of)
-        # print("############### all_sets *** ##################", all_sets[0]['promotions'])
 
         try:
             url = "https://api.allegro.pl.allegrosandbox.pl/sale/offers"
@@ -46,7 +31,25 @@ def set_offers(request, name):
                         print('Exception @@@@@@@@@', e)
                         context = {'name': name}
                         return render(request, 'invalid_token.html', context)
+            # print("############### set_offers *** ##################", result)
 
+            all_sets = get_all_sets_api(request, name)
+            print("############### all_sets ++ ##################", all_sets)
+            offers = []
+            for set_item in all_sets[0]['promotions']:
+                offer = set_item['offerCriteria'][0]['offers']
+                discount = set_item['benefits'][0]['specification']['value']['amount']
+                # print("############### offer ++ ##################", offer)
+                sum_ = 0
+                for f in offer:
+                    for of in result['offers']:
+                        if of['id'] == f['id']:
+                            # print("############### of ++ ##################", of['sellingMode']['price']['amount'])
+                            sum_ += float(of['sellingMode']['price']['amount'])
+                    # print("############### sum_ ##################", sum_  )
+                offers.append( [{'set_id': set_item['id']}, offer, {'price': sum_}, {'discount': discount}])
+
+            print("############### offers ##################", offers  )
 
             context = {
                 'result': result,
@@ -57,8 +60,11 @@ def set_offers(request, name):
             return render(request, 'set_offers_test.html', context)
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
+
     else:
         return redirect('login_user')
+
+
     
 
 def set_add(request, name, offer_id):
@@ -124,8 +130,8 @@ def add_offers_one(request):
     print(' ######### offers ##########', offers)
     res = post_set_api_one(request, name, offers, main_offer_id)
     print(' ######### res ##########', res)
-    if 'errors' in res:
-        print(' ######### res errors ##########', res['errors'][0]['userMessage'])
+    if 'errors' in res[0]:
+        print(' ######### res errors ##########', res[0]['errors'][0]['userMessage'])
         if any('id' in item for item in res):
             print(' ######### res id in res[0] ##########', res)
             context = {
@@ -157,7 +163,9 @@ def add_offers_one(request):
                 status=200,
             )
 
-def add_discount(request):
+def add_discount(request, name):
+
+    secret = Secret.objects.get(account__name=name)
 
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -166,13 +174,18 @@ def add_discount(request):
         disc__percent = data['disc__percent']
         disc__piece = data['disc__piece']
 
+        res = get_set(request, name, secret, set_id)
+        res['benefits'][0]['specification']['value']['amount'] = disc__money
+        filtered_dict = {key: value for key, value in res.items() if key not in ['id', 'createdAt', 'status']}
+        edit = edit_set(request, secret, name, filtered_dict, set_id)
+
         print('************ add_discount *************', set_id, disc__money, disc__percent, disc__piece)
 
         return JsonResponse(
                 {
                     'message': 'Discount updated successfully',
                     'userMessage': 'Rabat dodany poprawnie',
-                    'data': data,
+                    'res': edit,
                 }, 
                 status=200,
             )
