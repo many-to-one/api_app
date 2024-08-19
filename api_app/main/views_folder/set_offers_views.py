@@ -47,7 +47,18 @@ def set_offers(request, name):
                             # print("############### of ++ ##################", of['sellingMode']['price']['amount'])
                             sum_ += float(of['sellingMode']['price']['amount'])
                     # print("############### sum_ ##################", sum_  )
-                offers.append( [{'set_id': set_item['id']}, offer, {'price': sum_}, {'discount': discount}])
+                price_after = sum_ - float(discount)
+                discount_percentage = (float(discount) / sum_) * 100
+                offers.append(
+                        [
+                            {'set_id': set_item['id']}, 
+                            offer, 
+                            {'price': "{:.2f}".format(float(sum_))}, 
+                            {'discount': "{:.2f}".format(float(discount))}, 
+                            {'price_after': "{:.2f}".format(float(price_after))},
+                            {'discount_percentage': "{:.2f}".format(float(discount_percentage))}
+                        ]
+                    )
 
             print("############### offers ##################", offers  )
 
@@ -173,13 +184,14 @@ def add_discount(request, name):
         disc__money = data['disc__money']
         disc__percent = data['disc__percent']
         disc__piece = data['disc__piece']
+        disc__price = data['disc__price']
 
         res = get_set(request, name, secret, set_id)
         res['benefits'][0]['specification']['value']['amount'] = disc__money
         filtered_dict = {key: value for key, value in res.items() if key not in ['id', 'createdAt', 'status']}
         edit = edit_set(request, secret, name, filtered_dict, set_id)
-
-        print('************ add_discount *************', set_id, disc__money, disc__percent, disc__piece)
+        print('************ disc__percent *************', disc__percent, disc__price)
+        # print('************ add_discount *************', set_id, disc__money, disc__percent, disc__piece)
 
         return JsonResponse(
                 {

@@ -84,6 +84,12 @@
         {% endif %}
 
         <div id="SetOffersContainer" class="set__offers__cont">
+
+            <div id="messageBox" class="message-box" style="display: none; text-align: center;">
+                <span id="messageText"></span>
+                <button id="closeButton" class="close-button" onclick="closeMessage()">&times;</button>
+            </div>
+
         {% for offer in result.offers %}
 
             <div class="set__row">
@@ -145,17 +151,17 @@
                             </div>
                             <div class="discount">
                                 <label for="">Rabat zł</label>
-                                <input id="disc__money" value="0.00" type="text">
+                                <input id="disc__money_{{ set.0.set_id }}" value="{{ set.3.discount }}" type="text">
                                 <label for="">Rabat %</label>
-                                <input id="disc__percent" value="0.00" type="text">
+                                <input id="disc__percent_{{ set.0.set_id }}" value="{{ set.5.discount_percentage }}" type="text">
                                 <label for="">Sztuki</label>
-                                <input id="disc__piece" value="1" type="text">
-                                <div value="{{ set.2.price }}">
+                                <input id="disc__piece_{{ set.0.set_id }}" value="1" type="text">
+                                <div id="disc__price_{{ set.0.set_id }}" value="{{ set.2.price }}">
                                     <p>Cena do:</p>
                                     <p>{{ set.2.price }}</p>
                                 </div>
                                 <p>Cena po:</p>
-                                <p>{{ set.3.discount }}</p>
+                                <p id="afterPrice_{{ set.0.set_id }}">{{ set.4.price_after }}</p>
                                 <button class="jsn_start" onclick="submitDiscount('{{ set.0.set_id }}', '{{ set.2.price }}')">Submit</button>
                             </div>
                         </div>
@@ -216,23 +222,60 @@
 
 
 
+        // USER MESSAGES
+        function showMessage(message, status) {
+            const messageBox = document.getElementById('messageBox');
+            const messageText = document.getElementById('messageText');
+            messageText.textContent = message;
+            messageBox.style.display = 'block';  
+            if ( status === 200 ) {
+                messageBox.style.backgroundColor = 'green';
+            } else if ( status === 300 ) {
+                messageBox.style.backgroundColor = 'blue';
+            } else {
+                messageBox.style.backgroundColor = 'red';
+            }
+
+            setTimeout(closeMessage, 3000);
+        }
+
+        function closeMessage() {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.style.display = 'none';  // Hide the message box
+        }
+
+
+
         // SUBMIT DISCOUNT
         function submitDiscount(set_id, price) {
 
             console.log('set_id:', set_id);
             console.log('price:', price);
             var csrftoken = getCSRFToken();
-            const discMoney = parseFloat(document.getElementById('disc__money').value);
-            const discPercent = parseFloat(document.getElementById('disc__percent').value);
-            const discPiece = parseInt(document.getElementById('disc__piece').value);
+            let discMoney = parseFloat(document.getElementById('disc__money_' + set_id).value);
+            const discPercent = parseFloat(document.getElementById('disc__percent_' + set_id).value);
+            const discPiece = parseInt(document.getElementById('disc__piece_' + set_id).value);
+            const discPrice = parseInt(document.getElementById('disc__price_' + set_id).value);
 
             console.log('discMoney:', discMoney);
             console.log('discPercent:', discPercent);
 
-            if (discMoney !== 0 && discPercent !== 0) {
-                alert('Wybierz jeden rabat!');
-                return;
+            let priceAfter;
+
+             if (discPercent !== 0) {
+                priceAfter = (parseFloat(price) * discPercent) / 100 ; 
+                discMoney = priceAfter
+                console.log('priceAfter %:', priceAfter, discMoney);
+                const afterPrice = document.getElementById('afterPrice_' + set_id);
+                afterPrice.textContent = priceAfter.toFixed(2);
+            } if (discMoney !== 0) {
+                priceAfter = parseFloat(price) - discMoney;
+                console.log('priceAfter:', priceAfter);
+                const afterPrice = document.getElementById('afterPrice_' + set_id);
+                afterPrice.textContent = priceAfter.toFixed(2);
             }
+
+            console.log('discMoney data:', discMoney);
 
             // Create the data object to send to the server
             const data = {
@@ -240,6 +283,7 @@
                 disc__money: discMoney || null,
                 disc__percent: discPercent || null,
                 disc__piece: discPiece || 1,
+                disc__price: parseFloat(price)|| null, 
             };
 
             console.log('data:', data);
@@ -250,8 +294,14 @@
                     'X-CSRFToken': csrftoken
                 }
             })
-                .then(function (response) {
-                    console.log('Response:', response.data);
+                .then(function (response) {                  
+                    if (response.data.res.errors) {
+                    //    console.log('Error:', response.data.res.errors[0].userMessage); 
+                       showMessage(response.data.res.errors[0].userMessage, 500)
+                    } else {
+                        // console.log('Response:', response.data.res); 
+                        showMessage(response.data.userMessage, 200)
+                    }
                 })
                 .catch(function (error) {
                     console.error('There was an error!', error);
