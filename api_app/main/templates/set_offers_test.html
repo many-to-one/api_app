@@ -123,6 +123,7 @@
                             
                                 <img class="set__photo" src="{{offer.primaryImage.url}}" alt="">
                                 <p class="set__name">{{ offer.name }}</p>
+                                <input style="width: 20px;" id="disc__piece_{{ offer.id }}" value="1" type="text" onchange="setCount('{{ offer.id }}')">
                                 <div class="price__cont">
                                     <p class="set__name" id="{{priceOfferFalse}}_{{set.id}}">{{ offer.sellingMode.price.amount }}</p>
                                     <p class="set__name" id="{{pcurrencyOfferFalse}}_{{set.id}}">{{ offer.sellingMode.price.currency }}</p>
@@ -134,6 +135,8 @@
                                         {% if s.id == of.id %}
                                             <img class="set__photo" src="{{of.primaryImage.url}}" alt="">
                                             <p class="set__name">{{ of.name }}</p>
+                                            <label for="">Sztuki:</label>
+                                            <input style="width: 20px;" id="disc__piece_{{ of.id }}" value="1" type="text" onchange="setCount('{{ of.id }}')">
                                             <div class="price__cont" >
                                                 <p class="set__name" id="{{priceSetFalse}}_{{of.id}}">{{ of.sellingMode.price.amount }}</p>
                                                 <p class="set__name" id="{{pcurrencySetFalse}}_{{of.id}}">{{ of.sellingMode.price.currency }}</p>
@@ -154,8 +157,8 @@
                                 <input id="disc__money_{{ set.0.set_id }}" value="{{ set.3.discount }}" type="text">
                                 <label for="">Rabat %</label>
                                 <input id="disc__percent_{{ set.0.set_id }}" value="{{ set.5.discount_percentage }}" type="text">
-                                <label for="">Sztuki</label>
-                                <input id="disc__piece_{{ set.0.set_id }}" value="1" type="text">
+                                <!-- <label for="">Sztuki</label>
+                                <input id="disc__piece_{{ set.0.set_id }}" value="1" type="text"> -->
                                 <div id="disc__price_{{ set.0.set_id }}" value="{{ set.2.price }}">
                                     <p>Cena do:</p>
                                     <p>{{ set.2.price }}</p>
@@ -245,6 +248,14 @@
         }
 
 
+        // DEFINE COUNT FOR EACH ITEM IN SET
+        let countArray = []
+        function setCount(itemId) {
+            console.log('itemId:', itemId);
+            var itemCount = document.getElementById('disc__piece_' + itemId).value;
+            countArray.push({ [itemId]: itemCount });
+            console.log('countArray:', countArray);
+        }
 
         // SUBMIT DISCOUNT
         function submitDiscount(set_id, price) {
@@ -254,7 +265,7 @@
             var csrftoken = getCSRFToken();
             let discMoney = parseFloat(document.getElementById('disc__money_' + set_id).value);
             const discPercent = parseFloat(document.getElementById('disc__percent_' + set_id).value);
-            const discPiece = parseInt(document.getElementById('disc__piece_' + set_id).value);
+            // const discPiece = parseInt(document.getElementById('disc__piece_' + set_id).value);
             const discPrice = parseInt(document.getElementById('disc__price_' + set_id).value);
 
             console.log('discMoney:', discMoney);
@@ -282,7 +293,8 @@
                 set_id: set_id,
                 disc__money: discMoney || null,
                 disc__percent: discPercent || null,
-                disc__piece: discPiece || 1,
+                // disc__piece: discPiece || 1,
+                count_array: countArray || null,
                 disc__price: parseFloat(price)|| null, 
             };
 
@@ -302,6 +314,7 @@
                         // console.log('Response:', response.data.res); 
                         showMessage(response.data.userMessage, 200)
                     }
+                    countArray = []
                 })
                 .catch(function (error) {
                     console.error('There was an error!', error);

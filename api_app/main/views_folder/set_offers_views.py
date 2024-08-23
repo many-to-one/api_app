@@ -183,14 +183,23 @@ def add_discount(request, name):
         set_id = data['set_id']
         disc__money = data['disc__money']
         disc__percent = data['disc__percent']
-        disc__piece = data['disc__piece']
+        # disc__piece = data['disc__piece']
+        count_array = data['count_array']
         disc__price = data['disc__price']
 
         res = get_set(request, name, secret, set_id)
+        for offer in count_array:
+            for k, v in offer.items():
+                print('**** k ****', k)
+                print('**** v ****', v)
+                for item in res['offerCriteria'][0]['offers']:
+                    print('**** item ****', item['id'])
+                    if item['id'] == str(k):
+                        item['quantity'] = v
         res['benefits'][0]['specification']['value']['amount'] = disc__money
         filtered_dict = {key: value for key, value in res.items() if key not in ['id', 'createdAt', 'status']}
         edit = edit_set(request, secret, name, filtered_dict, set_id)
-        print('************ disc__percent *************', disc__percent, disc__price)
+        print('************ disc__percent *************', disc__percent, disc__price, count_array)
         # print('************ add_discount *************', set_id, disc__money, disc__percent, disc__piece)
 
         return JsonResponse(

@@ -41,15 +41,17 @@ def get_next_token(request, access_token, name):
     tokens = json.loads(access_token_response.text)
     print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {tokens}')
     access_token = tokens['access_token']
+    print(f'@#@#@#@# NEXT TOKENS REPEAT #@#@#@# --------- {access_token}')
     error_token = tokens['error']
     # refresh_token = tokens['refresh_token']
     if access_token:
+        print(f'@#@#@#@# NEXT TOKENS REPEAT II #@#@#@# --------- {access_token}')
         secret.access_token = access_token
         # secret.refresh_token = refresh_token
         secret.save()
         # print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {access_token}')
-        print(' ************* NEXT TOKEN WAS CREATED ************* ')
-        return access_token
+        print(' ************* NEXT TOKEN WAS CREATED ************* ', secret)
+        return True #access_token
     if error_token:
         print(f'@#@#@#@# NEXT TOKENS ERROR ERROR ERROR #@#@#@# --------- ', error_token)
         # If the exceptions will repeat, I need to create logic

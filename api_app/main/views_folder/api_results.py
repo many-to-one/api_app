@@ -95,18 +95,19 @@ def post_set_api(request, name, offers, main_offer_id):
         # print('******* secret ********', secret)
         # print('******* secret.access_token ********', secret.access_token)
 
+        # print('############ contain_offers many ##############', offers)
         offer_criteria_offers = []
         for offer in offers:
-            offer_criteria_offers.append({
-                "id": f'{offer}',
-                "quantity": 1, #offer['quantity'],
-                "promotionEntryPoint": False, #offer['promotionEntryPoint']
-            })
+            for key, value in offer.items():
+                # print('############ key, value ##############', key, value)
+                offer_criteria_offers.append({
+                    'id': key,
+                    'quantity': int(value),
+                    'promotionEntryPoint': False
+                })
+        # print('############ contain_offers many after ##############', offer_criteria_offers)
 
         res = asyncio.run(prepare_offers(request, name, secret, main_offer_id, offer_criteria_offers))
-
-        # print('############ post_set_api res ##############', res)
-        # res = prepare_offers(request, name, secret, main_offer_id, offers)
         return res
        
     else:
@@ -130,6 +131,15 @@ async def contain_offers(request, name, secret, main_offer_id, offers):
         "promotionEntryPoint": True, 
     }
     offers.insert(0, main_offer)
+    # for offer in offers:
+    #     for key, value in offer.items():
+    #         contain_offers.append({
+    #             'id': key,
+    #             'quantity': int(value),
+    #             'promotionEntryPoint': False
+    #         })
+    # print('############ contain_offers many ##############', offers)
+    # offer, count = next(iter(offer.items()))
     try:
         async with httpx.AsyncClient() as client:
             url = "https://api.allegro.pl.allegrosandbox.pl/sale/loyalty/promotions" 
@@ -237,7 +247,8 @@ async def prepare_offers_one(request, name, secret, main_offer_id, offers):
 
 async def contain_offers_one(request, name, secret, main_offer_id, offer):
 
-    # print('############ contain_offers ##############', offer)
+    print('############ contain_offers ##############', offer)
+    offer, count = next(iter(offer.items()))
     try:
         async with httpx.AsyncClient() as client:
             url = "https://api.allegro.pl.allegrosandbox.pl/sale/loyalty/promotions" 
@@ -278,7 +289,7 @@ async def contain_offers_one(request, name, secret, main_offer_id, offer):
                         },
                         {
                             "id": f'{offer}',
-                            "quantity": 1, #offer['quantity'],
+                            "quantity": int(count), #offer['quantity'],
                             "promotionEntryPoint": False, #offer['promotionEntryPoint']
                         },
                     ],

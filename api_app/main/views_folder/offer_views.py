@@ -171,8 +171,12 @@ def get_all_offers(request, name):
                     try:
                         # Refresh the token
                         new_token = get_next_token(request, secret.refresh_token, name)
-                        # Retry fetching orders with the new token
-                        return get_all_offers_api(request, name)
+                        print('ZADZIAŁAŁO', new_token)
+                        if new_token:
+                            # Retry fetching orders with the new token
+                            return get_all_offers_api(request, name)
+                        else:
+                            print('COŚ POSZŁO NIE TAK', new_token)
                     except Exception as e:
                         print('Exception @@@@@@@@@', e)
                         context = {'name': name}
