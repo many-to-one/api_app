@@ -37,7 +37,7 @@ def get_all_offers_api(request, name):
                         context = {'name': name}
                         return render(request, 'invalid_token.html', context)
             # print(" ############### shipping_rates ################## ", shipping_rates)
-            print(" ############### product_result.json() API ################## ", product_result.json())
+            # print(" ############### product_result.json() API ################## ", product_result.json())
 
             return product_result.json(),
         except requests.exceptions.HTTPError as err:
@@ -210,7 +210,7 @@ async def contain_offers(request, name, secret, main_offer_id, offers):
     ################################################################################################################################
 
 
-def post_set_api_one(request, name, offers, main_offer_id):
+def post_set_api_one(request, name, main_offers, offers, main_offer_id):
 
     if request.user.is_authenticated:
 
@@ -218,7 +218,7 @@ def post_set_api_one(request, name, offers, main_offer_id):
         # print('******* secret ********', secret)
         # print('******* secret.access_token ********', secret.access_token)
 
-        res = asyncio.run(prepare_offers_one(request, name, secret, main_offer_id, offers))
+        res = asyncio.run(prepare_offers_one(request, name, secret, main_offer_id, offers, main_offers))
 
         # print('############ post_set_api res ##############', res)
         # res = prepare_offers(request, name, secret, main_offer_id, offers)
@@ -228,14 +228,14 @@ def post_set_api_one(request, name, offers, main_offer_id):
         return redirect('login_user')
     
 
-async def prepare_offers_one(request, name, secret, main_offer_id, offers):
+async def prepare_offers_one(request, name, secret, main_offer_id, offers, main_offers):
 
     # print('############ prepare_offers ##############', offers)
 
     tasks = []
 
     for offer in offers:
-        task = asyncio.create_task(contain_offers_one(request, name, secret, main_offer_id, offer))
+        task = asyncio.create_task(contain_offers_one(request, name, secret, main_offer_id, offer, main_offers))
         tasks.append(task)
 
     # Gathering results from all tasks
@@ -245,83 +245,87 @@ async def prepare_offers_one(request, name, secret, main_offer_id, offers):
     return res  
 
 
-async def contain_offers_one(request, name, secret, main_offer_id, offer):
+async def contain_offers_one(request, name, secret, main_offer_id, offer_, main_offers):
 
-    print('############ contain_offers ##############', offer)
-    offer, count = next(iter(offer.items()))
-    try:
-        async with httpx.AsyncClient() as client:
-            url = "https://api.allegro.pl.allegrosandbox.pl/sale/loyalty/promotions" 
-            # headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-            headers = {
-                'Authorization': f'Bearer {secret.access_token}',
-                'Accept': 'application/vnd.allegro.public.v1+json',
-                'Content-Type': 'application/vnd.allegro.public.v1+json'
-            }
-            data = {
-                "benefits": [
-                    {
-                    "specification": {
-                        "type": "ORDER_FIXED_DISCOUNT",
-                        # "thresholds": [
-                        # {
-                        #     "discount": {
-                        #     "percentage": "10"
-                        #     }
-                        # },
-                        # ],
-                        "value": {                         
-                                                
-                            "amount": "0",
-                            "currency": "PLN"
+    print('############ contain_offers ##############', offer_)
+    # offer, count = next(iter(offer.items()))
+    for main_offer in main_offers:
+        main_id, main_count = next(iter(main_offer.items()))
+        offer, count = next(iter(offer_.items()))
+        if main_id == offer:
+            try:
+                async with httpx.AsyncClient() as client:
+                    url = "https://api.allegro.pl.allegrosandbox.pl/sale/loyalty/promotions" 
+                    # headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+                    headers = {
+                        'Authorization': f'Bearer {secret.access_token}',
+                        'Accept': 'application/vnd.allegro.public.v1+json',
+                        'Content-Type': 'application/vnd.allegro.public.v1+json'
+                    }
+                    data = {
+                        "benefits": [
+                            {
+                            "specification": {
+                                "type": "ORDER_FIXED_DISCOUNT",
+                                # "thresholds": [
+                                # {
+                                #     "discount": {
+                                #     "percentage": "10"
+                                #     }
+                                # },
+                                # ],
+                                "value": {                         
+                                                        
+                                    "amount": "0",
+                                    "currency": "PLN"
+                                }
+                            }
+                            }
+                        ],
+                        "offerCriteria": [
+                            {
+                            "type": "CONTAINS_OFFERS",
+                            "offers": [
+                                {
+                                    "id": f'{main_offer_id}',
+                                    "quantity": main_count, #if main_id == offer else 1, 
+                                    "promotionEntryPoint": True, #offer['promotionEntryPoint']
+                                },
+                                {
+                                    "id": f'{offer}',
+                                    "quantity": int(count), #offer['quantity'],
+                                    "promotionEntryPoint": False, #offer['promotionEntryPoint']
+                                },
+                            ],
+                            }
+                        ]
                         }
-                    }
-                    }
-                ],
-                "offerCriteria": [
-                    {
-                    "type": "CONTAINS_OFFERS",
-                    "offers": [
-                        {
-                            "id": f'{main_offer_id}',
-                            "quantity": 1, #offer['quantity'],
-                            "promotionEntryPoint": True, #offer['promotionEntryPoint']
-                        },
-                        {
-                            "id": f'{offer}',
-                            "quantity": int(count), #offer['quantity'],
-                            "promotionEntryPoint": False, #offer['promotionEntryPoint']
-                        },
-                    ],
-                    }
-                ]
-                }
-            product_result = await client.post(url, headers=headers, json=data)
-            result = product_result.json()
-            # for of in result['offers']:
-                # print('******* get_all_offers ********', of)
-            if 'error' in result:
-                error_code = result['error']
-                if error_code == 'invalid_token':
-                    # print('ERROR RESULT @@@@@@@@@', error_code)
-                    try:
-                        # Refresh the token
-                        new_token = get_next_token(request, secret.refresh_token, name)
-                        # Retry fetching orders with the new token
-                        return get_all_offers_api(request, name)
-                    except Exception as e:
-                        print('Exception @@@@@@@@@', e)
-                        context = {'name': name}
-                        return render(request, 'invalid_token.html', context)
-            # print(" ############### shipping_rates ################## ", shipping_rates)
-            print(" ############### post_set_api ################## ", result)
-            response = HttpResponse("Cookie Set")
-            response.set_cookie('set_offers_response', 'test')
+                    product_result = await client.post(url, headers=headers, json=data)
+                    result = product_result.json()
+                    # for of in result['offers']:
+                        # print('******* get_all_offers ********', of)
+                    if 'error' in result:
+                        error_code = result['error']
+                        if error_code == 'invalid_token':
+                            # print('ERROR RESULT @@@@@@@@@', error_code)
+                            try:
+                                # Refresh the token
+                                new_token = get_next_token(request, secret.refresh_token, name)
+                                # Retry fetching orders with the new token
+                                return get_all_offers_api(request, name)
+                            except Exception as e:
+                                print('Exception @@@@@@@@@', e)
+                                context = {'name': name}
+                                return render(request, 'invalid_token.html', context)
+                    # print(" ############### shipping_rates ################## ", shipping_rates)
+                    print(" ############### post_set_api ################## ", result)
+                    response = HttpResponse("Cookie Set")
+                    response.set_cookie('set_offers_response', 'test')
 
-            # return product_result.json(), 
-            return result
-    except requests.exceptions.HTTPError as err:
-        raise SystemExit(err)
+                    # return product_result.json(), 
+                    return result
+            except requests.exceptions.HTTPError as err:
+                raise SystemExit(err)
     
 
 ################################################################################################################################

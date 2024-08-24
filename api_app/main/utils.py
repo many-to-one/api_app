@@ -37,8 +37,9 @@ def get_next_token(request, access_token, name):
     data = {'grant_type': 'refresh_token', 'refresh_token': secret.refresh_token, 'redirect_uri': 'http://localhost:8000/get_code'}
     access_token_response = requests.post(TOKEN_URL, data=data, verify=False,
                                           allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
-    # print("RESPONSE CONTENT:", access_token_response.status_code)
+    print("RESPONSE CONTENT:", access_token_response)
     tokens = json.loads(access_token_response.text)
+    print("RESPONSE CONTENT:", type(tokens))
     print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {tokens}')
     access_token = tokens['access_token']
     print(f'@#@#@#@# NEXT TOKENS REPEAT #@#@#@# --------- {access_token}')

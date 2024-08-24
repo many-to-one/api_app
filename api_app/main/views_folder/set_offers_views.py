@@ -135,11 +135,21 @@ def add_offers(request):
 def add_offers_one(request):
 
     data = json.loads(request.body.decode('utf-8'))
+    main_offers = data.get('main_offers')
     offers = data.get('offers')
     name = data.get('name') 
     main_offer_id = data.get('main_offer_id')
+    print(' ######### main_offers ##########', main_offers)
+    # print(' ######### offers ##########', offers)
+    # Iterate over mainoffers and update the keys
+    # for offer in main_offers:
+    #     for key, value in offer.items():
+    #         # Replace the key with mainId
+    #         updated_offer = {main_offer_id: value}
+    #         # Append to offers list
+    #         offers.append(updated_offer)
     print(' ######### offers ##########', offers)
-    res = post_set_api_one(request, name, offers, main_offer_id)
+    res = post_set_api_one(request, name, main_offers, offers, main_offer_id)
     print(' ######### res ##########', res)
     if 'errors' in res[0]:
         print(' ######### res errors ##########', res[0]['errors'][0]['userMessage'])

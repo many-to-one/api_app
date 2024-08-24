@@ -79,16 +79,33 @@
                     type="checkbox" 
                     name="selected_items" 
                     data-fulfillment-status="{{ offer.fulfillment.status }}"
+                    data-main-value="{{ main_offer_id }}"
                     data-forloop-counter="{{ forloop.counter }}"
-                    value="{{ offer.id }}"
-                        
-                    >
+                    value="{{ offer.id }}"        
+                >
+                {% for of in result.offers %}
+                    {% if of.id == main_offer_id %}
+                        <img class="photo" src="{{of.primaryImage.url}}" alt="">
+                        <div class="name_offer">
+                            <p class="name">{{ of.name }}</p>
+                            <p class="name">{{ of.external.id }}</p>
+                            <label for="">Sztuki:</label>
+                            <input 
+                                id="main__disc__piece_{{ offer.id }}"
+                                style="width: 20px;" 
+                                type="text" 
+                                value="1"
+                                onchange="setCount('{{ offer.id }}')"
+                            >
+                        </div>
+                    {% endif %}
+                {% endfor %}
                 <img class="photo" src="{{offer.primaryImage.url}}" alt="">
                 <div class="name_offer">
                     <p class="name">{{ offer.name }}</p>
                     <p class="name">{{ offer.external.id }}</p>
                     <label for="">Sztuki:</label>
-                    <input style="width: 20px;" id="disc__piece_{{ offer.id }}" value="1" type="text" onchange="setCount('{{ offer.id }}')">
+                    <input style="width: 20px;" id="disc__piece_{{ offer.id }}" type="text" value="1" onchange="setCountSet('{{ offer.id }}')">
                 
                     {% if offer.publication.status == 'ACTIVE' %}
                         <img class="icon" src="{% static 'icons/active.png' %}" alt="">
@@ -195,14 +212,26 @@
 
 
     // DEFINE COUNT FOR EACH ITEM IN SET
-    let countArray = []
-        function setCount(itemId) {
-            console.log('itemId:', itemId);
-            var itemCount = document.getElementById('disc__piece_' + itemId).value;
-            countArray.push({ [itemId]: itemCount });
-            console.log('countArray:', countArray);
-        }
+    var mainCheckedItems = []
+    function setCount(id) {
+        console.log('itemId:', id);
+        // console.log('main__disc__piece_:', document.getElementById('main__disc__piece_' + id ));
+        var itemCount = document.getElementById('main__disc__piece_' + id ).value;
+        mainCheckedItems.push({ [id]: itemCount });
+        console.log('mainCheckedItems:', mainCheckedItems);
+        // return itemCount
+    }
 
+    // DEFINE COUNT FOR EACH ITEM IN SET
+    var checkedItems = []
+    function setCountSet(id) {
+        console.log('itemId:', id);
+        // console.log('checkedItems:', document.getElementById('main__disc__piece_' + id ));
+        var itemCount = document.getElementById('disc__piece_' + id ).value;
+        checkedItems.push({ [id]: itemCount });
+        console.log('checkedItems:', checkedItems);
+        // return itemCount
+    }
 
     function addOffers(main_offer_id) {
 
@@ -210,38 +239,13 @@
         var selectedStatus = document.getElementById('status_select').value;
         var csrftoken = getCSRFToken();
 
-        // Initialize an empty array to store the checked checkbox values
-        var checkedItems = [];
-
-        // Iterate over each checkbox
-        checkboxes.forEach(function(checkbox) {
-            // Check if the checkbox is checked
-            if (checkbox.checked) {
-                let inputElement = document.getElementById('disc__piece_' + checkbox.value).value;
-                console.log('inputElement =>', inputElement)
-                console.log('checkbox =>', checkbox.value)
-                console.log('main_offer_id =>', main_offer_id)
-                if ( checkbox.value === main_offer_id ) {
-                    console.log('checkbox === main_offer_id')
-                    showMessage('Zestaw nie może zawierać dwóch takich samych ofert.', 404);
-                    return false;
-                }     
-                checkedItems.push({ [checkbox.value]: inputElement });    
-            }
-        });
-
-        if ( checkedItems !== null ) {
-            postSets(checkedItems, main_offer_id)
-            console.log('checkedItems !== null', checkedItems)
-        } else {
-            console.log('checkedItems is null')
-        }
+        postSets(mainCheckedItems, checkedItems, main_offer_id)
 
     }
 
-    function postSets(checkedItems, main_offer_id) {
+    function postSets(mainCheckedItems, checkedItems, main_offer_id) {
         var csrftoken = getCSRFToken();
-        axios.post('/add_offers/', { main_offer_id: main_offer_id, offers: checkedItems, name: name}, {
+        axios.post('/add_offers/', { main_offer_id: main_offer_id, main_offers: mainCheckedItems, offers: checkedItems, name: name}, {
                 headers: {
                     'X-CSRFToken': csrftoken
                 }
@@ -276,39 +280,16 @@
         // console.log('main_offer_id =>', main_offer_id)
         var csrftoken = getCSRFToken();
 
-        // Initialize an empty array to store the checked checkbox values
-        var checkedItems = [];
-
-        // Iterate over each checkbox
-        checkboxes.forEach(function(checkbox) {
-            // Check if the checkbox is checked
-            if (checkbox.checked) {
-                let inputElement = document.getElementById('disc__piece_' + checkbox.value).value;
-                console.log('inputElement =>', inputElement)
-                console.log('checkbox =>', checkbox.value)
-                console.log('main_offer_id =>', main_offer_id)
-                if ( checkbox.value === main_offer_id ) {
-                    console.log('checkbox === main_offer_id')
-                    showMessage('Zestaw nie może zawierać dwóch takich samych ofert.', 404);
-                    return false;
-                }  
-                checkedItems.push({ [checkbox.value]: inputElement });            
-            }
-        });
-
-        if ( checkedItems !== null ) {
-            postSet(checkedItems, main_offer_id)
-            console.log('checkedItems !== null', checkedItems)
-        } else {
-            console.log('checkedItems is null')
-        }
+        postSet(mainCheckedItems, checkedItems, main_offer_id)
 
     }
 
 
-    function postSet(checkedItems, main_offer_id) {
+    function postSet(mainCheckedItems, checkedItems, main_offer_id) {
+        console.log('mainoffers', mainCheckedItems);
+        console.log('offers', checkedItems);
         var csrftoken = getCSRFToken();
-        axios.post('/add_offers_one/', { main_offer_id: main_offer_id, offers: checkedItems, name: name}, {
+        axios.post('/add_offers_one/', { main_offer_id: main_offer_id, main_offers: mainCheckedItems, offers: checkedItems, name: name}, {
                 headers: {
                     'X-CSRFToken': csrftoken
                 }
@@ -317,6 +298,8 @@
             .then(function(response) {
                 // console.log('status', response.data.newValue)
                 if(response.status == 200) {
+                    mainCheckedItems.length = 0;
+                    checkedItems.length = 0;
                     console.log('postSet', response.data.context);
                     if ( response.data.context.status === 'ok' ) {
                         showMessage(response.data.context.message, 200)
