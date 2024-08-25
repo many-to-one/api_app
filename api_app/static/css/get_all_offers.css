@@ -114,6 +114,11 @@
     left: 76%;
 }
 
+.jsn_back_absl {
+    position: absolute;
+    left: 86%;
+}
+
 .jsn_start {
     display: block;
     width: auto;

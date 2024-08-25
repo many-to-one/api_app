@@ -85,7 +85,7 @@ def get_offer_by_id(request, secret, id):
 
     
 
-def post_set_api(request, name, offers, main_offer_id):
+def post_set_api(request, name, main_count, offers, main_offer_id):
 
     if request.user.is_authenticated:
 
@@ -95,7 +95,8 @@ def post_set_api(request, name, offers, main_offer_id):
         # print('******* secret ********', secret)
         # print('******* secret.access_token ********', secret.access_token)
 
-        # print('############ contain_offers many ##############', offers)
+        print('############ contain_offers many ##############', offers)
+        print('############ main_count many ##############', main_count)
         offer_criteria_offers = []
         for offer in offers:
             for key, value in offer.items():
@@ -107,27 +108,27 @@ def post_set_api(request, name, offers, main_offer_id):
                 })
         # print('############ contain_offers many after ##############', offer_criteria_offers)
 
-        res = asyncio.run(prepare_offers(request, name, secret, main_offer_id, offer_criteria_offers))
+        res = asyncio.run(prepare_offers(request, name, secret, main_offer_id, main_count, offer_criteria_offers))
         return res
        
     else:
         return redirect('login_user')
     
 
-async def prepare_offers(request, name, secret, main_offer_id, offers):
+async def prepare_offers(request, name, secret, main_offer_id, main_count, offers):
 
-    res = await contain_offers(request, name, secret, main_offer_id, offers)
+    res = await contain_offers(request, name, secret, main_offer_id, main_count, offers)
 
     print('############ prepare_offers res ##############', res)
     return res  
 
 
-async def contain_offers(request, name, secret, main_offer_id, offers):
+async def contain_offers(request, name, secret, main_offer_id, main_count, offers):
 
     # print('############ contain_offers ##############', offer)
     main_offer = {
         "id": f'{main_offer_id}',
-        "quantity": 1, 
+        "quantity": main_count, 
         "promotionEntryPoint": True, 
     }
     offers.insert(0, main_offer)
@@ -247,11 +248,13 @@ async def prepare_offers_one(request, name, secret, main_offer_id, offers, main_
 
 async def contain_offers_one(request, name, secret, main_offer_id, offer_, main_offers):
 
-    print('############ contain_offers ##############', offer_)
+    print('############ contain_offers main_offer_id ##############', main_offer_id)
     # offer, count = next(iter(offer.items()))
     for main_offer in main_offers:
         main_id, main_count = next(iter(main_offer.items()))
+        print('############ main_id, main_count ##############', main_id, main_count)
         offer, count = next(iter(offer_.items()))
+        print('############ offer, count ##############', offer, count)
         if main_id == offer:
             try:
                 async with httpx.AsyncClient() as client:
@@ -302,6 +305,7 @@ async def contain_offers_one(request, name, secret, main_offer_id, offer_, main_
                         }
                     product_result = await client.post(url, headers=headers, json=data)
                     result = product_result.json()
+                    print('product_result @@@@@@@@@', product_result)
                     # for of in result['offers']:
                         # print('******* get_all_offers ********', of)
                     if 'error' in result:

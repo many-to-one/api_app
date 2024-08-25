@@ -123,20 +123,25 @@
                             
                                 <img class="set__photo" src="{{offer.primaryImage.url}}" alt="">
                                 <p class="set__name">{{ offer.name }}</p>
-                                <input style="width: 20px;" id="disc__piece_{{ offer.id }}" value="1" type="text" onchange="setCount('{{ offer.id }}')">
+                                {% for s in set.1|slice:":1" %}
+                                    {% for of in result.offers %}
+                                        {% if s.id == of.id %}
+                                            <input style="width: 20px;" id="disc__piece_{{ offer.id }}" value="{{ s.quantity }}" type="text" onchange="setCount('{{ offer.id }}')">
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endfor %}
                                 <div class="price__cont">
                                     <p class="set__name" id="{{priceOfferFalse}}_{{set.id}}">{{ offer.sellingMode.price.amount }}</p>
                                     <p class="set__name" id="{{pcurrencyOfferFalse}}_{{set.id}}">{{ offer.sellingMode.price.currency }}</p>
                                 </div>
                                 <p class="set__name">{{ set.0.set_id }}</p>
                                 {% for s in set.1|slice:"1:" %}
-                                    <!-- <p class="set__name">{{ s.id }}</p> -->
                                     {% for of in result.offers %}
                                         {% if s.id == of.id %}
                                             <img class="set__photo" src="{{of.primaryImage.url}}" alt="">
                                             <p class="set__name">{{ of.name }}</p>
                                             <label for="">Sztuki:</label>
-                                            <input style="width: 20px;" id="disc__piece_{{ of.id }}" value="1" type="text" onchange="setCount('{{ of.id }}')">
+                                            <input style="width: 20px;" id="disc__piece_{{ of.id }}" value="{{ s.quantity }}" type="text" onchange="setCount('{{ of.id }}')">
                                             <div class="price__cont" >
                                                 <p class="set__name" id="{{priceSetFalse}}_{{of.id}}">{{ of.sellingMode.price.amount }}</p>
                                                 <p class="set__name" id="{{pcurrencySetFalse}}_{{of.id}}">{{ of.sellingMode.price.currency }}</p>
@@ -178,6 +183,7 @@
                     <div class="set__offers__line">
                         <div class="conto__row">
                             <div class="add__set" onclick="setSearch('{{forloop.counter}}')">+</div>
+                            <div class="add__set" onclick="setsAdd('{{forloop.counter}}')">@</div>
                             <div class="add__set" onclick="pasteSet()">>></div>
                         </div>
                     </div>
@@ -221,6 +227,14 @@
             offerId = document.getElementById('offer_' + forloopCounter).value;
             console.log('offerId', offerId)
             window.location.href = `/set_add/${name}/${offerId}`;
+        }
+
+
+        // ADD SET WITH MORE THAN 1 OFFER
+        function setsAdd(forloopCounter) {
+            offerId = document.getElementById('offer_' + forloopCounter).value;
+            console.log('offerId', offerId)
+            window.location.href = `/sets_add/${name}/${offerId}`;
         }
 
 

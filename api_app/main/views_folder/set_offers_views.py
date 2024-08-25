@@ -39,13 +39,14 @@ def set_offers(request, name):
             for set_item in all_sets[0]['promotions']:
                 offer = set_item['offerCriteria'][0]['offers']
                 discount = set_item['benefits'][0]['specification']['value']['amount']
-                # print("############### offer ++ ##################", offer)
                 sum_ = 0
                 for f in offer:
                     for of in result['offers']:
                         if of['id'] == f['id']:
                             # print("############### of ++ ##################", of['sellingMode']['price']['amount'])
-                            sum_ += float(of['sellingMode']['price']['amount'])
+                            sum_ += float(of['sellingMode']['price']['amount']) * f['quantity']
+                            # print("############### offer price * quantity ++ ##################", float(of['sellingMode']['price']['amount']) * f['quantity'])
+                            # quantity
                     # print("############### sum_ ##################", sum_  )
                 price_after = sum_ - float(discount)
                 discount_percentage = (float(discount) / sum_) * 100
@@ -65,7 +66,7 @@ def set_offers(request, name):
             context = {
                 'result': result,
                 'name': name,
-                'sets': offers, #all_sets[0]['promotions'],
+                'sets': offers[::-1], #all_sets[0]['promotions'],
             }
 
             return render(request, 'set_offers_test.html', context)
@@ -88,14 +89,28 @@ def set_add(request, name, offer_id):
     return render(request, 'set_add.html', context)
 
 
+def sets_add(request, name, offer_id):
+    result = get_all_offers_api(request, name)
+    context = {
+        'result': result[0],
+        'name': name,
+        'main_offer_id': offer_id,
+    }
+    return render(request, 'sets_add.html', context)
+
+
 def add_offers(request):
 
     data = json.loads(request.body.decode('utf-8'))
     offers = data.get('offers')
+    main_count_data = data.get('main_count')
+    print(' ######### main_count ##########', main_count_data)
+    main_count = main_count_data[0]
     name = data.get('name') 
     main_offer_id = data.get('main_offer_id')
+    print(' ######### main_count ##########', main_count)
     print(' ######### offers ##########', offers)
-    res = post_set_api(request, name, offers, main_offer_id)
+    res = post_set_api(request, name, main_count, offers, main_offer_id)
     print(' ######### res ##########', res)
     if 'errors' in res:
         print(' ######### res errors ##########', res['errors'][0]['userMessage'])

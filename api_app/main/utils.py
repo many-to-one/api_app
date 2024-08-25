@@ -43,7 +43,7 @@ def get_next_token(request, access_token, name):
     print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {tokens}')
     access_token = tokens['access_token']
     print(f'@#@#@#@# NEXT TOKENS REPEAT #@#@#@# --------- {access_token}')
-    error_token = tokens['error']
+    # error_token = tokens['error']
     # refresh_token = tokens['refresh_token']
     if access_token:
         print(f'@#@#@#@# NEXT TOKENS REPEAT II #@#@#@# --------- {access_token}')
@@ -53,8 +53,8 @@ def get_next_token(request, access_token, name):
         # print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {access_token}')
         print(' ************* NEXT TOKEN WAS CREATED ************* ', secret)
         return True #access_token
-    if error_token:
-        print(f'@#@#@#@# NEXT TOKENS ERROR ERROR ERROR #@#@#@# --------- ', error_token)
+    if tokens['error']:
+        print(f'@#@#@#@# NEXT TOKENS ERROR ERROR ERROR #@#@#@# --------- ', tokens['error'])
         # If the exceptions will repeat, I need to create logic
         # to get a new token o smth to login to allegro 
         # via secret.CLIENT_ID, secret.CLIENT_SECRET
