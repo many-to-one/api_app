@@ -37,7 +37,7 @@ def get_all_offers_api(request, name):
                         context = {'name': name}
                         return render(request, 'invalid_token.html', context)
             # print(" ############### shipping_rates ################## ", shipping_rates)
-            # print(" ############### product_result.json() API ################## ", product_result.json())
+            print(" ############### product_result.json() API ################## ", product_result.json())
 
             return product_result.json(),
         except requests.exceptions.HTTPError as err:
@@ -331,6 +331,82 @@ async def contain_offers_one(request, name, secret, main_offer_id, offer_, main_
             except requests.exceptions.HTTPError as err:
                 raise SystemExit(err)
     
+
+################################################################################################################################
+
+def post_copy_offers_api(request, secret, offers, amount, main_offer):
+
+    res = asyncio.run(prepare_post_copy_offers(request, secret, offers, amount, main_offer))
+
+    return res
+
+
+
+async def prepare_post_copy_offers(request, secret, offers, amount, main_offer):
+
+    tasks = []
+
+    task = asyncio.create_task(post_copy_offers(request, secret, offers, amount, main_offer))
+    tasks.append(task)
+
+    # Gathering results from all tasks
+    res = await asyncio.gather(*tasks)
+
+    return res
+
+
+
+async def post_copy_offers(request, secret, offers, amount, main_offer):
+
+    # print('############ post_copy_offers amount ##############', amount['discount'])
+    offers[0]['id'] = f'{main_offer}'
+    print('############ post_copy_offers offers[0] ##############', offers[0]['id'])
+    # main_offer = {
+    #     "id": f'{main_offer_id}',
+    #     "quantity": main_count, 
+    #     "promotionEntryPoint": True, 
+    # }
+    # offers.insert(0, main_offer)
+
+    try:
+        async with httpx.AsyncClient() as client:
+            url = "https://api.allegro.pl.allegrosandbox.pl/sale/loyalty/promotions" 
+            # headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+            headers = {
+                'Authorization': f'Bearer {secret.access_token}',
+                'Accept': 'application/vnd.allegro.public.v1+json',
+                'Content-Type': 'application/vnd.allegro.public.v1+json'
+            }
+            data = {
+                "benefits": [
+                    {
+                    "specification": {
+                        "type": "ORDER_FIXED_DISCOUNT",
+                        "value": {                         
+                                                
+                            "amount": amount['discount'],
+                            "currency": "PLN"
+                        }
+                    }
+                    }
+                ],
+                "offerCriteria": [
+                    {
+                    "type": "CONTAINS_OFFERS",
+                    "offers": offers,
+                    }
+                ]
+                }
+            product_result = await client.post(url, headers=headers, json=data)
+            print('product_result @@@@@@@@@', product_result)
+            result = product_result.json()
+            print('post_copy_offers @@@@@@@@@', result)
+
+            return result
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+            
+
 
 ################################################################################################################################
 

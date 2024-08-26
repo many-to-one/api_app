@@ -174,7 +174,7 @@ def get_all_offers(request, name):
                         print('ZADZIAŁAŁO', new_token)
                         if new_token:
                             # Retry fetching orders with the new token
-                            return get_all_offers_api(request, name)
+                            return get_all_offers(request, name)
                         else:
                             print('COŚ POSZŁO NIE TAK', new_token)
                     except Exception as e:

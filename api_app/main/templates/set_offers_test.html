@@ -153,7 +153,7 @@
                         </div>
                         <div class="conto__column">
                             <div class="conto__row">
-                                <div class="add__set" onclick="setSearch()">+</div>
+                                <div class="add__set" onclick="copySet('{{ set|escapejs }}')">+</div>
                                 <div class="add__set" onclick="setSearchMore()">+</div>
                                 <div class="add__set" onclick="setSearch()">+</div>
                             </div>
@@ -184,7 +184,7 @@
                         <div class="conto__row">
                             <div class="add__set" onclick="setSearch('{{forloop.counter}}')">+</div>
                             <div class="add__set" onclick="setsAdd('{{forloop.counter}}')">@</div>
-                            <div class="add__set" onclick="pasteSet()">>></div>
+                            <div class="add__set" onclick="submitCopySet('{{ offer.id }}')">>></div>
                         </div>
                     </div>
                 {% endif %}
@@ -219,6 +219,11 @@
                 }
             }
             return cookieValue;
+        }
+
+        // SEARCH OFFERS AND SETS
+        function reFresh(forloopCounter) {
+            window.location.href = `/set_offers/${name}/`;
         }
 
 
@@ -334,6 +339,75 @@
                     console.error('There was an error!', error);
                     alert('There was an error submitting the discount.', error);
                 });
+        }
+
+
+        // LIST WITH COPIED OFFER(S)
+        var setContainer = []
+        function copySet(set) {
+            console.log('SET', set)
+            let jsonString = set
+            .replace(/'/g, '"')  // Replace single quotes with double quotes
+            .replace(/True/g, 'true')  // Replace True with true
+            .replace(/False/g, 'false');  // Replace False with false        
+            console.log(jsonString);
+            let array = JSON.parse(jsonString);
+            console.log('SET array',  array);
+            setContainer.push(array)
+            showMessage('Zestaw został skopiowany do schowka', 200)
+        }
+
+
+
+        // function pasteSet() {
+        //     console.log('setContainer', setContainer)
+        //     console.log('set_id', setContainer[0][1])
+        // }
+
+
+        // SUBMIT DISCOUNT
+        function submitCopySet(offerId) {
+
+            var csrftoken = getCSRFToken();          
+
+            // Create the data object to send to the server
+            const data = {
+                set_id: setContainer[0][0]['set_id'],
+                main_offer: offerId,
+                disc__money: setContainer[0][3] || null,
+                disc__percent: setContainer[0][5] || null,
+                count_array: setContainer[0][1] || null,
+                disc__price: parseFloat(setContainer[0][2])|| 0, 
+                price__after: setContainer[0][4],
+                name: name,
+            };
+
+            // console.log('data:', data);
+
+
+            axios.post(`/add_copy_offers_one/`, data, {
+                headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            })
+                .then(function (response) {                  
+                    if ( response.data.context.status === 'ok' ) {
+                        showMessage(response.data.context.message, 200)
+                        setTimeout(reFresh, 1000);
+                    } else if ( response.data.context.status === '!ok' ) {
+                        showMessage(response.data.context.message, 300)
+                        setTimeout(reFresh, 1000);
+                    } else {
+                        console.log('postSet', 500);
+                        showMessage(response.data.context.message, 500)
+                    }
+                })
+                .catch(function(error) {
+                // Handle error
+                console.error('Error updating stock:', error);
+                showMessage(error, 500)
+            });
+            setContainer.length = 0
         }
 
 

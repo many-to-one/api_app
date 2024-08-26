@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 
 from main.views_folder.offer_views import get_one_offer, return_async_offer
 
-from .api_results import edit_set, get_all_offers_api, get_image, get_image_api, get_offer_by_id, get_set, post_set_api, post_set_api_one, get_all_sets_api, prepare_offer_by_id
+from .api_results import edit_set, get_all_offers_api, get_image, get_image_api, get_offer_by_id, get_set, post_copy_offers, post_copy_offers_api, post_set_api, post_set_api_one, get_all_sets_api, prepare_offer_by_id, prepare_post_copy_offers
 from ..utils import *
 from ..models import *
 
@@ -124,9 +124,9 @@ def add_offers(request):
             }
         else:
             context = {
-                'result': res[0]['errors'][0]['userMessage'],
+                'result': res['errors'][0]['userMessage'],
                 'name': name,
-                'message': res[0]['errors'][0]['userMessage'], 
+                'message': res['errors'][0]['userMessage'], 
                 'status': 'error'
             }
     else:
@@ -155,14 +155,6 @@ def add_offers_one(request):
     name = data.get('name') 
     main_offer_id = data.get('main_offer_id')
     print(' ######### main_offers ##########', main_offers)
-    # print(' ######### offers ##########', offers)
-    # Iterate over mainoffers and update the keys
-    # for offer in main_offers:
-    #     for key, value in offer.items():
-    #         # Replace the key with mainId
-    #         updated_offer = {main_offer_id: value}
-    #         # Append to offers list
-    #         offers.append(updated_offer)
     print(' ######### offers ##########', offers)
     res = post_set_api_one(request, name, main_offers, offers, main_offer_id)
     print(' ######### res ##########', res)
@@ -235,3 +227,53 @@ def add_discount(request, name):
                 }, 
                 status=200,
             )
+    
+
+def add_copy_offers_one(request):
+
+    if request.user.is_authenticated:
+
+        data = json.loads(request.body.decode('utf-8'))
+        print('********** add_copy_offers_one *************', data)
+        name = data['name']
+        offers = data['count_array']
+        amount = data['disc__money']
+        main_offer = data['main_offer']
+        # for offer in offers:
+        #     print(' ######### res ##########', offer)
+        secret = Secret.objects.get(account__name=name)
+        res = post_copy_offers_api(request, secret, offers, amount, main_offer)
+        print(' ######### secret ##########', secret)
+
+        if 'errors' in res[0]:
+            print(' ######### res errors ##########', res[0]['errors'][0]['userMessage'])
+            if any('id' in item for item in res):
+                print(' ######### res id in res[0] ##########', res)
+                context = {
+                    'result': res,
+                    'name': name,
+                    'message': 'Stworzyłeś zestaw(y) offert, ale w zestawach podobny(e) już isnieje(ą)',
+                    'status': '!ok',
+                }
+            else:
+                context = {
+                    'result': res[0]['errors'][0]['userMessage'],
+                    'name': name,
+                    'message': res[0]['errors'][0]['userMessage'], 
+                    'status': 'error'
+                }
+        else:
+            context = {
+                'result': res,
+                'name': name,
+                'message': 'Stworzyłeś zestaw(y) offert',
+                'status': 'ok',
+            }
+        
+        return JsonResponse(
+                    {
+                        'message': 'Stock updated successfully',
+                        'context': context,
+                    }, 
+                    status=200,
+                )
