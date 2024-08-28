@@ -361,6 +361,9 @@ async def post_copy_offers(request, secret, offers, amount, main_offer):
     # print('############ post_copy_offers amount ##############', amount['discount'])
     offers[0]['id'] = f'{main_offer}'
     print('############ post_copy_offers offers[0] ##############', offers[0]['id'])
+    print(' #########  amount post_cpy_offers ##########', amount)
+    print(' ######### type amount post_copy_offers ##########', type(amount))
+
     # main_offer = {
     #     "id": f'{main_offer_id}',
     #     "quantity": main_count, 
@@ -384,7 +387,7 @@ async def post_copy_offers(request, secret, offers, amount, main_offer):
                         "type": "ORDER_FIXED_DISCOUNT",
                         "value": {                         
                                                 
-                            "amount": amount['discount'],
+                            "amount": amount if isinstance(amount, str) else amount['discount'],
                             "currency": "PLN"
                         }
                     }

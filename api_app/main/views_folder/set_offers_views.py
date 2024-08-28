@@ -238,6 +238,9 @@ def add_copy_offers_one(request):
         name = data['name']
         offers = data['count_array']
         amount = data['disc__money']
+        # amount = float(amount_)
+        print(' ######### amount ##########', amount)
+        print(' ######### type amount ##########', type(amount))
         main_offer = data['main_offer']
         # for offer in offers:
         #     print(' ######### res ##########', offer)

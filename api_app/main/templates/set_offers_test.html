@@ -6,11 +6,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oferty</title>
+    <title>Oferty</title>    
 </head>
 
 {% block content %}
 <body>
+
+    <input 
+        id="sets-data" 
+        style="display:none;"
+        value="{{ sets }}"
+    />
 
     <div id="error_13" style="display: none;">
         Nieprawidłowa zawartość EAN
@@ -111,6 +117,12 @@
                             <p>{{ offer.id }}</p>
                             <p>{{ id }}</p>
                         </div>
+
+                        <div class="conto__row">
+                            <div class="add__set" onclick="copyGroupSet('{{ offer.id }}')">+</div>
+                            <div class="add__set" onclick="setSearchMore()">+</div>
+                            <div class="add__set" onclick="submitGroupCopySet('{{ offer.id }}')">>></div>
+                        </div>
                     </div>    
                 </div>
 
@@ -119,13 +131,14 @@
 
                 <div class="set__offers__line">
                     <div class="conto">
-                        <div class="conto__column">
+                        <div class="conto__column" data-set="{{ set }}" id="setRow">
                             
                                 <img class="set__photo" src="{{offer.primaryImage.url}}" alt="">
                                 <p class="set__name">{{ offer.name }}</p>
                                 {% for s in set.1|slice:":1" %}
                                     {% for of in result.offers %}
                                         {% if s.id == of.id %}
+                                            <p class="set__name">{{ of.id }}</p>
                                             <input style="width: 20px;" id="disc__piece_{{ offer.id }}" value="{{ s.quantity }}" type="text" onchange="setCount('{{ offer.id }}')">
                                         {% endif %}
                                     {% endfor %}
@@ -195,7 +208,24 @@
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
+
     <script>
+
+        setMainContainer = []
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var setsData = document.getElementById('sets-data').value;
+            console.log('setsData', setsData)
+            let jsonString = setsData
+            .replace(/'/g, '"')  // Replace single quotes with double quotes
+            .replace(/True/g, 'true')  // Replace True with true
+            .replace(/False/g, 'false');  // Replace False with false        
+            console.log(jsonString);
+            let array = JSON.parse(jsonString);
+            console.log('setsData array',  array);
+            setMainContainer.push(array)
+        });
+
 
         var name = document.getElementById('name').textContent;
 
@@ -358,17 +388,8 @@
         }
 
 
-
-        // function pasteSet() {
-        //     console.log('setContainer', setContainer)
-        //     console.log('set_id', setContainer[0][1])
-        // }
-
-
         // SUBMIT DISCOUNT
-        function submitCopySet(offerId) {
-
-            var csrftoken = getCSRFToken();          
+        async function submitCopySet(offerId) {
 
             // Create the data object to send to the server
             const data = {
@@ -382,10 +403,17 @@
                 name: name,
             };
 
-            // console.log('data:', data);
+            await addCopyOffers (data)
+        }
 
 
-            axios.post(`/add_copy_offers_one/`, data, {
+        async function addCopyOffers (data) {
+
+            var csrftoken = getCSRFToken();
+
+            console.log('addCopyOffers in loop', data);
+
+            await axios.post(`/add_copy_offers_one/`, data, {
                 headers: {
                     'X-CSRFToken': csrftoken
                 }
@@ -408,9 +436,59 @@
                 showMessage(error, 500)
             });
             setContainer.length = 0
+
         }
 
 
+        copyGroupCont = []
+
+        async function copyGroupSet (offerId) {
+
+            // console.log('offerId ++', offerId);
+            // console.log('set ++', set);
+
+            for (set of setMainContainer) {
+                // console.log('**SET**', set);
+                for (s of set) {
+                    for (off of s.slice(1, 2)) {
+                        for (id of off.slice(0, 1)) {
+                            console.log('loop set', id);
+                            if ( id['id'] === offerId ) {
+                                // console.log('=== set', id);
+                                copyGroupCont.push(s)
+                            }
+                        }
+                    }
+                }
+                console.log('copyGroupCont', copyGroupCont);
+            }
+
+        }
+
+        async function submitGroupCopySet(offerId) {
+
+            console.log('submitGroupCopySet was called!');
+
+            for ( con of copyGroupCont ) {
+                console.log('copyGroupCont in loop', con);
+                console.log('copyGroupCont set_id', con[0]['set_id']);
+                console.log('copyGroupCont disc__money', con[3]['discount']);
+                console.log('copyGroupCont count_array', con[1]);
+                const data = {
+                    set_id: con[0]['set_id'],
+                    main_offer: offerId,
+                    disc__money: con[3]['discount'] || null,
+                    disc__percent: con[5]['discount_percentage'] || 0,
+                    count_array: con[1] || null,
+                    disc__price: parseFloat(con[2]['price']) || 0, 
+                    price__after: con[4]['price_after'],
+                    name: name,
+                };
+
+                await addCopyOffers (data)
+            }
+
+        }
         
 </script>
 
