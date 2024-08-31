@@ -107,9 +107,13 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr,
 
     # print(' ######################### pickup_point_order secret ######################### ', secret.access_token)
     # print(' ######################### pickup_point_order order_data ######################### ', order_data["delivery"]["pickupPoint"]["id"]) 
-    # print(' ######################### pickup_point_order external_id ######################### ', order_data["delivery"]["method"]["id"])
-    # print(' ######################### pickup_point_order offer_name ######################### ', order_data["delivery"]["address"]["phoneNumber"])
-    # print(' ######################### pickup_point_order descr ######################### ', descr)
+    print(' ######################### pickup_point_order external_id ######################### ', order_data["delivery"]["method"]["id"])
+    print(' ######################### pickup_point_order offer_name ######################### ', order_data["delivery"]["address"]["phoneNumber"])
+    print(' ######################### pickup_point_order descr + ######################### ', descr[3])
+    if descr[3] != '':
+        weight_value = math.ceil(float(descr[3]))
+    else:
+        weight_value = 1
     # order_data["delivery"]["address"]["phoneNumber"] = "500600700"
     async with httpx.AsyncClient() as client:
       url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
@@ -162,19 +166,19 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr,
                       {
                         "type": "PACKAGE",
                         "length": {
-                          "value": descr[0],
+                          "value": 1, #descr[0],
                           "unit": "CENTIMETER"
                         },
                         "width": {
-                          "value": descr[1],
+                          "value": 1, #descr[1],
                           "unit": "CENTIMETER"
                         },
                         "height": {
-                          "value": descr[2],
+                          "value": 1, #descr[2],
                           "unit": "CENTIMETER"
                         },
                         "weight": {
-                          "value": math.ceil(float(descr[3])),
+                          "value": 1, #weight_value,
                           "unit": "KILOGRAMS"
                         }
                       }
@@ -202,8 +206,8 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr,
       # if credentialsId is not None:
       #     payload["input"]["credentialsId"] = credentialsId
       response = await client.post(url, headers=headers, json=payload)
-      # result = response.json()
-      print(' ######################### HELLO FROM UTILS PICKUP_POINT ######################### ') #json.dumps(result, indent=4)
+      result = response.json()
+      print(' ######################### HELLO FROM UTILS PICKUP_POINT ######################### ', json.dumps(result, indent=4)) #json.dumps(result, indent=4)
     return response.json()
 
 
@@ -319,6 +323,14 @@ async def cash_no_point_order(secret, order_data, external_id, offer_name, descr
 
 async def no_pickup_point_order(secret, order_data, external_id, offer_name, descr, user):
     
+    # print(' ######################### pickup_point_order secret ######################### ', secret.access_token)
+    # print(' ######################### pickup_point_order order_data ######################### ', order_data["delivery"]["pickupPoint"]["id"]) 
+    print(' ######################### pickup_point_order delivery method id ######################### ', order_data["delivery"]["method"]["id"])
+    print(' ######################### pickup_point_order phoneNumber ######################### ', order_data["delivery"]["address"]["phoneNumber"])
+    print(' ######################### pickup_point_order descr [3] ######################### ', descr[3])
+    print(' ######################### pickup_point_order descr ######################### ', descr)
+    print(' ######################### pickup_point_order order_data ######################### ', order_data)
+    
     """ Courier with pick up from seller """
     async with httpx.AsyncClient() as client:
       url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
@@ -411,7 +423,7 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
       #     payload["input"]["credentialsId"] = credentialsId
       response = await client.post(url, headers=headers, json=payload)
       result = response.json()
-      print(' ######################### COURIER WITH PICKUP FROM SELLER ######################### ') #credentialsId #json.dumps(result, indent=4)
+      print(' ######################### COURIER WITH PICKUP FROM SELLER ######################### ', json.dumps(result, indent=4)) #credentialsId #json.dumps(result, indent=4)
     return response.json()
 
 

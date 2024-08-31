@@ -12,29 +12,27 @@
     {% block content %}
 
         <h3 id="seller" data-value="{{ name }}">Przetwarzam zamówienia, proszę czekać..</h3>
-        <!-- {% for res in result %}
+        {% for res in result %}
             <div 
                 name="link"
                 value="{{ res.commandId }}:{{ res.name }}"
             >
 
+            <div id="question">
+                <p id="text"></p>
+                <div class="btns_cont">
+                    <button onclick="getNo()">Bez podjazdu</button>
+                    <button onclick="setToSend()">Zamówić Podjazd Kuriera</button>
+                </div>
             </div>
-        {% endfor %} -->
 
-        <div name="link" value="{{ result }}"></div>
-
-        <div id="question">
-            <p id="text"></p>
-            <div class="btns_cont">
-                <button onclick="getNo()">Bez podjazdu</button>
-                <button onclick="setToSend(event)">Zamówić Podjazd Kuriera</button>
+            <div id="wait">
+                <p>Proczę czekać...</p>
+                <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
             </div>
-        </div>
 
-        <div id="wait">
-            <p>Proczę czekać...</p>
-            <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
-        </div>
+            </div>
+        {% endfor %}
 
 
 
@@ -61,7 +59,7 @@
                 text.textContent = "Wybierz opcje";
             });
 
-            function setToSend(event) {
+            function setToSend() {
 
                 var wait = document.getElementById('wait');
                 wait.style.display = 'flex';
@@ -72,31 +70,14 @@
                 var seller = document.getElementById('seller').getAttribute('data-value');
 
                 var links = document.querySelectorAll('div[name="link"]');
-
                 var context = [];
                 links.forEach(function(link) {
                     var value = link.getAttribute('value');
                     console.log('value:', value);
-                    let cleanedValue = value
-                    .replace(/None/g, 'null')       // Replace None with null
-                    .replace(/'/g, '"')             // Replace single quotes with double quotes
-                    .replace(/\(\{/g, '{')          // Remove tuple notation (e.g., ( becomes { )
-                    .replace(/\}\)/g, '}')
-                    .replace(/True/g, 'true')        // Replace True with true
-                    .replace(/False/g, 'false');
-                    let parsedValue;
-                    parsedValue = JSON.parse(cleanedValue);
-                    console.log('parsedValue:', parsedValue);
-                    context.push({ parsedValue });
-                    // let commandId = parsedValue[0] ? parsedValue[0].commandId : null;
-                    // console.log('commandId:', commandId, 'name:', seller);
-                    // context.push({ commandId, seller });
+                    context.push(value);  // Store the value in the context array
                 });
 
-                console.log('context:', context[0]['parsedValue']);
-                var serializedContext = JSON.stringify(context[0]['parsedValue']);
-
-                var url = `/prepare_get_shipment_status_id/${seller}/?ids=` + encodeURIComponent(serializedContext) + '&pickup=' + 'pickup';
+                var url = `/get_shipment_status_id/${seller}/?ids=` + context + '&pickup=' + 'pickup';
                 window.location.href = url;
                 wait.style.display = 'none';
                 question.style.display = 'none';
@@ -115,31 +96,14 @@
                 var seller = document.getElementById('seller').getAttribute('data-value');
 
                 var links = document.querySelectorAll('div[name="link"]');
-
                 var context = [];
                 links.forEach(function(link) {
                     var value = link.getAttribute('value');
                     console.log('value:', value);
-                    let cleanedValue = value
-                    .replace(/None/g, 'null')       // Replace None with null
-                    .replace(/'/g, '"')             // Replace single quotes with double quotes
-                    .replace(/\(\{/g, '{')          // Remove tuple notation (e.g., ( becomes { )
-                    .replace(/\}\)/g, '}')
-                    .replace(/True/g, 'true')        // Replace True with true
-                    .replace(/False/g, 'false');
-                    let parsedValue;
-                    parsedValue = JSON.parse(cleanedValue);
-                    console.log('parsedValue:', parsedValue);
-                    context.push({ parsedValue });
-                    // let commandId = parsedValue[0] ? parsedValue[0].commandId : null;
-                    // console.log('commandId:', commandId);
-                    // context.push({ commandId, seller});
+                    context.push(value);  // Store the value in the context array
                 });
 
-                console.log('context:', context[0]['parsedValue']);
-                var serializedContext = JSON.stringify(context[0]['parsedValue']);
-
-                var url = `/prepare_get_shipment_status_id/${seller}/?ids=` + encodeURIComponent(serializedContext) + '&pickup=' + 'no_pickup';
+                var url = `/get_shipment_status_id/${seller}/?ids=` + context + '&pickup=' + 'no_pickup';
                 // var seller = document.getElementById('seller').getAttribute('data-value');
                 // var url = '/get_orders/' + seller + '/';
                 window.location.href = url;

@@ -493,7 +493,7 @@ async def create_label(request, id, name, secret):
                             print('Exception @@@@@@@@@', e)
                             context = {'name': name}
                             return render(request, 'invalid_token.html', context)
-                print('@@@@@@@@@ CRETAE LABEL ID @@@@@@@@@', json.dumps(result, indent=4))
+                print('@@@@@@@@@ CRETAE LABEL ID 496 @@@@@@@@@', json.dumps(result, indent=4))
                 print('@@@@@@@@@ CRETAE LABEL HEADERS @@@@@@@@@', product_result.headers)
 
                 return result
@@ -784,39 +784,37 @@ def get_secret(name):
 
 async def set_shipment_list_q(results, secret):
 
-    if request.user.is_authenticated:
-
         # start_time = time.time()
 
-        print('********************** set_shipment_list_q results ****************************', results)
-        print('********************** set_shipment_list_q secret ****************************', secret)
+    print('********************** set_shipment_list_q results ****************************', results)
+    print('********************** set_shipment_list_q secret ****************************', secret)
         # print('********************** results[0] ****************************', results[0])
         # print('********************** results[1] ****************************', results[1])
 
-        from ..utils import pickup_point_order, no_pickup_point_order, cash_no_point_order, test
+    from ..utils import pickup_point_order, no_pickup_point_order, cash_no_point_order, test
 
-        tasks = []
-        externalId = set()
+    tasks = []
+    externalId = set()
 
-        if results:
-            for order_data in results:
-                if isinstance(order_data, tuple):
-                    for _ in range(int(order_data[0]["delivery"]["calculatedNumberOfPackages"])):
-                        for line_item in order_data[0]['lineItems']:
-                            externalId.add(f"{line_item['offer']['external']['id']} x {line_item['quantity']}")
-                        external_id = ', '.join(sorted(externalId))
-                        # print('********************** external_id ****************************', external_id)
-                        tasks.append(asyncio.create_task(
-                            test(
-                                secret, 
-                                order_data[0],
-                                external_id,
-                                external_id,  
-                                order_data[1],
-                                order_data[2],
-                            )
-                        ))
-                        externalId = set()
+    if results:
+        for order_data in results:
+            if isinstance(order_data, tuple):
+                for _ in range(int(order_data[0]["delivery"]["calculatedNumberOfPackages"])):
+                    for line_item in order_data[0]['lineItems']:
+                        externalId.add(f"{line_item['offer']['external']['id']} x {line_item['quantity']}")
+                    external_id = ', '.join(sorted(externalId))
+                    # print('********************** external_id ****************************', external_id)
+                    tasks.append(asyncio.create_task(
+                        test(
+                            secret, 
+                            order_data[0],
+                            external_id,
+                            external_id,  
+                            order_data[1],
+                            order_data[2],
+                        )
+                    ))
+                    externalId = set()
 
         
 
@@ -839,7 +837,7 @@ async def set_shipment_list_q(results, secret):
 
 
         # return HttpResponse('ok')
-        return await asyncio.gather(*tasks)
+    return await asyncio.gather(*tasks)
 
 
 async def get_user(secret):
@@ -872,10 +870,7 @@ async def get_invoice(request, results, secret, name, address_data):
 
         return seller, tasks_
 
-# async def ser_secret(secret):
-#     return {
-#         'token':secret.access_token
-#     }
+
 
 from .serializers import *
 def set_shipment_list(request, name):
@@ -894,7 +889,7 @@ def set_shipment_list(request, name):
         try:
             address = Address.objects.get(name__name=name)
         except:
-            return HttpResponse(f'{name} nie jest załogowany w allego w tym momencie, zaloguj i spróbuj ponownie')
+            return HttpResponse(f'Konto {name} nie posiada żadnego adresu wysyłki.')
         secret_data = SecretSerializer(secret).data
         address_data = AddressSerializer(address).data
         # time.sleep(2)
@@ -903,12 +898,12 @@ def set_shipment_list(request, name):
         
         if address:
             results = asyncio.run(set_shipment_list_async(request, ids, secret, address_data))#[0]
-        # print('********************** /// results /// ****************************', results)  #results[1][1]
+        print('********************** /// results 904/// ****************************', results)  #results[1][1]
         # time.sleep(1)
         if results:
             if secret:
                 results_ = asyncio.run(set_shipment_list_q(results, secret))
-                # print('**********************  /// results_secret /// ****************************', secret)
+                print('**********************  /// results_ 909 /// ****************************', results_)
 
                 # get_invoice_task.apply_async(args=['8'])
                 invoice = asyncio.run(get_invoice(request, results, secret_data, name, address_data) )
@@ -916,9 +911,11 @@ def set_shipment_list(request, name):
                 # print('********************** get_invoice ****************************', invoice)
 
         context = {
-            'result': results_,
+            'result': results,
             'name': name,
             }
+        
+        print('********************** results_ 921 ****************************', context)
         
         end_time = time.time()
         elapsed_time = end_time - start_time
@@ -931,97 +928,128 @@ def set_shipment_list(request, name):
 pickup_tasks = []
 async def make_order(request, secret, commandId, pickup):
 
-    if request.user.is_authenticated:
+    # if request.user.is_authenticated:
 
-        # print('@@@@@@@@@ MAKE ORDER commandId @@@@@@@@@', commandId)
+    print('@@@@@@@@@ MAKE ORDER commandId @@@@@@@@@', commandId)
         # pickup_tasks = []
 
-        while True:
-            async with httpx.AsyncClient() as client:
-                url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands/{commandId}"
-                headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"} 
+    while True:
+        async with httpx.AsyncClient() as client:
+            url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands/{commandId}"
+            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"} 
 
-                response = await client.get(url, headers=headers)
-                result = response.json()
+            response = await client.get(url, headers=headers)
+            result = response.json()
 
-                if 'error' in result:
-                    error_code = result['error']
-                    if error_code == 'invalid_token':
-                        # print('ERROR RESULT @@@@@@@@@', error_code)
-                        try:
-                            # Refresh the token
-                            new_token = get_next_token(request, secret.refresh_token, 'retset')
-                            # Retry fetching orders with the new token
-                            return get_order_details(request, id)
-                        except Exception as e:
-                            print('Exception @@@@@@@@@', e)
-                            context = {'name': 'retset'}
-                            return render(request, 'invalid_token.html', context)
+            if 'error' in result:
+                error_code = result['error']
+                if error_code == 'invalid_token':
+                    # print('ERROR RESULT @@@@@@@@@', error_code)
+                    try:
+                        # Refresh the token
+                        new_token = get_next_token(request, secret.refresh_token, 'retset')
+                        # Retry fetching orders with the new token
+                        return get_order_details(request, id)
+                    except Exception as e:
+                        print('Exception @@@@@@@@@', e)
+                        context = {'name': 'retset'}
+                        return render(request, 'invalid_token.html', context)
                         
-                if result["status"] == "ERROR":
-                    print('@@@@@@@@@ MAKE ORDER VALIDATION_ERROR @@@@@@@@@', json.dumps(result, indent=4))
-                    result["shipmentId"] == None
-                    return result["shipmentId"]
+            # if result["status"] == "ERROR":
+            #     print('@@@@@@@@@ MAKE ORDER VALIDATION_ERROR @@@@@@@@@', json.dumps(result, indent=4))
+            #     result["shipmentId"] == None
+            #     return result["shipmentId"]
 
-            # print('@@@@@@@@@ MAKE ORDER RESULT @@@@@@@@@', json.dumps(result, indent=4))
-            print('@@@@@@@@@ MAKE ORDER HEADERS @@@@@@@@@', response.headers)
-            # print('@@@@@@@@@ MAKE ORDER VALIDATION_ERROR @@@@@@@@@', result['errors'][0]["code"])
+        print('@@@@@@@@@ MAKE ORDER RESULT @@@@@@@@@', json.dumps(result, indent=4))
+        print('@@@@@@@@@ MAKE ORDER HEADERS @@@@@@@@@', response.headers)
+        # print('@@@@@@@@@ MAKE ORDER VALIDATION_ERROR @@@@@@@@@', result['errors'][0]["code"])
         
-            if result["shipmentId"] is not None:
-                # print('@@@@@@@@@ MAKE ORDER result["shipmentId"] @@@@@@@@@', result["shipmentId"])
-                if pickup[0] == 'pickup':
-                    asyncio.create_task(async_proposals_and_courier(request, result["shipmentId"], secret.access_token, commandId))
-                return result["shipmentId"]
+        if result["shipmentId"] is not None:
+            # print('@@@@@@@@@ MAKE ORDER result["shipmentId"] @@@@@@@@@', result["shipmentId"])
+            if pickup[0] == 'pickup':
+                asyncio.create_task(async_proposals_and_courier(request, result["shipmentId"], secret.access_token, commandId))
+            return result["shipmentId"]
+
+
+
+def prepare_get_shipment_status_id(request, name):
+
+    secret = Secret.objects.get(account__name=name)
+    print('********************** prepare_get_shipment_status_id ****************************', secret)
+
+    # ids = request.GET.getlist('ids')
+    ids_json = request.GET.get('ids')
+    ids = json.loads(ids_json)
+    pickup = request.GET.getlist('pickup')
+    print('@@@@@@@@@ ids @@@@@@@@@', ids)
+    print('@@@@@@@@@ pickup @@@@@@@@@', pickup)
+
+    asyncio.run(get_shipment_status_id(request, name, secret, ids, pickup))
 
 
 
 
-async def get_shipment_status_id(request, name):
+async def get_shipment_status_id(request, name, secret, ids, pickup):
 
-    if request.user.is_authenticated:
+    # if request.user.is_authenticated:
 
-        start_time = time.time()
-        tasks = []
-        # pickup_tasks = []
-        courier_tasks = []
-        # while True:
-        labels = []
-        ids = request.GET.getlist('ids')
-        pickup = request.GET.getlist('pickup')
-        print('@@@@@@@@@ ids @@@@@@@@@', ids)
-        print('@@@@@@@@@ pickup @@@@@@@@@', pickup)
+    start_time = time.time()
+    tasks = []
+    # pickup_tasks = []
+    courier_tasks = []
+    # while True:
+    labels = []
+    # ids = request.GET.getlist('ids')
+    # pickup = request.GET.getlist('pickup')
+    # print('@@@@@@@@@ ids @@@@@@@@@', ids)
+    # print('@@@@@@@@@ pickup @@@@@@@@@', pickup)
 
-        secret = await sync_to_async(Secret.objects.get)(account__name=name)
-            # print('********************** TIME TIME TIME 0 SECONDS ****************************')
+    # secret = await sync_to_async(Secret.objects.get)(account__name=name)
+    print('********************** TIME TIME TIME 0 SECONDS secret ****************************', secret)
 
             # time.sleep(5)
 
-        parts_list = [
-            part.split(':')
-            for item in ids
-            for part in item.split(',')
-        ]
+    # parts_list = [
+    #     part.split(':')
+    #     for item in ids
+    #     for part in item.split(',')
+    # ]
 
-        order_tasks = [
-            tasks.append(asyncio.create_task(
-                label_print(
-                    request, 
-                    await make_order(request, secret, commandId, pickup), 
-                    secret
-                    )
-                ))
-            for commandId, name in parts_list
-        ]
+    for item in ids:
+        print('@@@@@@@@@ ITEM @@@@@@@@@', item)
 
-        labels = await asyncio.gather(*tasks)
 
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        print(f"********************** FINISH time: {elapsed_time} seconds **********************")
-        labelsPrint = await base64_to_pdf_bulk(labels)
-        if labelsPrint is None:
-            return JsonResponse({'message': 'No valid labels found'})
-        return labelsPrint
+    # order_tasks = [
+    #     tasks.append(asyncio.create_task(
+    #         label_print(
+    #             request, 
+    #             await make_order(request, secret, item['commandId'], pickup), 
+    #             secret
+    #             )
+    #         ))
+    #     # for commandId, name in parts_list
+    #     for item in ids
+    # ]
+
+    for item in ids:
+        tasks.append(asyncio.create_task(
+            label_print(
+                request, 
+                await make_order(request, secret, item['commandId'], pickup), 
+                secret
+                )
+            ))
+
+
+    labels = await asyncio.gather(*tasks)
+
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f"********************** FINISH time: {elapsed_time} seconds **********************")
+    labelsPrint = await base64_to_pdf_bulk(labels)
+    if labelsPrint is None:
+        return JsonResponse({'message': 'No valid labels found'})
+    return labelsPrint
 
 
 async def async_proposals_and_courier(request, shipmentId, secret, commandId):

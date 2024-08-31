@@ -126,8 +126,29 @@ async def asynchr():
 
 
 
+def make_order():
+
+    token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiIxMDY5MzA1OTAiLCJzY29wZSI6WyJhbGxlZ3JvOmFwaTpvcmRlcnM6cmVhZCIsImFsbGVncm86YXBpOmZ1bGZpbGxtZW50OnJlYWQiLCJhbGxlZ3JvOmFwaTpwcm9maWxlOndyaXRlIiwiYWxsZWdybzphcGk6c2FsZTpvZmZlcnM6d3JpdGUiLCJhbGxlZ3JvOmFwaTpmdWxmaWxsbWVudDp3cml0ZSIsImFsbGVncm86YXBpOmJpbGxpbmc6cmVhZCIsImFsbGVncm86YXBpOmNhbXBhaWducyIsImFsbGVncm86YXBpOmRpc3B1dGVzIiwiYWxsZWdybzphcGk6c2FsZTpvZmZlcnM6cmVhZCIsImFsbGVncm86YXBpOnNoaXBtZW50czp3cml0ZSIsImFsbGVncm86YXBpOmJpZHMiLCJhbGxlZ3JvOmFwaTpvcmRlcnM6d3JpdGUiLCJhbGxlZ3JvOmFwaTphZHMiLCJhbGxlZ3JvOmFwaTpwYXltZW50czp3cml0ZSIsImFsbGVncm86YXBpOnNhbGU6c2V0dGluZ3M6d3JpdGUiLCJhbGxlZ3JvOmFwaTpwcm9maWxlOnJlYWQiLCJhbGxlZ3JvOmFwaTpyYXRpbmdzIiwiYWxsZWdybzphcGk6c2FsZTpzZXR0aW5nczpyZWFkIiwiYWxsZWdybzphcGk6cGF5bWVudHM6cmVhZCIsImFsbGVncm86YXBpOnNoaXBtZW50czpyZWFkIiwiYWxsZWdybzphcGk6bWVzc2FnaW5nIl0sImFsbGVncm9fYXBpIjp0cnVlLCJpc3MiOiJodHRwczovL2FsbGVncm8ucGwuYWxsZWdyb3NhbmRib3gucGwiLCJleHAiOjE3MjUxNDU0OTAsImp0aSI6IjhlMWU2ZjgwLTEzZDgtNDhkOC05Nzk2LWRkNjA0NjJjMjdjYyIsImNsaWVudF9pZCI6IjczYjIyZjZiN2E0NzQxNTU5OGZhZjRiNTdjMmYwZjQ1In0.MogjhXsQaToa_ZjEmUdAZ73RX7NOgzaSR6xa2hEdNuQDuSY_rEQu3qZHR2JbtfP_MA3nFkeNQu4_wj7LsFRSmF1sb55fprbxXzet-veAK24zDbhh3fofyLweaMIkft-8rN_LyKF_DL8Uih5YSCPldpC9RQ5tcsKRmxDB4A6fk054HPfw4FoQ7CAw5WWeiYJ0NzPBu_mqruTbHhpO8AQcUEnla_7MSbFGwAV_RLqRIp043ZJ1rITolvBn9p_PE6MAjtnEZIYDanDvtiJDY5hyeHM6KNiUFZJjIjLC-P03YUdkm8Dvo_XSltu6dQsvmhwejfrv6RZ_9eBIY67eMRQx75FRW8uM1xUpIqfR6HZZCsTZUoMuHVKbdG2Th3OewybH4Vc65jkMw72MwVhyJyrjsxvQFlcLuIt03Za0JECAXWbrevznHRq-NwJP512F_2wwRe5zIKw3CwCHjNxUG2KnhUsYPp4-p7iS4Lt2hvjWZEhWEbEDPeVfMwFvAE6RlcNP1c8iBM8qChOIVgASLFx2Z3tH52zrxAgmn1IOXK1GQcc0Dn0RT9hvZRaH1YRJDII0RqdlGYELYCmz6iZiDqZgl3sRCSLZHB3sGGsWdJVcYUxvkHFFtpvcSSKtwb2sxf-PgTtvxBrZdwiAlti-eWlnA5mddtZtbRs2eyR_bRhw-Z4'
+    commandId = 'b1434ef9-2e77-4017-b71a-84c372650cde'
+
+    # url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands/{commandId}"
+    url = f"https://api.allegro.pl.allegrosandbox.pl/parcel-management/parcel-create-commands/{commandId}"
+    headers = {'Authorization': f'Bearer {token}', 'Accept': "application/vnd.allegro.public.v1+json"} 
+
+    response = requests.get(url, headers=headers)
+    result = response.json()
+
+
+    print('@@@@@@@@@ MAKE ORDER RESULT @@@@@@@@@', json.dumps(result, indent=4))
+    print('@@@@@@@@@ MAKE ORDER HEADERS @@@@@@@@@', response.headers)
+    # print('@@@@@@@@@ MAKE ORDER VALIDATION_ERROR @@@@@@@@@', result['errors'][0]["code"])
+        
+
+
+
 def main():
-    synchr()
+    make_order()
+    # synchr()
     # asyncio.run(asynchr())
 
 
