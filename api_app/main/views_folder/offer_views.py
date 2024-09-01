@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .api_results import get_all_offers_api
 from ..utils import *
 from ..models import *
+from ..api_service import sync_service
 
 
 async def return_async_offer(request, secret, id):
@@ -36,31 +37,6 @@ async def return_async_offer(request, secret, id):
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
 
-
-
-# async def return_async_offer(request, secret, id):
-
-#     ''' 
-#      This function returns a json description of the offer by id into the bulk_editview.py
-#      to download all offers like json file. Next step is to create async logic for bulk operation
-#     '''
-
-#     if request.user.is_authenticated:
-
-#         try:
-#             url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
-#             headers = {'Authorization': f'Bearer {secret}', 'Accept': "application/vnd.allegro.public.v1+json"}
-#             product_result = requests.get(url, headers=headers)
-#             result = product_result.json()
-#             if 'error' in result:
-#                 error_code = result['error']
-#                 if error_code == 'invalid_token':
-#                     return redirect('invalid_token')
-#             print('RESULT - download_all_offers - @@@@@@@@@', json.dumps(result, indent=4))
-#             return  result       
-            
-#         except requests.exceptions.HTTPError as err:
-#             raise SystemExit(err)
 
 
 
@@ -139,180 +115,66 @@ def get_shipping_rates(request, name):
                         print('Exception @@@@@@@@@', e)
                         context = {'name': name}
                         return render(request, 'invalid_token.html', context)
-            # print('RESULT - shipping_rates - @@@@@@@@@', json.dumps(result, indent=4))
+            print('RESULT - shipping_rates - @@@@@@@@@', json.dumps(result, indent=4))
             return result
         except Exception as e:
             return HttpResponse({e})
 
 
 
-
+# GET ALL OFFERS
 def get_all_offers(request, name):
 
-    if request.user.is_authenticated:
+    shipping_rates = get_shipping_rates(request, name)
+    aftersale_services = get_aftersale_services(request, name)
 
-        secret = Secret.objects.get(account__name=name)
-        shipping_rates = get_shipping_rates(request, name)
-        aftersale_services = get_aftersale_services(request, name)
-        # result = get_all_offers_api(request, name)
-        # print(" ############### get_all_offers_api ################## ", result[0])
-        try:
-            url = "https://api.allegro.pl.allegrosandbox.pl/sale/offers"
-            # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
-            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-            product_result = requests.get(url, headers=headers, verify=True)
-            result = product_result.json()
-            # for of in result['offers']:
-                # print('******* get_all_offers ********', of)
-            if 'error' in result:
-                error_code = result['error']
-                if error_code == 'invalid_token':
-                    # print('ERROR RESULT @@@@@@@@@', error_code)
-                    try:
-                        # Refresh the token
-                        new_token = get_next_token(request, secret.refresh_token, name)
-                        print('ZADZIAŁAŁO', new_token)
-                        if new_token:
-                            # Retry fetching orders with the new token
-                            return get_all_offers(request, name)
-                        else:
-                            print('COŚ POSZŁO NIE TAK', new_token)
-                    except Exception as e:
-                        print('Exception @@@@@@@@@', e)
-                        context = {'name': name}
-                        return render(request, 'invalid_token.html', context)
-            # print(" ############### shipping_rates ################## ", shipping_rates)
-            # print(" ############### product_result.json() API ################## ", product_result.json())
-            context = {
-                'result': result,  #product_result.json(),
-                'name': name,
-                'shipping_rates': shipping_rates,
-                'aftersale_services': aftersale_services,
-            }
-            return render(request, 'get_all_offers.html', context)
+    url = f"https://api.allegro.pl.allegrosandbox.pl/sale/offers"
+    debug_name = 'get_all_offers 126'
 
-        except requests.exceptions.HTTPError as err:
-            raise SystemExit(err)
+    offers = sync_service.Offers(name)
+    result = offers.get_(request, url, debug_name)
+
+    context = {
+        'result': result,  
+        'name': name,
+        'shipping_rates': shipping_rates,
+        'aftersale_services': aftersale_services,
+    }
+
+    return render(request, 'offers/get_all_offers.html', context)
         
-    else:
-        return redirect('login_user')
     
 
-def get_one_offer(request, id):
+# GET OFFER DESCRIPTION
+def get_one_offer(request, name, id):
 
-    if request.user.is_authenticated:
+    url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
+    debug_name = 'get_all_offers 126'
 
-        data = json.loads(request.body.decode('utf-8'))
-        name = data.get('name')
+    offers = sync_service.Offers(name)
+    result = offers.get_(request, url, debug_name)
 
-        print('************** get_one_offer id **************', id)
+    context = {
+        'result': result
+    }
 
-        # account = Allegro.objects.get(name=name)
-        secret = Secret.objects.get(account__name=name)
-        # print('**************secret**************', secret.access_token)
-        
-        # return HttpResponse('ok')
+    return render(request, 'offers/get_one_offer.html', context)
 
-        try:
-            url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
-            # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
-            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-            product_result = requests.get(url, headers=headers, verify=True)
-            result = product_result.json()
-            if 'error' in result:
-                error_code = result['error']
-                if error_code == 'invalid_token':
-                    # print('ERROR RESULT @@@@@@@@@', error_code)
-                    try:
-                        # Refresh the token
-                        new_token = get_next_token(request, secret.refresh_token)
-                        # Retry fetching orders with the new token
-                        return get_one_offer(request, id)
-                    except Exception as e:
-                        print('Exception @@@@@@@@@', e)
-                        return redirect('invalid_token')
-            # print('RESULT - get_one_offer - @@@@@@@@@', json.dumps(result, indent=4))
-            item_height = ""
-            item_width = ""
-            item_length = ""
-            item_wieght = ""
-            for item in result["productSet"][0]["product"]["parameters"]:
-                if item["id"] == "223329":
-                    item_height = item["values"][0]
-                    # print('************** get_one_offer item **************', item["values"][0])
-                if item["id"] == "223333":
-                    item_width = item["values"][0]
-                if item["id"] == "201321":
-                    item_length = item["values"][0]
-                if item["id"] == "17448":
-                    item_wieght = item["values"][0]
-            context = {
-                'result': product_result.json()
-                # "item_height": item_height,
-                # "item_width": item_width,
-                # "item_length": item_length,
-                # "item_wieght": item_wieght,
-            }
-            # post_product_from_lister(request, result)
-
-            # return render(request, 'get_one_offer.html', context)
-            return JsonResponse(
-                {
-                    'message': 'Stock updated successfully',
-                    'context': context,
-                }, 
-                status=200,
-            )
-            
-        except requests.exceptions.HTTPError as err:
-            raise SystemExit(err)
     
 
-def get_description(request, id, lister):
+def get_description(request, id, name):
 
-    if request.user.is_authenticated:
+    url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
+    debug_name = 'get_all_offers 126'
 
-        secret = Secret.objects.get(account__name=lister)
+    offers = sync_service.Offers(name)
+    result = offers.get_(request, url, debug_name)
 
-        # print(f"************ get_description ************ {lister}, {secret}")
+    csv_content = create_csv(result)
+    response = HttpResponse(csv_content, content_type='text/csv; charset=utf-8') #, content="pl"
+    response['Content-Disposition'] = 'attachment; filename="output.csv"'
 
-        try:
-            url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
-            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-            product_result = requests.get(url, headers=headers, verify=True)
-            result = product_result.json()
-            # Headers of the response
-            # print(" ************* Headers of the response: *************", product_result.headers)
-            # print('RESULT @@@@@@@@@', result)
-            if 'errors' in result:
-                # Handle errors in the response
-                errors = result['errors']
-                print(f"************ ERROR MESSAGE IN ERRORS ************ {errors}")
-                for error in errors:
-                    code = error.get('code')
-                    message = error.get('message')
-                    # print(f"************ ERROR MESSAGE IN ERRORS ************ {code}: {message}")
-            if 'error' in result:
-                error_code = result['error']
-                if error_code == 'invalid_token':
-                    # print('ERROR RESULT @@@@@@@@@', error_code)
-                    try:
-                        # Refresh the token
-                        new_token = get_next_token(request, secret.refresh_token)
-                        # Retry fetching orders with the new token
-                        return get_one_offer(request, id)
-                    except Exception as e:
-                        print('Exception @@@@@@@@@', e)
-                        return redirect('invalid_token')
-            # print('RESULT - get_description - @@@@@@@@@', json.dumps(result, indent=4))
-
-            csv_content = create_csv(result)
-            response = HttpResponse(csv_content, content_type='text/csv; charset=utf-8') #, content="pl"
-            response['Content-Disposition'] = 'attachment; filename="output.csv"'
-            return response
-        
-        except requests.exceptions.HTTPError as err:
-            raise SystemExit(err)
+    return response
     
 
 
@@ -406,17 +268,17 @@ def post_new_offer(request, id):
                         # Refresh the token
                         new_token = get_next_token(request, secret.refresh_token)
                         # Retry fetching orders with the new token
-                        return get_one_offer(request, id)
+                        return post_new_offer(request, id)
                     except Exception as e:
                         print('Exception @@@@@@@@@', e)
                         return redirect('invalid_token')
             # print('RESULT - post_new_offer - @@@@@@@@@', json.dumps(result, indent=4))
-            context = {
-                'result': product_result.json()
-            }
-            post_data = json.dumps(result, indent=4)
+            # context = {
+            #     'result': product_result.json()
+            # }
+            # post_data = json.dumps(result, indent=4)
             if len(ean) == 13:
-                post_product_from_lister(request, secret, ean, product_result.json())
+                post_product_from_lister(request, secret, ean, result)
                 return JsonResponse(
                 {
                     'message': 'Success',
@@ -446,14 +308,17 @@ def post_product_from_lister(request, secret, ean, post_data):
         # account = Allegro.objects.get(user=request.user)
         # secret = Secret.objects.get(account=account)
 
-        print('************** POST DATA **************', post_data)
+        # print('************** POST DATA **************', post_data)
         # print('************** ean **************', ean)
 
         name = post_data.get("name")
+        secret_name = secret.account.name
+        shippingRatesName = get_shipping_rates(request, secret_name)
+        print('************** shippingRatesName **************', shippingRatesName['shippingRates'][0]['name'])
         if "delivery" in post_data:
             delivery_info = post_data["delivery"]
             if "shippingRates" in delivery_info:
-                delivery_info["shippingRates"]["name"] = get_shipping_rates(request, name) #"Standard"
+                delivery_info["shippingRates"]["name"] = shippingRatesName['shippingRates'][0]['name']
                 del delivery_info["shippingRates"]["id"]
                 # print('************** delivery_info **************', delivery_info)
         # name = post_data.get("name")
@@ -499,7 +364,7 @@ def post_product_from_lister(request, secret, ean, post_data):
             # print('************** messageToSellerSettings **************', messageToSellerSettings)
         if "afterSalesServices" in post_data:
             afterSalesServices = post_data["afterSalesServices"]
-            afterSalesServices["name"] = get_aftersale_services(request, name) #"Standard"
+            afterSalesServices["name"] = get_aftersale_services(request, secret_name) #"Standard"
             del afterSalesServices["impliedWarranty"]["id"]
             del afterSalesServices["returnPolicy"]["id"]
             # print('************** afterSalesServices **************', afterSalesServices)
@@ -578,6 +443,7 @@ def post_product_from_lister(request, secret, ean, post_data):
         if response.status_code != 200:
             print(f"Error: {response.status_code}")
             print(response.headers)
+            print(response.content)
 
             return redirect('index')
 
@@ -665,13 +531,14 @@ def edit_offer_stock(request, id):
         new_costs = data.get('costs')
         currency = data.get('currency')
         status = data.get('status')
+        title = data.get('title')
         name = data.get('name')
 
         # print('**************new_stock**************', new_stock)
         # print('**************new_costs**************', new_costs)
         # print('**************currency**************', currency)
         # print('**************status**************', status)
-        # print('**************name**************', name)
+        print('************** edit_offer_stock title **************', title)
 
         # account = Allegro.objects.get(name=name)
         secret = Secret.objects.get(account__name=name)
@@ -683,6 +550,11 @@ def edit_offer_stock(request, id):
             "unit": "UNIT"
             },
         }
+
+        if title:
+            patch_data = {
+                 "name": title,
+            }
 
         if new_costs:
             patch_data = {
@@ -728,15 +600,25 @@ def edit_offer_stock(request, id):
                         print('Exception @@@@@@@@@', e)
                         return redirect('invalid_token')
                 
-            # print('RESULT - get_one_offer - @@@@@@@@@', json.dumps(result, indent=4))
-            return JsonResponse(
+            # print('RESULT - EDIT OFFER PATCH - @@@@@@@@@', json.dumps(result, indent=4))
+            print('RESULT - EDIT OFFER STATUS - @@@@@@@@@', product_result.status_code)
+            if product_result.status_code == 200:
+                return JsonResponse(
                     {
-                        'message': 'Stock updated successfully',
+                        'message': 'Item updated successfully',
+                        'newTitle': title,
                         'newValue': new_stock,
                         'newCosts': new_costs,
-                        'status': status,
+                        'status': product_result.status_code,
                     }, 
                     status=200,
+                )
+            else:
+                return JsonResponse(
+                    {
+                        'message': result,
+                        'UserMessage': 'Coś poszło nie tak'
+                    }
                 )
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)

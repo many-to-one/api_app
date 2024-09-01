@@ -51,7 +51,7 @@ async def async_get(request, *args, **kwargs):
                         # Get new token
                         get_next_token(request, refresh_token, name)
                         # Back to the home page
-                        return index()
+                        return index(request)
                     except Exception as e:
                         print('Exception @@@@@@@@@', e)
                         context = {'name': name}

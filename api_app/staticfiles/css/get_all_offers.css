@@ -243,6 +243,7 @@
 .name_offer {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     width: 25vw;
     color: var(--dark);
 }
@@ -256,6 +257,31 @@
 .name p {
     font-size: 14px;
 }
+
+.acti {
+    display: block;
+    /* align-items: center;
+    justify-content: center; */
+    width: 20vw;
+    text-decoration: none;
+    color: var(--dark);
+    cursor: pointer;
+}
+
+.acti_in {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 20vw;
+    height: 20px;
+    border: none;
+}
+
+/* .title_input {
+    width: 20vw;
+    height: 20px;
+    border: none;
+} */
 
 .stock {
     width: 25px;

@@ -124,7 +124,14 @@
                     >
                 <img class="photo" src="{{offer.primaryImage.url}}" alt="">
                 <div class="name_offer">
-                    <p class="name">{{ offer.name }}</p>
+                    <p class="acti" id="acti_{{ offer.id }}" onclick="editClick('{{ offer.id }}')">{{ offer.name }}</p>
+                    <p class="acti_in" id="acti_in_{{ offer.id }}">
+                        <input class="title_input" type="text" id="name_{{ offer.id }}" value="{{ offer.name }}">
+                        <img id="edit_{{ offer.id }}" class="icon edit__stock" src="{% static 'icons/edit2.png' %}" onclick="editTitle('{{ offer.id }}')">
+                        <div id="load_{{ offer.id }}" style="display: none;">
+                            <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
+                        </div>
+                    </p>
                     <p class="name">{{ offer.external.id }}</p>
                 </div>
                 <p class="costs_o_cont">
@@ -181,7 +188,7 @@
                     </div>
                 </a>
 
-                <a id="dscr_{{ offer.id }}_{{ forloop.counter }}" onclick="getDescr('{{ offer.id }}', '{{ forloop.counter }}')">
+                <a id="dscr_{{ offer.id }}_{{ forloop.counter }}" onclick="getOffer('{{ offer.id }}')">
                     <img class="icon" src="{% static 'icons/enter.png' %}" alt="">
                 </a>
             </div>
@@ -245,13 +252,28 @@
 
 
 
+        function editClick(oferId) {
+            var acti = document.getElementById('acti_' + oferId);
+            var acti_in = document.getElementById('acti_in_' + oferId);
+
+            if ( acti.style.display === 'block' ) {
+                acti.style.display = 'none';
+                acti_in.style.display = 'flex';
+            } else {
+                acti.style.display = 'block';
+                acti_in.style.display = 'none';
+            }
+        }
+
+
+
         function getDescr(offerId, counter) {
 
-            console.log('getDescr - lister, ean, counter', lister, counter);
+            console.log('getDescr - lister, ean, counter', name, counter);
 
             var csrftoken = getCookie('csrftoken');
 
-            var url = `/get_description/${offerId}/${lister}`;
+            var url = `/get_description/${offerId}/${name}`;
             window.location.href = url;
 
             // axios.post('/get_description/' + offerId + '/', { lister: lister }, {
@@ -270,6 +292,54 @@
 
         //     // Perform other actions based on the selected value
         // }
+
+
+        function editTitle(offerId) {
+
+            // Obtain CSRF token from cookie
+            var csrftoken = getCookie('csrftoken');
+
+            const load = document.getElementById('load_'+ offerId)
+            const edit = document.getElementById('edit_' + offerId);
+            load.style.display = 'block';
+            edit.style.display = 'none';
+
+            var nameId = document.getElementById('name');
+            var name = nameId.getAttribute('value');
+            console.log('editStock name clicked', name);
+
+            // Get the value from the input field
+            var newTitle = document.getElementById('name_' + offerId).value;
+            console.log('newTitle', newTitle)
+
+            var acti = document.getElementById('acti_' + offerId);
+
+            // Make an AJAX request to update the stock value
+            axios.patch('/edit_offer_stock/' + offerId + '/', { title: newTitle, name: name }, {
+            headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            })
+            .then(function(response) {
+                console.log('status', response.data.newValue)
+                if(response.status == 200) {
+                    // document.getElementById('load_'+ offerId).style.display = 'none';
+                    load.style.display = 'none';
+                    edit.style.display = 'flex';
+                    document.getElementById('stock_' + offerId).value = response.data.newValue;
+                    // location.reload();
+                    console.log('Success', response.data.newTitle)
+                    acti.textContent = response.data.newTitle
+                    editClick(offerId)
+                }
+            })
+            .catch(function(error) {
+                // Handle error
+                console.error('Error updating stock:', error);
+            });
+        }
+
+
 
         function editStock(offerId) {
 
@@ -405,32 +475,13 @@
 
         function getOffer(offerId) {
 
-        // Obtain CSRF token from cookie
-        var csrftoken = getCookie('csrftoken');
+            var csrftoken = getCookie('csrftoken');
+            var nameId = document.getElementById('name');
+            var name = nameId.getAttribute('value');
+            console.log('editStock name clicked', name);
+            var url = `/get_one_offer/${name}/${offerId}/`;
+            window.location.href = url
 
-        // Get the value from the input field
-        var nameId = document.getElementById('name');
-        var name = nameId.getAttribute('value');
-        console.log('editStock name clicked', name);
-
-        // Make an AJAX request to update the stock value
-        axios.post('/get_one_offer/' + offerId + '/', { name: name }, {
-            headers: {
-                    'X-CSRFToken': csrftoken
-                }
-        })
-            .then(function(response) {
-                console.log('status', response.data.newValue)
-                if(response.status == 200) {
-                    var context = response.data.context
-                    // console.log('Success', context)
-                    // window.location.href = 'http://127.0.0.1:8000/';
-                }
-            })
-            .catch(function(error) {
-                // Handle error
-                console.error('Error updating stock:', error);
-            });
         }
 
         function getEan (offerId, counter) {

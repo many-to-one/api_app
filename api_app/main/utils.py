@@ -110,12 +110,20 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr,
     print(' ######################### pickup_point_order external_id ######################### ', order_data["delivery"]["method"]["id"])
     print(' ######################### pickup_point_order offer_name ######################### ', order_data["delivery"]["address"]["phoneNumber"])
     print(' ######################### pickup_point_order descr + ######################### ', descr[3])
+    
+    if descr[0] == '':
+        length_value = 20
+    if descr[1] == '':
+        width_value = 20
+    if descr[2] == '':
+        height_value = 5
     if descr[3] != '':
         weight_value = math.ceil(float(descr[3]))
     else:
         weight_value = 1
+      
     # order_data["delivery"]["address"]["phoneNumber"] = "500600700"
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient() as client:  
       url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
       headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
       payload = {
@@ -166,19 +174,19 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr,
                       {
                         "type": "PACKAGE",
                         "length": {
-                          "value": 1, #descr[0],
+                          "value": length_value,
                           "unit": "CENTIMETER"
                         },
                         "width": {
-                          "value": 1, #descr[1],
+                          "value": width_value,
                           "unit": "CENTIMETER"
                         },
                         "height": {
-                          "value": 1, #descr[2],
+                          "value": height_value,
                           "unit": "CENTIMETER"
                         },
                         "weight": {
-                          "value": 1, #weight_value,
+                          "value": weight_value,
                           "unit": "KILOGRAMS"
                         }
                       }
@@ -220,6 +228,17 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr,
 async def cash_no_point_order(secret, order_data, external_id, offer_name, descr, user):
 
     """ Courier (cash) with pick up from seller """
+
+    if descr[0] == '':
+        length_value = 20
+    if descr[1] == '':
+        width_value = 20
+    if descr[2] == '':
+        height_value = 5
+    if descr[3] != '':
+        weight_value = math.ceil(float(descr[3]))
+    else:
+        weight_value = 1
 
     async with httpx.AsyncClient() as client:
       url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
@@ -270,19 +289,19 @@ async def cash_no_point_order(secret, order_data, external_id, offer_name, descr
                       {
                         "type": "PACKAGE",
                         "length": {
-                          "value": descr[0],
+                          "value": length_value,
                           "unit": "CENTIMETER"
                         },
                         "width": {
-                          "value": descr[1],
+                          "value": width_value,
                           "unit": "CENTIMETER"
                         },
                         "height": {
-                          "value": descr[2],
+                          "value": height_value,
                           "unit": "CENTIMETER"
                         },
                         "weight": {
-                          "value": descr[3],
+                          "value": weight_value,
                           "unit": "KILOGRAMS"
                         }
                       }
@@ -325,11 +344,22 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
     
     # print(' ######################### pickup_point_order secret ######################### ', secret.access_token)
     # print(' ######################### pickup_point_order order_data ######################### ', order_data["delivery"]["pickupPoint"]["id"]) 
-    print(' ######################### pickup_point_order delivery method id ######################### ', order_data["delivery"]["method"]["id"])
-    print(' ######################### pickup_point_order phoneNumber ######################### ', order_data["delivery"]["address"]["phoneNumber"])
-    print(' ######################### pickup_point_order descr [3] ######################### ', descr[3])
-    print(' ######################### pickup_point_order descr ######################### ', descr)
-    print(' ######################### pickup_point_order order_data ######################### ', order_data)
+    print(' ######################### no_pickup_point_order delivery method id ######################### ', order_data["delivery"]["method"]["id"])
+    print(' ######################### no_pickup_point_order phoneNumber ######################### ', order_data["delivery"]["address"]["phoneNumber"])
+    print(' ######################### no_pickup_point_order descr [3] ######################### ', descr[3])
+    print(' ######################### no_pickup_point_order descr ######################### ', descr)
+    print(' ######################### no_pickup_point_order order_data ######################### ', order_data)
+
+    if descr[0] == '':
+        length_value = 20
+    if descr[1] == '':
+        width_value = 20
+    if descr[2] == '':
+        height_value = 5
+    if descr[3] != '':
+        weight_value = math.ceil(float(descr[3]))
+    else:
+        weight_value = 1
     
     """ Courier with pick up from seller """
     async with httpx.AsyncClient() as client:
@@ -382,19 +412,19 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
                       {
                         "type": "PACKAGE",
                         "length": {
-                          "value": descr[0],
+                          "value": length_value,
                           "unit": "CENTIMETER"
                         },
                         "width": {
-                          "value": descr[1],
+                          "value": width_value,
                           "unit": "CENTIMETER"
                         },
                         "height": {
-                          "value": descr[2],
+                          "value": height_value,
                           "unit": "CENTIMETER"
                         },
                         "weight": {
-                          "value": descr[3],
+                          "value": weight_value,
                           "unit": "KILOGRAMS"
                         }
                       }
@@ -437,6 +467,17 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
 def nie_pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId):
     
     """ Courier without pick up from seller """
+
+    if descr[0] == '':
+        length_value = 20
+    if descr[1] == '':
+        width_value = 20
+    if descr[2] == '':
+        height_value = 5
+    if descr[3] != '':
+        weight_value = math.ceil(float(descr[3]))
+    else:
+        weight_value = 1
 
     url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
     headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
@@ -488,19 +529,19 @@ def nie_pickup_point_order(secret, order_data, external_id, offer_name, descr, c
                     {
                       "type": "PACKAGE",
                       "length": {
-                        "value": descr[0],
+                        "value": length_value,
                         "unit": "CENTIMETER"
                       },
                       "width": {
-                        "value": descr[1],
+                        "value": width_value,
                         "unit": "CENTIMETER"
                       },
                       "height": {
-                        "value": descr[2],
+                        "value": height_value,
                         "unit": "CENTIMETER"
                       },
                       "weight": {
-                        "value": descr[3],
+                        "value": weight_value,
                         "unit": "KILOGRAMS"
                       }
                     }

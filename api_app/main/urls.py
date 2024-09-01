@@ -24,7 +24,7 @@ urlpatterns = [
     # path('create_label_DPD/<uuid:id>/', orders_views_test.create_label_DPD, name='create_label_DPD'),
     # path('create_label_in_bulk_DPD/', orders_views_test.create_label_in_bulk_DPD, name='create_label_in_bulk_DPD'),
 
-    path('get_shipment_list/', orders_views.get_shipment_list, name='get_shipment_list'),
+    # path('get_shipment_list/', orders_views.get_shipment_list, name='get_shipment_list'),
     path('set_shipment_list/<str:name>/', orders_views.set_shipment_list, name='set_shipment_list'), ###
     path('prepare_get_shipment_status_id/<str:name>/', orders_views.prepare_get_shipment_status_id, name='prepare_get_shipment_status_id'),
     # path('get_shipment_status_id/<str:name>/', orders.get_shipment_status_id, name='get_shipment_status_id'),
@@ -38,11 +38,11 @@ urlpatterns = [
     path('add_offers_one/', set_offers_views.add_offers_one, name='add_offers_one'),
     path('add_discount/<str:name>/', set_offers_views.add_discount, name='add_discount'),
     path('add_copy_offers_one/', set_offers_views.add_copy_offers_one, name='add_copy_offers_one'),
-    path('get_one_offer/<str:id>/', offer_views.get_one_offer, name='get_one_offer'),
+    path('get_one_offer/<str:name>/<str:id>/', offer_views.get_one_offer, name='get_one_offer'),
     path('edit_offer_stock/<str:id>/', offer_views.edit_offer_stock, name='edit_offer_stock'),
     path('post_new_offer/<str:id>/', offer_views.post_new_offer, name='post_new_offer'),
     path('get_ean/', offer_views.get_ean, name='get_ean'),
-    path('get_description/<str:id>/<str:lister>/', offer_views.get_description, name='get_description'),
+    path('get_description/<str:id>/<str:name>/', offer_views.get_description, name='get_description'),
     path('edit_offers_csv/<str:name>/', offer_views.edit_offers_csv, name='edit_offers_csv'),
     path('download_all_offers/<str:name>/', offer_views.download_all_offers, name='download_all_offers'),
 
