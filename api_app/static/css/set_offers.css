@@ -70,6 +70,35 @@
     gap: 10px;
 }
 
+.set__tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.set__tooltip .tooltip__text {
+    visibility: hidden;
+    width: 100px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%; /* Position the tooltip above the text */
+    left: 50%;
+    margin-left: -50px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.set__tooltip:hover .tooltip__text {
+    visibility: visible;
+    opacity: 1;
+    z-index: 11;
+}
+
 .discount {
     display: flex;
     flex-direction: column;

@@ -101,20 +101,28 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr,
     """ Paczkomaty z podjazdem kuriera """
 
     if order_data["delivery"]["method"]["name"] == "Allegro Automat DHL POP BOX":
-      order_data["delivery"]["pickupPoint"]["id"] = 4591097
+      order_data["delivery"]["pickupPoint"]["id"] = 4591097 #/ 4594563
     if order_data["delivery"]["method"]["name"] ==  "Allegro Odbiór w Punkcie DHL":
         order_data["delivery"]["pickupPoint"]["id"] = 4509455
 
     # print(' ######################### pickup_point_order secret ######################### ', secret.access_token)
     # print(' ######################### pickup_point_order order_data ######################### ', order_data["delivery"]["pickupPoint"]["id"]) 
-    print(' ######################### pickup_point_order external_id ######################### ', order_data["delivery"]["method"]["id"])
+    print(' ######################### pickup_point_order external_id ######################### ', len(external_id))
+    print(' ######################### pickup_point_order delivery pickupPoint id ######################### ', order_data["delivery"]["pickupPoint"]["id"])
+    print(' ######################### pickup_point_order delivery method id ######################### ', order_data["delivery"]["method"]["id"])
     print(' ######################### pickup_point_order offer_name ######################### ', order_data["delivery"]["address"]["phoneNumber"])
     print(' ######################### pickup_point_order descr + ######################### ', descr[3])
     
+    description = external_id
+    if len(external_id) > 20:
+        description = ''
+    length_value = descr[0]
     if descr[0] == '':
         length_value = 20
+    width_value = descr[1]
     if descr[1] == '':
         width_value = 20
+    height_value = descr[2]
     if descr[2] == '':
         height_value = 5
     if descr[3] != '':
@@ -154,7 +162,7 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr,
                       "countryCode": order_data["buyer"]["address"]["countryCode"],
                       "email": order_data["buyer"]["email"],
                       "phone": order_data["delivery"]["address"]["phoneNumber"], #str(order_data["delivery"]["address"]["phoneNumber"]), #+48500600700"
-                      "point": order_data["delivery"]["pickupPoint"]["id"]
+                      "point": order_data["delivery"]["pickupPoint"]["id"] #4591097 
                     },
                     "pickup": {
                       "name": f"{user['firstName']} {user['lastName']}",
@@ -169,7 +177,7 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr,
                       "phone": user['phone'], #"+48500600700",
                     },
                     # "referenceNumber": external_id,
-                    "description": external_id,
+                    "description": description,
                     "packages": [
                       {
                         "type": "PACKAGE",
@@ -229,10 +237,18 @@ async def cash_no_point_order(secret, order_data, external_id, offer_name, descr
 
     """ Courier (cash) with pick up from seller """
 
+    print(' ######################### cash_no_point_order external_id ######################### ', external_id)
+
+    description = external_id
+    if len(external_id) > 20:
+        description = ''
+    length_value = descr[0]
     if descr[0] == '':
         length_value = 20
+    width_value = descr[1]
     if descr[1] == '':
         width_value = 20
+    height_value = descr[2]
     if descr[2] == '':
         height_value = 5
     if descr[3] != '':
@@ -284,7 +300,7 @@ async def cash_no_point_order(secret, order_data, external_id, offer_name, descr
                       "phone": user['phone'], #"+48500600700",
                     },
                     # "referenceNumber": external_id,
-                    "description": external_id,
+                    "description": description,
                     "packages": [
                       {
                         "type": "PACKAGE",
@@ -344,16 +360,23 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
     
     # print(' ######################### pickup_point_order secret ######################### ', secret.access_token)
     # print(' ######################### pickup_point_order order_data ######################### ', order_data["delivery"]["pickupPoint"]["id"]) 
+    print(' ######################### no_pickup_point_order external_id ######################### ', external_id)
     print(' ######################### no_pickup_point_order delivery method id ######################### ', order_data["delivery"]["method"]["id"])
     print(' ######################### no_pickup_point_order phoneNumber ######################### ', order_data["delivery"]["address"]["phoneNumber"])
     print(' ######################### no_pickup_point_order descr [3] ######################### ', descr[3])
     print(' ######################### no_pickup_point_order descr ######################### ', descr)
     print(' ######################### no_pickup_point_order order_data ######################### ', order_data)
 
+    description = external_id
+    if len(external_id) > 20:
+        description = ''
+    length_value = descr[0]
     if descr[0] == '':
         length_value = 20
+    width_value = descr[1]
     if descr[1] == '':
         width_value = 20
+    height_value = descr[2]
     if descr[2] == '':
         height_value = 5
     if descr[3] != '':
@@ -407,7 +430,7 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
                       "phone": user['phone'], #"+48500600700",
                     },
                     # "referenceNumber": external_id,
-                    "description": external_id,
+                    "description": description,
                     "packages": [
                       {
                         "type": "PACKAGE",
@@ -467,6 +490,8 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
 def nie_pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId):
     
     """ Courier without pick up from seller """
+
+    print(' ######################### nie_pickup_point_order external_id ######################### ', external_id)
 
     if descr[0] == '':
         length_value = 20

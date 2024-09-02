@@ -119,9 +119,25 @@
                         </div>
 
                         <div class="conto__row">
-                            <div class="add__set" onclick="copyGroupSet('{{ offer.id }}')">+</div>
-                            <div class="add__set" onclick="setSearchMore()">+</div>
-                            <div class="add__set" onclick="submitGroupCopySet('{{ offer.id }}')">>></div>
+                            <div class="add__set set__tooltip" onclick="copyGroupSet('{{ offer.id }}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
+                                  <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
+                                </svg>
+                                <span class="tooltip__text">Kopiuj zestawy</span>
+                            </div>
+                            <div class="add__set set__tooltip">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                                  <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                                </svg>
+                                <span class="tooltip__text">Usuń zestawy</span>
+                            </div>
+                            <div class="add__set set__tooltip" onclick="submitGroupCopySet('{{ offer.id }}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-square" viewBox="0 0 16 16">
+                                  <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm8.5 2.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293z"/>
+                                </svg>
+                                <span class="tooltip__text">Wklej zestawy</span>
+                            </div>
                         </div>
                     </div>    
                 </div>
@@ -138,7 +154,7 @@
                                 {% for s in set.1|slice:":1" %}
                                     {% for of in result.offers %}
                                         {% if s.id == of.id %}
-                                            <p class="set__name">{{ of.id }}</p>
+                                            <!-- <p class="set__name">{{ of.id }}</p> -->
                                             <input style="width: 20px;" id="disc__piece_{{ offer.id }}" value="{{ s.quantity }}" type="text" onchange="setCount('{{ offer.id }}')">
                                         {% endif %}
                                     {% endfor %}
@@ -147,7 +163,7 @@
                                     <p class="set__name" id="{{priceOfferFalse}}_{{set.id}}">{{ offer.sellingMode.price.amount }}</p>
                                     <p class="set__name" id="{{pcurrencyOfferFalse}}_{{set.id}}">{{ offer.sellingMode.price.currency }}</p>
                                 </div>
-                                <p class="set__name">{{ set.0.set_id }}</p>
+                                <!-- <p class="set__name">{{ set.0.set_id }}</p> -->
                                 {% for s in set.1|slice:"1:" %}
                                     {% for of in result.offers %}
                                         {% if s.id == of.id %}
@@ -166,9 +182,22 @@
                         </div>
                         <div class="conto__column">
                             <div class="conto__row">
-                                <div class="add__set" onclick="copySet('{{ set|escapejs }}')">+</div>
-                                <div class="add__set" onclick="setSearchMore()">+</div>
-                                <div class="add__set" onclick="setSearch()">+</div>
+                                <div 
+                                    class="add__set set__tooltip" 
+                                    onclick="copySet('{{ set|escapejs }}')"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
+                                      <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
+                                    </svg>
+                                    <span class="tooltip__text">Kopiuj zestaw</span>
+                                </div>
+                                <div class="add__set set__tooltip">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                      <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                                      <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                                    </svg>
+                                    <span class="tooltip__text">Usuń zestaw</span>
+                                </div>
                             </div>
                             <div class="discount">
                                 <label for="">Rabat zł</label>
@@ -183,7 +212,7 @@
                                 </div>
                                 <p>Cena po:</p>
                                 <p id="afterPrice_{{ set.0.set_id }}">{{ set.4.price_after }}</p>
-                                <button class="jsn_start" onclick="submitDiscount('{{ set.0.set_id }}', '{{ set.2.price }}')">Submit</button>
+                                <button class="jsn_start" onclick="submitDiscount('{{ set.0.set_id }}', '{{ set.2.price }}')">Dodaj</button>
                             </div>
                         </div>
                     </div>
@@ -195,9 +224,24 @@
                 {% if offer.publication.status == 'ACTIVE' %}
                     <div class="set__offers__line">
                         <div class="conto__row">
-                            <div class="add__set" onclick="setSearch('{{forloop.counter}}')">+</div>
-                            <div class="add__set" onclick="setsAdd('{{forloop.counter}}')">@</div>
-                            <div class="add__set" onclick="submitCopySet('{{ offer.id }}')">>></div>
+                            <div class="add__set set__tooltip" onclick="setSearch('{{forloop.counter}}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-square" viewBox="0 0 16 16">
+                                  <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+                                </svg>
+                                <span class="tooltip__text">Dodaj pojedyńczy zestaw</span>
+                            </div>
+                            <div class="add__set set__tooltip" onclick="setsAdd('{{forloop.counter}}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
+                                  <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
+                                </svg>
+                                <span class="tooltip__text">Dodaj multi zestaw</span>
+                            </div>
+                            <div class="add__set set__tooltip" onclick="submitCopySet('{{ offer.id }}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-square" viewBox="0 0 16 16">
+                                  <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm8.5 2.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293z"/>
+                                </svg>
+                                <span class="tooltip__text">Wklej zestaw</span>
+                            </div>
                         </div>
                     </div>
                 {% endif %}
@@ -461,6 +505,7 @@
                     }
                 }
                 console.log('copyGroupCont', copyGroupCont);
+                showMessage('Zestaw został skopiowany do schowka', 200)
             }
 
         }

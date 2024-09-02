@@ -84,12 +84,7 @@
                 <input type="file" id="jsonFile" name="jsonFile" accept="application/json">
                 <button type="button" onclick="uploadFile()">Upload</button>
             </form>
-    
-            <!-- <form class="csv_h" action="{% url 'edit_offers_csv' name %}" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <input type="file" name="file" placeholder="csv">CSV</input>
-                <button >Upload</button>
-            </form>  -->
+
         </div>
 
         <div class="offers_headers">
@@ -315,7 +310,7 @@
             var acti = document.getElementById('acti_' + offerId);
 
             // Make an AJAX request to update the stock value
-            axios.patch('/edit_offer_stock/' + offerId + '/', { title: newTitle, name: name }, {
+            axios.patch('/edit_offer_patch/' + offerId + '/', { title: newTitle, name: name }, {
             headers: {
                     'X-CSRFToken': csrftoken
                 }
@@ -330,6 +325,14 @@
                     // location.reload();
                     console.log('Success', response.data.newTitle)
                     acti.textContent = response.data.newTitle
+                    editClick(offerId)
+                } else {
+                    load.style.display = 'none';
+                    edit.style.display = 'flex';
+                    document.getElementById('stock_' + offerId).value = response.data.UserMessage;
+                    // location.reload();
+                    console.log('Success', response.data.UserMessage)
+                    acti.textContent = response.data.UserMessage
                     editClick(offerId)
                 }
             })
@@ -360,7 +363,7 @@
         console.log('newStock', newStock)
 
         // Make an AJAX request to update the stock value
-        axios.patch('/edit_offer_stock/' + offerId + '/', { stock: newStock, name: name }, {
+        axios.patch('/edit_offer_patch/' + offerId + '/', { stock: newStock, name: name }, {
             headers: {
                     'X-CSRFToken': csrftoken
                 }
@@ -406,7 +409,7 @@
             console.log('getCurrency', getCurrency)
 
             // Make an AJAX request to update the stock value
-            axios.patch('/edit_offer_stock/' + offerId + '/', { costs: newCosts, name: name, currency: getCurrency}, {
+            axios.patch('/edit_offer_patch/' + offerId + '/', { costs: newCosts, name: name, currency: getCurrency}, {
             headers: {
                     'X-CSRFToken': csrftoken
                 }
@@ -450,7 +453,7 @@
             console.log('newStatus', newStatus)
 
             // Make an AJAX request to update the stock value
-            axios.patch('/edit_offer_stock/' + offerId + '/', { status: newStatus, name: name }, {
+            axios.patch('/edit_offer_patch/' + offerId + '/', { status: newStatus, name: name }, {
             headers: {
                     'X-CSRFToken': csrftoken
                 }

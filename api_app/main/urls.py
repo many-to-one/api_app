@@ -1,6 +1,6 @@
 from django.urls import include, path
 from .views import *
-from .views_folder import accounts_views, orders_views_test, orders_views, orders, errors_views, offer_views, messages, generate_pdf, bulk_edit_views, set_offers_views
+from .views_folder import accounts_views, orders_views_test, orders_views, errors_views, offer_views, messages, generate_pdf, bulk_edit_views, set_offers_views
 from .ebay.views import *
 
 urlpatterns = [
@@ -39,11 +39,11 @@ urlpatterns = [
     path('add_discount/<str:name>/', set_offers_views.add_discount, name='add_discount'),
     path('add_copy_offers_one/', set_offers_views.add_copy_offers_one, name='add_copy_offers_one'),
     path('get_one_offer/<str:name>/<str:id>/', offer_views.get_one_offer, name='get_one_offer'),
-    path('edit_offer_stock/<str:id>/', offer_views.edit_offer_stock, name='edit_offer_stock'),
+    path('edit_offer_patch/<str:id>/', offer_views.edit_offer_patch, name='edit_offer_patch'),
     path('post_new_offer/<str:id>/', offer_views.post_new_offer, name='post_new_offer'),
     path('get_ean/', offer_views.get_ean, name='get_ean'),
     path('get_description/<str:id>/<str:name>/', offer_views.get_description, name='get_description'),
-    path('edit_offers_csv/<str:name>/', offer_views.edit_offers_csv, name='edit_offers_csv'),
+    # path('edit_offers_csv/<str:name>/', offer_views.edit_offers_csv, name='edit_offers_csv'),
     path('download_all_offers/<str:name>/', offer_views.download_all_offers, name='download_all_offers'),
 
     path('bulk_edit/<str:name>/<str:ed_value>/', bulk_edit_views.bulk_edit, name='bulk_edit'),
