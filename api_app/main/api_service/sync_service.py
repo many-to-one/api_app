@@ -117,9 +117,10 @@ class Offers:
                             # Retry the request with the new token
                             headers = {
                                 'Authorization': f'Bearer {new_token}', 
-                                'Accept': "application/vnd.allegro.public.v1+json"
+                                'Accept': "application/vnd.allegro.public.v1+json",
+                                'Content-Type': 'application/vnd.allegro.public.v1+json'
                             }
-                            json_result = requests.get(url, headers=headers, verify=True)
+                            json_result = requests.post(url, headers=headers, json=payload)
                             result = json_result.json()
 
                             # Update the secret with the new token
@@ -162,9 +163,10 @@ class Offers:
                             # Retry the request with the new token
                             headers = {
                                 'Authorization': f'Bearer {new_token}', 
-                                'Accept': "application/vnd.allegro.public.v1+json"
+                                'Accept': "application/vnd.allegro.public.v1+json",
+                                'Content-Type': 'application/vnd.allegro.public.v1+json'
                             }
-                            json_result = requests.get(url, headers=headers, verify=True)
+                            json_result = requests.patch(url, headers=headers, json=payload)
                             result = json_result.json()
 
                             # Update the secret with the new token

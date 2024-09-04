@@ -518,9 +518,41 @@ async def label_print(request, shipmentId, secret):
     
     if shipmentId is not None:
         response = await async_service.async_post(request, url=url, payload=payload, token=token, refresh_token=refresh_token, name=name, debug_name=debug_name)
-        return response.content
+        if response.status_code == 404:
+            # print(f"********************** label_prints **********************", shipmentId)
+            return await create_pdf_bytes(shipmentId)
+        else:
+            # print(f"********************** label_prints response.content **********************", shipmentId)
+            return response.content
     else:
         return None
+    
+
+from reportlab.lib.pagesizes import A6
+async def create_pdf_bytes(text):
+    # Create a BytesIO buffer to hold the PDF data
+    buffer = BytesIO()
+    
+    # Create a PDF canvas with A6 page size
+    pdf = canvas.Canvas(buffer, pagesize=A6)
+    
+    # Set the font and size
+    pdf.setFont("Helvetica", 10)
+    
+    # Insert the text into the PDF
+    pdf.drawString(10, 400, text)  # Adjusting coordinates to fit A6 size
+    
+    # Finalize the PDF
+    pdf.showPage()
+    pdf.save()
+
+    # Get the PDF data from the buffer
+    pdf_data = buffer.getvalue()
+    
+    # Close the buffer
+    buffer.close()
+
+    return pdf_data
         
 
 
@@ -544,6 +576,11 @@ async def make_order(request, secret, commandId, pickup):
             if pickup[0] == 'pickup':
                 asyncio.create_task(async_proposals_and_courier(request, result["shipmentId"], secret.access_token, commandId))
             return result["shipmentId"]
+        if result['status'] == 'ERROR':
+            print('@@@@@@@@@ MAKE ORDER ERROR @@@@@@@@@', result['errors'][0]['userMessage'])
+            return result['errors'][0]['userMessage']
+            # break
+
         
 
 ############ 12 ############
