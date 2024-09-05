@@ -78,25 +78,26 @@ def get_next_token(request, access_token, name):
 #################################################### CREATE ORDER ####################################################
 ######################################################################################################################
 
-async def test(secret, order_data, external_id, offer_name, descr, user):
+async def test(secret, order_data, external_id, offer_name, descr, user, packageTypes):
     print('********************** USER TEST ****************************', user)
+    print('********************** packageTypes TEST ****************************', packageTypes)
     result = None
     if order_data["delivery"]["pickupPoint"] == None:
         if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
-            result = await cash_no_point_order(secret, order_data, external_id, offer_name, descr, user)
+            result = await cash_no_point_order(secret, order_data, external_id, offer_name, descr, user, packageTypes)
         else:
-            result = await no_pickup_point_order(secret,  order_data, external_id, offer_name, descr, user)
+            result = await no_pickup_point_order(secret,  order_data, external_id, offer_name, descr, user, packageTypes)
     else:
         if order_data["payment"]["type"] == 'CASH_ON_DELIVERY': 
-            result = await cash_no_point_order(secret,  order_data, external_id, offer_name, descr, user)
+            result = await cash_no_point_order(secret,  order_data, external_id, offer_name, descr, user, packageTypes)
         # print('********************** pickupPoint ****************************', order_data["delivery"]["pickupPoint"])
         else:
             # result = pickup_point_order(secret,  order_data, external_id, offer_name, descr)
-            result = await pickup_point_order(secret,  order_data, external_id, offer_name, descr, user)
+            result = await pickup_point_order(secret,  order_data, external_id, offer_name, descr, user, packageTypes)
 
     return result
 
-async def pickup_point_order(secret, order_data, external_id, offer_name, descr, user):
+async def pickup_point_order(secret, order_data, external_id, offer_name, descr, user, packageTypes):
 
     """ Paczkomaty z podjazdem kuriera """
 
@@ -114,7 +115,7 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr,
     print(' ######################### pickup_point_order descr + ######################### ', descr[3])
     
     description = external_id
-    if len(external_id) > 20:
+    if len(external_id) > 20: # description (1 x 007-81) can't has more than 20 symbols
         description = ''
     length_value = descr[0]
     if descr[0] == '':
@@ -124,11 +125,20 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr,
         width_value = 20
     height_value = descr[2]
     if descr[2] == '':
-        height_value = 5
+        if order_data["delivery"]["method"]["name"] == "Allegro MiniPrzesyłka":
+            height_value = 2
+        else:
+          height_value = 5
     if descr[3] != '':
-        weight_value = math.ceil(float(descr[3]))
+        if order_data["delivery"]["method"]["name"] == "Allegro MiniPrzesyłka":
+            weight_value = 0.5
+        else:
+          weight_value = math.ceil(float(descr[3]))
     else:
-        weight_value = 1
+        if order_data["delivery"]["method"]["name"] == "Allegro MiniPrzesyłka":
+            weight_value = 0.5
+        else:
+          weight_value = 1
       
     # order_data["delivery"]["address"]["phoneNumber"] = "500600700"
     async with httpx.AsyncClient() as client:  
@@ -180,7 +190,7 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr,
                     "description": description,
                     "packages": [
                       {
-                        "type": "PACKAGE",
+                        "type": packageTypes, #"PACKAGE",
                         "length": {
                           "value": length_value,
                           "unit": "CENTIMETER"
@@ -233,7 +243,7 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr,
 
 
 
-async def cash_no_point_order(secret, order_data, external_id, offer_name, descr, user):
+async def cash_no_point_order(secret, order_data, external_id, offer_name, descr, user, packageTypes):
 
     """ Courier (cash) with pick up from seller """
 
@@ -249,12 +259,27 @@ async def cash_no_point_order(secret, order_data, external_id, offer_name, descr
     if descr[1] == '':
         width_value = 20
     height_value = descr[2]
+    # if descr[2] == '':
+    #     height_value = 5
+    # if descr[3] != '':
+    #     weight_value = math.ceil(float(descr[3]))
+    # else:
+    #     weight_value = 1
     if descr[2] == '':
-        height_value = 5
+        if order_data["delivery"]["method"]["name"] == "Allegro MiniPrzesyłka":
+            height_value = 2
+        else:
+          height_value = 5
     if descr[3] != '':
-        weight_value = math.ceil(float(descr[3]))
+        if order_data["delivery"]["method"]["name"] == "Allegro MiniPrzesyłka":
+            weight_value = 0.5
+        else:
+          weight_value = math.ceil(float(descr[3]))
     else:
-        weight_value = 1
+        if order_data["delivery"]["method"]["name"] == "Allegro MiniPrzesyłka":
+            weight_value = 0.5
+        else:
+          weight_value = 1
 
     async with httpx.AsyncClient() as client:
       url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
@@ -303,7 +328,7 @@ async def cash_no_point_order(secret, order_data, external_id, offer_name, descr
                     "description": description,
                     "packages": [
                       {
-                        "type": "PACKAGE",
+                        "type": packageTypes, #"PACKAGE",
                         "length": {
                           "value": length_value,
                           "unit": "CENTIMETER"
@@ -356,13 +381,13 @@ async def cash_no_point_order(secret, order_data, external_id, offer_name, descr
 
 
 
-async def no_pickup_point_order(secret, order_data, external_id, offer_name, descr, user):
+async def no_pickup_point_order(secret, order_data, external_id, offer_name, descr, user, packageTypes):
     
     # print(' ######################### pickup_point_order secret ######################### ', secret.access_token)
     # print(' ######################### pickup_point_order order_data ######################### ', order_data["delivery"]["pickupPoint"]["id"]) 
     print(' ######################### no_pickup_point_order external_id ######################### ', external_id)
     print(' ######################### no_pickup_point_order delivery method id ######################### ', order_data["delivery"]["method"]["id"])
-    print(' ######################### no_pickup_point_order phoneNumber ######################### ', order_data["delivery"]["address"]["phoneNumber"])
+    # print(' ######################### no_pickup_point_order phoneNumber ######################### ', order_data["delivery"]["address"]["phoneNumber"])
     print(' ######################### no_pickup_point_order descr [3] ######################### ', descr[3])
     print(' ######################### no_pickup_point_order descr ######################### ', descr)
     print(' ######################### no_pickup_point_order order_data ######################### ', order_data)
@@ -378,11 +403,20 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
         width_value = 20
     height_value = descr[2]
     if descr[2] == '':
-        height_value = 5
+        if order_data["delivery"]["method"]["name"] == "Allegro MiniPrzesyłka":
+            height_value = 2
+        else:
+          height_value = 5
     if descr[3] != '':
-        weight_value = math.ceil(float(descr[3]))
+        if order_data["delivery"]["method"]["name"] == "Allegro MiniPrzesyłka":
+            weight_value = 0.5
+        else:
+          weight_value = math.ceil(float(descr[3]))
     else:
-        weight_value = 1
+        if order_data["delivery"]["method"]["name"] == "Allegro MiniPrzesyłka":
+            weight_value = 0.5
+        else:
+          weight_value = 1
     
     """ Courier with pick up from seller """
     async with httpx.AsyncClient() as client:
@@ -402,7 +436,7 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
                       # "state": "AL",
                       "countryCode": "PL",
                       "email": user['email'],#"8awgqyk6a5+cub31c122@allegrogroup.pl",
-                      "phone": user['phone'], #"+48500600700",
+                      "phone": "+48500600700", #user['phone'],
                     },
                     "receiver": {
                       "name": "Jan Kowalski", #order_data["buyer"]["firstName"],
@@ -414,7 +448,7 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
                       # "state": "AL",
                       "countryCode": order_data["buyer"]["address"]["countryCode"],
                       "email": order_data["buyer"]["email"],
-                      "phone": "+48500600700", #order_data["delivery"]["address"]["phoneNumber"],
+                      "phone": order_data["delivery"]["address"]["phoneNumber"],
                       # "point": order_data["delivery"]["pickupPoint"]["id"]
                     },
                     "pickup": {
@@ -427,23 +461,24 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
                       # "state": "AL",
                       "countryCode": "PL",
                       "email": user['email'],#"8awgqyk6a5+cub31c122@allegrogroup.pl",
-                      "phone": user['phone'], #"+48500600700",
+                      "phone": user['phone'],
+                      "point": "995721", #(Poczta Polska Warszawa)
                     },
                     # "referenceNumber": external_id,
                     "description": description,
                     "packages": [
                       {
-                        "type": "PACKAGE",
+                        "type": packageTypes, #"PACKAGE",
                         "length": {
-                          "value": length_value,
+                          "value": 2, #length_value,
                           "unit": "CENTIMETER"
                         },
                         "width": {
-                          "value": width_value,
+                          "value": 32, #width_value,
                           "unit": "CENTIMETER"
                         },
                         "height": {
-                          "value": height_value,
+                          "value": 23, #height_value,
                           "unit": "CENTIMETER"
                         },
                         "weight": {
@@ -487,7 +522,7 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
 
 # ---@#$
 
-def nie_pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId):
+def nie_pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId, packageTypes):
     
     """ Courier without pick up from seller """
 
@@ -498,11 +533,20 @@ def nie_pickup_point_order(secret, order_data, external_id, offer_name, descr, c
     if descr[1] == '':
         width_value = 20
     if descr[2] == '':
-        height_value = 5
+        if order_data["delivery"]["method"]["name"] == "Allegro MiniPrzesyłka":
+            height_value = 2
+        else:
+          height_value = 5
     if descr[3] != '':
-        weight_value = math.ceil(float(descr[3]))
+        if order_data["delivery"]["method"]["name"] == "Allegro MiniPrzesyłka":
+            weight_value = 0.5
+        else:
+          weight_value = math.ceil(float(descr[3]))
     else:
-        weight_value = 1
+        if order_data["delivery"]["method"]["name"] == "Allegro MiniPrzesyłka":
+            weight_value = 0.5
+        else:
+          weight_value = 1
 
     url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
     headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
@@ -552,7 +596,7 @@ def nie_pickup_point_order(secret, order_data, external_id, offer_name, descr, c
                   "description": external_id,
                   "packages": [
                     {
-                      "type": "PACKAGE",
+                      "type": packageTypes, #"PACKAGE",
                       "length": {
                         "value": length_value,
                         "unit": "CENTIMETER"

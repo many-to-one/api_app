@@ -306,7 +306,7 @@ async def set_shipment_list_async(request, ids, secret, address):
 ############ 3 ############
 async def get_shipment_id(request, secret, name, deliveryMethod):
 
-    """ Umowa własna z przewoźnikiem """
+    """ credentialsId i packageTypes przewoźnika """
 
     url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/delivery-services"
     token = secret.access_token
@@ -319,12 +319,22 @@ async def get_shipment_id(request, secret, name, deliveryMethod):
         # print('************ LOOP ID ************', r['id'])
         # print('************ LOOP NAME ************', r['name'])
         if r['name'] == deliveryMethod and r['marketplaces'] == ['allegro-pl']:
+            print('************ $$$ get_shipment_id packageTypes 322 $$$ ************', r)
             print('************ get_shipment_id ************', r['name'], '----', r['id']['deliveryMethodId'], '----', r['marketplaces'])
-            if r['id']['credentialsId']:
-                print('************ r[id][credentialsId] ************', r['id']['credentialsId'])
-                return r['id']['credentialsId']
-            else:
-                return None
+            # if r['id']['credentialsId']:
+            #     print('************ r[id][credentialsId] ************', r['id']['credentialsId'])
+            #     res = {
+            #         "credentialsId": r['id']['credentialsId'],
+            #         "packageTypes": r['packageTypes'][0]
+            #     }
+            #     return res #r['id']['credentialsId']
+            # else:
+            #     return None
+            res = {
+                    "credentialsId": r['id']['credentialsId'],
+                    "packageTypes": r['packageTypes'][0]
+                }
+            return res
         
 
 ############ 4 ############
@@ -383,13 +393,14 @@ async def get_offer_descr(request, id, secret):
 ############ 7 ############
 async def set_shipment_list_q(results, secret):
 
-    print('********************** set_shipment_list_q results ****************************', results[1:])
+    print('********************** set_shipment_list_q results ****************************', results[0]['packageTypes'])
     print('********************** set_shipment_list_q secret ****************************', secret)
         # print('********************** results[0] ****************************', results[0])
         # print('********************** results[1] ****************************', results[1])
 
     tasks = []
     externalId = set()
+    packageTypes = results[0]['packageTypes']
 
     if results:
         for order_data in results[1:]:
@@ -399,6 +410,7 @@ async def set_shipment_list_q(results, secret):
                         externalId.add(f"{line_item['offer']['external']['id']} x {line_item['quantity']}")
                     external_id = ', '.join(sorted(externalId))
                     # print('********************** external_id ****************************', external_id)
+                    # print('********************** order_data all ****************************', order_data)
                     descr_ = order_data[1]
                     user_ = order_data[2]
                     print('********************** order_data here [descr_ , user_] ****************************', descr_ ,user_)
@@ -427,6 +439,7 @@ async def set_shipment_list_q(results, secret):
                             external_id,  
                             order_data[1],
                             order_data[2],
+                            packageTypes,
                         )
                     ))
                     externalId = set()
