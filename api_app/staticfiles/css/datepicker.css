@@ -1,0 +1,19 @@
+/* Custom style for the datepicker container */
+.datepicker {
+    background-color: #f4f4f4 !important;
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+}
+
+/* Change the color of the selected date */
+.datepicker table tr td.active,
+.datepicker table tr td.active:hover {
+    background-color: #007bff !important;
+    color: white !important;
+}
+
+/* Custom position (optional) */
+.datepicker-dropdown {
+    margin-left: 65vw;
+    width: 160px;
+}

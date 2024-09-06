@@ -84,6 +84,7 @@
     max-width: 150px;
     height: 50px;
     border: none;
+    cursor: pointer;
   }
 
   .btns_cont {

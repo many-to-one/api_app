@@ -462,7 +462,7 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
                       "countryCode": "PL",
                       "email": user['email'],#"8awgqyk6a5+cub31c122@allegrogroup.pl",
                       "phone": user['phone'],
-                      "point": "995721", #(Poczta Polska Warszawa)
+                      # "point": "995721", #(Poczta Polska Warszawa)
                     },
                     # "referenceNumber": external_id,
                     "description": description,
