@@ -20,6 +20,7 @@
         <h3 id="seller" data-value="{{ name }}">Przetwarzam zamówienia, proszę czekać..</h3>
 
         <div name="link" value="{{ result }}"></div>
+        <div name="couriers" value="{{ couriers }}"></div>
 
         <div id="question">
             <p id="text"></p>
@@ -37,27 +38,42 @@
                     <br>
                     <br>
 
-                    {% for courier in couriers %}
                     <div class="p-2 w-100">
                         <div style="display: flex; gap: 10px;">
-                            <div class="p-2">{{ courier }}</div>
-                            <div class="p-2">                    
-                                <select 
-                                    id="{{ courier }}"
-                                    class="form-select mb-2 w-100" 
-                                    aria-label="Default select example"
-                                    onchange="selectedCourierTime('{{courier}}')"
-                                >
-                                    <option selected>godziny podjazdu</option>
-                                    <option value="10:00 - 12:00">10:00 - 12:00</option>
-                                    <option value="12:00 - 14:00">12:00 - 14:00</option>
-                                    <option value="14:00 - 16:00">14:00 - 16:00</option>
-                                </select>
-                            </div>
+                                <div class="p-2">DHL</div>
+                                <div class="p-2">
+                                    <select 
+                                        id="DHL"
+                                        class="form-select mb-2 w-100" 
+                                        aria-label="Default select example"
+                                        onchange="selectedCourierTime('DHL')"
+                                    >
+                                        <option selected>godziny podjazdu</option>
+                                        <option value="11:30 13:30">11:30 - 13:30</option>
+                                        <option value="13:30 15:30">13:30 - 15:30</option>
+                                        <option value="15:30 17:30">15:30- 17:30</option>
+                                    </select>
+                                </div>
+                                <br>
+
+                                <div class="p-2">UPS</div>
+                                <div class="p-2">
+                                    <select 
+                                        id="UPS"
+                                        class="form-select mb-2 w-100" 
+                                        aria-label="Default select example"
+                                        onchange="selectedCourierTime('UPS')"
+                                    >
+                                        <option selected>godziny podjazdu</option>
+                                        <option value="10:00 12:00">09:00 - 12:00</option>
+                                        <option value="10:00 12:00">10:00 - 12:00</option>
+                                        <option value="12:00 14:00">12:00 - 14:00</option>
+                                        <option value="14:00 16:00">14:00 - 16:00</option>
+                                    </select>
+                                </div>
+                                <br>
                         </div>
                     </div>
-                    <br>                
-                    {% endfor %}
 
                 </div>
                 <br>
@@ -94,13 +110,34 @@
                 });
             });
 
+        
             function selectedCourierTime(courier) {
+                // console.log("selectedCourierTime:", courier );
+                var couriers = document.querySelectorAll('div[name="couriers"]');
                 var selectedCourier = document.getElementById(courier);
                 var selectedValue = selectedCourier.value;
-                console.log(courier + ": " + selectedValue);
-                pickupCont.push({ [courier]: selectedValue });
+                for(let name of couriers) {
+                    var courierNames = name.getAttribute('value');
+                    let cleanedValue = courierNames
+                    .replace(/None/g, 'null')       // Replace None with null
+                    .replace(/'/g, '"')             // Replace single quotes with double quotes
+                    .replace(/\(\{/g, '{')          // Remove tuple notation (e.g., ( becomes { )
+                    .replace(/\}\)/g, '}')
+                    .replace(/True/g, 'true')        // Replace True with true
+                    .replace(/False/g, 'false');
+                    let parsedValue;
+                    parsedValue = JSON.parse(cleanedValue);
+                    for(let c of parsedValue) {
+                        // console.log("for:", c );
+                        if (c.includes(courier)) {
+                            console.log("courier:", c);
+                                pickupCont.push({ [c]: selectedValue });
+                        }
+                    }
+                }
                 console.log("pickupCont:", pickupCont);
             }
+
 
             function getCSRFToken() {
                 const cookieValue = document.cookie.match(/csrftoken=([^ ;]+)/)[1];
@@ -155,8 +192,8 @@
                                 console.log("Match found:", courier);
                                 val["courier"] = {
                                     "name": key,                   
-                                    "hours": courier[key],
-                                    "date": datepicker_,          
+                                    // "hours": courier[key],
+                                    "date": `${datepicker_} ${courier[key]}`,          
                                 };
                             }
                         }

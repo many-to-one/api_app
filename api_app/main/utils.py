@@ -99,7 +99,7 @@ async def test(secret, order_data, external_id, offer_name, descr, user, package
 
 async def pickup_point_order(secret, order_data, external_id, offer_name, descr, user, packageTypes):
 
-    """ Paczkomaty z podjazdem kuriera """
+    """ With pick up from seller """
 
     if order_data["delivery"]["method"]["name"] == "Allegro Automat DHL POP BOX":
       order_data["delivery"]["pickupPoint"]["id"] = 4591097 #/ 4594563
@@ -139,6 +139,9 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr,
             weight_value = 0.5
         else:
           weight_value = 1
+
+    delivery_name = order_data["delivery"]["method"]["name"] 
+    delivery_name = delivery_name.replace('ł', 'l').replace('ó', 'o').replace(',', '')
       
     # order_data["delivery"]["address"]["phoneNumber"] = "500600700"
     async with httpx.AsyncClient() as client:  
@@ -186,7 +189,7 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr,
                       "email": user['email'],#"8awgqyk6a5+cub31c122@allegrogroup.pl",
                       "phone": user['phone'], #"+48500600700",
                     },
-                    "referenceNumber": order_data["delivery"]["method"]["name"],
+                    "referenceNumber": delivery_name, #"Allegro Odbior w Punkcie UPS", 
                     "description": description,
                     "packages": [
                       {
@@ -281,6 +284,9 @@ async def cash_no_point_order(secret, order_data, external_id, offer_name, descr
         else:
           weight_value = 1
 
+    delivery_name = order_data["delivery"]["method"]["name"] 
+    delivery_name = delivery_name.replace('ł', 'l').replace('ó', 'o').replace(',', '')
+
     async with httpx.AsyncClient() as client:
       url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
       headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
@@ -324,7 +330,7 @@ async def cash_no_point_order(secret, order_data, external_id, offer_name, descr
                       "email": user['email'],#"8awgqyk6a5+cub31c122@allegrogroup.pl",
                       "phone": user['phone'], #"+48500600700",
                     },
-                    "referenceNumber": order_data["delivery"]["method"]["name"],
+                    "referenceNumber": delivery_name,
                     "description": description,
                     "packages": [
                       {
@@ -383,14 +389,22 @@ async def cash_no_point_order(secret, order_data, external_id, offer_name, descr
 
 async def no_pickup_point_order(secret, order_data, external_id, offer_name, descr, user, packageTypes):
     
+    """ With courier pickup from seller & without client point(to home) """
+    
     # print(' ######################### pickup_point_order secret ######################### ', secret.access_token)
-    # print(' ######################### pickup_point_order order_data ######################### ', order_data["delivery"]["pickupPoint"]["id"]) 
+    # print(' ######################### pickup_point_order order_data ######################### ', order_data["delivery"]["pickupPoint"]) 
     print(' ######################### no_pickup_point_order external_id ######################### ', external_id)
     print(' ######################### no_pickup_point_order delivery method id ######################### ', order_data["delivery"]["method"]["id"])
     # print(' ######################### no_pickup_point_order phoneNumber ######################### ', order_data["delivery"]["address"]["phoneNumber"])
     print(' ######################### no_pickup_point_order descr [3] ######################### ', descr[3])
     print(' ######################### no_pickup_point_order descr ######################### ', descr)
     print(' ######################### no_pickup_point_order order_data ######################### ', order_data)
+
+    pickupPointId = order_data["delivery"]["pickupPoint"]
+    if order_data["delivery"]["method"]["name"] == "Allegro MiniPrzesyłka" or \
+      order_data["delivery"]["method"]["name"] == "Allegro Przesyłka polecona":
+        pickupPointId = '995721'
+    
 
     description = external_id
     if len(external_id) > 20:
@@ -417,6 +431,9 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
             weight_value = 0.5
         else:
           weight_value = 1
+
+    delivery_name = order_data["delivery"]["method"]["name"] 
+    delivery_name = delivery_name.replace('ł', 'l').replace('ó', 'o').replace(',', '')
     
     """ Courier with pick up from seller """
     async with httpx.AsyncClient() as client:
@@ -462,9 +479,9 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
                       "countryCode": "PL",
                       "email": user['email'],#"8awgqyk6a5+cub31c122@allegrogroup.pl",
                       "phone": user['phone'],
-                      # "point": "995721", #(Poczta Polska Warszawa)
+                      "point": pickupPointId, #"995721", #(Poczta Polska Warszawa)
                     },
-                    "referenceNumber": order_data["delivery"]["method"]["name"],
+                    "referenceNumber": delivery_name,
                     "description": description,
                     "packages": [
                       {
@@ -520,7 +537,7 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
 # =====================================================================================================================================================================================
 
 
-# ---@#$
+# ---@#$ NIE UŻYWANA FUNKCJA
 
 def nie_pickup_point_order(secret, order_data, external_id, offer_name, descr, credentialsId, packageTypes):
     
@@ -547,6 +564,9 @@ def nie_pickup_point_order(secret, order_data, external_id, offer_name, descr, c
             weight_value = 0.5
         else:
           weight_value = 1
+
+    delivery_name = order_data["delivery"]["method"]["name"] 
+    [item.replace('ł', 'l').replace('ó', 'o').replace(',', '') for item in delivery_name]
 
     url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
     headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json", 'Content-type': "application/vnd.allegro.public.v1+json"} 
@@ -592,7 +612,7 @@ def nie_pickup_point_order(secret, order_data, external_id, offer_name, descr, c
                     "phone": "+48500600700",
                     # "point": "A1234567"
                   },
-                  "referenceNumber": order_data["delivery"]["method"]["name"],
+                  "referenceNumber": delivery_name,
                   "description": external_id,
                   "packages": [
                     {

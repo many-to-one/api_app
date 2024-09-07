@@ -77,18 +77,18 @@ async def async_post(request, *args, **kwargs):
 
     try:
         async with httpx.AsyncClient() as client:
-            if debug_name == "get_pickup_proposals 647":
+            if debug_name == "label_print 469":
                 headers = {
                     'Authorization': f'Bearer {token}', 
-                    # 'Accept': "application/octet-stream", 
-                    'Accept': 'application/vnd.allegro.public.v1+json',
+                    'Accept': "application/octet-stream", 
+                    # 'Accept': 'application/vnd.allegro.public.v1+json',
                     'Content-type': "application/vnd.allegro.public.v1+json"
                 } 
             else:
                 headers = {
                         'Authorization': f'Bearer {token}', 
-                        'Accept': "application/octet-stream", 
-                        # 'Accept': 'application/vnd.allegro.public.v1+json',
+                        # 'Accept': "application/octet-stream", 
+                        'Accept': 'application/vnd.allegro.public.v1+json',
                         'Content-type': "application/vnd.allegro.public.v1+json"
                     } 
             response = await client.post(url, headers=headers, json=payload) 

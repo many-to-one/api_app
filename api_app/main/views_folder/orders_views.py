@@ -258,7 +258,7 @@ def set_shipment_list(request, name):
 
         couriers = []
         for res in results_:
-            print('********************** referenceNumber ****************************', res["input"]["referenceNumber"])
+            # print('********************** referenceNumber ****************************', res["input"]["referenceNumber"])
             couriers.append(res["input"]["referenceNumber"])
 
         context = {
@@ -659,14 +659,14 @@ async def get_pickup_proposals(request, secret, shipmentId, courier):
 
     """ Proponowana data odbioru paczek przez kuriera """
 
-    print(' ^^^^^^^^^^^^^^^^^ courier["date"] ^^^^^^^^^^^^^^^^^ ', courier)
+    print(' ^^^^^^^^^^^^^^^^^ courier["date"] ^^^^^^^^^^^^^^^^^ 662 ', courier["date"][11:])
 
     url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickup-proposals" 
     payload = {
                 "shipmentIds": [
                     shipmentId
                 ],
-                  "readyDate": courier["date"]#"2024-09-10" #ship_time
+                  "readyDate": courier["date"][:10]#"2024-09-10" #ship_time
             }
     token = secret.access_token
     refresh_token = secret.refresh_token
@@ -675,9 +675,18 @@ async def get_pickup_proposals(request, secret, shipmentId, courier):
 
     response = await async_service.async_post(request, url=url, payload=payload, token=token, refresh_token=refresh_token, name=name, debug_name=debug_name)
     result = response.json()
-    print(' ^^^^^^^^^^^^^^^^^ GET PICKUP PROPOSAILS ^^^^^^^^^^^^^^^^^ ', result)
-    # print(' ^^^^^^^^^^^^^^^^^ CHECKED PICKUP PROPOSAILS DATE ^^^^^^^^^^^^^^^^^ ', result[0]["proposals"][0]["proposalItems"][-2]["id"])
-    return  result[0]["proposals"][0]["proposalItems"][0]["id"] #"ANY"
+    print(' ^^^^^^^^^^^^^^^^^ GET PICKUP PROPOSAILS RESULT ALL 678 ^^^^^^^^^^^^^^^^^ ', result)
+    for res in result[0]["proposals"][0]["proposalItems"]:
+        print(' ^^^^^^^^^^^^^^^^^ GET PICKUP PROPOSAILS 679 ^^^^^^^^^^^^^^^^^ ', res)
+        if courier["date"] == res["name"]:
+            print(' ^^^^^^^^^^^^^^^^^ courier["date"] == res["name"] ^^^^^^^^^^^^^^^^^ ', res, res["id"])
+            return  res["id"]
+        elif courier["date"][11:] == res["name"][11:]:
+            print(' ^^^^^^^^^^^^^^^^^ courier["date"][12:] == res["name"][12:] ^^^^^^^^^^^^^^^^^ ', res, res["id"])
+            return  res["id"] #result[0]["proposals"][0]["proposalItems"][0]["id"]
+        else:
+            print(' ^^^^^^^^^^^^^^^^^ CHECKED PICKUP PROPOSAILS ANY 683 ^^^^^^^^^^^^^^^^^ ', res, courier)
+            return  "ANY" #for Inpost
 
 
 
