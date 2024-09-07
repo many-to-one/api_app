@@ -18,14 +18,6 @@
     {% block content %}
 
         <h3 id="seller" data-value="{{ name }}">Przetwarzam zamówienia, proszę czekać..</h3>
-        <!-- {% for res in result %}
-            <div 
-                name="link"
-                value="{{ res.commandId }}:{{ res.name }}"
-            >
-
-            </div>
-        {% endfor %} -->
 
         <div name="link" value="{{ result }}"></div>
 
@@ -44,11 +36,18 @@
                     </div>
                     <br>
                     <br>
+
+                    {% for courier in couriers %}
                     <div class="p-2 w-100">
                         <div style="display: flex; gap: 10px;">
-                            <div class="p-2">DPD</div>
-                            <div class="p-2">
-                                <select id="dpd" class="form-select mb-2 w-100" aria-label="Default select example" onchange="dpdSelectedValue()">
+                            <div class="p-2">{{ courier }}</div>
+                            <div class="p-2">                    
+                                <select 
+                                    id="{{ courier }}"
+                                    class="form-select mb-2 w-100" 
+                                    aria-label="Default select example"
+                                    onchange="selectedCourierTime('{{courier}}')"
+                                >
                                     <option selected>godziny podjazdu</option>
                                     <option value="10:00 - 12:00">10:00 - 12:00</option>
                                     <option value="12:00 - 14:00">12:00 - 14:00</option>
@@ -57,53 +56,9 @@
                             </div>
                         </div>
                     </div>
-                    <br>
-    
-                    <div class="p-2 w-100">
-                        <div style="display: flex; gap: 10px;">
-                            <div class="p-2">DHL</div>
-                            <div class="p-2">
-                                <select class="form-select mb-2 w-100" aria-label="Default select example">
-                                    <option selected>godziny podjazdu</option>
-                                    <option value="1">10:00 - 12:00</option>
-                                    <option value="2">12:00 - 14:00</option>
-                                    <option value="3">14:00 - 16:00</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <br>
-    
-                    <div class="p-2 w-100">
-                        <div style="display: flex; gap: 10px;">
-                            <div class="p-2">UPS</div>
-                            <div class="p-2">
-                                <select class="form-select mb-2 w-100" aria-label="Default select example">
-                                    <option selected>godziny podjazdu</option>
-                                    <option value="1">10:00 - 12:00</option>
-                                    <option value="2">12:00 - 14:00</option>
-                                    <option value="3">14:00 - 16:00</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <br>
-    
-                    <div class="p-2 w-100"></div>
-                        <div style="display: flex; gap: 10px;">
-                            <div class="p-2">Orlen</div>
-                            <div class="p-2">
-                                <select class="form-select mb-2 w-100" aria-label="Default select example">
-                                    <option selected>godziny podjazdu</option>
-                                    <option value="1">10:00 - 12:00</option>
-                                    <option value="2">12:00 - 14:00</option>
-                                    <option value="3">14:00 - 16:00</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <br>
-    
+                    <br>                
+                    {% endfor %}
+
                 </div>
                 <br>
                 <button onclick="setToSend(event)">Zamów</button>
@@ -129,7 +84,7 @@
 
         <script>
 
-            const dpdCont = []
+            const pickupCont = []
 
             $(document).ready(function(){
                 $('#datepicker').datepicker({
@@ -139,11 +94,12 @@
                 });
             });
 
-            function dpdSelectedValue() {
-                var dpdSelect = document.getElementById("dpd");
-                var selectedValue = dpdSelect.value;
-                console.log("Selected value: " + selectedValue);
-                dpdCont.push({'DPD': selectedValue})
+            function selectedCourierTime(courier) {
+                var selectedCourier = document.getElementById(courier);
+                var selectedValue = selectedCourier.value;
+                console.log(courier + ": " + selectedValue);
+                pickupCont.push({ [courier]: selectedValue });
+                console.log("pickupCont:", pickupCont);
             }
 
             function getCSRFToken() {
@@ -192,15 +148,31 @@
                     .replace(/False/g, 'false');
                     let parsedValue;
                     parsedValue = JSON.parse(cleanedValue);
+                    for (let val of parsedValue) {
+                        for (let courier of pickupCont) {
+                            let key = Object.keys(courier)[0];  // Get the key of the current object
+                            if (val["input"]["referenceNumber"] === key) {
+                                console.log("Match found:", courier);
+                                val["courier"] = {
+                                    "name": key,                   
+                                    "hours": courier[key],
+                                    "date": datepicker_,          
+                                };
+                            }
+                        }
+                    }
                     console.log('parsedValue:', parsedValue);
+
                     context.push({ parsedValue });
                     // let commandId = parsedValue[0] ? parsedValue[0].commandId : null;
                     // console.log('commandId:', commandId, 'name:', seller);
                     // context.push({ commandId, seller });
                 });
 
-                console.log('context:', context[0]['parsedValue']);
+                // console.log('context:', context[0]['parsedValue']);
                 var serializedContext = JSON.stringify(context[0]['parsedValue']);
+                console.log('serializedContext:', serializedContext);
+                console.log('datepicker_:', datepicker_);
 
                 var url = `/prepare_get_shipment_status_id/${seller}/?ids=` + encodeURIComponent(serializedContext) + '&pickup=' + 'pickup';
                 window.location.href = url;

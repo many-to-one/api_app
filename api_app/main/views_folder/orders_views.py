@@ -256,9 +256,15 @@ def set_shipment_list(request, name):
                 # invoice_task_res = invoice_task.delay('5')
                 # print('********************** get_invoice ****************************', invoice)
 
+        couriers = []
+        for res in results_:
+            print('********************** referenceNumber ****************************', res["input"]["referenceNumber"])
+            couriers.append(res["input"]["referenceNumber"])
+
         context = {
             'result': results_,
             'name': name,
+            'couriers': couriers,
             }
         
         print('********************** context 921 ****************************', context)
@@ -477,7 +483,7 @@ async def get_shipment_status_id(request, name, secret, ids, pickup):
     # print('********************** TIME TIME TIME 0 SECONDS secret ****************************', secret)
     # await asyncio.sleep(2)
     for item in ids:
-        print('@@@@@@@@@ ITEM @@@@@@@@@', item)
+        print('@@@@@@@@@ ITEM @@@@@@@@@', item['courier'])
 
 
     # order_tasks = [
@@ -496,7 +502,7 @@ async def get_shipment_status_id(request, name, secret, ids, pickup):
         tasks.append(asyncio.create_task(
             label_print(
                 request, 
-                await make_order(request, secret, item['commandId'], pickup), 
+                await make_order(request, secret, item['commandId'], item['courier'], pickup), 
                 secret
                 )
             ))
@@ -571,7 +577,7 @@ async def create_pdf_bytes(text):
 
 ############ 11 ############
 pickup_tasks = []
-async def make_order(request, secret, commandId, pickup):
+async def make_order(request, secret, commandId, courier, pickup):
 
     url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands/{commandId}"
     token = secret.access_token
@@ -580,6 +586,7 @@ async def make_order(request, secret, commandId, pickup):
     debug_name = 'label_print 469'
 
     print('@@@@@@@@@ MAKE ORDER commandId @@@@@@@@@', commandId)
+    print('@@@@@@@@@ MAKE ORDER courier @@@@@@@@@', courier)
     # time.sleep(2)
     while True:
         result = await async_service.async_get(request, name=name, url=url, token=token, refresh_token=refresh_token, debug_name=debug_name)
@@ -587,7 +594,7 @@ async def make_order(request, secret, commandId, pickup):
         if result["shipmentId"] is not None:
             print('@@@@@@@@@ MAKE ORDER result["shipmentId"] @@@@@@@@@', result["shipmentId"])
             if pickup[0] == 'pickup':
-                asyncio.create_task(async_proposals_and_courier(request, result["shipmentId"], secret, commandId))
+                asyncio.create_task(async_proposals_and_courier(request, result["shipmentId"], secret, commandId, courier))
             return result["shipmentId"]
         if result['status'] == 'ERROR':
             print('@@@@@@@@@ MAKE ORDER ERROR @@@@@@@@@', result['errors'][0]['userMessage'])
@@ -635,12 +642,12 @@ async def base64_to_pdf_bulk(base64_data_list):
 
 
 ############ 13 ############
-async def async_proposals_and_courier(request, shipmentId, secret, commandId):
+async def async_proposals_and_courier(request, shipmentId, secret, commandId, courier):
 
     """ Zamówić Kuriera z datą i godziną odbioru """
 
     # Zyskujemy proponowane daty odbioru przez przewoźnika
-    pickupDateProposalId = await get_pickup_proposals(request, secret, shipmentId)
+    pickupDateProposalId = await get_pickup_proposals(request, secret, shipmentId, courier)
     if pickupDateProposalId:
         # po wybraniu daty i godziny odbioru zamawiamy kuriera
         await get_courier(request, shipmentId, commandId, pickupDateProposalId, secret)
@@ -648,16 +655,18 @@ async def async_proposals_and_courier(request, shipmentId, secret, commandId):
 
 
 ############ 14 ############
-async def get_pickup_proposals(request, secret, shipmentId):
+async def get_pickup_proposals(request, secret, shipmentId, courier):
 
     """ Proponowana data odbioru paczek przez kuriera """
+
+    print(' ^^^^^^^^^^^^^^^^^ courier["date"] ^^^^^^^^^^^^^^^^^ ', courier)
 
     url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickup-proposals" 
     payload = {
                 "shipmentIds": [
                     shipmentId
                 ],
-                  "readyDate": "2024-09-10" #ship_time
+                  "readyDate": courier["date"]#"2024-09-10" #ship_time
             }
     token = secret.access_token
     refresh_token = secret.refresh_token
