@@ -256,15 +256,48 @@ def set_shipment_list(request, name):
                 # invoice_task_res = invoice_task.delay('5')
                 # print('********************** get_invoice ****************************', invoice)
 
+        keywords = {
+            'DHL': [
+                '11:30 13:30',
+                '13:30 15:30',
+                '15:30 17:30',
+            ], 
+            'UPS': [
+                "09:00 12:00",
+                "10:00 12:00",
+                "11:00 13:00",
+                "12:00 14:00",
+                "14:00 16:00",
+            ], 
+            'DPD': [
+                '09:00 12:00',
+                '13:00 16:00',
+            ], 
+            'ORLEN': [
+                '11:30 13:30',
+                '13:30 15:30',
+                '15:30 17:30',
+            ], 
+            'Pocztex': [
+                '08:00 15:00',
+            ],
+        }
+        selects = set()
         couriers = []
         for res in results_:
-            # print('********************** referenceNumber ****************************', res["input"]["referenceNumber"])
+            print('********************** referenceNumber ****************************', res["input"]["referenceNumber"])
+            for courier, times in keywords.items():
+                if courier in res["input"]["referenceNumber"]:
+                    selects.add((courier, tuple(times)))
             couriers.append(res["input"]["referenceNumber"])
+        
+        print(' ********************** SELECTS ********************** ', selects)
 
         context = {
             'result': results_,
             'name': name,
             'couriers': couriers,
+            'selects': selects,
             }
         
         print('********************** context 921 ****************************', context)
@@ -482,27 +515,19 @@ async def get_shipment_status_id(request, name, secret, ids, pickup):
 
     # print('********************** TIME TIME TIME 0 SECONDS secret ****************************', secret)
     # await asyncio.sleep(2)
+    courier = None
     for item in ids:
-        print('@@@@@@@@@ ITEM @@@@@@@@@', item['courier'])
-
-
-    # order_tasks = [
-    #     tasks.append(asyncio.create_task(
-    #         label_print(
-    #             request, 
-    #             await make_order(request, secret, item['commandId'], pickup), 
-    #             secret
-    #             )
-    #         ))
-    #     # for commandId, name in parts_list
-    #     for item in ids
-    # ]
+        if item.get('courier'):  # Safely check if 'courier' exists
+            courier = item.get('courier')
+            print('@@@@@@@@@ ITEM COURIER @@@@@@@@@', item.get('courier'))
+        else:
+            print('@@@@@@@@@ ITEM @@@@@@@@@', item)
 
     for item in ids:
         tasks.append(asyncio.create_task(
             label_print(
                 request, 
-                await make_order(request, secret, item['commandId'], item['courier'], pickup), 
+                await make_order(request, secret, item['commandId'], courier, pickup), 
                 secret
                 )
             ))
@@ -586,14 +611,15 @@ async def make_order(request, secret, commandId, courier, pickup):
     debug_name = 'label_print 469'
 
     print('@@@@@@@@@ MAKE ORDER commandId @@@@@@@@@', commandId)
-    print('@@@@@@@@@ MAKE ORDER courier @@@@@@@@@', courier)
+    # print('@@@@@@@@@ MAKE ORDER courier @@@@@@@@@', courier)
     # time.sleep(2)
     while True:
         result = await async_service.async_get(request, name=name, url=url, token=token, refresh_token=refresh_token, debug_name=debug_name)
         print('@@@@@@@@@ MAKE ORDER result @@@@@@@@@', result)
         if result["shipmentId"] is not None:
             print('@@@@@@@@@ MAKE ORDER result["shipmentId"] @@@@@@@@@', result["shipmentId"])
-            if pickup[0] == 'pickup':
+            # if pickup[0] == 'pickup':
+            if courier is not None:
                 asyncio.create_task(async_proposals_and_courier(request, result["shipmentId"], secret, commandId, courier))
             return result["shipmentId"]
         if result['status'] == 'ERROR':

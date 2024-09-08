@@ -141,7 +141,8 @@ async def pickup_point_order(secret, order_data, external_id, offer_name, descr,
           weight_value = 1
 
     delivery_name = order_data["delivery"]["method"]["name"] 
-    delivery_name = delivery_name.replace('ł', 'l').replace('ó', 'o').replace(',', '')
+    delivery_name = delivery_name.replace('ł', 'l').replace('ó', 'o').replace('ż', 'z').replace(',', '').replace('.', ' ').replace('(', ' ').replace(')', ' ')
+    # print(' ######################### pickup_point_order delivery_name ######################### ', delivery_name)
       
     # order_data["delivery"]["address"]["phoneNumber"] = "500600700"
     async with httpx.AsyncClient() as client:  
@@ -285,7 +286,7 @@ async def cash_no_point_order(secret, order_data, external_id, offer_name, descr
           weight_value = 1
 
     delivery_name = order_data["delivery"]["method"]["name"] 
-    delivery_name = delivery_name.replace('ł', 'l').replace('ó', 'o').replace(',', '')
+    delivery_name = delivery_name.replace('ł', 'l').replace('ó', 'o').replace('ż', 'z').replace(',', '').replace('.', ' ')
 
     async with httpx.AsyncClient() as client:
       url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands"
@@ -433,7 +434,7 @@ async def no_pickup_point_order(secret, order_data, external_id, offer_name, des
           weight_value = 1
 
     delivery_name = order_data["delivery"]["method"]["name"] 
-    delivery_name = delivery_name.replace('ł', 'l').replace('ó', 'o').replace(',', '')
+    delivery_name = delivery_name.replace('ł', 'l').replace('ó', 'o').replace('ż', 'z').replace(',', '').replace('.', ' ')
     
     """ Courier with pick up from seller """
     async with httpx.AsyncClient() as client:
