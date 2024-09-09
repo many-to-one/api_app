@@ -132,11 +132,13 @@ def get_all_offers(request, name):
     shipping_rates = get_shipping_rates(request, name)
     aftersale_services = get_aftersale_services(request, name)
 
-    url = f"https://api.allegro.pl.allegrosandbox.pl/sale/offers"
+    # url = f"https://api.allegro.pl.allegrosandbox.pl/sale/offers"
+    url = 'sale/offers'
     debug_name = 'get_all_offers 126'
 
     offers = sync_service.Offers(name)
     result = offers.get_(request, url, debug_name)
+    print(' @@@@@@@@@ - get_all_offers - @@@@@@@@@ ', json.dumps(result, indent=4))
 
     context = {
         'result': result,  

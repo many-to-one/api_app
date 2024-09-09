@@ -20,7 +20,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import asyncio
 import httpx
 from asgiref.sync import sync_to_async, async_to_sync
-from ..views import index
+from ..views import get_new_authorization_code, index
 
 REDIRECT_URI = os.getenv('REDIRECT_URI')      # wprowadź redirect_uri
 AUTH_URL = os.getenv('AUTH_URL')
@@ -49,7 +49,8 @@ async def async_get(request, *args, **kwargs):
                 if error_code == 'invalid_token':
                     try:
                         # Get new token
-                        get_next_token(request, refresh_token, name)
+                        # get_next_token(request, refresh_token, name)
+                        get_new_authorization_code(request, context['name'])
                         # Back to the home page
                         return index(request)
                     except Exception as e:
@@ -95,7 +96,8 @@ async def async_post(request, *args, **kwargs):
             if response == '401' :
                 try:
                     # Get new token
-                    get_next_token(request, refresh_token, name)
+                    # get_next_token(request, refresh_token, name)
+                    get_new_authorization_code(request, context['name'])
                     # Back to the home page
                     return index()
                 except Exception as e:

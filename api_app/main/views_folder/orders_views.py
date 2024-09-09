@@ -11,7 +11,7 @@ import PyPDF2
 from django.conf import settings
 from dotenv import load_dotenv
 
-from ..api_service import async_service
+from ..api_service import async_service, sync_service
 
 from ..celery_tasks.invoices_tasks import *
 load_dotenv()
@@ -50,47 +50,29 @@ def get_orders(request, name, delivery, status, client, fromDate, toDate):
 
         secret = Secret.objects.get(account__name=name)
         # print('*********************** NAME get_orders **********************', secret.account.name)
+        debug_name = 'get_orders 34'
+        url = 'order/checkout-forms' #"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms"
+        orders = sync_service.Offers(name)
+        result = orders.get_(request, url, debug_name)
+        result.update({'name': secret.account.name})
+        all_results.append(result)
+        print('*********************** ALL ORDERS **********************', result["checkoutForms"][0])
+        if client == 'all':
+            all_client_results.append(result)
+        else:
+            # print('&&&&&&&&&&&&&&&&& I HERE $$$$$$$$$$$$$$$$$')
+            for result in all_results:
+                for res in result["checkoutForms"]:
+                    if res["buyer"]["login"] == client:
+                        all_client_results.append(res)
 
-        try:
-            url = "https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms"
-            headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-            # print('***********************secret.access_token**********************', secret.access_token)
-            product_result = requests.get(url, headers=headers, verify=True)
-            result = product_result.json()
-            result.update({'name': secret.account.name})
-            all_results.append(result)
-            if client == 'all':
-                all_client_results.append(result)
-            else:
-                print('&&&&&&&&&&&&&&&&& I HERE $$$$$$$$$$$$$$$$$')
-                for result in all_results:
-                    for res in result["checkoutForms"]:
-                        if res["buyer"]["login"] == client:
-                            all_client_results.append(res)
-                            print('############### BUYER ###############', res["buyer"]["login"])
-            if 'error' in result:
-                error_code = result['error']
-                if error_code == 'invalid_token':
-                    # print('ERROR RESULT @@@@@@@@@', error_code)
-                    try:
-                        # Refresh the token
-                        new_token = get_next_token(request, secret.refresh_token, name)
-                        # Retry fetching orders with the new token
-                        return get_orders(request)
-                    except Exception as e:
-                        print('Exception @@@@@@@@@', e)
-                        context = {'name': name}
-                        return render(request, 'invalid_token.html', context)
-            # print('*********************** ALL ORDERS IN **********************', json.dumps(result, indent=4))
-        except requests.exceptions.HTTPError as err:
-            raise SystemExit(err)
         
         if fromDate and toDate and status == 'all' and delivery == 'all' and client == 'all':
             for result in all_client_results:
                 for res in result['checkoutForms']:
                     # print('***************** boughtAt ++ *******************', res['lineItems'][0]['boughtAt'][:10])
                     if res['lineItems'][0]['boughtAt'][:10] >= fromDate and res['lineItems'][0]['boughtAt'][:10] <= toDate:
-                        print('***************** boughtAt ++ *******************', res['lineItems'][0]['boughtAt'][:10])
+                        # print('***************** boughtAt ++ *******************', res['lineItems'][0]['boughtAt'][:10])
                         result_with_name.append(res)
 
         if fromDate and toDate and status != 'all' and delivery == 'all' and client == 'all':
@@ -130,7 +112,7 @@ def get_orders(request, name, delivery, status, client, fromDate, toDate):
                 pass
                 # print('***************** RESULTS FOR STATUS *******************', json.dumps(result, indent=4))
         if status == 'all' and delivery != 'all' and client == 'all' and fromDate == 'all' and toDate == 'all':
-            print('***************** status != all *******************')
+            # print('***************** status != all *******************')
             for result in all_client_results:
                 # print('***************** RESULTS FOR STATUS *******************', json.dumps(result, indent=4))
                 for res in result["checkoutForms"]:
@@ -141,25 +123,25 @@ def get_orders(request, name, delivery, status, client, fromDate, toDate):
         if status == 'all' and delivery != 'all' and client != 'all' and fromDate == 'all' and toDate == 'all':
             for result in all_client_results:
                 if result["buyer"]["login"] == client and result["delivery"]["method"]["name"] == delivery:
-                    print('***************** RESULTS now*******************', json.dumps(result, indent=4))
+                    # print('***************** RESULTS now*******************', json.dumps(result, indent=4))
                     result_with_name.append(result)
 
 
         if delivery == 'all' and status != 'all' and client == 'all' and fromDate == 'all' and toDate == 'all': 
-            print('***************** delivery == all *******************')
+            # print('***************** delivery == all *******************')
             for result in all_client_results:
                 for res in result["checkoutForms"]:
                     if res['fulfillment']['status'] == status:
                         result_with_name.append(res)
         if status != 'all' and delivery == 'all' and client != 'all' and fromDate == 'all' and toDate == 'all':
             for result in all_client_results:
-                print('***************** RESULTS now*******************', result["fulfillment"]["status"])
+                # print('***************** RESULTS now*******************', result["fulfillment"]["status"])
                 if result["buyer"]["login"] == client and result["fulfillment"]["status"] == status:
                     # print('***************** RESULTS now*******************', json.dumps(result, indent=4))
                     result_with_name.append(result)
 
         if delivery != 'all' and status != 'all' and client == 'all' and fromDate == 'all' and toDate == 'all':
-            print('YYYYYYYYYYYYYYYYEEEEEEEEEEEEEEEESSSSSSSSSSSSSSSSSSSSs')
+            # print('YYYYYYYYYYYYYYYYEEEEEEEEEEEEEEEESSSSSSSSSSSSSSSSSSSSs')
             for result in all_client_results:
                 # print('***************** RESULTS FOR STATUS *******************', json.dumps(result, indent=4))
                 for res in result["checkoutForms"]:
@@ -168,7 +150,7 @@ def get_orders(request, name, delivery, status, client, fromDate, toDate):
                         # print('***************** RESULTS FOR STATUS *******************', json.dumps(res, indent=4))
                         result_with_name.append(res)
         if delivery != 'all' and status != 'all' and client != 'all' and fromDate == 'all' and toDate == 'all':
-            print('@@@@@@@@@@@@@@ here @@@@@@@@@@@@@@@@@@')
+            # print('@@@@@@@@@@@@@@ here @@@@@@@@@@@@@@@@@@')
             for result in all_client_results:
                 # print('@@@@@@@@@@@@@@ here @@@@@@@@@@@@@@@@@@', json.dumps(result, indent=4))
                 if result['fulfillment']['status'] == status and result['delivery']['method']["name"] == delivery and result["buyer"]["login"] == client:
@@ -184,14 +166,14 @@ def get_orders(request, name, delivery, status, client, fromDate, toDate):
 
         if delivery == 'all' and status == 'all' and client != 'all' and fromDate == 'all' and toDate == 'all':
             for result in all_client_results:
-                print('***************** COMMON *******************', json.dumps(result, indent=4))
+                # print('***************** COMMON *******************', json.dumps(result, indent=4))
                 result_with_name.append(result)
 
 
         # Paginate the results
         paginator = Paginator(result_with_name, 50)  # Show 10 results per page
-        print('***************** paginator.count *******************', paginator.count)
-        print('***************** paginator.num_pages *******************', paginator.num_pages)
+        # print('***************** paginator.count *******************', paginator.count)
+        # print('***************** paginator.num_pages *******************', paginator.num_pages)
 
         page_number = request.GET.get('page')
         try:
@@ -274,9 +256,7 @@ def set_shipment_list(request, name):
                 '13:00 16:00',
             ], 
             'ORLEN': [
-                '11:30 13:30',
-                '13:30 15:30',
-                '15:30 17:30',
+                '13:00 15:00',
             ], 
             'Pocztex': [
                 '08:00 15:00',
@@ -347,7 +327,7 @@ async def get_shipment_id(request, secret, name, deliveryMethod):
 
     """ credentialsId i packageTypes przewoźnika """
 
-    url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/delivery-services"
+    url = 'shipment-management/delivery-services' #f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/delivery-services"
     token = secret.access_token
     refresh_token = secret.refresh_token
     name = secret.account.name
@@ -390,7 +370,7 @@ async def combined_task(request, id, name, offerId, secret, address):
 ############ 5 ############
 async def create_label(request, id, name, secret):
 
-    url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}"
+    url = f'order/checkout-forms/{id}' #f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}"
     token = secret.access_token
     refresh_token = secret.refresh_token
     name = secret.account.name
@@ -403,7 +383,7 @@ async def create_label(request, id, name, secret):
 ############ 6 ############
 async def get_offer_descr(request, id, secret):
 
-    url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
+    url = f'sale/product-offers/{id}' #f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
     token = secret.access_token
     refresh_token = secret.refresh_token
     name = secret.account.name
@@ -548,7 +528,7 @@ async def get_shipment_status_id(request, name, secret, ids, pickup):
 ############ 10 ############
 async def label_print(request, shipmentId, secret):
 
-    url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/label" 
+    url = 'shipment-management/label' #f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/label" 
     payload = {
                 "shipmentIds": [
                 shipmentId
@@ -604,7 +584,7 @@ async def create_pdf_bytes(text):
 pickup_tasks = []
 async def make_order(request, secret, commandId, courier, pickup):
 
-    url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands/{commandId}"
+    url = f'shipment-management/shipments/create-commands/{commandId}' #f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/shipments/create-commands/{commandId}"
     token = secret.access_token
     refresh_token = secret.refresh_token
     name = secret.account.name
@@ -687,7 +667,7 @@ async def get_pickup_proposals(request, secret, shipmentId, courier):
 
     print(' ^^^^^^^^^^^^^^^^^ courier["date"] ^^^^^^^^^^^^^^^^^ 662 ', courier["date"][11:])
 
-    url = f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickup-proposals" 
+    url = 'shipment-management/pickup-proposals' #f"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickup-proposals" 
     payload = {
                 "shipmentIds": [
                     shipmentId
@@ -719,7 +699,7 @@ async def get_pickup_proposals(request, secret, shipmentId, courier):
 ############ 15 ############
 async def get_courier(request, shipmentId, commandId, pickupDateProposalId, secret):
 
-    url = "https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickups/create-commands"  
+    url = 'shipment-management/pickups/create-commands' #"https://api.allegro.pl.allegrosandbox.pl/shipment-management/pickups/create-commands"  
     payload = {
                 "commandId": commandId,
                 "input": {

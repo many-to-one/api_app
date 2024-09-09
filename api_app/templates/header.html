@@ -22,6 +22,7 @@
                         {% endfor %}
                     </div>
                 </li>
+
                 <li class="dropdown">
                     <span>Zamówienia</span>
                     <div class="dropdown-content">
@@ -30,11 +31,22 @@
                         {% endfor %}
                     </div>
                 </li>
+
+                <li class="dropdown"></li>
+                    <span>Oferty_</span>
+                    <div class="dropdown-content">
+                        {% for name in accounts  %}
+                        <a href="{% url 'offers_listing' name %}">{{ name }}</a>
+                        {% endfor %}
+                    </div>
+                </li>
+
                 <li class="dropdown">
                     <span>Adres Wysyłki</span>
                     <div class="dropdown-content">
                         {% for name in accounts  %}
-                        <a href="{% url 'get_address' name %}">{{ name }}</a>
+                        <!-- <a href="{% url 'get_address' name %}">{{ name }}</a> -->
+                        <a href="{% url 'offers_listing' name %}">{{ name }}</a>
                         {% endfor %}
                     </div>
                 </li>

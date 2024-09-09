@@ -20,13 +20,14 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import asyncio
 import httpx
 from asgiref.sync import sync_to_async, async_to_sync
-from ..views import index
+from ..views import get_new_authorization_code, index
 
 REDIRECT_URI = os.getenv('REDIRECT_URI')      # wprowadź redirect_uri
 AUTH_URL = os.getenv('AUTH_URL')
 TOKEN_URL = os.getenv('TOKEN_URL')
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
+ENVIRONMENT = os.getenv('ENVIRONMENT')
 
 
 class Offers:
@@ -60,14 +61,15 @@ class Offers:
                 'Authorization': f'Bearer {context["token"]}', 
                 'Accept': "application/vnd.allegro.public.v1+json"
             }
-            json_result = requests.get(url, headers=headers, verify=True)
+            json_result = requests.get(f'{ENVIRONMENT}/{url}', headers=headers, verify=True)
             result = json_result.json()
             if 'error' in result:
                 error_code = result['error']
                 if error_code == 'invalid_token':
                     try:
                         # Refresh the token and retry the request
-                        new_token = get_next_token(request, context['refresh_token'], context['name'])
+                        # new_token = get_next_token(request, context['refresh_token'], context['name'])
+                        new_token = get_new_authorization_code(request, context['name'])
                         if new_token:
                             # Retry the request with the new token
                             headers = {
@@ -112,7 +114,8 @@ class Offers:
                 if error_code == 'invalid_token':
                     try:
                         # Refresh the token and retry the request
-                        new_token = get_next_token(request, context['refresh_token'], context['name'])
+                        # new_token = get_next_token(request, context['refresh_token'], context['name'])
+                        new_token = get_new_authorization_code(request, context['name'])
                         if new_token:
                             # Retry the request with the new token
                             headers = {
@@ -158,7 +161,8 @@ class Offers:
                 if error_code == 'invalid_token':
                     try:
                         # Refresh the token and retry the request
-                        new_token = get_next_token(request, context['refresh_token'], context['name'])
+                        # new_token = get_next_token(request, context['refresh_token'], context['name'])
+                        new_token = get_new_authorization_code(request, context['name'])
                         if new_token:
                             # Retry the request with the new token
                             headers = {
