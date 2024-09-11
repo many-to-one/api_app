@@ -27,6 +27,7 @@ AUTH_URL = os.getenv('AUTH_URL')
 TOKEN_URL = os.getenv('TOKEN_URL')
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
+ENVIRONMENT = os.getenv('ENVIRONMENT')
 
 
 
@@ -42,15 +43,15 @@ async def async_get(request, *args, **kwargs):
     try:
         async with httpx.AsyncClient() as client:
             headers = {'Authorization': f'Bearer {token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-            json_result = await client.get(url, headers=headers) #verify=True
+            json_result = await client.get(f'{ENVIRONMENT}/{url}', headers=headers) #verify=True
             result = json_result.json()
             if 'error' in result:
                 error_code = result['error']
                 if error_code == 'invalid_token':
                     try:
                         # Get new token
-                        # get_next_token(request, refresh_token, name)
-                        get_new_authorization_code(request, context['name'])
+                        get_next_token(request, refresh_token, name)
+                        # get_new_authorization_code(request, context['name'])
                         # Back to the home page
                         return index(request)
                     except Exception as e:
@@ -92,12 +93,12 @@ async def async_post(request, *args, **kwargs):
                         'Accept': 'application/vnd.allegro.public.v1+json',
                         'Content-type': "application/vnd.allegro.public.v1+json"
                     } 
-            response = await client.post(url, headers=headers, json=payload) 
+            response = await client.post(f'{ENVIRONMENT}/{url}', headers=headers, json=payload) 
             if response == '401' :
                 try:
                     # Get new token
-                    # get_next_token(request, refresh_token, name)
-                    get_new_authorization_code(request, context['name'])
+                    get_next_token(request, refresh_token, name)
+                    # get_new_authorization_code(request, context['name'])
                     # Back to the home page
                     return index()
                 except Exception as e:

@@ -54,9 +54,10 @@ def get_orders(request, name, delivery, status, client, fromDate, toDate):
         url = 'order/checkout-forms' #"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms"
         orders = sync_service.Offers(name)
         result = orders.get_(request, url, debug_name)
+        print('*********************** ALL ORDERS **********************', result)
         result.update({'name': secret.account.name})
         all_results.append(result)
-        print('*********************** ALL ORDERS **********************', result["checkoutForms"][0])
+        # print('*********************** ALL ORDERS **********************', result["checkoutForms"][0])
         if client == 'all':
             all_client_results.append(result)
         else:

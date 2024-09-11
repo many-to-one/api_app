@@ -29,8 +29,8 @@ def get_next_token(request, access_token, name):
 
     print(f'@#@#@#@# get_next_token access_token #@#@#@# --------- {access_token}')
     
-    account = Allegro.objects.get(name=name)
-    secret = Secret.objects.get(account=account)
+    # account = Allegro.objects.get(name=name)
+    secret = Secret.objects.get(account__name=name)
     print(f'@#@#@#@# secret #@#@#@# --------- {secret}')
 
     # try:

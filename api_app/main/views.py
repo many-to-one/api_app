@@ -1,3 +1,4 @@
+import base64
 import json
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -79,12 +80,35 @@ def get_authorization_code(request):
             print("An error occurred:", e)
             return redirect('logout_user')
         
+
+# def get_access_token():
+#     try:
+#         data = {'grant_type': 'client_credentials'}
+#         access_token_response = requests.post(TOKEN_URL, data=data, verify=False, allow_redirects=False, auth=(CLIENT_ID, CLIENT_SECRET))
+#         # credentials = f"{CLIENT_ID}:{CLIENT_SECRET}"
+#         # encoded_credentials = base64.b64encode(credentials.encode('utf-8')).decode('utf-8')
+#         # headers = {
+#         #         'Authorization': f'Bearer {encoded_credentials}', 
+#         #         'Accept': 'application/vnd.allegro.public.v1+json',
+#         #         'Content-Type': 'application/vnd.allegro.public.v1+json'
+#         #     }
+#         # access_token_response = requests.post(f'{TOKEN_URL}?grant_type=client_credentials', headers=headers, auth=(CLIENT_ID, CLIENT_SECRET))
+#         print('************ access_token_response ************', access_token_response)
+#         tokens = json.loads(access_token_response.text)
+#         print('************ HELLO ************', tokens)
+#         access_token = tokens['access_token']
+#         return access_token
+#     except requests.exceptions.HTTPError as err:
+#         raise SystemExit(err)
+        
     
 def get_access_token(request, authorization_code, name):
  
     if request.user.is_authenticated:
 
-        account = Allegro.objects.get(name=name)
+        print('************ HELLO ************', authorization_code, name)
+
+        # account = Allegro.objects.get(name=name)
         secret = Secret.objects.get(account__name=name)
 
         print('************SECRETS************', secret.CLIENT_ID)
@@ -108,7 +132,34 @@ def get_access_token(request, authorization_code, name):
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
 
-    
+
+
+# def get_access_token(request, authorization_code, name):
+
+#     print(f'@#@#@#@# get_access_token #@#@#@#')
+
+#     secret = Secret.objects.get(account__name=name)
+
+#     print('************SECRETS************', secret.CLIENT_ID)
+
+#     data = {'grant_type': 'authorization_code', 'code': authorization_code, 'redirect_uri': f'http://localhost:8000/get_new_code/{name}'}
+#     access_token_response = requests.post(TOKEN_URL, data=data, verify=True,
+#                                                 allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
+#     print("RESPONSE CONTENT:", access_token_response.status_code)
+#     tokens = json.loads(access_token_response.text)
+#     access_token = tokens['access_token']
+#     refresh_token = tokens['refresh_token']
+#     if access_token:
+#         secret.access_token = access_token
+#         secret.refresh_token = refresh_token
+#         secret.save()
+#         print(f'@#@#@#@# tokens #@#@#@# --------- {tokens}')
+#         return JsonResponse({
+#             'message': tokens,
+#         })
+
+
+
 
 def get_refresh_token(request, authorization_code):
 

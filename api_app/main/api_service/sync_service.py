@@ -20,7 +20,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import asyncio
 import httpx
 from asgiref.sync import sync_to_async, async_to_sync
-from ..views import get_new_authorization_code, index
+from ..views import get_new_authorization_code, index, get_access_token
 
 REDIRECT_URI = os.getenv('REDIRECT_URI')      # wprowadź redirect_uri
 AUTH_URL = os.getenv('AUTH_URL')
@@ -65,29 +65,33 @@ class Offers:
             result = json_result.json()
             if 'error' in result:
                 error_code = result['error']
+                print(' @@@@@@@@@ new_token @@@@@@@@@ ', new_token)
                 if error_code == 'invalid_token':
+                    print(' @@@@@@@@@ invalid_token @@@@@@@@@ ', error_code)
                     try:
                         # Refresh the token and retry the request
                         # new_token = get_next_token(request, context['refresh_token'], context['name'])
-                        new_token = get_new_authorization_code(request, context['name'])
+                        new_token = get_access_token() ## FOR TEST without loging to aegro
+                        print(' @@@@@@@@@ new_token @@@@@@@@@ ', new_token)
                         if new_token:
                             # Retry the request with the new token
                             headers = {
                                 'Authorization': f'Bearer {new_token}', 
                                 'Accept': "application/vnd.allegro.public.v1+json"
                             }
-                            json_result = requests.get(url, headers=headers, verify=True)
+                            json_result = requests.get(f'{ENVIRONMENT}/{url}', headers=headers, verify=True)
                             result = json_result.json()
 
                             # Update the secret with the new token
                             secret = Secret.objects.get(account__name=self.name)
                             secret.access_token = new_token
                             secret.save()
+                            return result
                     except Exception as e:
                         print('Exception @@@@@@@@@', e)
                         context = {'name': context['name']}
                         return render(request, 'invalid_token.html', context)
-            # print(f'@@@@@@@@@ sync_get RESULT for {debug_name} @@@@@@@@@', json.dumps(result, indent=4))
+            print(f'@@@@@@@@@ sync_get RESULT for {debug_name} @@@@@@@@@', json.dumps(result, indent=4))
             print(f'@@@@@@@@@ sync_get HEADERS for {debug_name} @@@@@@@@@', json_result.headers)
 
             return result
@@ -114,8 +118,8 @@ class Offers:
                 if error_code == 'invalid_token':
                     try:
                         # Refresh the token and retry the request
-                        # new_token = get_next_token(request, context['refresh_token'], context['name'])
-                        new_token = get_new_authorization_code(request, context['name'])
+                        new_token = get_next_token(request, context['refresh_token'], context['name'])
+                        # new_token = get_new_authorization_code(request, context['name'])
                         if new_token:
                             # Retry the request with the new token
                             headers = {
@@ -161,8 +165,8 @@ class Offers:
                 if error_code == 'invalid_token':
                     try:
                         # Refresh the token and retry the request
-                        # new_token = get_next_token(request, context['refresh_token'], context['name'])
-                        new_token = get_new_authorization_code(request, context['name'])
+                        new_token = get_next_token(request, context['refresh_token'], context['name'])
+                        # new_token = get_new_authorization_code(request, context['name'])
                         if new_token:
                             # Retry the request with the new token
                             headers = {

@@ -16,6 +16,7 @@ load_dotenv()
 from ..models import *
 from ..utils import *
 from .offer_views import get_one_offer
+from ..views import get_access_token, index
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import asyncio
 import httpx
@@ -80,9 +81,11 @@ def get_orders(request, name, delivery, status, client, fromDate, toDate):
                     # print('ERROR RESULT @@@@@@@@@', error_code)
                     try:
                         # Refresh the token
+                        # get_access_token()
                         new_token = get_next_token(request, secret.refresh_token, name)
                         # Retry fetching orders with the new token
-                        return get_orders(request)
+                        # return get_orders(request)
+                        return index(request)
                     except Exception as e:
                         print('Exception @@@@@@@@@', e)
                         context = {'name': name}
