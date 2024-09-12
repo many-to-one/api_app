@@ -14,6 +14,7 @@ AUTH_URL = os.getenv('AUTH_URL')
 TOKEN_URL = os.getenv('TOKEN_URL')
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
+SCOPE = os.getenv('SCOPE')
 
 def index(request):
     if request.user.is_authenticated:
@@ -36,11 +37,11 @@ def get_new_authorization_code(request, name):
     REDIRECT_URI_ =f' http://localhost:8000/get_new_code/{name}&promt=confirm'  
 
     try: 
-        user = get_user(request)
+        # user = get_user(request)
         authorization_redirect_url = AUTH_URL + '?response_type=code&client_id=' + secret.CLIENT_ID + \
                                 '&redirect_uri=' + REDIRECT_URI_ 
         # print("Zaloguj do Allegro - skorzystaj z url w swojej przeglądarce oraz wprowadź authorization code ze zwróconego url: ")
-        # print("---  " + authorization_redirect_url + "  ---")
+        print("---  " + authorization_redirect_url + "  ---")
         return redirect(authorization_redirect_url)
     except Exception as e:
         print("An error occurred:", e)
@@ -100,11 +101,12 @@ def get_authorization_code(request):
 #         return access_token
 #     except requests.exceptions.HTTPError as err:
 #         raise SystemExit(err)
+
         
     
 def get_access_token(request, authorization_code, name):
  
-    if request.user.is_authenticated:
+    # if request.user.is_authenticated:
 
         print('************ HELLO ************', authorization_code, name)
 
@@ -134,33 +136,6 @@ def get_access_token(request, authorization_code, name):
 
 
 
-# def get_access_token(request, authorization_code, name):
-
-#     print(f'@#@#@#@# get_access_token #@#@#@#')
-
-#     secret = Secret.objects.get(account__name=name)
-
-#     print('************SECRETS************', secret.CLIENT_ID)
-
-#     data = {'grant_type': 'authorization_code', 'code': authorization_code, 'redirect_uri': f'http://localhost:8000/get_new_code/{name}'}
-#     access_token_response = requests.post(TOKEN_URL, data=data, verify=True,
-#                                                 allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
-#     print("RESPONSE CONTENT:", access_token_response.status_code)
-#     tokens = json.loads(access_token_response.text)
-#     access_token = tokens['access_token']
-#     refresh_token = tokens['refresh_token']
-#     if access_token:
-#         secret.access_token = access_token
-#         secret.refresh_token = refresh_token
-#         secret.save()
-#         print(f'@#@#@#@# tokens #@#@#@# --------- {tokens}')
-#         return JsonResponse({
-#             'message': tokens,
-#         })
-
-
-
-
 def get_refresh_token(request, authorization_code):
 
     if request.user.is_authenticated:
@@ -181,29 +156,30 @@ def get_refresh_token(request, authorization_code):
             raise SystemExit(err)
     
 
-def get_next_token(request, access_token):
+# def get_next_token(request, access_token):
         
-    if request.user.is_authenticated:
+#     if request.user.is_authenticated:
     
-        account = Allegro.objects.get(user=request.user)
-        secret = Secret.objects.get(account=account)
+#         account = Allegro.objects.get(user=request.user)
+#         secret = Secret.objects.get(account=account)
 
-        try:
-            data = {'grant_type': 'refresh_token', 'refresh_token': access_token, 'redirect_uri': 'http://localhost:8000/get_code'}
-            access_token_response = requests.post(TOKEN_URL, data=data, verify=False,
-                                                allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
-            print("RESPONSE CONTENT:", access_token_response.status_code)
-            tokens = json.loads(access_token_response.text)
-            access_token = tokens['access_token']
-            if access_token:
-                secret.access_token = access_token
-                secret.save()
-                print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {tokens}')
-                return JsonResponse({
-                    'message': tokens,
-                })
-        except requests.exceptions.HTTPError as err:
-            raise SystemExit(err)
+#         try:
+#             data = {'grant_type': 'refresh_token', 'refresh_token': access_token, 'redirect_uri': 'http://localhost:8000/get_code'}
+#             access_token_response = requests.post(TOKEN_URL, data=data, verify=False,
+#                                                 allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
+#             print("RESPONSE CONTENT:", access_token_response.status_code)
+#             tokens = json.loads(access_token_response.text)
+#             access_token = tokens['access_token']
+#             if access_token:
+#                 secret.access_token = access_token
+#                 secret.save()
+#                 print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {tokens}')
+#                 return JsonResponse({
+#                     'message': tokens,
+#                 })
+#                 # return tokens
+#         except requests.exceptions.HTTPError as err:
+#             raise SystemExit(err)
 
 
 

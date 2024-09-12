@@ -52,7 +52,7 @@ def get_next_token(request, access_token, name):
         secret.save()
         # print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {access_token}')
         print(' ************* NEXT TOKEN WAS CREATED ************* ', secret)
-        return True #access_token
+        return access_token
     if tokens['error']:
         print(f'@#@#@#@# NEXT TOKENS ERROR ERROR ERROR #@#@#@# --------- ', tokens['error'])
         # If the exceptions will repeat, I need to create logic
