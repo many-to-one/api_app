@@ -9,33 +9,187 @@
     <title>Document</title>
 </head>
 <body>
+
     {% block content %}
-    <div>
-        <table class="table">
-            <thead>
-              <tr>
-                <th scope="col">ID</th>
-                <th scope="col"></th>
-                <th scope="col">Tytuł</th>
-                <th scope="col">Cena</th>
-                <th scope="col">Sprzedawca</th>
-              </tr>
-            </thead>
-            <tbody>
-                {% for res in result.items.regular %}
-                    <tr>
-                        <th scope="row">{{ res.id }}</th>
-                        <td>
-                            <img src="{{ res.images.0.url }}" alt="" width="50px">
-                        </td>
-                        <td>{{ res.name }}</td>
-                        <td>{{ res.sellingMode.price.amount }}</td>
-                        <td>{{ res.seller.login }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-          </table>
+
+    <div class="of-l">
+
+        <div class="of-l-nav">
+            <div class="card pos_fixed">
+                <div class="card-body">
+                  {% for cat in categories %}
+                    <p>{{cat.name}}</p>
+                  {% endfor %}  
+                </div>
+              </div>
+        </div>
+
+        <div class="of-l-table">
+
+            <div class="of-tab-s">               
+                <div class="serach_">
+                    <div class="input-group search_fixed">
+                        <input type="text" class="form-control" id="searchInput">
+                        <!-- <button 
+                            class="btn btn-outline-secondary dropdown-toggle s_btn" 
+                            type="button" data-bs-toggle="dropdown" 
+                            aria-expanded="false"
+                            onclick="showFilters()"
+                        >
+                            Filtruj
+                        </button> -->
+                        <select class="btn btn-outline-secondary dropdown-toggle s_btn" id="dropdown" onchange="showFilters()">
+                            <option class="dropdown-item" href="#" data-option="phrase=" selected>Nazwa Oferty</option>
+                            <option class="dropdown-item" href="#" data-option="seller.login=">Login Sprzedawcy</option>
+                            <option class="dropdown-item" href="#" data-option="category.id=">ID Kategorii</option>
+                            <option class="dropdown-item" href="#" data-option="deliveryMethod=">Dostawca</option>
+                            <option class="dropdown-item" href="#" data-option="location.city=">Miasto</option>
+                            <option class="dropdown-item" href="#" data-option="location.province=">Wojewódstwo</option>
+                            <option class="dropdown-item" href="#" data-option="price.from&price.to=">Zakres Cen</option>
+                            <option class="dropdown-item" href="#" data-option="Darmowa Dostawa">Darmowa Dostawa</option>
+                            <option class="dropdown-item" href="#" data-option="campaign=">W Promocji</option>
+                            <option class="dropdown-item" href="#" data-option="Konto Firmowe">Konto Firmowe</option>
+                            <option class="dropdown-item" href="#" data-option="Super Sprzedawca">Super Sprzedawca</option>
+                        </select>
+                      </div>
+                </div>
+
+                <div class="table_">
+                    <table class="table" id="offersTable">
+                        <thead>
+                          <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col"></th>
+                            <th scope="col">Tytuł</th>
+                            <th scope="col">Cena</th>
+                            <th scope="col">Sprzedawca</th>
+                          </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            {% for res in result.items.regular %}
+                                <tr>
+                                    <th scope="row">{{ res.id }}</th>
+                                    <td>
+                                        <img src="{{ res.images.0.url }}" alt="" width="50px">
+                                    </td>
+                                    <td>{{ res.name }}</td>
+                                    <td>{{ res.sellingMode.price.amount }}</td>
+                                    <td>{{ res.seller.login }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                      </table>
+                </div>
+            </div>
+
+        </div>
     </div>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
+
+    <script>
+
+        // Function to get CSRF token from cookie
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    // Check if the cookie name matches the desired name
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+
+        function showFilters() {
+
+            var csrftoken = getCookie('csrftoken')
+            var filters = document.getElementById('dropdown');
+            var inputValue = document.getElementById('searchInput').value;
+
+            if ( filters.style.display === 'block') {
+                filters.style.display = 'none'
+            } else {
+                filters.style.display = 'block'
+            }
+
+            var selectedOption = filters.selectedOptions[0];
+            var dataOptionValue = selectedOption.getAttribute('data-option');
+            console.log('showFilters optionSelect clicked', dataOptionValue, inputValue)
+
+            axios.post('/offers_listing_response/', { filter: dataOptionValue, value: inputValue, name: 'retset' }, {
+                headers: {
+                        'X-CSRFToken': csrftoken
+                    }
+            })
+            .then(function(response) {
+                console.log('offers_listing_response', response)
+                if ( response.status === 200 ) {
+                    updateTable(response.data)
+                }
+            })
+            .catch(error => {
+                // Handle error
+                console.error('chatbot_response error!', error);
+            });
+
+        }
+
+
+        function updateTable(data) {
+            // Select the table body element
+            var tableBody = document.getElementById('tableBody');
+
+            // Clear any existing rows
+            tableBody.innerHTML = '';
+
+            // Loop through new data and add rows
+            data.forEach(function(item) {
+                var row = document.createElement('tr');
+                
+                // Create cells and populate them with data
+                var idCell = document.createElement('th');
+                idCell.setAttribute('scope', 'row');
+                idCell.innerText = item.id;
+                
+                var imgCell = document.createElement('td');
+                var img = document.createElement('img');
+                img.src = item.images[0].url;
+                img.width = 50;
+                imgCell.appendChild(img);
+                
+                var titleCell = document.createElement('td');
+                titleCell.innerText = item.name;
+                
+                var priceCell = document.createElement('td');
+                priceCell.innerText = item.sellingMode.price.amount;
+                
+                var sellerCell = document.createElement('td');
+                sellerCell.innerText = item.seller.login;
+
+                // Append cells to the row
+                row.appendChild(idCell);
+                row.appendChild(imgCell);
+                row.appendChild(titleCell);
+                row.appendChild(priceCell);
+                row.appendChild(sellerCell);
+
+                // Append the row to the table body
+                tableBody.appendChild(row);
+            });
+        }
+
+
+    </script>
+
     {% endblock %}
+    
 </body>
 </html>

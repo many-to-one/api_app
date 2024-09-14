@@ -1,9 +1,9 @@
 import requests
 from django.shortcuts import render, redirect
 
-from main.views_folder.offer_views import get_one_offer, return_async_offer
+from main.offers.offer_views import get_one_offer, return_async_offer
 
-from .api_results import edit_set, get_all_offers_api, get_image, get_image_api, get_offer_by_id, get_set, post_copy_offers, post_copy_offers_api, post_set_api, post_set_api_one, get_all_sets_api, prepare_offer_by_id, prepare_post_copy_offers
+from ..views_folder.api_results import edit_set, get_all_offers_api, get_image, get_image_api, get_offer_by_id, get_set, post_copy_offers, post_copy_offers_api, post_set_api, post_set_api_one, get_all_sets_api, prepare_offer_by_id, prepare_post_copy_offers
 from ..utils import *
 from ..models import *
 

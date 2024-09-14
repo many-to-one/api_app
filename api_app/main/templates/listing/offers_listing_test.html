@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% block content %}
+    <div class="container-lg mrg-10 o-l">
+        
+        <div class="card w-25 pos_fixed">
+            <div class="card-body">
+              {% for cat in categories %}
+                <p>{{cat.name}}</p>
+              {% endfor %}  
+            </div>
+          </div>
+
+            <div class="s-t">
+                <div class="input-group mb-3 w-75 search_fixed">
+                    <input type="text" class="form-control" aria-label="Text input with dropdown button">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Dropdown</button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li><a class="dropdown-item" href="#">Action</a></li>
+                      <li><a class="dropdown-item" href="#">Another action</a></li>
+                      <li><a class="dropdown-item" href="#">Something else here</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="#">Separated link</a></li>
+                    </ul>
+                  </div>
+                <table class="table w-75">
+                    <thead>
+                      <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col"></th>
+                        <th scope="col">Tytuł</th>
+                        <th scope="col">Cena</th>
+                        <th scope="col">Sprzedawca</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% for res in result.items.regular %}
+                            <tr>
+                                <th scope="row">{{ res.id }}</th>
+                                <td>
+                                    <img src="{{ res.images.0.url }}" alt="" width="50px">
+                                </td>
+                                <td>{{ res.name }}</td>
+                                <td>{{ res.sellingMode.price.amount }}</td>
+                                <td>{{ res.seller.login }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                  </table>
+            </div>
+    </div>
+    {% endblock %}
+</body>
+</html>

@@ -4,7 +4,7 @@ import json, requests
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
 
-from .api_results import get_all_offers_api
+from ..views_folder.api_results import get_all_offers_api
 from ..utils import *
 from ..models import *
 from ..api_service import sync_service
@@ -119,7 +119,7 @@ def get_shipping_rates(request, name):
             #             print('Exception @@@@@@@@@', e)
             #             context = {'name': name}
             #             return render(request, 'invalid_token.html', context)
-            print('RESULT - shipping_rates - @@@@@@@@@', json.dumps(result, indent=4))
+            # print('RESULT - shipping_rates - @@@@@@@@@', json.dumps(result, indent=4))
             return result
         except Exception as e:
             return HttpResponse({e})
@@ -131,14 +131,13 @@ def get_all_offers(request, name):
 
     shipping_rates = get_shipping_rates(request, name)
     aftersale_services = get_aftersale_services(request, name)
-
-    # url = f"https://api.allegro.pl.allegrosandbox.pl/sale/offers"
+    
     url = 'sale/offers'
     debug_name = 'get_all_offers 126'
 
     offers = sync_service.Offers(name)
     result = offers.get_(request, url, debug_name)
-    print(' @@@@@@@@@ - get_all_offers - @@@@@@@@@ ', json.dumps(result, indent=4))
+    # print(' @@@@@@@@@ - get_all_offers - @@@@@@@@@ ', json.dumps(result, indent=4))
 
     context = {
         'result': result,  

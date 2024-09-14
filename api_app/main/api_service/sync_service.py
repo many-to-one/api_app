@@ -103,6 +103,7 @@ class Offers:
     def post_(self, request, url, payload, debug_name):
 
         context = self.credentials()
+        print('************** SEND_MESSAGE post_ **************', url, payload)
 
         try:
             headers = {
@@ -110,7 +111,8 @@ class Offers:
                 'Accept': 'application/vnd.allegro.public.v1+json',
                 'Content-Type': 'application/vnd.allegro.public.v1+json'
             }
-            json_result = requests.post(url, headers=headers, json=payload)
+            json_result = requests.post(f'{ENVIRONMENT}/{url}', headers=headers, json=payload)
+            print('json_result @@@@@@@@@', json_result.status_code)
             result = json_result.json()
             if 'error' in result:
                 error_code = result['error']
@@ -140,6 +142,7 @@ class Offers:
             # print(f'@@@@@@@@@ sync_get RESULT for {debug_name} @@@@@@@@@', json.dumps(result, indent=4))
             print(f'@@@@@@@@@ sync_get HEADERS for {debug_name} @@@@@@@@@', json_result.headers)
 
+            result['status_code'] = json_result.status_code
             return result
         
         except requests.exceptions.HTTPError as err:
@@ -157,7 +160,7 @@ class Offers:
                 'Accept': 'application/vnd.allegro.public.v1+json',
                 'Content-Type': 'application/vnd.allegro.public.v1+json'
             }
-            json_result = requests.patch(url, headers=headers, json=payload)
+            json_result = requests.patch(f'{ENVIRONMENT}/{url}', headers=headers, json=payload)
             result = json_result.json()
             if 'error' in result:
                 error_code = result['error']

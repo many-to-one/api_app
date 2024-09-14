@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    {% block content %}
+
+    {% if result %}
+    <div class="thread-list">
+        <h2 id="name" value="{{ name }}">Wiadomości {{ name }}</h1>
+        {% for thread in result.threads %}
+            <div class="thread" onclick="getOneMessage('{{ thread.id }}')" id="thr" value="{{ thread.id }}">
+                <div class="thread-avatar" >
+                    <img src="{{ thread.interlocutor.avatarUrl }}" alt="Avatar">
+                </div>
+                <div class="thread-info">
+                    <div class="thread-interlocutor" id="user" value="{{ thread.interlocutor.login }}">{{ thread.interlocutor.login }}</div>
+                    <div class="thread-last-message">Last Message: {{ thread.lastMessageDateTime }}</div>
+                    
+                    {% if thread.read %}
+                        <div class="thread-read">Read</div>
+                    {% else %}
+                        <div class="thread-unread">Unread</div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+
+
+        <div class="message" id="message">
+            <div id="messageContainer"></div>
+        </div>
+        <textarea id="content" placeholder="Napisz do nas.."></textarea>
+        <button id="formButton" onclick="sendMess()">Wyślij</button>
+        <!-- <button id="formButton" onclick="askBot()">Wygeneruj</button> -->
+    </div>
+    
+
+{% else %}
+    <p>Na razie nie ma żadnych wiadomości</p>
+{% endif %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
+
+
+<script>
+
+    // Function to get CSRF token from cookie
+    function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    // Check if the cookie name matches the desired name
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+    var userElem = document.getElementById('user');
+    var user = userElem.getAttribute('value');
+
+
+    function askBot () {
+        event.preventDefault();
+
+        var csrftoken = getCookie('csrftoken')
+        var nameElem = document.getElementById('name');
+        var name = nameElem.getAttribute('value');
+        var threadElem = document.getElementById('thr');
+        var threadId = threadElem.getAttribute('value');
+        var content = document.getElementById('content').value;
+
+        // axios.post('/chatbot_response/', { threadId: threadId, content: content, name: name }, {
+        axios.post('/chatbot_response/', { content: content }, {
+            headers: {
+                    'X-CSRFToken': csrftoken
+                }
+        })
+        .then(function(response) {
+            console.log('chatbot_response', response)
+            // content.innerText = message.text;
+        })
+        .catch(error => {
+            // Handle error
+            console.error('chatbot_response error!', error);
+        });
+    }
+
+
+    function sendMess() {
+
+        // Prevent the default form submission
+        event.preventDefault();
+
+        var csrftoken = getCookie('csrftoken')
+        var nameElem = document.getElementById('name');
+        var name = nameElem.getAttribute('value');
+        var threadElem = document.getElementById('thr');
+        var threadId = threadElem.getAttribute('value');
+        var content = document.getElementById('content').value;
+
+        console.log('threadId to send', threadId, content, name);
+
+        // Make a POST request to your Django backend
+        axios.post('/send_message/', { threadId: threadId, content: content, name: name }, {
+            headers: {
+                    'X-CSRFToken': csrftoken
+                }
+        })
+        .then(function(response) {
+            console.log("sendMess resp", response);
+                // Handle successful response
+            if(response.status == 200) {
+                // button.textContent = 'Gotowe!';
+                // console.log('Success send mess', response)
+                document.getElementById('content').value = '';
+                var messages = response.data.user_messages;
+                console.log('setMessages--', response)
+                // getOneMessage(threadId)
+                setMessages(messages)
+                // form.reset();
+            }
+        })
+        .catch(error => {
+            // Handle error
+            console.error('There was an error!', error);
+        });
+
+        // Add submit event listener to the form
+        // form.addEventListener('submit', submitForm);
+    }
+
+    function getOneMessage(threadId) {
+
+        var csrftoken = getCookie('csrftoken')
+        var nameElem = document.getElementById('name');
+        var name = nameElem.getAttribute('value');
+        var thr = threadId
+        console.log('threadId', threadId, name)
+
+        // Make an AJAX request to update the stock value
+        axios.post('/get_one_message/', { threadId: threadId, name: name }, {
+            headers: {
+                    'X-CSRFToken': csrftoken
+                }
+        })
+        .then(function(response) {
+            console.log('getOneMessage response', response)
+            if(response.status == 200) {
+                var messageContainer = document.getElementById('message');
+                var messages = response.data.context.user_messages;
+                console.log('messages', messages)
+                setMessages(messages)
+            }
+        })
+        .catch(function(error) {
+            // Handle error
+            console.error('Error updating stock:', error);
+            // window.location.href('index')
+        });
+    }
+
+
+
+    function setMessages(messages) {
+
+        var messageContainer = document.getElementById('messageContainer');
+        messageContainer.innerHTML = ''; // Clear previous messages
+
+        messages.forEach(function (message) {
+            // Create the Bootstrap card structure
+            var card = document.createElement('div');
+            card.className = 'card mb-3'; // Use 'mb-3' for Bootstrap margin spacing
+            card.style.width = '18rem';   // Set card width
+
+            // Determine message alignment based on author
+            if (user === message.author.login) {
+                console.log('user ===', message.author.login)
+                card.classList.add('message-left'); // Current user: align left
+            } else {
+                console.log('user !==', user, message.author.login)
+                card.classList.add('message-right'); // Other users: align right
+            }
+
+            // Create the card body
+            var cardBody = document.createElement('div');
+            cardBody.className = 'card-body';
+
+            // Create the message text
+            var messageText = document.createElement('p');
+            messageText.className = 'card-text';
+            messageText.innerText = message.text; // Set message text
+
+            // Create the links for offer and order
+            var offerLink = document.createElement('a');
+            offerLink.href = '#';  // You can set a dynamic href based on your data
+            offerLink.className = 'card-link';
+            if ( message.relatesTo.offer !== null ) {
+                offerLink.innerText = (message.relatesTo.offer.id);
+            } else {
+                offerLink.innerText = '';
+            }
+
+            var orderLink = document.createElement('a');
+            orderLink.href = '#';  // You can set a dynamic href based on your data
+            orderLink.className = 'card-link';
+            if ( message.relatesTo.order !== null ) {
+                orderLink.innerText = (message.relatesTo.order.id);
+            } else {
+                orderLink.innerText = '';
+            }
+
+            // Create the timestamp
+            var createdAtText = document.createElement('p');
+            createdAtText.className = 'card-text fst-italic m-time-font';
+            createdAtText.innerText = message.createdAt;
+
+            // Append all elements to the card body
+            cardBody.appendChild(messageText);
+            cardBody.appendChild(offerLink);
+            cardBody.appendChild(orderLink);
+            cardBody.appendChild(createdAtText);
+
+            // Append the card body to the card
+            card.appendChild(cardBody);
+
+            // Append the card to the message container
+            messageContainer.appendChild(card);
+        });
+
+        // Optionally scroll to the bottom of the container if there are many messages
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+    }
+
+
+</script>
+
+{% endblock %}
+
+</body>
+</html>

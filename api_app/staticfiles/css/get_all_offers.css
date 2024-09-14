@@ -3,6 +3,15 @@
     text-align: center;
 }
 
+.mrg-10 {
+    margin-top: 10vh;
+}
+
+.offers__list {
+    display: flex;
+    justify-content: space-around;
+}
+
 .list__header {
     position: -webkit-sticky; /* For Safari */
     width: 100vw;

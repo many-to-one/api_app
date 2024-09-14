@@ -17,7 +17,7 @@ from ..celery_tasks.invoices_tasks import *
 load_dotenv()
 from ..models import *
 from ..utils import *
-from .offer_views import get_one_offer
+from ..offers.offer_views import get_one_offer
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import asyncio
 import httpx
@@ -199,9 +199,23 @@ def get_orders(request, name, delivery, status, client, fromDate, toDate):
         return render(request, 'orders/get_all_orders_test.html', context)
     
 
+def get_order_details(request, id, name):
+    
+    url = f'order/checkout-forms/{id}'
+    debug_name = 'get_order_details 202'
+    order = sync_service.Offers(name)
+    result = order.get_(request, url, debug_name)
+
+    context = {
+            'order': result,
+        }
+    
+    return render(request, 'orders/get_order_details.html', context)
+    
+
 ############ 1 ############
 
-from .serializers import *
+from ..views_folder.serializers import *
 def set_shipment_list(request, name):
 
     # if request.user.is_authenticated:

@@ -1,6 +1,15 @@
 from django.urls import include, path
+
+from .sets import set_offers_views
+
+from .offers import bulk_edit_views, offer_views
+
+from .orders import orders_views
+
+from .messages import messages
 from .views import *
-from .views_folder import accounts_views, orders_views_test, orders_views, errors_views, offer_views, messages, generate_pdf, bulk_edit_views, set_offers_views, offers_listing
+from .messages import chatbot, messages
+from .views_folder import accounts_views, orders_views_test, errors_views, generate_pdf, offers_listing
 from .ebay.views import *
 
 urlpatterns = [
@@ -17,10 +26,11 @@ urlpatterns = [
     path('post_product', post_product, name='post_product'),
 
     path('get_orders/<str:name>/<str:delivery>/<str:status>/<str:client>/<str:fromDate>/<str:toDate>/', orders_views.get_orders, name='get_orders'),
-    path('get_orders_by_client/<str:name>/<str:delivery>/<str:status>/<str:client>/', orders_views_test.get_orders_by_client, name='get_orders_by_client'),
-    path('get_order_details/<uuid:id>/<str:name>/', orders_views_test.get_order_details, name='get_order_details'),
-    path('change_status/<str:id>/<str:name>/<str:status>/', orders_views_test.change_status, name='change_status'),
-    path('run_option/<str:name>/<str:option>/', orders_views_test.run_option, name='run_option'),
+    # path('get_orders_by_client/<str:name>/<str:delivery>/<str:status>/<str:client>/', orders_views_test.get_orders_by_client, name='get_orders_by_client'),
+    path('get_order_details/<uuid:id>/<str:name>/', orders_views.get_order_details, name='get_order_details'),
+    # path('change_status/<str:id>/<str:name>/<str:status>/', orders_views_test.change_status, name='change_status'),
+    # path('run_option/<str:name>/<str:option>/', orders_views_test.run_option, name='run_option'),
+
     # path('create_label_DPD/<uuid:id>/', orders_views_test.create_label_DPD, name='create_label_DPD'),
     # path('create_label_in_bulk_DPD/', orders_views_test.create_label_in_bulk_DPD, name='create_label_in_bulk_DPD'),
 
@@ -57,8 +67,10 @@ urlpatterns = [
     path('all_messages/<str:name>/', messages.all_messages, name='all_messages'),
     path('get_one_message/', messages.get_one_message, name='get_one_message'),
     path('send_message/', messages.send_message, name='send_message'),
+    path('chatbot_response/', chatbot.chatbot_response, name='chatbot_response'),
 
     path('offers_listing/<str:name>/', offers_listing.offers_listing, name='offers_listing'),
+    path('offers_listing_response/', offers_listing.offers_listing_response, name='offers_listing_response'),
 
     path('ebay_token/', ebay_token, name='ebay_token'),
 

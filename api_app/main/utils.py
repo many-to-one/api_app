@@ -15,6 +15,14 @@ import httpx
 from django.shortcuts import redirect
 
 
+async def check_login(request):
+    if request.user.is_authenticated:
+        return True
+    else:
+        return redirect('login')
+        
+
+
 def get_user(request):
     user = CustomUser.objects.get(id=request.user.id)
     return user
