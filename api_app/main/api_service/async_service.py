@@ -21,6 +21,7 @@ import asyncio
 import httpx
 from asgiref.sync import sync_to_async, async_to_sync
 from ..views import get_new_authorization_code, index
+from datetime import datetime
 
 REDIRECT_URI = os.getenv('REDIRECT_URI')      # wprowadź redirect_uri
 AUTH_URL = os.getenv('AUTH_URL')
@@ -59,7 +60,9 @@ async def async_get(request, *args, **kwargs):
                         context = {'name': name}
                         return render(request, 'invalid_token.html', context)
             # print(f'@@@@@@@@@ async_get RESULT for {debug_name} @@@@@@@@@', json.dumps(result, indent=4))
-            print(f'@@@@@@@@@ async_get HEADERS for {debug_name} @@@@@@@@@', json_result.headers)
+            time_ = datetime.now().strftime("%H:%M:%S")
+            # print(f'@@@@@@@@@ async_get HEADERS for {debug_name} @@@@@@@@@', json_result.headers)
+            print(f'@@@@@@@@@ async_get time_ for {debug_name} @@@@@@@@@', time_)
 
             return result
     except requests.exceptions.HTTPError as err:

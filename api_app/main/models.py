@@ -92,6 +92,11 @@ class Address(models.Model):
         return self.lastName
     
 
+# class Categories(models.Model):
+
+
+    
+
 # class Order(models.Model):
 
 #     order_id = models.CharField(

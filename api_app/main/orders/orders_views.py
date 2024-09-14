@@ -35,14 +35,11 @@ def get_orders(request, name, delivery, status, client, fromDate, toDate):
 
     if request.user.is_authenticated:
 
-        # from_date = request.GET.get('from_date')
-        # to_date = request.GET.get('to_date')
-
-        print('*********************** delivery **********************', delivery)
-        print('*********************** status **********************', status)
-        print('*********************** client **********************', client)
-        print('*********************** fromDate **********************', fromDate)
-        print('*********************** toDate **********************', toDate)
+        # print('*********************** delivery **********************', delivery)
+        # print('*********************** status **********************', status)
+        # print('*********************** client **********************', client)
+        # print('*********************** fromDate **********************', fromDate)
+        # print('*********************** toDate **********************', toDate)
 
         all_results = []
         all_client_results = []
@@ -54,7 +51,7 @@ def get_orders(request, name, delivery, status, client, fromDate, toDate):
         url = 'order/checkout-forms' #"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms"
         orders = sync_service.Offers(name)
         result = orders.get_(request, url, debug_name)
-        print('*********************** ALL ORDERS **********************', result)
+        # print('*********************** ALL ORDERS **********************', result)
         result.update({'name': secret.account.name})
         all_results.append(result)
         # print('*********************** ALL ORDERS **********************', result["checkoutForms"][0])
@@ -155,7 +152,7 @@ def get_orders(request, name, delivery, status, client, fromDate, toDate):
             for result in all_client_results:
                 # print('@@@@@@@@@@@@@@ here @@@@@@@@@@@@@@@@@@', json.dumps(result, indent=4))
                 if result['fulfillment']['status'] == status and result['delivery']['method']["name"] == delivery and result["buyer"]["login"] == client:
-                    print('***************** RESULTS FOR STATUS *******************', status, delivery, client)
+                    # print('***************** RESULTS FOR STATUS *******************', status, delivery, client)
                     result_with_name.append(result)
 
         if delivery == 'all' and status == 'all' and client == 'all' and fromDate == 'all' and toDate == 'all':

@@ -18,7 +18,7 @@
             <div class="card pos_fixed">
                 <div class="card-body">
                   {% for cat in categories %}
-                    <p>{{cat.name}}</p>
+                    <p>{{cat.name}} {{cat.id}}</p>
                   {% endfor %}  
                 </div>
               </div>
@@ -30,31 +30,24 @@
                 <div class="serach_">
                     <div class="input-group search_fixed">
                         <input type="text" class="form-control" id="searchInput">
-                        <!-- <button 
-                            class="btn btn-outline-secondary dropdown-toggle s_btn" 
-                            type="button" data-bs-toggle="dropdown" 
-                            aria-expanded="false"
-                            onclick="showFilters()"
-                        >
-                            Filtruj
-                        </button> -->
                         <select class="btn btn-outline-secondary dropdown-toggle s_btn" id="dropdown" onchange="showFilters()">
-                            <option class="dropdown-item" href="#" data-option="phrase=" selected>Nazwa Oferty</option>
-                            <option class="dropdown-item" href="#" data-option="seller.login=">Login Sprzedawcy</option>
-                            <option class="dropdown-item" href="#" data-option="category.id=">ID Kategorii</option>
-                            <option class="dropdown-item" href="#" data-option="deliveryMethod=">Dostawca</option>
-                            <option class="dropdown-item" href="#" data-option="location.city=">Miasto</option>
-                            <option class="dropdown-item" href="#" data-option="location.province=">Wojewódstwo</option>
-                            <option class="dropdown-item" href="#" data-option="price.from&price.to=">Zakres Cen</option>
+                            <option class="dropdown-item" href="#" data-option="phrase" selected>Nazwa Oferty</option>
+                            <option class="dropdown-item" href="#" data-option="seller.login">Login Sprzedawcy</option>
+                            <option class="dropdown-item" href="#" data-option="category.id">ID Kategorii</option>
+                            <option class="dropdown-item" href="#" data-option="deliveryMethod">Dostawca</option>
+                            <option class="dropdown-item" href="#" data-option="location.city">Miasto</option>
+                            <option class="dropdown-item" href="#" data-option="location.province">Wojewódstwo</option>
+                            <option class="dropdown-item" href="#" data-option="price.from&price.to">Zakres Cen</option>
                             <option class="dropdown-item" href="#" data-option="Darmowa Dostawa">Darmowa Dostawa</option>
-                            <option class="dropdown-item" href="#" data-option="campaign=">W Promocji</option>
+                            <option class="dropdown-item" href="#" data-option="campaign">W Promocji</option>
                             <option class="dropdown-item" href="#" data-option="Konto Firmowe">Konto Firmowe</option>
                             <option class="dropdown-item" href="#" data-option="Super Sprzedawca">Super Sprzedawca</option>
                         </select>
                       </div>
                 </div>
-
+                
                 <div class="table_">
+
                     <table class="table" id="offersTable">
                         <thead>
                           <tr>
@@ -132,7 +125,7 @@
             .then(function(response) {
                 console.log('offers_listing_response', response)
                 if ( response.status === 200 ) {
-                    updateTable(response.data)
+                    updateTable(response.data.result.items.regular)
                 }
             })
             .catch(error => {

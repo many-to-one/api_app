@@ -33,16 +33,17 @@ async def get_token():
     return secret.access_token
 
 
-def get_next_token(request, access_token, name):
+def get_next_token(request, refresh_token, name):
 
-    print(f'@#@#@#@# get_next_token access_token #@#@#@# --------- {access_token}')
+    print(f'@#@#@#@# get_next_token access_token #@#@#@# --------- {refresh_token}')
     
     # account = Allegro.objects.get(name=name)
     secret = Secret.objects.get(account__name=name)
     print(f'@#@#@#@# secret #@#@#@# --------- {secret}')
 
     # try:
-    data = {'grant_type': 'refresh_token', 'refresh_token': secret.refresh_token, 'redirect_uri': 'http://localhost:8000/get_code'}
+    # data = {'grant_type': 'refresh_token', 'refresh_token': secret.refresh_token, 'redirect_uri': 'http://localhost:8000/get_code'}
+    data = {'grant_type': 'refresh_token', 'refresh_token': refresh_token, 'redirect_uri': 'http://localhost:8000/get_code'}
     access_token_response = requests.post(TOKEN_URL, data=data, verify=False,
                                           allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
     print("RESPONSE CONTENT:", access_token_response)
@@ -50,13 +51,14 @@ def get_next_token(request, access_token, name):
     print("RESPONSE CONTENT:", type(tokens))
     print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {tokens}')
     access_token = tokens['access_token']
+    new_refresh_token = tokens['refresh_token']
     print(f'@#@#@#@# NEXT TOKENS REPEAT #@#@#@# --------- {access_token}')
     # error_token = tokens['error']
     # refresh_token = tokens['refresh_token']
     if access_token:
         print(f'@#@#@#@# NEXT TOKENS REPEAT II #@#@#@# --------- {access_token}')
         secret.access_token = access_token
-        # secret.refresh_token = refresh_token
+        secret.refresh_token = new_refresh_token
         secret.save()
         # print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {access_token}')
         print(' ************* NEXT TOKEN WAS CREATED ************* ', secret)

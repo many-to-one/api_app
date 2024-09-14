@@ -36,7 +36,7 @@
 .serach_ {
     position: fixed;
     width: 96%;
-    height: 15vh;
+    height: 12vh;
     grid-column: 1/6;
     grid-row: 1/2;
     background-color: var(--bg_color);
@@ -48,7 +48,9 @@
     top: 0;
     left: 0;
     width: 20%;
+    height: 87vh;
     margin-top: 10vh;
+    margin-left: 5px;
 }
 
 .search_fixed {
@@ -78,4 +80,5 @@
     grid-row: 2/6;
     /* background-color: rgb(224, 224, 224); */
     padding: 10px;
+    margin-top: -15vh;
 }
