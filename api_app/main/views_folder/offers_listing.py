@@ -16,15 +16,16 @@ def offers_listing(request, name):
     context = {
         'result': result,
         'categories': categories[0]["categories"],
-        'sub_categories': categories[1]["categories"]
+        'sub_categories': categories[1],
     }
 
     # for cat in categories[0]["categories"]:
-    #     for sub in categories[1]["categories"]:
-    #         if cat['id'] == sub['parent']['id']:
-    #             print(' @*@*@*@*@*@*@*@*@*@*@*@*@ cat.id @*@*@*@*@*@*@*@*@*@*@*@*@ ', sub)
+    #     for sub in categories[1]:
+    #         for s in sub['categories']:
+    #             if cat['id'] == s['parent']['id']:
+    #                 print(' @*@*@*@*@*@*@*@*@*@*@*@*@ cat.id @*@*@*@*@*@*@*@*@*@*@*@*@ ', s['name'])
 
-    # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ offers_listing 10 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(categories[1]["categories"], indent=4))
+    # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ offers_listing 10 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(categories[1], indent=4))
 
     return render(request, 'listing/offers_listing.html', context)
 
@@ -45,6 +46,48 @@ async def get_offers(request, secret, name):
     return offers
 
 
+# import asyncio
+# from datetime import datetime
+
+# async def get_all_categories(request, secret, name):
+#     url = 'sale/categories'
+#     token = secret.access_token
+#     refresh_token = secret.refresh_token
+    
+#     # Fetch main categories
+#     categories = await async_service.async_get(request, name=name, url=url, token=token, refresh_token=refresh_token, debug_name='offers_listing 18')
+    
+#     full_categories = []
+#     full_categories.append(categories)
+    
+#     category_tasks = [get_sub_categories(request, secret, name, cat['id']) for cat in categories['categories']]
+#     sub_categories = await asyncio.gather(*category_tasks)
+    
+#     full_categories.append(sub_categories)
+    
+#     sub_category_ids = [sub_cat['id'] for sub_list in sub_categories for sub_cat in sub_list['categories']]
+    
+#     # Optional: Limit concurrent requests if needed
+#     max_concurrent_requests = 10
+#     semaphore = asyncio.Semaphore(max_concurrent_requests)
+    
+#     async def fetch_with_semaphore(id):
+#         async with semaphore:
+#             return await get_sub_categories(request, secret, name, id)
+    
+#     sub_tasks = [fetch_with_semaphore(id) for id in sub_category_ids]
+#     more_sub_categories = await asyncio.gather(*sub_tasks)
+    
+#     full_categories.append(more_sub_categories)
+    
+#     current_time = datetime.now().strftime("%H:%M:%S")
+#     print(' @*@*@*@*@*@*@*@*@*@*@*@*@ more_sub_categories 48 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(more_sub_categories, indent=4))
+#     print(f"Data fetched at: {current_time}")
+    
+#     return full_categories
+
+
+
 async def get_all_categories(request, secret, name):
 
     url = 'sale/categories' 
@@ -56,21 +99,34 @@ async def get_all_categories(request, secret, name):
     full_categories = []
     full_categories.append(categories)
     tasks = []
+    tasks_1 = []
     for cat in categories['categories']:
         categoryId = cat['id']
         tasks.append(asyncio.create_task(
             get_sub_categories(request, secret, name, categoryId)
         ))
     sub = await asyncio.gather(*tasks)
-    full_categories.append(sub[0])
+    full_categories.append(sub)
+    if sub:
+        for s in sub:
+            for c in s['categories']:
+                id = c['id']
+                tasks_1.append(asyncio.create_task(
+                    get_sub_categories(request, secret, name, id)
+                ))
+        sub_1 = await asyncio.gather(*tasks_1)
+        # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ sub_1 48 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(sub_1, indent=4))
+        full_categories.append(sub_1)
     time_ = datetime.now().strftime("%H:%M:%S")
 
-    print(' @*@*@*@*@*@*@*@*@*@*@*@*@ get_all_categories 48 @*@*@*@*@*@*@*@*@*@*@*@*@ ', time_) #json.dumps(full_categories[1], indent=4), 
+    print(' @*@*@*@*@*@*@*@*@*@*@*@*@ get_all_categories 48 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(full_categories[2][0], indent=4)) #json.dumps(full_categories[1], indent=4), 
 
     return full_categories
 
 
 async def get_sub_categories(request, secret, name, categoryId):
+
+    print('$$$$$$$$$$$$$$$$$$ TYPE $$$$$$$$$$$$$$$$$$$$', type(categoryId))
 
     # categoryId = '11763'
     url = f'sale/categories/?parent.id={categoryId}' 
