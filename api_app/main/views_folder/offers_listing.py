@@ -16,7 +16,7 @@ def offers_listing(request, name):
     context = {
         'result': result,
         'categories': categories[0]["categories"],
-        'sub_categories': categories[1],
+        'sub_categories': categories[1]
     }
 
     # for cat in categories[0]["categories"]:
@@ -107,19 +107,19 @@ async def get_all_categories(request, secret, name):
         ))
     sub = await asyncio.gather(*tasks)
     full_categories.append(sub)
-    if sub:
-        for s in sub:
-            for c in s['categories']:
-                id = c['id']
-                tasks_1.append(asyncio.create_task(
-                    get_sub_categories(request, secret, name, id)
-                ))
-        sub_1 = await asyncio.gather(*tasks_1)
-        # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ sub_1 48 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(sub_1, indent=4))
-        full_categories.append(sub_1)
+    # if sub:
+    #     for s in sub:
+    #         for c in s['categories']:
+    #             id = c['id']
+    #             tasks_1.append(asyncio.create_task(
+    #                 get_sub_categories(request, secret, name, id)
+    #             ))
+    #     sub_1 = await asyncio.gather(*tasks_1)
+    #     # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ sub_1 48 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(sub_1, indent=4))
+    #     full_categories.append(sub_1)
     time_ = datetime.now().strftime("%H:%M:%S")
 
-    print(' @*@*@*@*@*@*@*@*@*@*@*@*@ get_all_categories 48 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(full_categories[2][0], indent=4)) #json.dumps(full_categories[1], indent=4), 
+    print(' @*@*@*@*@*@*@*@*@*@*@*@*@ get_all_categories 48 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(full_categories[0], indent=4)) #json.dumps(full_categories[1], indent=4), 
 
     return full_categories
 
@@ -185,7 +185,7 @@ def offers_listing_response(request):
     offers = sync_service.Offers(name)
     result = offers.get_(request, url, debug_name)
     # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ offers_listing_response 25 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(result, indent=4))
-    # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ offers_listing_response url @*@*@*@*@*@*@*@*@*@*@*@*@ ', url)
+    print(' @*@*@*@*@*@*@*@*@*@*@*@*@ offers_listing_response url @*@*@*@*@*@*@*@*@*@*@*@*@ ', url)
 
     return JsonResponse ({
         'result': result,

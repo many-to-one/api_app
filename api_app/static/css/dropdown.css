@@ -1,0 +1,47 @@
+/* Style the dropdown container */
+.custom-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  
+  /* Style the dropdown toggle */
+  .custom-dropdown .dropdown-toggle {
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-block;
+  }
+  
+  /* Style the dropdown menu (hidden by default) */
+  .custom-dropdown .dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    z-index: 1;
+    margin-top: 10px;
+    padding: 0;
+    list-style-type: none;
+  }
+  
+  /* Style the dropdown items */
+  .custom-dropdown .dropdown-menu li {
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+  
+  /* Dropdown item hover effect */
+  .custom-dropdown .dropdown-menu li:hover {
+    background-color: #f1f1f1;
+  }
+  
+  /* Dropdown toggle hover effect */
+  .custom-dropdown .dropdown-toggle:hover {
+    background-color: #0056b3;
+  }
+  

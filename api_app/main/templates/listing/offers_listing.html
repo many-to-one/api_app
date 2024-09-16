@@ -27,11 +27,18 @@
               </div>
         </div> -->
 
-        <div class="accordion accordion-flush of-l-nav" id="accordionFlushExample" data-subcategories="{{ sub_categories|safe }}">
+        <div class="accordion accordion-flush of-l-nav" id="accordionFlushExample" data-subcategories="{{ categories|safe }}">
             {% for cat in categories %}
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="heading-{{ cat.id }}">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse-{{ cat.id }}" aria-expanded="false" aria-controls="flush-collapse-{{ cat.id }}">
+                        <button 
+                            class="accordion-button collapsed" 
+                            type="button" data-bs-toggle="collapse" 
+                            data-bs-target="#flush-collapse-{{ cat.id }}" 
+                            aria-expanded="false" 
+                            aria-controls="flush-collapse-{{ cat.id }}"
+                            onclick="offersByCategory('{{ cat.id }}')"
+                        >
                             {{ cat.name }}
                         </button>
                     </h2>
@@ -40,7 +47,19 @@
                         {% for sub in sub_categories %}
                             {% for s in sub.categories %}
                                 {% if cat.id == s.parent.id %}
-                                    <div class="accordion-body">{{ s.name }}</div>
+                                    <div 
+                                        class="accordion-body"
+                                    >
+                                        <li class="accordion_name" id="subCatBody" onclick="toggleFirst('{{ s.id }}')"> {{ s.name }} ▼
+                                            <ul id="first">
+                                                <li class="accordion_name" onclick="toggleSecond(event)">
+                                                    <ul id="second">
+                                                        <li class="accordion_name"><a href="/js-course" id="second_val"></a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </li>                                  
+                                    </div>
                                 {% endif %}
                             {% endfor %}
                         {% endfor %}
@@ -73,6 +92,12 @@
                 </div>
                 
                 <div class="table_">
+
+                    <ul class="nav nav-tabs">
+                      <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Active</a>
+                      </li>
+                    </ul>
 
                     <table class="table" id="offersTable">
                         <thead>
@@ -140,8 +165,109 @@
         //     // const subCategories = JSON.parse(subCategoriesData);
 
         //     // Wyświetl wynik w konsoli
-        //     console.log('subCategories', subCategoriesData);
+        //     console.log('subCategoriesData', subCategoriesData);
         // })
+
+
+        // Function to toggle the first nested list
+        function toggleFirst(catId) {
+            var firstList = document.getElementById("first");
+            if (firstList.style.display === "block") {
+                firstList.style.display = "none";
+            } else {
+                firstList.style.display = "block";
+                offersBySubCategory(catId)
+            }
+
+        }
+
+
+        // Function to toggle the second nested list
+        function toggleSecond(event) {
+            event.stopPropagation(); // Prevent the first list from closing when second is clicked
+            var secondList = document.getElementById("second");
+            if (secondList.style.display === "block") {
+                secondList.style.display = "none";
+            } else {
+                secondList.style.display = "block";
+                offersBySubCategory(catId)
+            }
+        }
+
+
+
+        function offersByCategory(catId) {
+
+            var csrftoken = getCookie('csrftoken')
+            console.log('catId clicked', catId)
+
+            axios.post('/offers_listing_response/', { filter: 'category.id', value: catId, name: 'retset' }, {
+                headers: {
+                        'X-CSRFToken': csrftoken
+                    }
+            })
+            .then(function(response) {
+                console.log('offers_listing_response', response)
+                if ( response.status === 200 ) {
+                    updateTable(response.data.result.items.regular)
+                }
+            })
+            .catch(error => {
+                // Handle error
+                console.error('chatbot_response error!', error);
+            });
+
+        }
+
+
+        function offersBySubCategory(catId) {
+
+            var csrftoken = getCookie('csrftoken')
+            console.log('offersBySubCategory clicked', catId)
+
+            axios.post('/offers_listing_response/', { filter: 'category.id', value: catId, name: 'retset' }, {
+                headers: {
+                        'X-CSRFToken': csrftoken
+                    }
+            })
+            .then(function(response) {
+                console.log('offers_listing_response', response)
+                if ( response.status === 200 ) {
+                    updateTable(response.data.result.items.regular)
+                    updateFilters(response.data.result.categories.subcategories)
+                }
+            })
+            .catch(error => {
+                // Handle error
+                console.error('chatbot_response error!', error);
+            });
+
+        }
+
+
+        function updateFilters(data) {
+
+            var subCatBody = document.getElementById('subCatBody');
+            subCatBody.innerHTML = '';
+
+            var firstUl = document.createElement('ul');
+            firstUl.id = 'first';
+
+            data.forEach(function(item) {
+
+                var nestedLi = document.createElement('li');
+                nestedLi.className = 'accordion_name';
+                nestedLi.onclick = function(event) { toggleSecond(event); };
+
+                nestedLi.innerHTML =  `${item.name}`;
+
+                firstUl.appendChild(nestedLi);
+                subCatBody.appendChild(firstUl);
+
+            })
+
+        }
+
 
 
         function showFilters() {

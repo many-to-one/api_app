@@ -82,3 +82,27 @@
     padding: 10px;
     margin-top: -15vh;
 }
+
+.accordion_name {
+    list-style-type: none;
+    text-decoration: none;
+}
+
+#first, #second {
+    display: none;
+    list-style-type: none;
+    text-decoration: none;  
+    color: black;
+    cursor: pointer;
+}
+
+.accordion_name {
+    text-decoration: none;
+    list-style-type: none;
+    cursor: pointer;
+}
+
+.accordion_name a {
+    text-decoration: none;
+    color: black;
+}
