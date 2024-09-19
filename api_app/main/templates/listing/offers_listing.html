@@ -14,58 +14,14 @@
 
     <div class="of-l">
 
-        <!-- <div class="of-l-nav">
+        <div class="of-l-nav">
             <div class="card pos_fixed">
-                <div class="card-body">
-                  {% for sub in sub_categories %}
-                  {% for s in sub.categories %}
-                    <p>{{s.name}}</p>
-                    {% endfor %}
+                <div class="card-body" id="categoriesList" value="{{ sub_categories }}" data-cat="{{ categories }}">
+                  {% for cat in categories %}
+                    <p id="catItem-{{ cat.id }}" onclick="offersByCategory_('{{ cat.id }}')">{{cat.name}}</p>
                   {% endfor %}  
-
                 </div>
-              </div>
-        </div> -->
-
-        <div class="accordion accordion-flush of-l-nav" id="accordionFlushExample" data-subcategories="{{ categories|safe }}">
-            {% for cat in categories %}
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="heading-{{ cat.id }}">
-                        <button 
-                            class="accordion-button collapsed" 
-                            type="button" data-bs-toggle="collapse" 
-                            data-bs-target="#flush-collapse-{{ cat.id }}" 
-                            aria-expanded="false" 
-                            aria-controls="flush-collapse-{{ cat.id }}"
-                            onclick="offersByCategory('{{ cat.id }}')"
-                        >
-                            {{ cat.name }}
-                        </button>
-                    </h2>
-        
-                    <div id="flush-collapse-{{ cat.id }}" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-                        {% for sub in sub_categories %}
-                            {% for s in sub.categories %}
-                                {% if cat.id == s.parent.id %}
-                                    <div 
-                                        class="accordion-body"
-                                    >
-                                        <li class="accordion_name" id="subCatBody" onclick="toggleFirst('{{ s.id }}')"> {{ s.name }} ▼
-                                            <ul id="first">
-                                                <li class="accordion_name" onclick="toggleSecond(event)">
-                                                    <ul id="second">
-                                                        <li class="accordion_name"><a href="/js-course" id="second_val"></a></li>
-                                                    </ul>
-                                                </li>
-                                            </ul>
-                                        </li>                                  
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endfor %}
+            </div>
         </div>
         
 
@@ -130,9 +86,8 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
-    <script src=
-"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- <script id="categories-data" type="application/json">{{ sub_categories|safe }}</script> -->
 
     <script>
 
@@ -154,68 +109,84 @@
         }
 
 
-        // document.addEventListener('DOMContentLoaded', function() {
-        //     // Pobierz element z atrybutem 'data-subcategories'
-        //     const accordionElement = document.getElementById('accordionFlushExample');
+        subCatContainer = []
+        catContainer = []
 
-        //     // Odczytaj dane z atrybutu 'data-subcategories'
-        //     const subCategoriesData = accordionElement.getAttribute('data-subcategories');
+        document.addEventListener('DOMContentLoaded', function () {
+            var data = document.getElementById('categoriesList');
+            var subData = data.getAttribute('value')
+            var categoriesData = data.getAttribute('data-cat');
+            console.log('categoriesData', categoriesData)
+            let jsonString = subData
+            .replace(/'/g, '"')  // Replace single quotes with double quotes
+            .replace(/True/g, 'true')  // Replace True with true
+            .replace(/False/g, 'false');  // Replace False with false        
+            subCatContainer.push(JSON.parse(jsonString))
 
-        //     // Parsuj dane JSON, jeśli są zapisane jako JSON
-        //     // const subCategories = JSON.parse(subCategoriesData);
-
-        //     // Wyświetl wynik w konsoli
-        //     console.log('subCategoriesData', subCategoriesData);
-        // })
-
-
-        // Function to toggle the first nested list
-        function toggleFirst(catId) {
-            var firstList = document.getElementById("first");
-            if (firstList.style.display === "block") {
-                firstList.style.display = "none";
-            } else {
-                firstList.style.display = "block";
-                offersBySubCategory(catId)
-            }
-
-        }
+            let jsonStringCat = categoriesData
+            .replace(/'/g, '"')  // Replace single quotes with double quotes
+            .replace(/True/g, 'true')  // Replace True with true
+            .replace(/False/g, 'false');  // Replace False with false        
+            catContainer.push(JSON.parse(jsonStringCat))
+        });
 
 
-        // Function to toggle the second nested list
-        function toggleSecond(event) {
-            event.stopPropagation(); // Prevent the first list from closing when second is clicked
-            var secondList = document.getElementById("second");
-            if (secondList.style.display === "block") {
-                secondList.style.display = "none";
-            } else {
-                secondList.style.display = "block";
-                offersBySubCategory(catId)
-            }
-        }
+        function backMain () {
+            console.log('catContainer', catContainer)
+            var catagoriesList = document.getElementById('categoriesList');
+            catagoriesList.innerHTML = '';
 
-
-
-        function offersByCategory(catId) {
-
-            var csrftoken = getCookie('csrftoken')
-            console.log('catId clicked', catId)
-
-            axios.post('/offers_listing_response/', { filter: 'category.id', value: catId, name: 'retset' }, {
-                headers: {
-                        'X-CSRFToken': csrftoken
+            catContainer[0].forEach(function(sub_cat) {
+                // console.log('sub_category', sub_cat);
+                for ( let item of sub_cat.categories ) {
+                    // console.log('item', item);
+                    var categoryItem = document.createElement('p');
+                    if ( item.parent['id'] === catId ) {
+                        categoryItem.textContent = item.name;
+                        // console.log('sub_category', item.name);
+                        categoryItem.onclick = function() {
+                            offersBySubCategory(item.id);  
+                        };
+                        categoriesList.appendChild(categoryItem);
                     }
-            })
-            .then(function(response) {
-                console.log('offers_listing_response', response)
-                if ( response.status === 200 ) {
-                    updateTable(response.data.result.items.regular)
                 }
-            })
-            .catch(error => {
-                // Handle error
-                console.error('chatbot_response error!', error);
             });
+        }
+
+
+        function offersByCategory_(catId) {
+
+            console.log('offersByCategory_ clicked', subCatContainer);
+            console.log('catId', catId);
+
+            var catagoriesList = document.getElementById('categoriesList');
+            catagoriesList.innerHTML = '';
+
+            var backPath = "954b95b6-43cf-4104-8354-dea4d9b10ddf"
+            var categoryBack = document.createElement('p');
+            categoryBack.textContent = 'Powrót';
+            categoryBack.onclick = function() {
+                    offersByCategory_(backPath);  
+                    // backMain()
+                };
+            categoriesList.appendChild(categoryBack);
+
+            subCatContainer[0].forEach(function(sub_cat) {
+                // console.log('sub_category', sub_cat);
+                for ( let item of sub_cat.categories ) {
+                    // console.log('item', item);
+                    var categoryItem = document.createElement('p');
+                    if ( item.parent['id'] === catId ) {
+                        categoryItem.textContent = item.name;
+                        // console.log('sub_category', item.name);
+                        categoryItem.onclick = function() {
+                            offersBySubCategory(item.id);  
+                        };
+                        categoriesList.appendChild(categoryItem);
+                    }
+                }
+            });
+
 
         }
 
@@ -231,10 +202,11 @@
                     }
             })
             .then(function(response) {
-                console.log('offers_listing_response', response)
+                console.log('offers_listing_response +', response)
                 if ( response.status === 200 ) {
                     updateTable(response.data.result.items.regular)
-                    updateFilters(response.data.result.categories.subcategories)
+                    // updateFilters(response.data.result.categories.subcategories)
+                    updateFilters(response.data.result)
                 }
             })
             .catch(error => {
@@ -245,64 +217,77 @@
         }
 
 
-        function updateFilters(data) {
 
-            var subCatBody = document.getElementById('subCatBody');
-            subCatBody.innerHTML = '';
+    function updateFilters(data) {
 
-            var firstUl = document.createElement('ul');
-            firstUl.id = 'first';
+        console.log('updateFilters', data);
+        
+        var catagoriesList = document.getElementById('categoriesList');
+        catagoriesList.innerHTML = '';
 
-            data.forEach(function(item) {
+        var backPath = data.categories.path
+        console.log('backPath all', backPath);
+        console.log('backPath last', backPath[backPath.length - 1]['id']);
 
-                var nestedLi = document.createElement('li');
-                nestedLi.className = 'accordion_name';
-                nestedLi.onclick = function(event) { toggleSecond(event); };
+        var categoryBack = document.createElement('p');
+        categoryBack.textContent = 'Powrót';
+        categoryBack.onclick = function() {
+            offersBySubCategory(`${backPath[backPath.length - 2]['id']}`);   
+            // offersBySubCategory('1521');
+            };
+        categoriesList.appendChild(categoryBack);
 
-                nestedLi.innerHTML =  `${item.name}`;
+        data.categories.subcategories.forEach(function(sub_cat) {
+            console.log('sub_category forEach', sub_cat);
+            var categoryItem = document.createElement('p');
+            categoryItem.textContent = sub_cat.name;
+            console.log('sub_category 2', sub_cat.name);
+            categoryItem.onclick = function() {
+                offersBySubCategory(sub_cat.id);  
+            };
+            categoriesList.appendChild(categoryItem);
 
-                firstUl.appendChild(nestedLi);
-                subCatBody.appendChild(firstUl);
+        });
 
-            })
-
-        }
+     }
 
 
 
-        function showFilters() {
 
-            var csrftoken = getCookie('csrftoken')
-            var filters = document.getElementById('dropdown');
-            var inputValue = document.getElementById('searchInput').value;
 
-            if ( filters.style.display === 'block') {
-                filters.style.display = 'none'
-            } else {
-                filters.style.display = 'block'
-            }
+        // function showFilters() {
 
-            var selectedOption = filters.selectedOptions[0];
-            var dataOptionValue = selectedOption.getAttribute('data-option');
-            console.log('showFilters optionSelect clicked', dataOptionValue, inputValue)
+        //     var csrftoken = getCookie('csrftoken')
+        //     var filters = document.getElementById('dropdown');
+        //     var inputValue = document.getElementById('searchInput').value;
 
-            axios.post('/offers_listing_response/', { filter: dataOptionValue, value: inputValue, name: 'retset' }, {
-                headers: {
-                        'X-CSRFToken': csrftoken
-                    }
-            })
-            .then(function(response) {
-                console.log('offers_listing_response', response)
-                if ( response.status === 200 ) {
-                    updateTable(response.data.result.items.regular)
-                }
-            })
-            .catch(error => {
-                // Handle error
-                console.error('chatbot_response error!', error);
-            });
+        //     if ( filters.style.display === 'block') {
+        //         filters.style.display = 'none'
+        //     } else {
+        //         filters.style.display = 'block'
+        //     }
 
-        }
+        //     var selectedOption = filters.selectedOptions[0];
+        //     var dataOptionValue = selectedOption.getAttribute('data-option');
+        //     console.log('showFilters optionSelect clicked', dataOptionValue, inputValue)
+
+        //     axios.post('/offers_listing_response/', { filter: dataOptionValue, value: inputValue, name: 'retset' }, {
+        //         headers: {
+        //                 'X-CSRFToken': csrftoken
+        //             }
+        //     })
+        //     .then(function(response) {
+        //         console.log('offers_listing_response', response)
+        //         if ( response.status === 200 ) {
+        //             updateTable(response.data.result.items.regular)
+        //         }
+        //     })
+        //     .catch(error => {
+        //         // Handle error
+        //         console.error('chatbot_response error!', error);
+        //     });
+
+        // }
 
 
         function updateTable(data) {

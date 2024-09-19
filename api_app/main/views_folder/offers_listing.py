@@ -5,6 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from ..models import Secret
 from datetime import datetime
+from django.core import serializers
 
 
 def offers_listing(request, name):
@@ -13,21 +14,34 @@ def offers_listing(request, name):
     result = asyncio.run(get_offers(request, secret, name))
     categories = asyncio.run(get_all_categories(request, secret, name))
 
+    # if categories:
+    #     sub_categories = optimize_subcategories(categories[1])
+
+    # print("sub_categories:", sub_categories)
+
     context = {
         'result': result,
         'categories': categories[0]["categories"],
-        'sub_categories': categories[1]
+        'sub_categories': categories[1] #json.dumps(sub_categories) # categories[1]
     }
 
-    # for cat in categories[0]["categories"]:
-    #     for sub in categories[1]:
-    #         for s in sub['categories']:
-    #             if cat['id'] == s['parent']['id']:
-    #                 print(' @*@*@*@*@*@*@*@*@*@*@*@*@ cat.id @*@*@*@*@*@*@*@*@*@*@*@*@ ', s['name'])
-
-    # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ offers_listing 10 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(categories[1], indent=4))
-
     return render(request, 'listing/offers_listing.html', context)
+
+
+def optimize_subcategories(sub_categories):
+    optimized_sub_categories = []
+    # print("Zoptymalizowane dane sub_categories:", sub_categories)
+    for sub_cat in sub_categories:
+        for cat in sub_cat['categories']:
+            optimized_sub_categories.append({
+                    'id': cat['id'],
+                    'name': cat['name'],
+                    'parent': cat['parent']
+                })
+
+    # print("Zoptymalizowane dane:", optimized_sub_categories)
+    return optimized_sub_categories
+
 
 
 
