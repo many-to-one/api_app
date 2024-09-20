@@ -126,7 +126,8 @@
             let jsonStringCat = categoriesData
             .replace(/'/g, '"')  // Replace single quotes with double quotes
             .replace(/True/g, 'true')  // Replace True with true
-            .replace(/False/g, 'false');  // Replace False with false        
+            .replace(/False/g, 'false')  // Replace False with false   
+            .replace(/None/g, 'null');     
             catContainer.push(JSON.parse(jsonStringCat))
         });
 
@@ -136,24 +137,22 @@
             var catagoriesList = document.getElementById('categoriesList');
             catagoriesList.innerHTML = '';
 
-            catContainer[0].forEach(function(sub_cat) {
-                // console.log('sub_category', sub_cat);
-                for ( let item of sub_cat.categories ) {
-                    // console.log('item', item);
-                    var categoryItem = document.createElement('p');
-                    if ( item.parent['id'] === catId ) {
-                        categoryItem.textContent = item.name;
-                        // console.log('sub_category', item.name);
-                        categoryItem.onclick = function() {
-                            offersBySubCategory(item.id);  
-                        };
-                        categoriesList.appendChild(categoryItem);
-                    }
-                }
+            catContainer[0].forEach(function(category) {
+                console.log('category', category);
+
+                var categoryItem = document.createElement('p');
+                categoryItem.textContent = category.name;
+                // console.log('sub_category', item.name);
+                categoryItem.onclick = function() {
+                    offersByCategory_(category.id);  
+                };
+                categoriesList.appendChild(categoryItem);
+
             });
         }
 
 
+        // GET FIRST SUB_CATEGORIES
         function offersByCategory_(catId) {
 
             console.log('offersByCategory_ clicked', subCatContainer);
@@ -161,14 +160,16 @@
 
             var catagoriesList = document.getElementById('categoriesList');
             catagoriesList.innerHTML = '';
-
+ 
             var backPath = "954b95b6-43cf-4104-8354-dea4d9b10ddf"
             var categoryBack = document.createElement('p');
-            categoryBack.textContent = 'Powrót';
-            categoryBack.onclick = function() {
-                    offersByCategory_(backPath);  
-                    // backMain()
+            categoryBack.style.fontSize = '10px';
+            categoryBack.textContent = '< Główna';
+
+            categoryBack.onclick = function() { 
+                    backMain()
                 };
+
             categoriesList.appendChild(categoryBack);
 
             subCatContainer[0].forEach(function(sub_cat) {
@@ -180,6 +181,7 @@
                         categoryItem.textContent = item.name;
                         // console.log('sub_category', item.name);
                         categoryItem.onclick = function() {
+                            console.log('offersBySubCategory here');
                             offersBySubCategory(item.id);  
                         };
                         categoriesList.appendChild(categoryItem);
@@ -191,7 +193,18 @@
         }
 
 
+        // GET SUB_CATEGORIES PRODUCTS
         function offersBySubCategory(catId) {
+
+            // If catId is one of the root categories -> 
+            // navigate user to the main categories filters
+            catContainer.forEach(function(categories) {
+                for ( let cat of categories) {
+                    if ( catId === cat.id ) {
+                        offersByCategory_(catId)
+                    }
+                }
+            })
 
             var csrftoken = getCookie('csrftoken')
             console.log('offersBySubCategory clicked', catId)
@@ -217,79 +230,55 @@
         }
 
 
+        // UPDATE FILTERS WITH SUB_CATEGORIES
+        function updateFilters(data) {
 
-    function updateFilters(data) {
+            console.log('updateFilters', data);
+            
+            var catagoriesList = document.getElementById('categoriesList');
+            catagoriesList.innerHTML = '';
 
-        console.log('updateFilters', data);
-        
-        var catagoriesList = document.getElementById('categoriesList');
-        catagoriesList.innerHTML = '';
+            var backPath = data.categories.path
+            console.log('backPath all', backPath);
+            console.log('backPath last', backPath[backPath.length - 2]['id']);
 
-        var backPath = data.categories.path
-        console.log('backPath all', backPath);
-        console.log('backPath last', backPath[backPath.length - 1]['id']);
+            var categoryBackCont = document.createElement('div');
+            categoryBackCont.style.display = 'flex';
+            categoryBackCont.style.flexWrap = 'wrap';
+            categoryBackCont.style.gap = '10px';
+            
+            backPath.forEach(function(path) {
+                var categoryBack = document.createElement('p');
+                categoryBack.style.fontSize = '10px';
+                categoryBack.textContent = path.name;
+                categoryBack.onclick = function() {
+                        offersBySubCategory(path.id);
+                    };
+                categoryBackCont.appendChild(categoryBack);
+            })
 
-        var categoryBack = document.createElement('p');
-        categoryBack.textContent = 'Powrót';
-        categoryBack.onclick = function() {
-            offersBySubCategory(`${backPath[backPath.length - 2]['id']}`);   
-            // offersBySubCategory('1521');
-            };
-        categoriesList.appendChild(categoryBack);
+            if (categoryBackCont.lastChild) {
+                categoryBackCont.lastChild.style.opacity = '0.5';
+            }
 
-        data.categories.subcategories.forEach(function(sub_cat) {
-            console.log('sub_category forEach', sub_cat);
-            var categoryItem = document.createElement('p');
-            categoryItem.textContent = sub_cat.name;
-            console.log('sub_category 2', sub_cat.name);
-            categoryItem.onclick = function() {
-                offersBySubCategory(sub_cat.id);  
-            };
-            categoriesList.appendChild(categoryItem);
+            categoriesList.appendChild(categoryBackCont);
 
-        });
+            data.categories.subcategories.forEach(function(sub_cat) {
+                // console.log('sub_category forEach', sub_cat);
+                var categoryItem = document.createElement('p');
+                categoryItem.textContent = sub_cat.name;
+                // console.log('sub_category 2', sub_cat.name);
+                categoryItem.onclick = function() {
+                    offersBySubCategory(sub_cat.id);  
+                };
+                categoriesList.appendChild(categoryItem);
 
-     }
+            });
 
-
-
-
-
-        // function showFilters() {
-
-        //     var csrftoken = getCookie('csrftoken')
-        //     var filters = document.getElementById('dropdown');
-        //     var inputValue = document.getElementById('searchInput').value;
-
-        //     if ( filters.style.display === 'block') {
-        //         filters.style.display = 'none'
-        //     } else {
-        //         filters.style.display = 'block'
-        //     }
-
-        //     var selectedOption = filters.selectedOptions[0];
-        //     var dataOptionValue = selectedOption.getAttribute('data-option');
-        //     console.log('showFilters optionSelect clicked', dataOptionValue, inputValue)
-
-        //     axios.post('/offers_listing_response/', { filter: dataOptionValue, value: inputValue, name: 'retset' }, {
-        //         headers: {
-        //                 'X-CSRFToken': csrftoken
-        //             }
-        //     })
-        //     .then(function(response) {
-        //         console.log('offers_listing_response', response)
-        //         if ( response.status === 200 ) {
-        //             updateTable(response.data.result.items.regular)
-        //         }
-        //     })
-        //     .catch(error => {
-        //         // Handle error
-        //         console.error('chatbot_response error!', error);
-        //     });
-
-        // }
+        }
 
 
+        //  UPDATE table WITH PRODUCTS BY SUB_CATEGORIES
         function updateTable(data) {
             // Select the table body element
             var tableBody = document.getElementById('tableBody');
@@ -300,24 +289,24 @@
             // Loop through new data and add rows
             data.forEach(function(item) {
                 var row = document.createElement('tr');
-                
+                    
                 // Create cells and populate them with data
                 var idCell = document.createElement('th');
                 idCell.setAttribute('scope', 'row');
                 idCell.innerText = item.id;
-                
+                    
                 var imgCell = document.createElement('td');
                 var img = document.createElement('img');
                 img.src = item.images[0].url;
                 img.width = 50;
                 imgCell.appendChild(img);
-                
+                    
                 var titleCell = document.createElement('td');
                 titleCell.innerText = item.name;
-                
+                    
                 var priceCell = document.createElement('td');
                 priceCell.innerText = item.sellingMode.price.amount;
-                
+                    
                 var sellerCell = document.createElement('td');
                 sellerCell.innerText = item.seller.login;
 

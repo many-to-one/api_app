@@ -44,11 +44,12 @@
 }
 
 .pos_fixed {
-    position: fixed;
+    /* position: fixed;
     top: 0;
     left: 0;
-    width: 20%;
-    height: 87vh;
+    width: 20%; */
+    height: auto;
+    min-height: 87vh;
     margin-top: 10vh;
     margin-left: 5px;
 }
