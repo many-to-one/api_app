@@ -6,6 +6,7 @@ from django.shortcuts import render
 from ..models import Secret
 from datetime import datetime
 from django.core import serializers
+import logging
 
 
 def offers_listing(request, name):
@@ -13,9 +14,6 @@ def offers_listing(request, name):
     secret = Secret.objects.get(account__name=name)
     result = asyncio.run(get_offers(request, secret, name))
     categories = asyncio.run(get_all_categories(request, secret, name))
-
-    # if categories:
-    #     sub_categories = optimize_subcategories(categories[1])
 
     # print("^^^^^^^^^^^^^^^^^categories:^^^^^^^^^^^^^^^^^", categories)
 
@@ -47,7 +45,7 @@ def optimize_subcategories(sub_categories):
 
 async def get_offers(request, secret, name):
 
-    url = 'offers/listing/?category.id=319060&sort=+price&limit=60' #&offset=60 319060
+    url = 'offers/listing/?category.id=11818&sort=-relevance&fallback=true&parameter.11323=11323_1&limit=60' #&offset=60 319060
     # url = 'offers/listing?sort=-relevance&limit=60'
     debug_name = 'offers_listing 18'
     token = secret.access_token
@@ -55,61 +53,26 @@ async def get_offers(request, secret, name):
     offers = await async_service.async_get(request, name=name, url=url, token=token, refresh_token=refresh_token, debug_name=debug_name)
     time_ = datetime.now().strftime("%H:%M:%S")
 
+    logging.basicConfig(filename='output.log', level=logging.DEBUG)
+    logging.debug(json.dumps(offers, indent=4))
+
+    # for offer in
+
     # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ get_offers 33 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(offers, indent=4), time_) #json.dumps(offers, indent=4), 
 
     return offers
-
-
-# import asyncio
-# from datetime import datetime
-
-# async def get_all_categories(request, secret, name):
-#     url = 'sale/categories'
-#     token = secret.access_token
-#     refresh_token = secret.refresh_token
-    
-#     # Fetch main categories
-#     categories = await async_service.async_get(request, name=name, url=url, token=token, refresh_token=refresh_token, debug_name='offers_listing 18')
-    
-#     full_categories = []
-#     full_categories.append(categories)
-    
-#     category_tasks = [get_sub_categories(request, secret, name, cat['id']) for cat in categories['categories']]
-#     sub_categories = await asyncio.gather(*category_tasks)
-    
-#     full_categories.append(sub_categories)
-    
-#     sub_category_ids = [sub_cat['id'] for sub_list in sub_categories for sub_cat in sub_list['categories']]
-    
-#     # Optional: Limit concurrent requests if needed
-#     max_concurrent_requests = 10
-#     semaphore = asyncio.Semaphore(max_concurrent_requests)
-    
-#     async def fetch_with_semaphore(id):
-#         async with semaphore:
-#             return await get_sub_categories(request, secret, name, id)
-    
-#     sub_tasks = [fetch_with_semaphore(id) for id in sub_category_ids]
-#     more_sub_categories = await asyncio.gather(*sub_tasks)
-    
-#     full_categories.append(more_sub_categories)
-    
-#     current_time = datetime.now().strftime("%H:%M:%S")
-#     print(' @*@*@*@*@*@*@*@*@*@*@*@*@ more_sub_categories 48 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(more_sub_categories, indent=4))
-#     print(f"Data fetched at: {current_time}")
-    
-#     return full_categories
 
 
 
 async def get_all_categories(request, secret, name):
 
     url = 'sale/categories' 
+    # url2 = 'sale/categories/?parent.id=38d588fd-7e9c-4c42-a4ae-6831775eca45'
     debug_name = 'offers_listing 18'
     token = secret.access_token
     refresh_token = secret.refresh_token
     categories = await async_service.async_get(request, name=name, url=url, token=token, refresh_token=refresh_token, debug_name=debug_name)
-    # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ categories 48 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(categories, indent=4))
+    print(' @*@*@*@*@*@*@*@*@*@*@*@*@ categories 48 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(categories, indent=4))
 
     full_categories = []
     full_categories.append(categories)
@@ -154,79 +117,23 @@ async def get_sub_categories(request, secret, name, categoryId):
     return sub_categories
 
 
-# async def get_category_param(request, name):
-
-#     categoryId = '11763'
-#     url = f'sale/categories/?parent.id={categoryId}' 
-#     debug_name = 'get_all_categories 23'
-#     offers = sync_service.Offers(name)
-#     result = offers.get_(request, url, debug_name)
-#     print(' @*@*@*@*@*@*@*@*@*@*@*@*@ get_category_param 58 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(result, indent=4))
-
-#     return result
-
-
-
-# def offers_listing(request, name):
-
-#     url = 'offers/listing/?category.id=319060&sort=+price&limit=60' #&offset=60
-#     # url = 'offers/listing?sort=-relevance&limit=60'
-#     debug_name = 'offers_listing 7'
-
-#     offers = sync_service.Offers(name)
-#     result = offers.get_(request, url, debug_name)
-#     print(' @*@*@*@*@*@*@*@*@*@*@*@*@ offers_listing 11 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(result, indent=4))
-#     categories = get_all_categories(request, name)
-    
-#     context = {
-#         'result': result,
-#         'categories': categories["categories"],
-#     }
-
-#     return render(request, 'listing/offers_listing.html', context)
-
-
 def offers_listing_response(request):
 
     data = json.loads(request.body.decode('utf-8'))
     value = data.get('value')
     filter = data.get('filter')
     name = data.get('name')
+    path = data.get('path')
     id = '319060' #'319060'
     # url = f'offers/listing/?{filter}={value}&sort=+price&limit=60' #&offset=60 
-    url = f'offers/listing/?{filter}={value}&sort=+price&limit=60'
+    url = f'offers/listing/?{path}&limit=60'
     debug_name = 'offers_listing_response 25'
 
     offers = sync_service.Offers(name)
     result = offers.get_(request, url, debug_name)
     # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ offers_listing_response 25 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(result, indent=4))
-    # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ offers_listing_response url @*@*@*@*@*@*@*@*@*@*@*@*@ ', url)
+    print(' @*@*@*@*@*@*@*@*@*@*@*@*@ offers_listing_response url @*@*@*@*@*@*@*@*@*@*@*@*@ ', url)
 
     return JsonResponse ({
         'result': result,
     })
-
-
-# def get_all_categories(request, name):
-
-#     url = 'sale/categories' 
-#     debug_name = 'get_all_categories 23'
-#     offers = sync_service.Offers(name)
-#     result = offers.get_(request, url, debug_name)
-#     print(' @*@*@*@*@*@*@*@*@*@*@*@*@ get_all_categories 23 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(result, indent=4))
-#     get_category_param(request, name)
-
-#     return result
-
-
-# def get_category_param(request, name):
-
-#     categoryId = '11763'
-#     url = f'sale/categories/?parent.id={categoryId}' 
-#     debug_name = 'get_all_categories 23'
-#     offers = sync_service.Offers(name)
-#     result = offers.get_(request, url, debug_name)
-#     print(' @*@*@*@*@*@*@*@*@*@*@*@*@ get_category_param 58 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(result, indent=4))
-
-#     return result
-

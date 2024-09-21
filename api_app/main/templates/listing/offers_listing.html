@@ -42,7 +42,7 @@
                             <option class="dropdown-item" href="#" data-option="Darmowa Dostawa">Darmowa Dostawa</option>
                             <option class="dropdown-item" href="#" data-option="campaign">W Promocji</option>
                             <option class="dropdown-item" href="#" data-option="Konto Firmowe">Konto Firmowe</option>
-                            <option class="dropdown-item" href="#" data-option="Super Sprzedawca">Super Sprzedawca</option>
+                            <option class="dropdown-item" href="#" data-option="option=SUPERSELLER">Super Sprzedawca</option>
                         </select>
                       </div>
                 </div>
@@ -62,6 +62,7 @@
                             <th scope="col"></th>
                             <th scope="col">Tytuł</th>
                             <th scope="col">Cena</th>
+                            <th scope="col">Popularnośc</th>
                             <th scope="col">Sprzedawca</th>
                           </tr>
                         </thead>
@@ -72,9 +73,10 @@
                                     <td>
                                         <img src="{{ res.images.0.url }}" alt="" width="50px">
                                     </td>
-                                    <td>{{ res.name }}</td>
+                                    <td onclick="showOffer('{{ res.id }}', '{{ res.name }}')">{{ res.name }}</td>
                                     <td>{{ res.sellingMode.price.amount }}</td>
-                                    <td>{{ res.seller.login }}</td>
+                                    <td>{{ res.sellingMode.popularity }}</td>
+                                    <td onclick="showSeller('{{ res.seller.login }}')">{{ res.seller.login }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -109,8 +111,36 @@
         }
 
 
-        subCatContainer = []
-        catContainer = []
+
+
+        function slugify(text) {
+            let title = text
+            .toLowerCase()               // Convert to lowercase
+            .replace(/ /g, '-')          // Replace spaces with hyphens
+            .replace(/[^\w-]+/g, '');    // Remove all non-word characters (optional)
+            return title
+        }
+
+        function showOffer(id, name) {
+            var slug = slugify(name)
+            console.log('showOffer', id, slug)
+            var url = `https://allegro.pl.allegrosandbox.pl/oferta/${slug}-${id}?item=${id}`;
+            window.open(url, '_blank'); // open the link in a new window
+        }
+
+        function showSeller(seller) {
+            var url = `https://allegro.pl.allegrosandbox.pl/uzytkownik/${seller}`
+            window.open(url, '_blank'); // open the link in a new window
+        }
+
+        // function globalUrl (path) {
+        //     return path
+        // }
+
+        var category = null;
+        var globalUrl = null;
+        subCatContainer = [];
+        catContainer = [];
 
         document.addEventListener('DOMContentLoaded', function () {
             var data = document.getElementById('categoriesList');
@@ -132,6 +162,7 @@
         });
 
 
+        // BACK TO ROOR CATEGORIES
         function backMain () {
             console.log('catContainer', catContainer)
             var catagoriesList = document.getElementById('categoriesList');
@@ -157,6 +188,10 @@
 
             console.log('offersByCategory_ clicked', subCatContainer);
             console.log('catId', catId);
+
+            category = `category.id=${catId}`
+            globalUrl = `category.id=${catId}&`
+            console.log('globalUrl cat', globalUrl)
 
             var catagoriesList = document.getElementById('categoriesList');
             catagoriesList.innerHTML = '';
@@ -196,6 +231,11 @@
         // GET SUB_CATEGORIES PRODUCTS
         function offersBySubCategory(catId) {
 
+            // Set global category id variable
+            // to use it in showFilters()
+            category = `category.id=${catId}`;
+            globalUrl = `category.id=${catId}&`;
+
             // If catId is one of the root categories -> 
             // navigate user to the main categories filters
             catContainer.forEach(function(categories) {
@@ -206,26 +246,9 @@
                 }
             })
 
-            var csrftoken = getCookie('csrftoken')
             console.log('offersBySubCategory clicked', catId)
-
-            axios.post('/offers_listing_response/', { filter: 'category.id', value: catId, name: 'retset' }, {
-                headers: {
-                        'X-CSRFToken': csrftoken
-                    }
-            })
-            .then(function(response) {
-                console.log('offers_listing_response +', response)
-                if ( response.status === 200 ) {
-                    updateTable(response.data.result.items.regular)
-                    // updateFilters(response.data.result.categories.subcategories)
-                    updateFilters(response.data.result)
-                }
-            })
-            .catch(error => {
-                // Handle error
-                console.error('chatbot_response error!', error);
-            });
+            var path = `category.id=${catId}`
+            getOffersResponse( path )
 
         }
 
@@ -303,12 +326,18 @@
                     
                 var titleCell = document.createElement('td');
                 titleCell.innerText = item.name;
+                titleCell.onclick = function() {
+                    showOffer(item.id, item.name)
+                }
                     
                 var priceCell = document.createElement('td');
                 priceCell.innerText = item.sellingMode.price.amount;
                     
                 var sellerCell = document.createElement('td');
                 sellerCell.innerText = item.seller.login;
+                sellerCell.onclick = function() {
+                    showSeller(item.seller.login)
+                }
 
                 // Append cells to the row
                 row.appendChild(idCell);
@@ -320,7 +349,76 @@
                 // Append the row to the table body
                 tableBody.appendChild(row);
             });
+
         }
+
+
+        function getOffersResponse (path) {
+
+            var csrftoken = getCookie('csrftoken')
+            console.log('getOffersResponse path:', path);
+
+            resetFullUrl()
+
+            axios.post('/offers_listing_response/', { path: path, name: 'retset' }, {
+                headers: {
+                        'X-CSRFToken': csrftoken
+                    }
+            })
+            .then(function(response) {
+                console.log('offers_listing_response +', response)
+                if ( response.status === 200 ) {
+                    updateTable(response.data.result.items.regular)
+                    // updateFilters(response.data.result.categories.subcategories)
+                    updateFilters(response.data.result)
+                }
+            })
+            .catch(error => {
+                // Handle error
+                console.error('chatbot_response error!', error);
+            });
+
+        }
+
+
+        // SHOW RESULT BY SELECTED OPTION VALUE
+        function showFilters() {
+            var selectElement = document.getElementById('dropdown');
+
+            var inputValue = document.getElementById('searchInput').value;
+            // console.log('inputValue:', inputValue)
+            
+            // Get the selected option using the selectedIndex property
+            var selectedOption = selectElement.options[selectElement.selectedIndex];
+            
+            // Get the data-option attribute of the selected option
+            var dataOption = selectedOption.getAttribute('data-option');
+            var phrase = selectedOption.getAttribute('phrase');
+            if ( inputValue ) {
+                var path = `phrase=${inputValue}`;
+                console.log('inputValue and phraze', path);
+                fullUrl(path);
+            } else {
+                var path = `${dataOption}`;
+                fullUrl(path);
+            }
+
+            // console.log('Selected data-option:', path, inputValue);
+
+            getOffersResponse( globalUrl )
+        }
+
+        function fullUrl (value) {
+            var mainUrl = `${globalUrl}&${value}`;
+            globalUrl = mainUrl
+            console.log('globalUrl:', globalUrl);
+        }
+
+        function resetFullUrl () {
+            globalUrl = `${category}&`
+            console.log('resetFullUrl:', globalUrl);
+        }
+
 
 
     </script>
