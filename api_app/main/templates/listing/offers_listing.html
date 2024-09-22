@@ -32,16 +32,18 @@
                     <div class="input-group search_fixed">
                         <input type="text" class="form-control" id="searchInput">
                         <select class="btn btn-outline-secondary dropdown-toggle s_btn" id="dropdown" onchange="showFilters()">
-                            <option class="dropdown-item" href="#" data-option="phrase" selected>Nazwa Oferty</option>
-                            <option class="dropdown-item" href="#" data-option="seller.login">Login Sprzedawcy</option>
-                            <option class="dropdown-item" href="#" data-option="category.id">ID Kategorii</option>
+                            <option class="dropdown-item " href="#" data-option="" selected>Filtruj</option>
+                            <option class="dropdown-item input_title" href="#" data-option="phrase">Nazwa Oferty</option>
+                            <option class="dropdown-item inputs" href="#" data-option="seller.login">Login Sprzedawcy</option>
+                            <option class="dropdown-item inputs" href="#" data-option="category.id">ID Kategorii</option>
                             <option class="dropdown-item" href="#" data-option="deliveryMethod">Dostawca</option>
-                            <option class="dropdown-item" href="#" data-option="location.city">Miasto</option>
-                            <option class="dropdown-item" href="#" data-option="location.province">Wojewódstwo</option>
-                            <option class="dropdown-item" href="#" data-option="price.from&price.to">Zakres Cen</option>
-                            <option class="dropdown-item" href="#" data-option="Darmowa Dostawa">Darmowa Dostawa</option>
+                            <div style="display: none;"></div>
+                            <option class="dropdown-item inputs" href="#" data-option="location.city">Miasto</option>
+                            <option class="dropdown-item inputs" href="#" data-option="location.province">Wojewódstwo</option>
+                            <option class="dropdown-item inputs" href="#" data-option="price.from&price.to">Zakres Cen</option>
+                            <option class="dropdown-item" href="#" data-option="option=FREE_SHIPPING">Darmowa Dostawa</option>
                             <option class="dropdown-item" href="#" data-option="campaign">W Promocji</option>
-                            <option class="dropdown-item" href="#" data-option="Konto Firmowe">Konto Firmowe</option>
+                            <option class="dropdown-item" href="#" data-option="option=FREE_RETURN">Darmowy Zwrot</option>
                             <option class="dropdown-item" href="#" data-option="option=SUPERSELLER">Super Sprzedawca</option>
                         </select>
                       </div>
@@ -133,9 +135,6 @@
             window.open(url, '_blank'); // open the link in a new window
         }
 
-        // function globalUrl (path) {
-        //     return path
-        // }
 
         var category = null;
         var globalUrl = null;
@@ -146,7 +145,7 @@
             var data = document.getElementById('categoriesList');
             var subData = data.getAttribute('value')
             var categoriesData = data.getAttribute('data-cat');
-            console.log('categoriesData', categoriesData)
+            // console.log('categoriesData', categoriesData)
             let jsonString = subData
             .replace(/'/g, '"')  // Replace single quotes with double quotes
             .replace(/True/g, 'true')  // Replace True with true
@@ -190,7 +189,7 @@
             console.log('catId', catId);
 
             category = `category.id=${catId}`
-            globalUrl = `category.id=${catId}&`
+            globalUrl = `category.id=${catId}`
             console.log('globalUrl cat', globalUrl)
 
             var catagoriesList = document.getElementById('categoriesList');
@@ -234,7 +233,7 @@
             // Set global category id variable
             // to use it in showFilters()
             category = `category.id=${catId}`;
-            globalUrl = `category.id=${catId}&`;
+            globalUrl = `category.id=${catId}`;
 
             // If catId is one of the root categories -> 
             // navigate user to the main categories filters
@@ -261,9 +260,9 @@
             var catagoriesList = document.getElementById('categoriesList');
             catagoriesList.innerHTML = '';
 
-            var backPath = data.categories.path
-            console.log('backPath all', backPath);
-            console.log('backPath last', backPath[backPath.length - 2]['id']);
+            var backPath = data.categories.path.slice(1)
+            // var backPath = data.categories.subcategories
+            console.log('backPath all', backPath, backPath.length);
 
             var categoryBackCont = document.createElement('div');
             categoryBackCont.style.display = 'flex';
@@ -271,6 +270,7 @@
             categoryBackCont.style.gap = '10px';
             
             backPath.forEach(function(path) {
+                console.log('backPath all HELLO');
                 var categoryBack = document.createElement('p');
                 categoryBack.style.fontSize = '10px';
                 categoryBack.textContent = path.name;
@@ -279,6 +279,22 @@
                     };
                 categoryBackCont.appendChild(categoryBack);
             })
+
+            // if ( backPath.length === 0 ) {
+
+            //     var subCats = data.categories.subcategories;
+            //     console.log('backPath.length === 0 ', subCats);
+
+            //     subCats.forEach(function(path) {
+            //         var categoryBack = document.createElement('p');
+            //         categoryBack.style.fontSize = '10px';
+            //         categoryBack.textContent = path.name;
+            //         categoryBack.onclick = function() {
+            //                 offersBySubCategory(path.id);
+            //             };
+            //         categoryBackCont.appendChild(categoryBack);
+            //     })
+            // } 
 
             if (categoryBackCont.lastChild) {
                 categoryBackCont.lastChild.style.opacity = '0.5';
@@ -375,7 +391,7 @@
             })
             .catch(error => {
                 // Handle error
-                console.error('chatbot_response error!', error);
+                console.error('getOffersResponse error!', error);
             });
 
         }
@@ -384,23 +400,48 @@
         // SHOW RESULT BY SELECTED OPTION VALUE
         function showFilters() {
             var selectElement = document.getElementById('dropdown');
-
-            var inputValue = document.getElementById('searchInput').value;
-            // console.log('inputValue:', inputValue)
             
             // Get the selected option using the selectedIndex property
             var selectedOption = selectElement.options[selectElement.selectedIndex];
+
+            var searchInput = document.getElementById('searchInput').value;
+            var offerTitle = selectedOption.classList.contains('input_title');
+            var inputs = selectedOption.classList.contains('inputs');
             
             // Get the data-option attribute of the selected option
             var dataOption = selectedOption.getAttribute('data-option');
-            var phrase = selectedOption.getAttribute('phrase');
-            if ( inputValue ) {
-                var path = `phrase=${inputValue}`;
+
+            console.log('dataOption', dataOption);
+
+            var resuts = false;
+
+            if ( inputs ) {
+
+                console.log('inputs', dataOption);
+                var path = `${dataOption}=${searchInput}`;
+                resuts = true;
                 console.log('inputValue and phraze', path);
                 fullUrl(path);
-            } else {
-                var path = `${dataOption}`;
+        
+            } 
+            if ( offerTitle ) { 
+
+                var path = `phrase=${searchInput}`;
+                console.log('only input_title', path);
                 fullUrl(path);
+
+            }
+            else {
+
+                if ( searchInput && !resuts ) {
+                    var path = `phrase=${searchInput}&${dataOption}`;
+                    console.log('dataOption in else path searchInput', path);
+                    fullUrl(path);
+                } else {
+                    var path = `${dataOption}`;
+                    console.log('dataOption in else path', path);
+                    fullUrl(path);
+                }
             }
 
             // console.log('Selected data-option:', path, inputValue);
@@ -415,7 +456,7 @@
         }
 
         function resetFullUrl () {
-            globalUrl = `${category}&`
+            globalUrl = `${category}`
             console.log('resetFullUrl:', globalUrl);
         }
 
