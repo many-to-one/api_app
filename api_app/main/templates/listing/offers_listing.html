@@ -384,9 +384,11 @@
             .then(function(response) {
                 console.log('offers_listing_response +', response)
                 if ( response.status === 200 ) {
-                    updateTable(response.data.result.items.regular)
-                    // updateFilters(response.data.result.categories.subcategories)
-                    updateFilters(response.data.result)
+                    // updateTable(response.data.result.items.regular)
+                    updateTable(response.data.result)
+
+                    // updateFilters(response.data.result)
+                    updateFilters(response.data.path)
                 }
             })
             .catch(error => {

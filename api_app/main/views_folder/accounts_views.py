@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from ..models import *
 from ..utils import *
 
+
 def add_account(request):
 
     if request.user.is_authenticated:

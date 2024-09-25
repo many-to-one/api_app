@@ -72,7 +72,7 @@ async def get_all_categories(request, secret, name):
     token = secret.access_token
     refresh_token = secret.refresh_token
     categories = await async_service.async_get(request, name=name, url=url, token=token, refresh_token=refresh_token, debug_name=debug_name)
-    print(' @*@*@*@*@*@*@*@*@*@*@*@*@ categories 48 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(categories, indent=4))
+    # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ categories 48 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(categories, indent=4))
 
     full_categories = []
     full_categories.append(categories)
@@ -85,16 +85,6 @@ async def get_all_categories(request, secret, name):
         ))
     sub = await asyncio.gather(*tasks)
     full_categories.append(sub)
-    # if sub:
-    #     for s in sub:
-    #         for c in s['categories']:
-    #             id = c['id']
-    #             tasks_1.append(asyncio.create_task(
-    #                 get_sub_categories(request, secret, name, id)
-    #             ))
-    #     sub_1 = await asyncio.gather(*tasks_1)
-    #     # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ sub_1 48 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(sub_1, indent=4))
-    #     full_categories.append(sub_1)
     time_ = datetime.now().strftime("%H:%M:%S")
 
     # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ get_all_categories 48 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(full_categories[0], indent=4)) #json.dumps(full_categories[1], indent=4), 
@@ -104,7 +94,7 @@ async def get_all_categories(request, secret, name):
 
 async def get_sub_categories(request, secret, name, categoryId):
 
-    # print('$$$$$$$$$$$$$$$$$$ TYPE $$$$$$$$$$$$$$$$$$$$', type(categoryId))
+    print('$$$$$$$$$$$$$$$$$$ categoryId $$$$$$$$$$$$$$$$$$$$', categoryId)
 
     # categoryId = '11763'
     url = f'sale/categories/?parent.id={categoryId}' 
@@ -112,7 +102,10 @@ async def get_sub_categories(request, secret, name, categoryId):
     token = secret.access_token
     refresh_token = secret.refresh_token
     sub_categories = await async_service.async_get(request, name=name, url=url, token=token, refresh_token=refresh_token, debug_name=debug_name)
-    # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ get_category_param 58 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(sub_categories, indent=4))
+
+    if categoryId == '11818':
+        print(' @*@*@*@*@*@*@*@*@*@*@*@*@ get_category_param 58 - 11818 sub_categories @*@*@*@*@*@*@*@*@*@*@*@*@ ', sub_categories)
+        # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ get_category_param 58 -11818 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(sub_categories, indent=4))
 
     return sub_categories
 
@@ -130,10 +123,30 @@ def offers_listing_response(request):
     debug_name = 'offers_listing_response 25'
 
     offers = sync_service.Offers(name)
-    result = offers.get_(request, url, debug_name)
-    # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ offers_listing_response 25 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(result, indent=4))
-    print(' @*@*@*@*@*@*@*@*@*@*@*@*@ offers_listing_response url @*@*@*@*@*@*@*@*@*@*@*@*@ ', url)
+    result_ = offers.get_(request, url, debug_name)
+
+    all_results = []  # To store all offers (up to 600)
+    offset = 0  # Starting point for pagination
+    max_offers = 600  # Set your maximum desired offers (600)
+
+    while offset < 600:
+        
+        paginated_url = f'{url}&offset={offset}'
+        result = offers.get_(request, paginated_url, debug_name)
+
+        if not result['items']['regular']:
+            break
+
+        all_results.extend(result['items']['regular'])
+        offset += 60
+
+    all_results_ = all_results[:600]
+
+    # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ offers_listing_response 25 @*@*@*@*@*@*@*@*@*@*@*@*@ ', json.dumps(all_results_, indent=4))
+    # print(' @*@*@*@*@*@*@*@*@*@*@*@*@ offers_listing_response url @*@*@*@*@*@*@*@*@*@*@*@*@ ', url)
+
 
     return JsonResponse ({
-        'result': result,
+        'result': all_results_,
+        'path': result_
     })
