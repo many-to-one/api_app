@@ -28,8 +28,9 @@ urlpatterns = [
     path('get_orders/<str:name>/<str:delivery>/<str:status>/<str:client>/<str:fromDate>/<str:toDate>/', orders_views.get_orders, name='get_orders'),
     # path('get_orders_by_client/<str:name>/<str:delivery>/<str:status>/<str:client>/', orders_views_test.get_orders_by_client, name='get_orders_by_client'),
     path('get_order_details/<uuid:id>/<str:name>/', orders_views.get_order_details, name='get_order_details'),
-    # path('change_status/<str:id>/<str:name>/<str:status>/', orders_views_test.change_status, name='change_status'),
-    # path('run_option/<str:name>/<str:option>/', orders_views_test.run_option, name='run_option'),
+    path('change_status/<str:id>/<str:name>/<str:status>/', orders_views.change_status, name='change_status'),
+    path('run_option/<str:name>/<str:option>/', orders_views.run_option, name='run_option'),
+    path('order_status/<str:name>/', orders_views.order_status, name='order_status'),
 
     # path('create_label_DPD/<uuid:id>/', orders_views_test.create_label_DPD, name='create_label_DPD'),
     # path('create_label_in_bulk_DPD/', orders_views_test.create_label_in_bulk_DPD, name='create_label_in_bulk_DPD'),
@@ -39,7 +40,7 @@ urlpatterns = [
     path('prepare_get_shipment_status_id/<str:name>/', orders_views.prepare_get_shipment_status_id, name='prepare_get_shipment_status_id'),
     # path('get_shipment_status_id/<str:name>/', orders.get_shipment_status_id, name='get_shipment_status_id'),
 
-    path('invalid_token', errors_views.invalid_token, name='invalid_token'),
+    path('invalid_token/<str:name>/', errors_views.invalid_token, name='invalid_token'),
     path('get_all_offers/<str:name>/', offer_views.get_all_offers, name='get_all_offers'),
     path('set_offers/<str:name>/', set_offers_views.set_offers, name='set_offers'),
     path('set_add/<str:name>/<str:offer_id>/', set_offers_views.set_add, name='set_add'),

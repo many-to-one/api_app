@@ -70,7 +70,7 @@ class Offers:
                     try:
                         # Refresh the token and retry the request
                         new_token = get_next_token(request, context['refresh_token'], context['name'])
-                        # new_token = get_access_token() ## FOR TEST without loging to aegro
+                            # new_token = get_access_token() ## FOR TEST without loging to aegro
                         print(' @@@@@@@@@ new_token @@@@@@@@@ ', new_token)
                         if new_token:
                             # Retry the request with the new token
@@ -87,11 +87,14 @@ class Offers:
                             secret.save()
                             return result
                     except Exception as e:
-                        print('Exception @@@@@@@@@', e)
+                    # else:
+                        print('Exception @@@@@@@@@ here', str(e))
                         context = {'name': context['name']}
+                        # if 'access_token' in str(e):
                         return render(request, 'invalid_token.html', context)
-            # print(f'@@@@@@@@@ sync_get RESULT for {debug_name} @@@@@@@@@', json.dumps(result, indent=4))
-            print(f'@@@@@@@@@ sync_get HEADERS for {debug_name} @@@@@@@@@', json_result.headers)
+
+            # # print(f'@@@@@@@@@ sync_get RESULT for {debug_name} @@@@@@@@@', json.dumps(result, indent=4))
+            # print(f'@@@@@@@@@ sync_get HEADERS for {debug_name} @@@@@@@@@', json_result.headers)
 
             return result
         

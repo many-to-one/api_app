@@ -1,6 +1,7 @@
 import asyncio
 import math
 import time
+from .views import get_new_authorization_code
 from users.models import CustomUser
 from users.views import logout_user
 from .models import *
@@ -12,7 +13,7 @@ from dotenv import load_dotenv
 load_dotenv()
 TOKEN_URL = os.getenv('TOKEN_URL')
 import httpx
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 
 
 async def check_login(request):
@@ -36,8 +37,13 @@ async def get_token():
 def get_next_token(request, refresh_token, name):
 
     print(f'@#@#@#@# get_next_token access_token #@#@#@# --------- {refresh_token}')
+
+    # if refresh_token == None:
+    #     print(f'@#@#@#@# refresh_token is None #@#@#@# --------- {refresh_token}')
+        # get_new_authorization_code(request, name)
+
+    # else:
     
-    # account = Allegro.objects.get(name=name)
     secret = Secret.objects.get(account__name=name)
     print(f'@#@#@#@# secret #@#@#@# --------- {secret}')
 
@@ -45,11 +51,14 @@ def get_next_token(request, refresh_token, name):
     # data = {'grant_type': 'refresh_token', 'refresh_token': secret.refresh_token, 'redirect_uri': 'http://localhost:8000/get_code'}
     data = {'grant_type': 'refresh_token', 'refresh_token': refresh_token, 'redirect_uri': 'http://localhost:8000/get_code'}
     access_token_response = requests.post(TOKEN_URL, data=data, verify=False,
-                                          allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
+                                            allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
     print("RESPONSE CONTENT:", access_token_response)
     tokens = json.loads(access_token_response.text)
     print("RESPONSE CONTENT:", type(tokens))
     print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {tokens}')
+    # if 'error' in tokens:
+    #     print(f'@#@#@#@# ERROR invalid_grant IN NEXT TOKENS #@#@#@# --------- {tokens}')
+    #     return tokens['error']
     access_token = tokens['access_token']
     new_refresh_token = tokens['refresh_token']
     print(f'@#@#@#@# NEXT TOKENS REPEAT #@#@#@# --------- {access_token}')
@@ -63,7 +72,7 @@ def get_next_token(request, refresh_token, name):
         # print(f'@#@#@#@# NEXT TOKENS #@#@#@# --------- {access_token}')
         print(' ************* NEXT TOKEN WAS CREATED ************* ', secret)
         return access_token
-    if tokens['error']:
+    if tokens['error'] == 'invalid_grant':
         print(f'@#@#@#@# NEXT TOKENS ERROR ERROR ERROR #@#@#@# --------- ', tokens['error'])
         # If the exceptions will repeat, I need to create logic
         # to get a new token o smth to login to allegro 

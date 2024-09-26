@@ -1,6 +1,7 @@
 import os
 import time
-from ..views import get_next_token
+# from ..views import get_next_token
+from ..utils import get_next_token
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
 from reportlab.pdfgen import canvas

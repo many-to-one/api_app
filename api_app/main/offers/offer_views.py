@@ -137,6 +137,7 @@ def get_all_offers(request, name):
 
     offers = sync_service.Offers(name)
     result = offers.get_(request, url, debug_name)
+
     # print(' @@@@@@@@@ - get_all_offers - @@@@@@@@@ ', json.dumps(result, indent=4))
 
     context = {

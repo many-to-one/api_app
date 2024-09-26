@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+{% block content %}
+<body>
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    
+    
+    <div class="cont">
+        <h4>Status zamówień został zmieniony</h4>
+        <a href="{% url 'get_orders' name 'all' 'all' 'all' 'all' 'all' %}">Wrócz</a>
+    </div>
+
+
+
+</body>
+{% endblock %}
+</html>

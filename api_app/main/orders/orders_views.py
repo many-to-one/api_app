@@ -731,3 +731,115 @@ async def get_courier(request, shipmentId, commandId, pickupDateProposalId, secr
 
 
 
+######################################### CHANGE ORDER STATUS ##############################################
+
+def run_option(request, name, option):
+
+    if request.user.is_authenticated:
+
+        secret = Secret.objects.get(account__name=name)
+        ids = request.GET.getlist('ids')
+
+        result = asyncio.run(run_option_async(secret, option, ids))
+
+        print('*********** run_option main ***********', result)
+
+        individual_ids = []
+
+        # Iterate over each element in the 'ids' list
+        for id_group in ids:
+            # Split each string by commas and extend the individual_ids list with the resulting elements
+            individual_ids.extend(id_group.split(','))
+
+        return JsonResponse(
+                    {
+                        'message': 'Stock updated successfully',
+                        'newStatus': option,
+                        'orders': individual_ids,
+                    }, 
+                    status=200,
+                )
+
+
+async def run_option_async(secret, option, ids):
+
+    tasks = []
+
+    for item in ids:
+        for order_id in item.split(','):
+            if order_id:
+                print('********************** run_option order_id ****************************', order_id)
+                tasks.append(asyncio.create_task(change_status_async(secret, option, order_id)))
+
+    results = await asyncio.gather(*tasks)
+
+    return results
+
+
+async def change_status_async(secret, option, order_id):
+
+    try:
+        url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{order_id}/fulfillment"
+        headers = {
+        'Authorization': f'Bearer {secret.access_token}',
+        'Accept': 'application/vnd.allegro.public.v1+json',
+        'Content-Type': 'application/vnd.allegro.public.v1+json'
+    }
+
+        data = {
+                "status": str(option),
+                "shipmentSummary": {
+                "lineItemsSent": "SOME"
+                }
+            }
+
+        response = requests.put(url, headers=headers, json=data)
+        print('*********** change_status ***********', response)
+
+        return response
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+    
+
+
+def change_status(request, id, name, status):
+
+    if request.user.is_authenticated:
+
+        secret = Secret.objects.get(account__name=name)
+        # ids = request.GET.getlist('ids')
+        # encoded_offers = ','.join(ids)
+        # print('********************** change_status ids ****************************', ids)
+
+        try:
+            url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}/fulfillment"
+            headers = {
+            'Authorization': f'Bearer {secret.access_token}',
+            'Accept': 'application/vnd.allegro.public.v1+json',
+            'Content-Type': 'application/vnd.allegro.public.v1+json'
+        }
+
+            data = {
+                    "status": str(status),
+                    "shipmentSummary": {
+                    "lineItemsSent": "SOME"
+                    }
+                }
+
+            response = requests.put(url, headers=headers, json=data)
+            print('*********** change_status ***********', id, name, status)
+            print('*********** change_status ***********', response)
+
+            return JsonResponse(
+                    {
+                        'message': 'Stock updated successfully',
+                        'newStatus': status,
+                    }, 
+                    status=200,
+                )
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)
+        
+
+def order_status(request, name):
+    return render(request, 'orders/order_status.html', {'name': name})

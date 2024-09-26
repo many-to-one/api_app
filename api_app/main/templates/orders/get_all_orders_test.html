@@ -31,8 +31,6 @@
                         <option selected value=" ">Wybierz...</option>
                         <option data-option="print" id="getName" value="{{ name }}">Drukuj Etykiety</option>
                         <option data-option="FV">Generuj Faktury</option>
-                        <option data-option="NEW">NOWE</option>
-                        <option data-option="READY_FOR_SHIPMENT">OPŁACONE</option>
                         <option data-option="READY_FOR_SHIPMENT">W REALIZACJI</option>
                         <option data-option="CANCELLED">ANULOWANE</option>
                         <option data-option="SENT">WYSŁANE</option>
@@ -81,7 +79,9 @@
                         <option value="PICKED_UP">DOSTARCZONE</option>
                     </select>
 
-                    <button id="search_o" class="search_o" onclick="searchRes()">Submit</button>
+                    <svg id="search_o" class="bi bi-search search_o" onclick="searchRes()" xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                    </svg>
 
                 </div>
 
@@ -166,22 +166,13 @@
 
                     <p class="costs">{{ order.summary.totalToPay.amount }} {{ order.summary.totalToPay.currency }}</p> 
 
-                    {% if order.status == 'FILLED_IN' %}
-                        <p value="{{ order.id }}_{{ order.status }}" class="status">NIE OPŁACONE</p>
-                    {% elif order.status == 'READY_FOR_PROCESSING' %}
-                        <p value="{{ order.id }}_{{ order.status }}" class="status">OPŁACONE</p>
-                    {% elif order.status == 'CANCELLED' %}
-                        <p value="{{ order.id }}_{{ order.status }}" class="status">ANULOWANE</p>
-                    {% else %}
-                        <p value="{{ order.id }}_{{ order.status }}" class="status"></p>
-                    {% endif %}
-
                     <p class="client" id="buyer" value="{{ order.buyer.login }}" onclick="ordersByLogin('{{ order.buyer.login }}')">{{ order.buyer.login }}</p>
                     <p class="shipment">{{ order.delivery.method.name }}</p>
                     <!-- WYSŁANE -->
                     <select class="account_select order" id="status_select_{{ order.id }}">
                         <option id="status_{{ order.id }}" value="SENT" {% if order.fulfillment.status == 'SENT' %} selected {% endif %}>WYSŁANE</option> 
-                        <option id="status_{{ order.id }}" value="READY_FOR_PROCESSING" {% if order.fulfillment.status == 'NEW' %} selected {% endif %}>NOWE</option>
+                        <option id="status_{{ order.id }}" value="READY_FOR_PROCESSING" {% if order.fulfillment.status == 'NEW' %} selected {% endif %}>NOWE</option> 
+                        <option id="status_{{ order.id }}" value="READY_FOR_SHIPMENT" {% if order.fulfillment.status == 'READY_FOR_SHIPMENT' %} selected {% endif %}>W REALIZACJI</option>
                         <option id="status_{{ order.id }}" value="CANCELLED" {% if order.fulfillment.status == 'CANCELLED' %} selected {% endif %}>ANULOWANE</option>
                         <option id="status_{{ order.id }}" value="PICKED_UP" {% if order.fulfillment.status == 'PICKED_UP' %} selected {% endif %}>DOSTARCZONE</option>
                     </select>
@@ -374,8 +365,12 @@
 
             checkboxes.forEach(function(checkbox) {
                 if (checkbox.checked) {
-                    // console.log('checkbox =>', checkbox.value)
+                    console.log('checkbox =>', checkbox.value)
                     checkedItems.push(checkbox.dataset.orderData);
+                    // const load = document.getElementById('load_'+ offerId)
+                    // const edit = document.getElementById('edit_' + offerId);
+                    // load.style.display = 'block';
+                    // edit.style.display = 'none';
                 }
             });
 
@@ -393,20 +388,23 @@
                 )
 
                     .then(function(response) {
-                        console.log('status', response.data.newStatus)
                         if(response.status === 200) {
-                            setTimeout(() => {
-                                window.location.reload(true); // Force reload without cache
+                            console.log('status', response.data.newStatus)
+                                // window.location.reload(true); // Force reload without cache
                                 wait.style.display = 'none';
-                                // response.data.orders.forEach(function(id) {
-                                // const offerId = id; // Assuming order object has an 'id' property
-                                // console.log('offerId', id)
+
+                                response.data.orders.forEach(function(id) {
+                                const offerId = id; // Assuming order object has an 'id' property
+                                console.log('offerId', offerId)
+                                // document.getElementById('status_' + offerId).value = response.data.newStatus;
 
                                 // if (response.data.newStatus) {
-                                //     document.getElementById('status_' + id).value = response.data.newStatus;
+                                //     document.getElementById('status_' + offerId).value = response.data.newStatus;
                                 // }
-                                // });
-                            }, 1000);
+                                var url = `/order_status/${name}/`;
+                                window.location.href = url
+                                });
+
 
                             console.log('status', response.status)
                     
