@@ -97,7 +97,7 @@ def get_shipping_rates(request, name):
         secret = Secret.objects.get(account__name=name)
 
         try:
-            url = "https://api.allegro.pl.allegrosandbox.pl/sale/shipping-rates" 
+            url = "sale/shipping-rates" 
             debug_name = 'get_all_offers 126'
 
             offers = sync_service.Offers(name)
@@ -154,7 +154,7 @@ def get_all_offers(request, name):
 # GET OFFER DESCRIPTION
 def get_one_offer(request, name, id):
 
-    url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
+    url = f"sale/product-offers/{id}"
     debug_name = 'get_all_offers 126'
 
     offers = sync_service.Offers(name)
@@ -170,7 +170,7 @@ def get_one_offer(request, name, id):
 
 def get_description(request, id, name):
 
-    url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
+    url = f"sale/product-offers/{id}"
     debug_name = 'get_all_offers 126'
 
     offers = sync_service.Offers(name)
@@ -314,7 +314,8 @@ def post_product_from_lister(request, secret, ean, post_data):
         name = post_data.get("name")
         secret_name = secret.account.name
         shippingRatesName = get_shipping_rates(request, secret_name)
-        print('************** shippingRatesName **************', shippingRatesName['shippingRates'][0]['name'])
+        print('************** shippingRatesName **************', shippingRatesName)
+        # print('************** shippingRatesName **************', shippingRatesName['shippingRates'][0]['name'])
         if "delivery" in post_data:
             delivery_info = post_data["delivery"]
             if "shippingRates" in delivery_info:
@@ -402,8 +403,8 @@ def post_product_from_lister(request, secret, ean, post_data):
         "messageToSellerSettings": messageToSellerSettings,
     }
         
-        url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers"
-        debug_name = 'get_all_offers 126'
+        url = f"sale/product-offers"
+        debug_name = 'post_product_from_lister 310'
 
         offers = sync_service.Offers(secret_name)
         offers.post_(request, url, data, debug_name)
@@ -419,7 +420,7 @@ def get_ean(request):
         id = data.get('offerId')
         name = data.get('name')
         
-        url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
+        url = f"sale/product-offers/{id}"
         debug_name = 'get_all_offers 126'
 
         offers = sync_service.Offers(name)
@@ -488,8 +489,10 @@ def edit_offer_patch(request, id):
             }
         }
 
-    url = f"https://api.allegro.pl.allegrosandbox.pl/sale/product-offers/{id}"
-    debug_name = 'edit_offer_patch 445'
+    print('############# patch_data #############', patch_data)
+
+    url = f"sale/product-offers/{id}"
+    debug_name = 'edit_offer_patch 451'
 
     offers = sync_service.Offers(name)
     result = offers.patch_(request, url, patch_data, debug_name)

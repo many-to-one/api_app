@@ -93,7 +93,7 @@ class Offers:
                         # if 'access_token' in str(e):
                         return render(request, 'invalid_token.html', context)
 
-            # # print(f'@@@@@@@@@ sync_get RESULT for {debug_name} @@@@@@@@@', json.dumps(result, indent=4))
+            # print(f'@@@@@@@@@ sync_get RESULT for {debug_name} @@@@@@@@@', json.dumps(result, indent=4))
             # print(f'@@@@@@@@@ sync_get HEADERS for {debug_name} @@@@@@@@@', json_result.headers)
 
             return result
@@ -190,10 +190,56 @@ class Offers:
                         print('Exception @@@@@@@@@', e)
                         context = {'name': context['name']}
                         return render(request, 'invalid_token.html', context)
-            # print(f'@@@@@@@@@ sync_get RESULT for {debug_name} @@@@@@@@@', json.dumps(result, indent=4))
+            print(f'@@@@@@@@@ sync_get RESULT for {debug_name} @@@@@@@@@', json.dumps(result, indent=4))
             print(f'@@@@@@@@@ sync_get HEADERS for {debug_name} @@@@@@@@@', json_result.headers)
 
             return result
         
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
+        
+
+    def put_(self, request, url, payload, debug_name):
+
+            context = self.credentials()
+
+            try:
+                headers = {
+                    'Authorization': f'Bearer {context["token"]}', 
+                    'Accept': 'application/vnd.allegro.public.v1+json',
+                    'Content-Type': 'application/vnd.allegro.public.v1+json'
+                }
+                json_result = requests.put(f'{ENVIRONMENT}/{url}', headers=headers, json=payload)
+                result = json_result.json()
+                if 'error' in result:
+                    error_code = result['error']
+                    if error_code == 'invalid_token':
+                        try:
+                            # Refresh the token and retry the request
+                            new_token = get_next_token(request, context['refresh_token'], context['name'])
+                            # new_token = get_new_authorization_code(request, context['name'])
+                            if new_token:
+                                # Retry the request with the new token
+                                headers = {
+                                    'Authorization': f'Bearer {new_token}', 
+                                    'Accept': "application/vnd.allegro.public.v1+json",
+                                    'Content-Type': 'application/vnd.allegro.public.v1+json'
+                                }
+                                json_result = requests.patch(url, headers=headers, json=payload)
+                                result = json_result.json()
+
+                                # Update the secret with the new token
+                                secret = Secret.objects.get(account__name=self.name)
+                                secret.access_token = new_token
+                                secret.save()
+                        except Exception as e:
+                            print('Exception @@@@@@@@@', e)
+                            context = {'name': context['name']}
+                            return render(request, 'invalid_token.html', context)
+                print(f'@@@@@@@@@ sync_get RESULT for {debug_name} @@@@@@@@@', json.dumps(result, indent=4))
+                print(f'@@@@@@@@@ sync_get HEADERS for {debug_name} @@@@@@@@@', json_result.headers)
+
+                return result
+            
+            except requests.exceptions.HTTPError as err:
+                raise SystemExit(err)

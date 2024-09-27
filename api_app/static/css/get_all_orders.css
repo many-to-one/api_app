@@ -25,7 +25,7 @@
     align-items: center;
     padding: 5px;
     background-color: transparent;
-    z-index: 10;
+    /* z-index: 10; */
     /* margin-top: 10vh; */
 }
 
@@ -151,6 +151,7 @@
 .date_o_from {
     position: absolute;
     left: 25%;
+    width: 100px;
 }
 
 .date_o_from_label {
@@ -162,6 +163,7 @@
 .date_o_to {
     position: absolute;
     left: 33%;
+    width: 100px;
 }
 
 .date_o_to_label {

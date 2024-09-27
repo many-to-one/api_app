@@ -5,6 +5,7 @@ from .sets import set_offers_views
 from .offers import bulk_edit_views, offer_views
 
 from .orders import orders_views
+from .returns import returns
 
 from .messages import messages
 from .views import *
@@ -80,4 +81,6 @@ urlpatterns = [
     path('get_address/<str:name>/', get_address, name='get_address'),
 
     path('get_invoice_file/<str:name>/<str:buyer>/', generate_pdf.get_invoice_file, name='get_invoice_file'),
+
+    path('get_returns/<str:name>/', returns.get_returns, name='get_returns'),
 ] 

@@ -33,6 +33,15 @@
                 </li>
 
                 <li class="dropdown">
+                    <span>Zwroty</span>
+                    <div class="dropdown-content">
+                        {% for name in accounts  %}
+                        <a href="{% url 'get_returns' name %}">{{ name }}</a>
+                        {% endfor %}
+                    </div>
+                </li>
+
+                <li class="dropdown">
                     <span>Adres Wysyłki</span>
                     <div class="dropdown-content">
                         {% for name in accounts  %}

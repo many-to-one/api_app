@@ -29,6 +29,11 @@
     
     <div class="offers__cont" id="offers__cont">
 
+        <div id="messageBox" class="message-box" style="display: none;">
+            <span id="messageText"></span>
+            <button id="closeButton" class="close-button" onclick="closeMessage()">&times;</button>
+        </div>
+
         <!-- <div class="list__header">
             <div class="cont">
                 <h1 id="name" value="{{ name }}">{{ name }}</h1>
@@ -119,7 +124,7 @@
                     >
                 <img class="photo" src="{{offer.primaryImage.url}}" alt="">
                 <div class="name_offer">
-                    <p class="acti" id="acti_{{ offer.id }}" onclick="editClick('{{ offer.id }}')">{{ offer.name }}</p>
+                    <p class="acti" id="acti_{{ offer.id }}"onclick="editClick('{{ offer.id }}')">{{ offer.name }}</p>
                     <p class="acti_in" id="acti_in_{{ offer.id }}">
                         <input class="title_input" type="text" id="name_{{ offer.id }}" value="{{ offer.name }}">
                         <img id="edit_{{ offer.id }}" class="icon edit__stock" src="{% static 'icons/edit2.png' %}" onclick="editTitle('{{ offer.id }}')">
@@ -128,6 +133,8 @@
                         </div>
                     </p>
                     <p class="name">{{ offer.external.id }}</p>
+                    <p id="onloadEan_{{ offer.id }}_{{ forloop.counter }}" class="name"></p>
+                    <p>Sprzedano: {{ offer.stock.sold }}</p>
                 </div>
                 <p class="costs_o_cont">
                     <input class="stock" type="text" id="stock_{{ offer.id }}" value="{{ offer.stock.available }}">
@@ -160,7 +167,6 @@
                     <option value="ENDED">Zakończ</option>
                 </select>
 
-                <p>{{ offer.stock.sold }}</p>
                 <select class="account_select" id="account_select_{{ offer.id }}_{{ forloop.counter }}">
                     {% for nameIs in accounts  %}
                         <option id="status_{{ offer.id }}_{{ forloop.counter }}" value="{{ nameIs }}">
@@ -225,6 +231,88 @@
             return cookieValue;
         }
 
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Loop through all elements with class "acti"
+            document.querySelectorAll('.acti').forEach(function(element, index) {
+                // Get the offer id from the element's id attribute
+                const offerId = element.id.split('_')[1];
+                // Get the forloop counter (in this case, using the index in the loop + 1)
+                const forloopCounter = index + 1;
+                // Call the getEan function for each element
+                loadEans(offerId, forloopCounter);
+            });
+        });
+
+
+        function loadEans (offerId, counter) {
+
+            console.log('getEan offerId', offerId, counter, name);
+
+            // Obtain CSRF token from cookie
+            var csrftoken = getCookie('csrftoken');
+
+            // Make start button invisible
+            // var start = document.getElementById('start_' + offerId + '_' + counter);
+            // start.style.display = 'none';
+
+            // // Make Post button visible
+            // var pst = document.getElementById('pst_' + offerId + '_' + counter);
+            // pst.style.display = 'block';
+
+            // Make Ean Input visible
+            var ean = document.getElementById('onloadEan_' + offerId + '_' + counter);
+            // ean.style.display = 'block';
+
+            // Make an AJAX request to update the stock value
+            axios.post('/get_ean/', { offerId: offerId, name: name}, {
+                headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            }) 
+
+            .then(function(response) {
+                // console.log('status', response.data.newValue)
+                if(response.status == 200) {
+                    var context = response.data.context.result;
+                    console.log('getEan', context);
+                    ean.textContent = context;
+                    // window.location.href = 'http://127.0.0.1:8000/';
+                }
+            })
+            .catch(function(error) {
+                // Handle error
+                console.error('Error updating stock:', error);
+            });
+
+            return ean.value;
+
+            }
+
+
+
+
+        function showMessage(message, status) {
+            const messageBox = document.getElementById('messageBox');
+            const messageText = document.getElementById('messageText');
+            messageText.textContent = message;
+            messageBox.style.display = 'block';  
+            if ( status === 200 ) {
+                messageBox.style.backgroundColor = 'green';
+            } else if ( status === 300 ) {
+                messageBox.style.backgroundColor = 'blue';
+            } else {
+                messageBox.style.backgroundColor = 'red';
+            }
+
+            setTimeout(closeMessage, 3000);
+        }
+
+        function closeMessage() {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.style.display = 'none';  // Hide the message box
+        }
 
 
 
@@ -369,7 +457,8 @@
                 }
         })
             .then(function(response) {
-                console.log('status', response.data.newValue)
+                // console.log('status', response.data.newValue)
+                console.log('editStock response', response)
                 if(response.status == 200) {
                     // document.getElementById('load_'+ offerId).style.display = 'none';
                     load.style.display = 'none';
@@ -377,6 +466,8 @@
                     document.getElementById('stock_' + offerId).value = response.data.newValue;
                     // location.reload();
                     // console.log('Success', response.data.message)
+                } else {
+                    showMessage(response.data.UserMessage, 500)
                 }
             })
             .catch(function(error) {
@@ -415,7 +506,8 @@
                 }
             })
             .then(function(response) {
-                console.log('status', response.data.newCosts)
+                // console.log('status', response.data.newCosts)
+                console.log('editCosts response', response)
                 if(response.status == 200) {
                     // document.getElementById('load_'+ offerId).style.display = 'none';
                     load.style.display = 'none';
@@ -530,6 +622,7 @@
             return ean.value;
 
         }
+
 
 
         // Find an selected account for postOffer and bulkPost

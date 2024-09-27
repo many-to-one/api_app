@@ -8,6 +8,7 @@ from .offer_views import get_all_offers, download_all_offers
 from ..utils import *
 from ..models import *
 import uuid
+from ..api_service import sync_service
 
 
 def bulk_edit(request, name, ed_value):
@@ -148,39 +149,52 @@ def QUANTITY(request, name, secret, offers):
                 ]
             }
 
+            url = f"sale/offer-quantity-change-commands/{commandId}"
+            debug_name = 'QUANTITY 124'
 
-            try:
-                url = f"https://api.allegro.pl.allegrosandbox.pl/sale/offer-quantity-change-commands/{commandId}"
-                # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
-                headers = {
-                    'Authorization': f'Bearer {secret.access_token}', 
-                    'Accept': "application/vnd.allegro.public.v1+json",
-                    'Content-Type': "application/vnd.allegro.public.v1+json",
-                    }
-                product_result = requests.put(url, headers=headers, json=data)
-                result = product_result.json()
-                # print('******* product_result ********', result)
-                if 'error' in result:
-                    error_code = result['error']
-                    if error_code == 'invalid_token':
-                        # print('ERROR RESULT @@@@@@@@@', error_code)
-                        try:
-                            # Refresh the token
-                            new_token = get_next_token(request, secret.refresh_token, name)
-                            # Retry fetching orders with the new token
-                            return get_all_offers(request, name)
-                        except Exception as e:
-                            print('Exception @@@@@@@@@', e)
-                            context = {'name': name}
-                            return render(request, 'invalid_token.html', context)
-                print('RESULT - PRICE - @@@@@@@@@', json.dumps(result, indent=4))
-                context = {
-                    'result': product_result.json(),
+            offers = sync_service.Offers(name)
+            result = offers.put_(request, url, data, debug_name)
+
+            context = {
+                    'result': result,
                     'name': name,
                 }
-                return redirect('get_all_offers', name=name)
-            except requests.exceptions.HTTPError as err:
-                raise SystemExit(err)
+            return redirect('get_all_offers', name=name)
+            
+
+
+            # try:
+            #     url = f"https://api.allegro.pl.allegrosandbox.pl/sale/offer-quantity-change-commands/{commandId}"
+            #     # headers = {'Authorization': 'Bearer ' + token, 'Accept': "application/vnd.allegro.public.v1+json"}
+            #     headers = {
+            #         'Authorization': f'Bearer {secret}', 
+            #         'Accept': "application/vnd.allegro.public.v1+json",
+            #         'Content-Type': "application/vnd.allegro.public.v1+json",
+            #         }
+            #     product_result = requests.put(url, headers=headers, json=data)
+            #     result = product_result.json()
+            #     print('******* QUANTITY ********', result)
+            #     if 'error' in result:
+            #         error_code = result['error']
+            #         if error_code == 'invalid_token':
+            #             # print('ERROR RESULT @@@@@@@@@', error_code)
+            #             try:
+            #                 # Refresh the token
+            #                 new_token = get_next_token(request, secret.refresh_token, name)
+            #                 # Retry fetching orders with the new token
+            #                 return get_all_offers(request, name)
+            #             except Exception as e:
+            #                 print('Exception @@@@@@@@@', e)
+            #                 context = {'name': name}
+            #                 return render(request, 'invalid_token.html', context)
+            #     print('RESULT - PRICE - @@@@@@@@@', json.dumps(result, indent=4))
+            #     context = {
+            #         'result': product_result.json(),
+            #         'name': name,
+            #     }
+            #     return redirect('get_all_offers', name=name)
+            # except requests.exceptions.HTTPError as err:
+            #     raise SystemExit(err)
 
 
         return render(request, 'bulk_quantity.html')
