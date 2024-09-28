@@ -59,8 +59,13 @@ class Offers:
         try:
             headers = {
                 'Authorization': f'Bearer {context["token"]}', 
-                'Accept': "application/vnd.allegro.public.v1+json"
+                'Accept': "application/vnd.allegro.public.v1+json",
             }
+            if url == 'order/customer-returns':
+                    headers = {
+                    'Authorization': f'Bearer {context["token"]}', 
+                    'Accept': "application/vnd.allegro.beta.v1+json",
+                }
             json_result = requests.get(f'{ENVIRONMENT}/{url}', headers=headers, verify=True)
             result = json_result.json()
             if 'error' in result:
