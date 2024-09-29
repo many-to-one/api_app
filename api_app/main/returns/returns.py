@@ -15,6 +15,12 @@ def get_returns(request, name):
 
     print(' @@@@@@@@@ - get_returns - @@@@@@@@@ ', json.dumps(result, indent=4))
 
+    offers = get_all_offers(request, name)
+    print(' @@@@@@@@@ - offers - @@@@@@@@@ ', json.dumps(offers, indent=4))
+
+    for offer in offers['offers']:
+        print(' @@@@@@@@@ - one offer - @@@@@@@@@ ', offer['primaryImage'])
+
     context = {
         'result': result,  
         'name': name,
@@ -23,3 +29,17 @@ def get_returns(request, name):
     }
 
     return render(request, 'returns/returns.html', context)
+
+
+# GET ALL OFFERS
+def get_all_offers(request, name):
+    
+    url = 'sale/offers'
+    debug_name = 'get_all_offers 126'
+
+    offers = sync_service.Offers(name)
+    result = offers.get_(request, url, debug_name)
+
+    # print(' @@@@@@@@@ - get_all_offers - @@@@@@@@@ ', json.dumps(result, indent=4))
+
+    return result
