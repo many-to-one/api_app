@@ -243,6 +243,7 @@ def set_shipment_list(request, name):
         if results:
             if secret:
                 results_ = asyncio.run(set_shipment_list_q(results, secret))
+                products = asyncio.run(get_products(results, secret))
                 print('**********************  /// results_ 909 /// ****************************', results_)
 
                 # get_invoice_task.apply_async(args=['8'])
@@ -476,6 +477,65 @@ async def set_shipment_list_q(results, secret):
                     externalId = set()
 
     return await asyncio.gather(*tasks)
+
+
+async def get_products(results, secret):
+    lists = []
+    for order_data in results[1:]:
+        if isinstance(order_data, tuple):
+            for _ in range(int(order_data[0]["delivery"]["calculatedNumberOfPackages"])):
+                for line_item in order_data[0]['lineItems']:
+                    print( '********************** get_products **********************', line_item['offer'] )
+                    lists.append(line_item['offer'])
+
+    print( '********************** BASE 64 GET PRODUCTS lists **********************', lists )
+
+    res = await warehouse_list_pdf(lists)
+    return res
+    # print( '********************** BASE 64 GET PRODUCTS RES **********************', res )
+
+
+
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from io import BytesIO
+from django.http import HttpResponse
+import json
+
+async def warehouse_list_pdf(lists):
+    # Convert the list data to JSON string format
+    json_str = json.dumps(lists, indent=4)
+
+    # Create a BytesIO buffer
+    buffer = BytesIO()
+
+    # Create the PDF in the buffer instead of saving it to the file system
+    c = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+    
+    # Add content to the PDF
+    c.drawString(100, height - 100, "Warehouse List Data:")
+    text_object = c.beginText(100, height - 120)
+    text_object.textLines(json_str)
+    c.drawText(text_object)
+
+    # Finalize and save the PDF content into the buffer
+    c.save()
+
+    # Get the buffer value and prepare the response
+    buffer.seek(0)  # Rewind the buffer to the beginning
+    response = HttpResponse(buffer, content_type='application/pdf')
+
+    # Optionally, set a filename for the downloaded PDF
+    response['Content-Disposition'] = 'attachment; filename="warehouse_lists.pdf"'
+
+    # Close the buffer
+    buffer.close()
+
+    return response
+
+
+
 
 
 

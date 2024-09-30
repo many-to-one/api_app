@@ -119,7 +119,7 @@ def get_access_token(request, authorization_code, name):
             data = {'grant_type': 'authorization_code', 'code': authorization_code, 'redirect_uri': f'http://localhost:8000/get_new_code/{name}'}
             access_token_response = requests.post(TOKEN_URL, data=data, verify=True,
                                                 allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
-            print("RESPONSE CONTENT:", access_token_response.status_code)
+            print("RESPONSE CONTENT:", access_token_response.text)
             tokens = json.loads(access_token_response.text)
             access_token = tokens['access_token']
             refresh_token = tokens['refresh_token']

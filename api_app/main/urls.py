@@ -69,7 +69,7 @@ urlpatterns = [
     path('all_messages/<str:name>/', messages.all_messages, name='all_messages'),
     path('get_one_message/', messages.get_one_message, name='get_one_message'),
     path('send_message/', messages.send_message, name='send_message'),
-    path('chatbot_response/', chatbot.chatbot_response, name='chatbot_response'),
+    # path('chatbot_response/', chatbot.chatbot_response, name='chatbot_response'),
 
     path('offers_listing/<str:name>/', offers_listing.offers_listing, name='offers_listing'),
     path('offers_listing_response/', offers_listing.offers_listing_response, name='offers_listing_response'),
