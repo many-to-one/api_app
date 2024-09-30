@@ -69,6 +69,12 @@
 
                         <div class="d-flex justify-content-between">
 
+                            {% for image in images %}
+                                {% if image.offerId == item.offerId %}
+                                    <img src="{{ image.primaryImage.url }}" alt="" height="120px">
+                                {% endif %}
+                            {% endfor %}
+
                             <div class="name_offer">
                                 <a href="{{ item.url }}">{{ item.name }}</a>
                                 <p>{{ item.offerId }}</p>
@@ -158,6 +164,7 @@
                     </div>
 
                     {% endfor %}
+                
                 </div>
 
             {% endfor %}

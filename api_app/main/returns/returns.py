@@ -15,14 +15,22 @@ def get_returns(request, name):
 
     print(' @@@@@@@@@ - get_returns - @@@@@@@@@ ', json.dumps(result, indent=4))
 
+    images = []
     offers = get_all_offers(request, name)
-    print(' @@@@@@@@@ - offers - @@@@@@@@@ ', json.dumps(offers, indent=4))
 
     for offer in offers['offers']:
-        print(' @@@@@@@@@ - one offer - @@@@@@@@@ ', offer['primaryImage'])
+        # print(' @@@@@@@@@ - one offer - @@@@@@@@@ ', offer['primaryImage'])
+        images.append({
+            'offerId': offer['id'],
+            'primaryImage': offer['primaryImage'],
+        })
+        print(' @@@@@@@@@ - one offer - @@@@@@@@@ ', offer)
+        images.append(offer['primaryImage'])
+
 
     context = {
-        'result': result,  
+        'result': result, 
+        'images': images,
         'name': name,
         # 'shipping_rates': shipping_rates,
         # 'aftersale_services': aftersale_services,

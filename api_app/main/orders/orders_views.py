@@ -291,9 +291,11 @@ def set_shipment_list(request, name):
             'name': name,
             'couriers': couriers,
             'selects': selects,
+            'warehouse_list': products,
             }
         
-        print('********************** context 921 ****************************', context)
+        # print('********************** context 921 ****************************', context)
+        print('********************** warehouse_list ****************************', products)
         
         end_time = time.time()
         elapsed_time = end_time - start_time
@@ -486,13 +488,13 @@ async def get_products(results, secret):
             for _ in range(int(order_data[0]["delivery"]["calculatedNumberOfPackages"])):
                 for line_item in order_data[0]['lineItems']:
                     print( '********************** get_products **********************', line_item['offer'] )
-                    lists.append(line_item['offer'])
+                    lists.append(line_item)
 
     print( '********************** BASE 64 GET PRODUCTS lists **********************', lists )
 
-    res = await warehouse_list_pdf(lists)
-    return res
-    # print( '********************** BASE 64 GET PRODUCTS RES **********************', res )
+    # res = await warehouse_list_pdf(lists)
+    # return res
+    return lists
 
 
 

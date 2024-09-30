@@ -21,6 +21,9 @@
 
         <div name="link" value="{{ result }}"></div>
         <div name="couriers" value="{{ couriers }}"></div>
+        <div name="warehouse_list" value="{{ warehouse_list }}"></div>
+        
+
 
         <div id="question">
             <p id="text"></p>
@@ -90,8 +93,112 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
         <script>
+
+        var warehouseListCont = []
+
+        document.addEventListener('DOMContentLoaded', function() {
+            warehouseListJSON()
+        })
+
+        function warehouseListJSON() {
+
+                var warehouse = document.querySelectorAll('div[name="warehouse_list"]');
+                for(let name of warehouse) {
+                    var list = name.getAttribute('value');
+                    let cleanedValue = list
+                    .replace(/None/g, 'null')       // Replace None with null
+                    .replace(/'/g, '"')             // Replace single quotes with double quotes
+                    .replace(/\(\{/g, '{')          // Remove tuple notation (e.g., ( becomes { )
+                    .replace(/\}\)/g, '}')
+                    .replace(/True/g, 'true')        // Replace True with true
+                    .replace(/False/g, 'false');
+                    let parsedValue;
+                    parsedValue = JSON.parse(cleanedValue);
+                    for(let c of parsedValue) {
+                        console.log("for:", c );
+                        warehouseListCont.push(c)
+                    }
+                }
+
+                generatePDF()
+                
+        }
+
+        function generatePDF() {
+            // Create a new PDF document
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFont("Times");
+
+            // Set font size to 10 and support for Unicode (for Polish letters)
+            doc.setFontSize(10);
+            doc.setFont("Helvetica", "normal");
+
+            // Add a title or heading
+            doc.text("Data from Django Context Array", 10, 10);
+
+            // Set the initial Y position for text and X offsets for columns
+            let yPosition = 10;  // Initial Y position after title
+            const columnWidths = [10, 120, 30];  // Widths for SKU, Nazwa, Ilość columns
+            const marginLeft = 10;  // Left margin for the table
+            const lineHeight = 10;  // Line height for text wrapping
+
+            // Headers
+            const headers = ["SKU", "Nazwa", "Ilość"];
+            let currentX = marginLeft;
+
+            // Add headers
+            headers.forEach((header, index) => {
+                doc.text(header, currentX, yPosition);
+                currentX += columnWidths[index];  // Move X position to next column
+            });
+
+            // Add a line below the headers
+            yPosition += lineHeight;
+            doc.line(marginLeft, yPosition, marginLeft + columnWidths.reduce((a, b) => a + b, 0), yPosition); 
+
+            // Move Y position down for the data
+            yPosition += lineHeight;
+
+            // Loop through the array and add rows to the PDF
+            warehouseListCont.forEach((item) => {
+                let currentX = marginLeft;  // Reset X position to the left margin for each row
+                let rowHeight = lineHeight;  // Track row height for wrapping
+
+                // Column 1: SKU (external id)
+                doc.text(item.offer.external.id, currentX, yPosition);
+                currentX += columnWidths[0];  // Move X position to next column
+
+                // Column 2: Nazwa (name)
+                const name = item.offer.name;
+                const nameLines = doc.splitTextToSize(name, columnWidths[1]);  // Wrap text within 120 units
+
+                nameLines.forEach((line, i) => {
+                    doc.text(line, currentX, yPosition + i * lineHeight);
+                });
+
+                // Adjust rowHeight to the height of the wrapped text
+                rowHeight = Math.max(rowHeight, nameLines.length * lineHeight);
+                currentX += columnWidths[1];  // Move X position to next column
+
+                // Column 3: Ilość (quantity)
+                doc.text(item.quantity.toString(), currentX, yPosition);
+                currentX += columnWidths[2];
+                
+                // Move Y position down for the next row, considering rowHeight for wrapped text
+                yPosition += rowHeight;
+            });
+
+            // Save the PDF
+            doc.save("lista.pdf");
+        }
+
+
+
 
         function showMessage(message, status) {
             console.log('showMessage', message, status)
@@ -286,7 +393,7 @@
                 wait.style.display = 'none';
                 question.style.display = 'none';
 
-            }
+            } 
 
         </script>
     
