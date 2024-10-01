@@ -203,8 +203,8 @@
                 doc.text(item.quantity.toString(), currentX, yPosition);
                 currentX += columnWidths[2];
 
-                // Draw a line under the row
-                const lineY = yPosition + Math.max(rowHeight, lineHeight); // Y position for the line is just below the row
+                // Draw a line under the row  
+                const lineY = yPosition + Math.max(1.5, 1.5); // lineHeight Y position for the line is just below the row
                 doc.line(marginLeft, lineY, availableWidth + marginLeft, lineY); // Draw line using available width
                 
                 // Move Y position down for the next row, considering rowHeight for wrapped text

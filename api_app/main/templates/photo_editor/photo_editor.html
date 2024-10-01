@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+{% block content %}
+
+    <body>
+
+        <div id="csrf-token" data-token="{{ csrf_token }}"></div>
+
+        <div class="offers__cont" id="of_cont">
+            <div class="list__header_orders">
+
+            </div>
+            <!-- <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="image">
+                <button type="submit">Upload</button>
+            </form>     -->
+
+            <form id="imageForm" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="image">Select an image:</label>
+                <input type="file" name="image" id="image" required>
+                <button type="submit">Remove Background</button>
+            </form>
+            
+            <!-- Spinner -->
+            <!-- <div class="spinner-border" role="status" style="display:none;">
+                <span class="visually-hidden">Loading...</span>
+              </div> -->
+            
+            <!-- Placeholder for the processed image -->
+            <div id="result">
+                <img id="outputImage" src="" style="display:none;" alt="Processed Image" width="300">
+                <a id="downloadLink" href="" download="processed_image.png" style="display:none;">
+                    pobierz
+                </a>
+            </div>
+
+            
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
+
+        <script>
+
+            function getCSRFToken() {
+                return document.getElementById('csrf-token').getAttribute('data-token');
+            }
+
+            var csrftoken = getCSRFToken('csrftoken');
+
+            document.getElementById('imageForm').addEventListener('submit', function(event) {
+                event.preventDefault();  // Prevent the default form submission
+        
+                // Show spinner
+                // const spiner = document.getElementById('spinner-border');
+                // spiner.style.display = 'block';
+        
+                // Prepare the form data
+                const formData = new FormData(this);
+                
+                axios.post("{% url 'remove_bg' %}", formData, {
+                    headers: {
+                        'X-CSRFToken': getCSRFToken(),  // Add CSRF token for security
+                        'Content-Type': 'multipart/form-data'
+                    }
+                })
+                .then(response => {
+                    // Hide the spinner
+                    // document.getElementById('spinner').style.display = 'none';
+
+                    // Check for a successful response and handle the data
+                    if (response.data.success) {
+                        // Display the processed image from the base64 data
+                        const outputImage = document.getElementById('outputImage');
+                        outputImage.src = response.data.image_data_url;
+                        outputImage.style.display = 'block';
+                        const downloadLink = document.getElementById('downloadLink');
+                        downloadLink.href = response.data.image_data_url;
+                        downloadLink.style.display = 'inline-block';
+                    } else {
+                        alert('Failed to process the image. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // document.getElementById('spinner').style.display = 'none';
+                    alert('An error occurred. Please try again.');
+                });
+            });
+        </script>
+        
+
+    </body>
+
+{% endblock %}
+
+</html>
