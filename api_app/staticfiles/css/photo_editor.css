@@ -1,3 +1,7 @@
+#outputImage {
+    width: 150px;
+}
+
 
 .spinner-border {
     display: none;
@@ -19,7 +23,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 10px;
+    margin-left: 30px;
     position: relative;
 }
 
@@ -42,8 +46,8 @@
 }
 
 #thumbnailArea {
-    width: 1000px;
-    height: 1000px;
+    width: 500px;
+    height: 500px;
     border: 2px dashed #ddd;
     position: relative;
     overflow: hidden; /* Hide overflowing images */
@@ -60,6 +64,57 @@
 }
 
 #thumbnailArea img.draggable-image {
-    max-width: none; /* Allow original size images */
-    max-height: none;
+    width: 800px; /* Adjust size visually */
+    /* max-height: 150px; Adjust size visually */
+    position: absolute;
+}
+
+
+
+.resizable {
+    position: absolute;
+    display: inline-block;
+    border: 2px dashed gray;
+    cursor: move;
+    width: 300px; /* Initial width */
+    /* height: 300px; Initial height */
+}
+
+.resizable img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.resize-handle {
+    width: 10px;
+    height: 10px;
+    background-color: #fff;
+    border: 2px solid #000;
+    position: absolute;
+}
+
+.resize-handle.tl {
+    top: -5px;
+    left: -5px;
+    cursor: nwse-resize;
+}
+
+.resize-handle.tr {
+    top: -5px;
+    right: -5px;
+    cursor: nesw-resize;
+}
+
+.resize-handle.bl {
+    bottom: -5px;
+    left: -5px;
+    cursor: nesw-resize;
+}
+
+.resize-handle.br {
+    bottom: -5px;
+    right: -5px;
+    cursor: nwse-resize;
 }

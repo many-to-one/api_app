@@ -8,29 +8,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <style>
-        #thumbnailArea {
-            width: 1000px;
-            height: 1000px;
-            border: 2px dashed #ddd;
-            position: relative;
-            overflow: hidden; /* Hide overflowing images */
-        }
-
-        #thumbnailArea img {
-            position: absolute;
-            cursor: grab;
-        }
-
-        #combinedCanvas {
-            display: none;
-        }
-
-        #thumbnailArea img.draggable-image {
-            max-width: none; /* Allow original size images */
-            max-height: none;
-        }
-    </style>
 </head>
 
 {% block content %}
@@ -48,16 +25,26 @@
                     <input type="file" name="image" id="image" required style="display:none;">
                     <button type="button" id="triggerFileInput">+</button>
                 </form>
-                <div class="spinner-border" role="status" id="spinner" style="display:none;">
+                <!-- Spinner -->
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status" id="spinner">
                     <span class="visually-hidden">Loading...</span>
+                    </div>
                 </div>
+            </div>
+            <!-- Placeholder for the processed image -->
+            <div id="result">
+                <img id="outputImage" src="" style="display:none;" alt="Processed Image" width="300">
+                <a id="downloadLink" href="" download="processed_image.png" style="display:none;">
+                    pobierz
+                </a>
             </div>
         </div>
 
-        <div id="thumbnailArea">Drag and drop images here</div>
-        <button id="downloadCombined" style="margin-top: 20px;">Download Combined Image</button>
+        <div id="thumbnailArea">Przeciągnij zdjęcie</div>
+        <button id="downloadCombined" style="margin: 20px;" type="button" class="btn btn-primary">Zapisz</button>
 
-        <canvas id="combinedCanvas"></canvas> <!-- Hidden Canvas for combining images -->
+        <canvas id="combinedCanvas" style="display:none;"></canvas> <!-- Hidden Canvas for combining images -->
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
@@ -77,7 +64,7 @@
         });
 
         inputFile.addEventListener('change', () => {
-            if (inputFile.files.length > 0) { // Check if a file is selected
+            if (inputFile.files.length > 0) {
                 spinner.style.display = 'block';
                 const formData = new FormData(form);
 
@@ -90,25 +77,99 @@
                 .then(response => {
                     spinner.style.display = 'none';
                     if (response.data.success) {
+
+                        // logic to download result in original size
+                        const outputImage = document.getElementById('outputImage');
+                        outputImage.src = response.data.image_data_url;
+                        outputImage.style.display = 'block';
+                        const downloadLink = document.getElementById('downloadLink');
+                        downloadLink.href = response.data.image_data_url;
+                        downloadLink.style.display = 'block';
+                        const resultImg = document.getElementById('result');
+                        resultImg.style.display = 'block';
+
+                        // logic for create a thumbnail
+                        const resizableContainer = document.createElement('div');
+                        resizableContainer.classList.add('resizable');
+                        resizableContainer.style.width = '300px';  // Initial width
+                        resizableContainer.style.height = '300px'; // Initial height
+
                         const imgElement = document.createElement('img');
                         imgElement.src = response.data.image_data_url;
-                        imgElement.classList.add('draggable-image');
-                        imgElement.draggable = true;
+                        resizableContainer.appendChild(imgElement);
 
-                        imgElement.style.position = 'absolute';
-                        imgElement.style.top = '0px';
-                        imgElement.style.left = '0px';
-
-                        imgElement.addEventListener('dragstart', function (event) {
-                            draggedImage = imgElement;
-                            event.dataTransfer.setData('text/plain', null);
+                        // Add resize handles for all corners
+                        const handles = ['tl', 'tr', 'bl', 'br'];
+                        handles.forEach(handle => {
+                            const resizeHandle = document.createElement('div');
+                            resizeHandle.classList.add('resize-handle', handle);
+                            resizableContainer.appendChild(resizeHandle);
                         });
 
-                        imgElement.addEventListener('dragend', function (event) {
-                            draggedImage = null;
+                        let isResizing = false;
+                        let isDragging = false;
+                        let currentHandle = null;
+                        let startX, startY, startWidth, startHeight, startLeft, startTop;
+
+                        // Function to handle resizing
+                        function handleResize(event, direction) {
+                            const dx = event.clientX - startX;
+                            const dy = event.clientY - startY;
+
+                            if (direction.includes('r')) {
+                                resizableContainer.style.width = `${startWidth + dx}px`;
+                            } else if (direction.includes('l')) {
+                                resizableContainer.style.width = `${startWidth - dx}px`;
+                                resizableContainer.style.left = `${startLeft + dx}px`;
+                            }
+
+                            if (direction.includes('b')) {
+                                resizableContainer.style.height = `${startHeight + dy}px`;
+                            } else if (direction.includes('t')) {
+                                resizableContainer.style.height = `${startHeight - dy}px`;
+                                resizableContainer.style.top = `${startTop + dy}px`;
+                            }
+                        }
+
+                        // Event listeners for resize handles
+                        resizableContainer.querySelectorAll('.resize-handle').forEach(handle => {
+                            handle.addEventListener('mousedown', function (event) {
+                                isResizing = true;
+                                currentHandle = handle.classList[1]; // e.g., 'tl', 'tr', etc.
+                                startX = event.clientX;
+                                startY = event.clientY;
+                                startWidth = resizableContainer.offsetWidth;
+                                startHeight = resizableContainer.offsetHeight;
+                                startLeft = resizableContainer.offsetLeft;
+                                startTop = resizableContainer.offsetTop;
+                                event.preventDefault();
+                            });
                         });
 
-                        thumbnailArea.appendChild(imgElement);
+                        // Enable dragging for the resizable container
+                        resizableContainer.addEventListener('mousedown', function (event) {
+                            if (!isResizing) {
+                                isDragging = true;
+                                startX = event.clientX - resizableContainer.offsetLeft;
+                                startY = event.clientY - resizableContainer.offsetTop;
+                            }
+                        });
+
+                        document.addEventListener('mousemove', function (event) {
+                            if (isResizing) {
+                                handleResize(event, currentHandle);
+                            } else if (isDragging) {
+                                resizableContainer.style.left = `${event.clientX - startX}px`;
+                                resizableContainer.style.top = `${event.clientY - startY}px`;
+                            }
+                        });
+
+                        document.addEventListener('mouseup', function () {
+                            isResizing = false;
+                            isDragging = false;
+                        });
+
+                        thumbnailArea.appendChild(resizableContainer);
                     } else {
                         alert('Failed to process the image.');
                     }
@@ -125,56 +186,87 @@
             event.preventDefault();
         });
 
-        thumbnailArea.addEventListener('drop', function (event) {
-            event.preventDefault();
-            if (draggedImage) {
-                const xOffset = event.offsetX - draggedImage.width / 2;
-                const yOffset = event.offsetY - draggedImage.height / 2;
-
-                draggedImage.style.left = `${xOffset}px`;
-                draggedImage.style.top = `${yOffset}px`;
-                draggedImage = null;
-            }
-        });
-
         // Function to combine images inside the thumbnailArea and download the result
         downloadCombined.addEventListener('click', function () {
-            const images = thumbnailArea.querySelectorAll('img');
-            if (images.length === 0) {
+
+            const resizableContainers = thumbnailArea.querySelectorAll('.resizable');
+            if (resizableContainers.length === 0) {
                 alert("No images to combine!");
                 return;
             }
 
             // Set the canvas dimensions
-            const canvasWidth = 1000;
-            const canvasHeight = 1000;
+            const canvasWidth = 2560;
+            const canvasHeight = 2560;
             combinedCanvas.width = canvasWidth;
             combinedCanvas.height = canvasHeight;
 
             const ctx = combinedCanvas.getContext('2d');
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight); // Clear canvas
 
-            // Clear canvas
-            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            let imagesLoaded = 0;
 
-            // Draw each image on the canvas in its original size
-            images.forEach(img => {
-                const left = parseInt(img.style.left) || 0;
-                const top = parseInt(img.style.top) || 0;
+            // Helper function to trigger download after all images are drawn
+            function checkAllImagesLoaded() {
+                if (imagesLoaded === resizableContainers.length) {
+                    combinedCanvas.toBlob(function (blob) {
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = URL.createObjectURL(blob);
+                        downloadLink.download = 'combined_image.png';
+                        downloadLink.click();
+                    }, 'image/png');
+                }
+            }
+
+            // Draw each image on the canvas in the right size and position
+            resizableContainers.forEach(container => {
+                const img = container.querySelector('img');
+                const left = parseInt(container.style.left) || 0;
+                const top = parseInt(container.style.top) || 0;
+                // const containerWidth = container.offsetWidth;
+                // const containerHeight = container.offsetHeight;
+
+                // Create a new image object to ensure it's loaded properly
                 const imgElement = new Image();
                 imgElement.src = img.src;
-                imgElement.onload = function () {
-                    ctx.drawImage(imgElement, left, top, imgElement.width, imgElement.height);
-                };
-            });
 
-            // Convert the canvas to a data URL and trigger the download
-            combinedCanvas.toBlob(function(blob) {
-                const downloadLink = document.createElement('a');
-                downloadLink.href = URL.createObjectURL(blob);
-                downloadLink.download = 'combined_image.png';
-                downloadLink.click();
-            }, 'image/png');
-        });
+                imgElement.onload = function () {
+
+                    const containerWidth = container.offsetWidth; // Width of the container
+                    const containerHeight = container.offsetHeight;
+
+                    // Calculate aspect ratio and fit image within the container's size
+                    const originalWidth = imgElement.naturalWidth;
+                    const originalHeight = imgElement.naturalHeight;
+                    const aspectRatio = originalWidth / originalHeight;
+
+                    // Determine the correct drawing size and position to maintain aspect ratio
+                    let drawWidth, drawHeight;
+                    if (containerWidth / containerHeight > aspectRatio) {
+                        drawHeight = containerHeight;
+                        drawWidth = drawHeight * aspectRatio;
+                    } else {
+                        drawWidth = containerWidth;
+                        drawHeight = drawWidth / aspectRatio;
+                    }
+
+                    // Calculate scale factor based on canvas size change
+                    const scaleFactor = canvasWidth / 500; // Assuming original canvas was 1000x1000
+                    const scaledWidth = drawWidth * scaleFactor;
+                    const scaledHeight = drawHeight * scaleFactor;
+
+                    // Calculate the final position on the canvas using the image's own position
+                    const drawX = (left + (containerWidth - drawWidth) / 2) * scaleFactor; // Centering the image
+                    const drawY = (top + (containerHeight - drawHeight) / 2) * scaleFactor; // Centering the image   
+                    
+                    // Draw the image onto the canvas at the calculated position and size
+                    ctx.drawImage(imgElement, drawX, drawY, scaledWidth, scaledHeight);
+
+                    imagesLoaded++;  // Increment the count of loaded images
+                    checkAllImagesLoaded();  // Check if all images are loaded and drawn
+                };
+                    });
+                });
     </script>
 
 </body>
