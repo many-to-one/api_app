@@ -19,23 +19,20 @@
             <div class="list__header_orders">
 
             </div>
-            <!-- <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                <input type="file" name="image">
-                <button type="submit">Upload</button>
-            </form>     -->
 
             <form id="imageForm" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
-                <label for="image">Select an image:</label>
+                <label for="image">Wybierz zdjęcie:</label>
                 <input type="file" name="image" id="image" required>
-                <button type="submit">Remove Background</button>
+                <button type="submit">Wytnij tło</button>
             </form>
             
             <!-- Spinner -->
-            <!-- <div class="spinner-border" role="status" style="display:none;">
+            <div class="d-flex justify-content-center">
+              <div class="spinner-border" role="status" id="spinner">
                 <span class="visually-hidden">Loading...</span>
-              </div> -->
+              </div>
+            </div>
             
             <!-- Placeholder for the processed image -->
             <div id="result">
@@ -52,6 +49,8 @@
 
         <script>
 
+            var spinner = document.getElementById('spinner');
+
             function getCSRFToken() {
                 return document.getElementById('csrf-token').getAttribute('data-token');
             }
@@ -62,8 +61,7 @@
                 event.preventDefault();  // Prevent the default form submission
         
                 // Show spinner
-                // const spiner = document.getElementById('spinner-border');
-                // spiner.style.display = 'block';
+                spinner.style.display = 'inline-block';
         
                 // Prepare the form data
                 const formData = new FormData(this);
@@ -75,10 +73,7 @@
                     }
                 })
                 .then(response => {
-                    // Hide the spinner
-                    // document.getElementById('spinner').style.display = 'none';
 
-                    // Check for a successful response and handle the data
                     if (response.data.success) {
                         // Display the processed image from the base64 data
                         const outputImage = document.getElementById('outputImage');
@@ -86,14 +81,14 @@
                         outputImage.style.display = 'block';
                         const downloadLink = document.getElementById('downloadLink');
                         downloadLink.href = response.data.image_data_url;
-                        downloadLink.style.display = 'inline-block';
+                        downloadLink.style.display = 'block';
+                        spinner.style.display = 'none';
                     } else {
                         alert('Failed to process the image. Please try again.');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    // document.getElementById('spinner').style.display = 'none';
                     alert('An error occurred. Please try again.');
                 });
             });

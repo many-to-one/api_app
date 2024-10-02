@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+</head>
+
+{% block content %}
+<body>
+
+    <div id="csrf-token" data-token="{{ csrf_token }}"></div>
+
+    <div class="offers__cont" id="of_cont">
+
+        <div class="list__header_orders">
+
+        </div>
+        <div class="container_editor">
+
+
+        <div class="square-form">
+            <div class="square-form">
+                <form id="imageForm" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="file" name="image" id="image" required>
+                    <button type="button" onclick="document.getElementById('image{{ forloop.counter }}').click()">+</button>
+                </form>
+                <div class="spinner-border" role="status" id="spinner{{ forloop.counter }}" style="display:none;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <img id="outputImage{{ forloop.counter }}" src="" style="display:none;" alt="Processed Image" width="100%">
+                <a id="downloadLink{{ forloop.counter }}" href="" download="processed_image.png" style="display:none;">Download</a>
+            </div>
+        </div>
+
+
+    <div id="thumbnailArea">Drag and drop images here</div>
+
+</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
+    <script>
+        const csrfToken = document.getElementById('csrf-token').getAttribute('data-token');
+
+        document.querySelectorAll('.square-form form').forEach((form, index) => {
+            const spinner = form.querySelector('.spinner-border');
+            const outputImage = form.querySelector('img');
+            const downloadLink = form.querySelector('a');
+            const inputFile = form.querySelector('input[type="file"]');
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                spinner.style.display = 'block';
+                const formData = new FormData(this);
+
+                axios.post("{% url 'remove_bg' %}", formData, {
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'multipart/form-data',
+                    }
+                })
+                .then(response => {
+                    if (response.data.success) {
+                        spinner.style.display = 'none';
+                        outputImage.src = response.data.image_data_url;
+                        outputImage.style.display = 'block';
+                        downloadLink.href = response.data.image_data_url;
+                        downloadLink.style.display = 'block';
+                    } else {
+                        alert('Failed to process the image.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    spinner.style.display = 'none';
+                    alert('An error occurred. Please try again.');
+                });
+            });
+
+            inputFile.addEventListener('change', () => {
+                form.submit();
+            });
+        });
+
+        // Drag and Drop Logic
+        let draggedImage = null;
+
+        document.querySelectorAll('.square-form img').forEach((image) => {
+            image.addEventListener('dragstart', function(event) {
+                draggedImage = event.target;
+                event.dataTransfer.setData('text', '');
+            });
+        });
+
+        const thumbnailArea = document.getElementById('thumbnailArea');
+        thumbnailArea.addEventListener('dragover', function(event) {
+            event.preventDefault();
+        });
+
+        thumbnailArea.addEventListener('drop', function(event) {
+            event.preventDefault();
+            if (draggedImage) {
+                const clone = draggedImage.cloneNode(true);
+                clone.classList.add('draggable-image');
+                thumbnailArea.appendChild(clone);
+                draggedImage = null;
+            }
+        });
+    </script>
+
+</body>
+{% endblock %}
+
+</html>

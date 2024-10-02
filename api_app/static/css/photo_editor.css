@@ -1,0 +1,60 @@
+
+.spinner-border {
+    display: none;
+}
+
+.container_editor {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    height: 10vh;
+    width: 100vw;
+}
+
+.square-form {
+    width: 150px;
+    height: 150px;
+    background-color: #f0f0f0;
+    border: 2px dashed #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px;
+    position: relative;
+}
+
+.square-form input[type="file"] {
+    display: none;
+}
+
+.square-form button {
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+#result {
+    display: none;
+    width: 100%;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+#thumbnailArea {
+    width: 100%;
+    height: 300px;
+    border: 2px dashed #ccc;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.draggable-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    position: absolute;
+}

@@ -49,7 +49,7 @@ from django.views.decorators.http import require_POST
 #     return render(request, 'photo_editor/photo_editor.html')
 
 def remove_background(request):
-    return render(request, 'photo_editor/photo_editor.html')
+    return render(request, 'photo_editor/image_editor.html')
 
 
 @require_POST
@@ -73,6 +73,10 @@ def remove_bg(request):
             # Construct the base64 string to be used in the frontend
             image_data_url = f"data:image/png;base64,{image_base64}"
             
-            return JsonResponse({'success': True, 'image_data_url': image_data_url})
+            return JsonResponse({
+                    'success': True, 
+                    'image_data_url': image_data_url,
+                    'range': 5, #range(5),
+                })
 
     return JsonResponse({'success': False, 'error': 'Image processing failed'})
