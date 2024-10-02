@@ -8,7 +8,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        #thumbnailArea {
+            width: 1000px;
+            height: 1000px;
+            border: 2px dashed #ddd;
+            position: relative;
+            overflow: hidden; /* Hide overflowing images */
+        }
 
+        #thumbnailArea img {
+            position: absolute;
+            cursor: grab;
+        }
+
+        #combinedCanvas {
+            display: none;
+        }
+
+        #thumbnailArea img.draggable-image {
+            max-width: none; /* Allow original size images */
+            max-height: none;
+        }
+    </style>
 </head>
 
 {% block content %}
@@ -17,47 +39,47 @@
     <div id="csrf-token" data-token="{{ csrf_token }}"></div>
 
     <div class="offers__cont" id="of_cont">
+        <div class="list__header_orders"></div>
 
-        <div class="list__header_orders">
-
-        </div>
         <div class="container_editor">
-
-
-        <div class="square-form">
             <div class="square-form">
                 <form id="imageForm" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <input type="file" name="image" id="image" required>
-                    <button type="button" onclick="document.getElementById('image{{ forloop.counter }}').click()">+</button>
+                    <input type="file" name="image" id="image" required style="display:none;">
+                    <button type="button" id="triggerFileInput">+</button>
                 </form>
-                <div class="spinner-border" role="status" id="spinner{{ forloop.counter }}" style="display:none;">
+                <div class="spinner-border" role="status" id="spinner" style="display:none;">
                     <span class="visually-hidden">Loading...</span>
                 </div>
-                <img id="outputImage{{ forloop.counter }}" src="" style="display:none;" alt="Processed Image" width="100%">
-                <a id="downloadLink{{ forloop.counter }}" href="" download="processed_image.png" style="display:none;">Download</a>
             </div>
         </div>
 
+        <div id="thumbnailArea">Drag and drop images here</div>
+        <button id="downloadCombined" style="margin-top: 20px;">Download Combined Image</button>
 
-    <div id="thumbnailArea">Drag and drop images here</div>
-
-</div>
+        <canvas id="combinedCanvas"></canvas> <!-- Hidden Canvas for combining images -->
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
     <script>
         const csrfToken = document.getElementById('csrf-token').getAttribute('data-token');
+        const form = document.getElementById('imageForm');
+        const inputFile = document.getElementById('image');
+        const triggerFileInput = document.getElementById('triggerFileInput');
+        const spinner = document.getElementById('spinner');
+        const thumbnailArea = document.getElementById('thumbnailArea');
+        const downloadCombined = document.getElementById('downloadCombined');
+        const combinedCanvas = document.getElementById('combinedCanvas');
+        let draggedImage = null;
 
-        document.querySelectorAll('.square-form form').forEach((form, index) => {
-            const spinner = form.querySelector('.spinner-border');
-            const outputImage = form.querySelector('img');
-            const downloadLink = form.querySelector('a');
-            const inputFile = form.querySelector('input[type="file"]');
+        triggerFileInput.addEventListener('click', () => {
+            inputFile.click(); // Trigger file input click
+        });
 
-            form.addEventListener('submit', function(event) {
-                event.preventDefault();
+        inputFile.addEventListener('change', () => {
+            if (inputFile.files.length > 0) { // Check if a file is selected
                 spinner.style.display = 'block';
-                const formData = new FormData(this);
+                const formData = new FormData(form);
 
                 axios.post("{% url 'remove_bg' %}", formData, {
                     headers: {
@@ -66,55 +88,95 @@
                     }
                 })
                 .then(response => {
+                    spinner.style.display = 'none';
                     if (response.data.success) {
-                        spinner.style.display = 'none';
-                        outputImage.src = response.data.image_data_url;
-                        outputImage.style.display = 'block';
-                        downloadLink.href = response.data.image_data_url;
-                        downloadLink.style.display = 'block';
+                        const imgElement = document.createElement('img');
+                        imgElement.src = response.data.image_data_url;
+                        imgElement.classList.add('draggable-image');
+                        imgElement.draggable = true;
+
+                        imgElement.style.position = 'absolute';
+                        imgElement.style.top = '0px';
+                        imgElement.style.left = '0px';
+
+                        imgElement.addEventListener('dragstart', function (event) {
+                            draggedImage = imgElement;
+                            event.dataTransfer.setData('text/plain', null);
+                        });
+
+                        imgElement.addEventListener('dragend', function (event) {
+                            draggedImage = null;
+                        });
+
+                        thumbnailArea.appendChild(imgElement);
                     } else {
                         alert('Failed to process the image.');
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
                     spinner.style.display = 'none';
+                    console.error('Error:', error);
                     alert('An error occurred. Please try again.');
                 });
-            });
-
-            inputFile.addEventListener('change', () => {
-                form.submit();
-            });
+            }
         });
 
-        // Drag and Drop Logic
-        let draggedImage = null;
-
-        document.querySelectorAll('.square-form img').forEach((image) => {
-            image.addEventListener('dragstart', function(event) {
-                draggedImage = event.target;
-                event.dataTransfer.setData('text', '');
-            });
-        });
-
-        const thumbnailArea = document.getElementById('thumbnailArea');
-        thumbnailArea.addEventListener('dragover', function(event) {
+        thumbnailArea.addEventListener('dragover', function (event) {
             event.preventDefault();
         });
 
-        thumbnailArea.addEventListener('drop', function(event) {
+        thumbnailArea.addEventListener('drop', function (event) {
             event.preventDefault();
             if (draggedImage) {
-                const clone = draggedImage.cloneNode(true);
-                clone.classList.add('draggable-image');
-                thumbnailArea.appendChild(clone);
+                const xOffset = event.offsetX - draggedImage.width / 2;
+                const yOffset = event.offsetY - draggedImage.height / 2;
+
+                draggedImage.style.left = `${xOffset}px`;
+                draggedImage.style.top = `${yOffset}px`;
                 draggedImage = null;
             }
+        });
+
+        // Function to combine images inside the thumbnailArea and download the result
+        downloadCombined.addEventListener('click', function () {
+            const images = thumbnailArea.querySelectorAll('img');
+            if (images.length === 0) {
+                alert("No images to combine!");
+                return;
+            }
+
+            // Set the canvas dimensions
+            const canvasWidth = 1000;
+            const canvasHeight = 1000;
+            combinedCanvas.width = canvasWidth;
+            combinedCanvas.height = canvasHeight;
+
+            const ctx = combinedCanvas.getContext('2d');
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+            // Draw each image on the canvas in its original size
+            images.forEach(img => {
+                const left = parseInt(img.style.left) || 0;
+                const top = parseInt(img.style.top) || 0;
+                const imgElement = new Image();
+                imgElement.src = img.src;
+                imgElement.onload = function () {
+                    ctx.drawImage(imgElement, left, top, imgElement.width, imgElement.height);
+                };
+            });
+
+            // Convert the canvas to a data URL and trigger the download
+            combinedCanvas.toBlob(function(blob) {
+                const downloadLink = document.createElement('a');
+                downloadLink.href = URL.createObjectURL(blob);
+                downloadLink.download = 'combined_image.png';
+                downloadLink.click();
+            }, 'image/png');
         });
     </script>
 
 </body>
 {% endblock %}
-
 </html>
