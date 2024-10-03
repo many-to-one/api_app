@@ -49,6 +49,8 @@
     const downloadCombined = document.getElementById('downloadCombined');
     const combinedCanvas = document.getElementById('combinedCanvas');
     let draggedItem = null;
+    var newTextWidth = null; 
+    var newTextHeight = null; 
 
     // Open the file dialog when the button is clicked
     triggerFileInput.addEventListener('click', () => {
@@ -108,14 +110,18 @@
                 function resizeElement(event) {
                     if (handle === tl || handle === bl) {
                         element.style.width = `${startWidth - (event.clientX - startX)}px`;
+                        newTextWidth = startWidth - (event.clientX - startX) - 15;
                     } else {
                         element.style.width = `${startWidth + (event.clientX - startX)}px`;
+                        newTextWidth = startWidth - (event.clientX - startX) - 15;
                     }
 
                     if (handle === tl || handle === tr) {
                         element.style.height = `${startHeight - (event.clientY - startY)}px`;
+                        newTextHeight = startHeight - (event.clientY - startY) - 15;
                     } else {
                         element.style.height = `${startHeight + (event.clientY - startY)}px`;
+                        newTextHeight = startHeight - (event.clientY - startY) * 15;
                     }
                 }
 
@@ -126,6 +132,8 @@
                 });
             });
         });
+
+        console.log('newTextWidth', newTextWidth)
     }
 
     // Add drag-and-drop logic to the element
@@ -160,7 +168,7 @@
             textElement.style.width = '200px';
             textElement.style.height = '50px';
             textElement.style.padding = '10px';
-            textElement.style.fontSize = '20px';
+            textElement.style.fontSize = 'px';
             textElement.style.backgroundColor = '#ffffe0';
             textElement.style.border = '1px solid #000';
             textElement.style.position = 'absolute'; // Ensure it can be positioned freely
@@ -225,46 +233,83 @@
 
                 if (item.tagName === 'DIV' && item.classList.contains('resizable-text')) {
                     // Handle text rendering
-                    const fontSize = parseInt(item.style.fontSize) || 20;
+                    const fontSize = parseInt(item.style.fontSize) || 16;
                     ctx.font = `${fontSize}px sans-serif`;
                     ctx.fillStyle = '#000'; // Text color
 
-                    const maxWidth = item.offsetWidth; // Width of the container for the text
+                    const maxWidth = newTextWidth; // item.offsetWidth; // Width of the container for the text
                     const text = item.innerText;
                     const lineHeight = fontSize * 1.2;
 
-                    // Function to split text into multiple lines based on maxWidth
-                    function wrapText(context, text, x, y, maxWidth, lineHeight) {
-                        const words = text.split(' ');
-                        let line = '';
-                        let lines = [];
-                        for (let n = 0; n < words.length; n++) {
-                            const testLine = line + words[n] + ' ';
-                            const metrics = context.measureText(testLine);
-                            const testWidth = metrics.width;
-                            if (testWidth > maxWidth && n > 0) {
-                                lines.push(line); // Push the current line
-                                line = words[n] + ' '; // Start a new line
-                            } else {
-                                line = testLine;
-                            }
-                        }
-                        lines.push(line); // Push the last line
+                    // // Function to split text into multiple lines based on maxWidth
+                    // function wrapText(context, text, x, y, maxWidth, lineHeight) {
+                    //     console.log('newTextWidth inside wrapText', maxWidth)
+                    //     const words = text.split('\n');
+                    //     let line = '-';
+                    //     let lines = [];
+                    //     console.log('words.length', words.length)
+                    //     for (let n = 0; n < words.length; n++) {
+                    //         const testLine = line + words[n] + ' ';
+                    //         const metrics = context.measureText(testLine);
+                    //         const testWidth = metrics.width;
+                    //         console.log('testWidth', testWidth)
+                    //         if (testWidth > maxWidth && n > 0) {
+                    //             lines.push(line); // Push the current line
+                    //             line = words[n] + ' '; // Start a new line
+                    //         } else {
+                    //             line = testLine;
+                    //         }
+                    //     }
+                    //     lines.push(line); // Push the last line
 
-                        // Draw each line on the canvas
-                        lines.forEach((lineText, index) => {
-                            context.fillText(lineText, x, y + (index * lineHeight));
+                    //     // Draw each line on the canvas
+                    //     lines.forEach((lineText, index) => {
+                    //         context.fillText(lineText, x, y + (index * lineHeight));
+                    //     });
+                    // }
+
+                    // Column logic
+                    function wrapText(context, text, x, y, maxWidth, lineHeight) {
+                        const lines = text.split('\n'); // Split the text by line breaks first
+                        console.log('newTextWidth inside wrapText', maxWidth);
+                        
+                        lines.forEach((line) => {
+                            const words = line.split(' '); // Then split each line into words
+                            let currentLine = '';
+                            let wrappedLines = [];
+
+                            for (let n = 0; n < words.length; n++) {
+                                // console.log('words[n]', words[n]);
+                                const testLine = currentLine + words[n] + ' ';
+                                const metrics = context.measureText(testLine);
+                                const testWidth = metrics.width;
+
+                                if (testWidth > maxWidth && n > 0) {
+                                    wrappedLines.push(currentLine); // Push the current line
+                                    currentLine = words[n] + ' '; // Start a new line
+                                } else {
+                                    currentLine = testLine;
+                                }
+                            }
+                            wrappedLines.push(currentLine); // Push the last line
+
+                            // Draw each wrapped line on the canvas
+                            wrappedLines.forEach((lineText, index) => {
+                                context.fillText(lineText, x, y + (index * lineHeight));
+                            });
+
+                            y += lineHeight * wrappedLines.length; // Adjust the y position for the next block of text
                         });
                     }
 
+
                     wrapText(ctx, text, xPos, yPos, maxWidth, lineHeight); // Wrap and render text
 
-                    // textLines.forEach((line, index) => {
-                    //     // ctx.fillText(line, xPos, yPos + (index * lineHeight) + lineHeight); // Draw each line of text
-                    //     ctx.fillText(line, xPos, yPos + (index * lineHeight) + lineHeight);
-                    // });
-
                     imagesLoaded += 1;
+                    console.error("imagesLoaded text totalItems", imagesLoaded, totalItems);
+                    if (imagesLoaded > totalItems) { // Check if all images are loaded
+                            triggerDownload(); // Trigger download only if all images are loaded
+                        }
 
                 } else if (item.querySelector('img')) {
                     const imgElement = new Image();
@@ -278,6 +323,7 @@
                         ctx.drawImage(imgElement, xPos, yPos, containerWidth, containerHeight);
 
                         imagesLoaded += 1; // Increment loaded images count
+                        console.error("imagesLoaded === totalItems", imagesLoaded, totalItems);
 
                         if (imagesLoaded === totalItems) { // Check if all images are loaded
                             triggerDownload(); // Trigger download only if all images are loaded
@@ -287,14 +333,18 @@
                     imgElement.onerror = function () {
                         console.error("Failed to load image:", imgElement.src);
                         imagesLoaded++; // Increment anyway to prevent hanging
+                        console.error("imagesLoaded === totalItems onerror ", imagesLoaded, totalItems);
                         if (imagesLoaded === totalItems) {
                             triggerDownload(); // Trigger download even if some images failed
                         }
                     };
 
+                    // triggerDownload();
+
                 } else {
                     imagesLoaded += 1; // Increment for non-image items to prevent hanging
                 }
+
             });
 
             function triggerDownload() {
