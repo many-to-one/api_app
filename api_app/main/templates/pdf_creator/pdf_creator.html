@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+{% block content %}
+<body>
+
+<div id="csrf-token" data-token="{{ csrf_token }}"></div>
+
+<div class="offers__cont" id="of_cont">
+    <div class="container_editor">
+        <!-- Square form for image upload -->
+        <div class="square-form">
+            <form id="imageForm" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="image" id="image" required style="display:none;">
+                <button type="button" id="triggerFileInput">Add Image</button>
+            </form>
+        </div>
+
+        <!-- Add text button -->
+        <button id="addText">Add Text</button>
+    </div>
+
+    <div id="thumbnailArea">
+        Drag and drop images or add text here
+    </div>
+    <button id="downloadCombined" style="margin-top: 20px;">Download Combined Image</button>
+
+    <canvas id="combinedCanvas" style="display:none;"></canvas> <!-- Hidden Canvas for combining images and text -->
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
+<script>
+    const form = document.getElementById('imageForm');
+    const inputFile = document.getElementById('image');
+    const triggerFileInput = document.getElementById('triggerFileInput');
+    const thumbnailArea = document.getElementById('thumbnailArea');
+    const downloadCombined = document.getElementById('downloadCombined');
+    const combinedCanvas = document.getElementById('combinedCanvas');
+    let draggedItem = null;
+
+    // Open the file dialog when the button is clicked
+    triggerFileInput.addEventListener('click', () => {
+        inputFile.click();
+    });
+
+    // Handle image upload
+    inputFile.addEventListener('change', () => {
+        if (inputFile.files.length > 0) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const resizableContainer = document.createElement('div');
+                resizableContainer.classList.add('resizable');
+                resizableContainer.style.width = '300px';  // Initial width
+                resizableContainer.style.height = '300px'; // Initial height
+
+                const imgElement = document.createElement('img');
+                imgElement.src = event.target.result;
+                // imgElement.style.position 
+                resizableContainer.appendChild(imgElement);
+
+                addResizeHandlers(resizableContainer);
+                addDragDropLogic(resizableContainer);
+
+                thumbnailArea.appendChild(resizableContainer);
+            };
+            reader.readAsDataURL(inputFile.files[0]);
+        }
+    });
+
+    // Add resize handles to the element
+    function addResizeHandlers(element) {
+        const tl = document.createElement('div');
+        tl.classList.add('resize-handle', 'tl');
+        const tr = document.createElement('div');
+        tr.classList.add('resize-handle', 'tr');
+        const bl = document.createElement('div');
+        bl.classList.add('resize-handle', 'bl');
+        const br = document.createElement('div');
+        br.classList.add('resize-handle', 'br');
+
+        element.appendChild(tl);
+        element.appendChild(tr);
+        element.appendChild(bl);
+        element.appendChild(br);
+
+        let startX, startY, startWidth, startHeight;
+
+        [tl, tr, bl, br].forEach(handle => {
+            handle.addEventListener('mousedown', function (e) {
+                e.preventDefault();
+                startX = e.clientX;
+                startY = e.clientY;
+                startWidth = parseInt(window.getComputedStyle(element).width, 10);
+                startHeight = parseInt(window.getComputedStyle(element).height, 10);
+
+                function resizeElement(event) {
+                    if (handle === tl || handle === bl) {
+                        element.style.width = `${startWidth - (event.clientX - startX)}px`;
+                    } else {
+                        element.style.width = `${startWidth + (event.clientX - startX)}px`;
+                    }
+
+                    if (handle === tl || handle === tr) {
+                        element.style.height = `${startHeight - (event.clientY - startY)}px`;
+                    } else {
+                        element.style.height = `${startHeight + (event.clientY - startY)}px`;
+                    }
+                }
+
+                document.addEventListener('mousemove', resizeElement);
+                document.addEventListener('mouseup', function stopResize() {
+                    document.removeEventListener('mousemove', resizeElement);
+                    document.removeEventListener('mouseup', stopResize);
+                });
+            });
+        });
+    }
+
+    // Add drag-and-drop logic to the element
+    function addDragDropLogic(element) {
+        let isDragging = false;
+        let startX, startY;
+
+        element.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX - parseInt(element.style.left || 0, 10);
+            startY = e.clientY - parseInt(element.style.top || 0, 10);
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                element.style.left = `${e.clientX - startX}px`;
+                element.style.top = `${e.clientY - startY}px`;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+    }
+
+   // Adding text to the thumbnail area
+        document.getElementById('addText').addEventListener('click', () => {
+            const textElement = document.createElement('div');
+            textElement.classList.add('resizable-text');
+            textElement.innerText = "Napisz coś...";
+            textElement.style.width = '200px';
+            textElement.style.height = '50px';
+            textElement.style.fontSize = '20px';
+            textElement.style.backgroundColor = '#ffffe0';
+            textElement.style.border = '1px solid #000';
+            textElement.style.position = 'absolute'; // Ensure it can be positioned freely
+            textElement.style.left = '0px';
+            textElement.style.top = '0px';
+            textElement.contentEditable = true; // Start with text editable
+
+            // Ensure text wraps within the div and doesn't overflow
+            textElement.style.overflow = 'none'; 
+            textElement.style.wordWrap = 'break-word'; 
+            textElement.style.whiteSpace = 'wrap';
+
+            // Add drag and resize logic
+            addResizeHandlers(textElement);
+            addDragDropLogic(textElement);
+
+            // Append to thumbnail area
+            thumbnailArea.appendChild(textElement);
+
+            // Toggle editable mode on double-click
+            textElement.addEventListener('click', () => {
+                textElement.contentEditable = true;
+                textElement.focus(); // Focus the text element when double-clicked              
+            });
+
+            // Set contentEditable to false when clicking outside the text element
+            document.addEventListener('click', (e) => {
+                if (e.target !== textElement && textElement.contentEditable === 'true') {
+                    textElement.contentEditable = false;
+                }
+            });
+        });
+
+
+
+    // Combine images and text inside the thumbnailArea and download the result
+    downloadCombined.addEventListener('click', function () {
+        const items = thumbnailArea.querySelectorAll('.resizable, .resizable-text');
+        if (items.length === 0) {
+            alert("No items to combine!");
+            return;
+        }
+
+        const canvasWidth = 1000;
+        const canvasHeight = 1000;
+        combinedCanvas.width = canvasWidth;
+        combinedCanvas.height = canvasHeight;
+
+        const ctx = combinedCanvas.getContext('2d');
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+        items.forEach(item => {
+            const xPos = parseInt(item.style.left) || 0;
+            const yPos = parseInt(item.style.top) || 0;
+
+            if (item.tagName === 'IMG') {
+                const imgElement = new Image();
+                imgElement.src = item.src;
+                imgElement.onload = function () {
+                    ctx.drawImage(imgElement, xPos, yPos, parseInt(item.style.width), parseInt(item.style.height));
+                };
+            } else if (item.tagName === 'DIV' && item.classList.contains('resizable-text')) {
+                ctx.font = `${item.style.fontSize} sans-serif`;
+                ctx.fillStyle = '#000';
+                ctx.fillText(item.innerText, xPos, yPos + parseInt(item.style.height) / 2);
+            }
+        });
+
+        combinedCanvas.toBlob(function (blob) {
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(blob);
+            downloadLink.download = 'combined_image.png';
+            downloadLink.click();
+        }, 'image/png');
+    });
+
+</script>
+
+</body>
+{% endblock %}
+</html>

@@ -7,6 +7,7 @@ from .offers import bulk_edit_views, offer_views
 from .orders import orders_views
 from .returns import returns
 from .photo_editor import photo_editor
+from .pdf_creator import pdf_creator
 
 from .messages import messages
 from .views import *
@@ -85,5 +86,6 @@ urlpatterns = [
 
     path('get_returns/<str:name>/', returns.get_returns, name='get_returns'),
     path('photo_editor/', photo_editor.remove_background, name='photo_editor'),
-    path('remove_bg/', photo_editor.remove_bg, name='remove_bg'),
+    path('remove_bg/', photo_editor.remove_bg, name='remove_bg'), 
+    path('pdf_creator/', pdf_creator.pdf_creator, name='pdf_creator'),
 ] 

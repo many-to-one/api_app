@@ -75,7 +75,13 @@
                     </div>
                 </li>
 
-                <li><a href="{% url 'photo_editor' %}">Wytnij tło</a></li>
+                <li class="dropdown">
+                    <span>Narzędzia pracy</span>
+                    <div class="dropdown-content">
+                        <a href="{% url 'photo_editor' %}">Wytnij tło</a>
+                        <a href="{% url 'pdf_creator' %}">PDF</a>
+                    </div>
+                </li>
 
                 <li><a href="{% url 'add_account' %}">Dodaj Konto</a></li>
                 <li><a href="{% url 'ebay_token' %}">Ebay</a></li>
