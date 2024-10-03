@@ -229,12 +229,40 @@
                     ctx.font = `${fontSize}px sans-serif`;
                     ctx.fillStyle = '#000'; // Text color
 
-                    const textLines = item.innerText.split('\n'); // Split the text by lines
-                    let lineHeight = fontSize * 1.2;  // Adjust line height
+                    const maxWidth = item.offsetWidth; // Width of the container for the text
+                    const text = item.innerText;
+                    const lineHeight = fontSize * 1.2;
 
-                    textLines.forEach((line, index) => {
-                        ctx.fillText(line, xPos, yPos + (index * lineHeight) + lineHeight); // Draw each line of text
-                    });
+                    // Function to split text into multiple lines based on maxWidth
+                    function wrapText(context, text, x, y, maxWidth, lineHeight) {
+                        const words = text.split(' ');
+                        let line = '';
+                        let lines = [];
+                        for (let n = 0; n < words.length; n++) {
+                            const testLine = line + words[n] + ' ';
+                            const metrics = context.measureText(testLine);
+                            const testWidth = metrics.width;
+                            if (testWidth > maxWidth && n > 0) {
+                                lines.push(line); // Push the current line
+                                line = words[n] + ' '; // Start a new line
+                            } else {
+                                line = testLine;
+                            }
+                        }
+                        lines.push(line); // Push the last line
+
+                        // Draw each line on the canvas
+                        lines.forEach((lineText, index) => {
+                            context.fillText(lineText, x, y + (index * lineHeight));
+                        });
+                    }
+
+                    wrapText(ctx, text, xPos, yPos, maxWidth, lineHeight); // Wrap and render text
+
+                    // textLines.forEach((line, index) => {
+                    //     // ctx.fillText(line, xPos, yPos + (index * lineHeight) + lineHeight); // Draw each line of text
+                    //     ctx.fillText(line, xPos, yPos + (index * lineHeight) + lineHeight);
+                    // });
 
                     imagesLoaded += 1;
 
@@ -272,11 +300,11 @@
             function triggerDownload() {
                 console.log('triggerDownload');
                 const { jsPDF } = window.jspdf; // Access jsPDF
-                const pdf = new jsPDF('p', 'px', [2480, 3508]); // Create a new jsPDF instance using pixel size (A4 at 300 DPI)
+                const pdf = new jsPDF('p', 'px', [1193, 1680]); // Create a new jsPDF instance using pixel size (A4 at 300 DPI)
 
                 // Convert canvas to image and add it to the PDF
                 const canvasImage = combinedCanvas.toDataURL("image/png"); // Convert canvas to PNG
-                pdf.addImage(canvasImage, 'PNG', 0, 0, 2480, 3508); // Add the canvas image to the PDF, scaled to A4 size in pixels
+                pdf.addImage(canvasImage, 'PNG', 0, 0, 1193, 1680); // Add the canvas image to the PDF, scaled to A4 size in pixels
                 pdf.save('combined_image.pdf'); // Save the PDF
             }
 
