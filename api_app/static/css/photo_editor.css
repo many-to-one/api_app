@@ -53,6 +53,7 @@
     position: relative;
     overflow: hidden; /* Hide overflowing images */
     margin-top: 10vh;
+    background-color: white;
 }
 
 #thumbnailArea img {
@@ -60,15 +61,37 @@
     cursor: grab;
 }
 
-#combinedCanvas {
-    display: none;
-}
-
 #thumbnailArea img.draggable-image {
     width: 800px; /* Adjust size visually */
     /* max-height: 150px; Adjust size visually */
     position: absolute;
 }
+
+#PDFArea {
+    width: 1193px;
+    height: 1680px;
+    border: 2px dashed #ddd;
+    position: relative;
+    overflow: hidden; /* Hide overflowing images */
+    margin-top: 10vh;
+    background-color: white;
+}
+
+#PDFArea img {
+    position: absolute;
+    cursor: grab;
+}
+
+#PDFArea img.draggable-image {
+    width: 800px; /* Adjust size visually */
+    /* max-height: 150px; Adjust size visually */
+    position: absolute;
+}
+
+#combinedCanvas {
+    display: none;
+}
+
 
 
 

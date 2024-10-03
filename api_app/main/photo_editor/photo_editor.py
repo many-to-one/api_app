@@ -61,6 +61,17 @@ def remove_bg(request):
             # Process the image
             input_image = Image.open(image)
             output_image = remove(input_image)
+            # Process the image using rembg (remove the background)
+            # output_image = remove(
+            #     input_image,
+            #     alpha_matting=True,
+            #     alpha_matting_foreground_threshold=240,
+            #     post_process_mask=True,
+            #     alpha_matting_background_threshold=100,
+            #     alpha_matting_erode_structure_size=5,
+            #     alpha_matting_erode_size=11,
+            #     alpha_matting_base_size=1000,
+            # )
             
             # Save the processed image to an in-memory bytes buffer
             buffer = BytesIO()

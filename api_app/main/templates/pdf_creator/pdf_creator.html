@@ -30,20 +30,22 @@
         <button id="addText">Add Text</button>
     </div>
 
-    <div id="thumbnailArea">
-        Drag and drop images or add text here
-    </div>
+    <div id="PDFArea"></div>
+
     <button id="downloadCombined" style="margin-top: 20px;">Download Combined Image</button>
 
     <canvas id="combinedCanvas" style="display:none;"></canvas> <!-- Hidden Canvas for combining images and text -->
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+
 <script>
     const form = document.getElementById('imageForm');
     const inputFile = document.getElementById('image');
     const triggerFileInput = document.getElementById('triggerFileInput');
-    const thumbnailArea = document.getElementById('thumbnailArea');
+    const PDFArea = document.getElementById('PDFArea');
     const downloadCombined = document.getElementById('downloadCombined');
     const combinedCanvas = document.getElementById('combinedCanvas');
     let draggedItem = null;
@@ -71,7 +73,7 @@
                 addResizeHandlers(resizableContainer);
                 addDragDropLogic(resizableContainer);
 
-                thumbnailArea.appendChild(resizableContainer);
+                PDFArea.appendChild(resizableContainer);
             };
             reader.readAsDataURL(inputFile.files[0]);
         }
@@ -157,6 +159,7 @@
             textElement.innerText = "Napisz coś...";
             textElement.style.width = '200px';
             textElement.style.height = '50px';
+            textElement.style.padding = '10px';
             textElement.style.fontSize = '20px';
             textElement.style.backgroundColor = '#ffffe0';
             textElement.style.border = '1px solid #000';
@@ -166,16 +169,16 @@
             textElement.contentEditable = true; // Start with text editable
 
             // Ensure text wraps within the div and doesn't overflow
-            textElement.style.overflow = 'none'; 
+            textElement.style.overflow = 'hidden'; 
             textElement.style.wordWrap = 'break-word'; 
-            textElement.style.whiteSpace = 'wrap';
+            textElement.style.whiteSpace = 'pre-wrap';
 
             // Add drag and resize logic
             addResizeHandlers(textElement);
             addDragDropLogic(textElement);
 
             // Append to thumbnail area
-            thumbnailArea.appendChild(textElement);
+            PDFArea.appendChild(textElement);
 
             // Toggle editable mode on double-click
             textElement.addEventListener('click', () => {
@@ -192,47 +195,94 @@
         });
 
 
+        // const canvasWidth = 2480;
+        // const canvasHeight = 3508;
 
-    // Combine images and text inside the thumbnailArea and download the result
-    downloadCombined.addEventListener('click', function () {
-        const items = thumbnailArea.querySelectorAll('.resizable, .resizable-text');
-        if (items.length === 0) {
-            alert("No items to combine!");
-            return;
-        }
+        // Combine images and text inside the PDFArea and download the result
+        downloadCombined.addEventListener('click', function () {
 
-        const canvasWidth = 1000;
-        const canvasHeight = 1000;
-        combinedCanvas.width = canvasWidth;
-        combinedCanvas.height = canvasHeight;
-
-        const ctx = combinedCanvas.getContext('2d');
-        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-
-        items.forEach(item => {
-            const xPos = parseInt(item.style.left) || 0;
-            const yPos = parseInt(item.style.top) || 0;
-
-            if (item.tagName === 'IMG') {
-                const imgElement = new Image();
-                imgElement.src = item.src;
-                imgElement.onload = function () {
-                    ctx.drawImage(imgElement, xPos, yPos, parseInt(item.style.width), parseInt(item.style.height));
-                };
-            } else if (item.tagName === 'DIV' && item.classList.contains('resizable-text')) {
-                ctx.font = `${item.style.fontSize} sans-serif`;
-                ctx.fillStyle = '#000';
-                ctx.fillText(item.innerText, xPos, yPos + parseInt(item.style.height) / 2);
+            const items = PDFArea.querySelectorAll('.resizable, .resizable-text');
+            if (items.length === 0) {
+                alert("No items to combine!");
+                return;
             }
+
+            const canvasWidth = 1193;  // Set the desired canvas size in pixels
+            const canvasHeight = 1680;
+            combinedCanvas.width = canvasWidth;
+            combinedCanvas.height = canvasHeight;
+
+            const ctx = combinedCanvas.getContext('2d');
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight); // Clear the canvas
+
+            let imagesLoaded = 0;  // Counter for loaded images
+            const totalItems = items.length;  // Total items to be drawn
+
+            items.forEach(item => {
+
+                const xPos = parseInt(item.style.left) || 0;
+                const yPos = parseInt(item.style.top) || 0;
+
+                if (item.tagName === 'DIV' && item.classList.contains('resizable-text')) {
+                    // Handle text rendering
+                    const fontSize = parseInt(item.style.fontSize) || 20;
+                    ctx.font = `${fontSize}px sans-serif`;
+                    ctx.fillStyle = '#000'; // Text color
+
+                    const textLines = item.innerText.split('\n'); // Split the text by lines
+                    let lineHeight = fontSize * 1.2;  // Adjust line height
+
+                    textLines.forEach((line, index) => {
+                        ctx.fillText(line, xPos, yPos + (index * lineHeight) + lineHeight); // Draw each line of text
+                    });
+
+                    imagesLoaded += 1;
+
+                } else if (item.querySelector('img')) {
+                    const imgElement = new Image();
+                    imgElement.src = item.querySelector('img').src;
+
+                    imgElement.onload = function () {
+                        const containerWidth = item.offsetWidth;
+                        const containerHeight = item.offsetHeight;
+
+                        // Draw image onto canvas at the calculated position and size
+                        ctx.drawImage(imgElement, xPos, yPos, containerWidth, containerHeight);
+
+                        imagesLoaded += 1; // Increment loaded images count
+
+                        if (imagesLoaded === totalItems) { // Check if all images are loaded
+                            triggerDownload(); // Trigger download only if all images are loaded
+                        }
+                    };
+
+                    imgElement.onerror = function () {
+                        console.error("Failed to load image:", imgElement.src);
+                        imagesLoaded++; // Increment anyway to prevent hanging
+                        if (imagesLoaded === totalItems) {
+                            triggerDownload(); // Trigger download even if some images failed
+                        }
+                    };
+
+                } else {
+                    imagesLoaded += 1; // Increment for non-image items to prevent hanging
+                }
+            });
+
+            function triggerDownload() {
+                console.log('triggerDownload');
+                const { jsPDF } = window.jspdf; // Access jsPDF
+                const pdf = new jsPDF('p', 'px', [2480, 3508]); // Create a new jsPDF instance using pixel size (A4 at 300 DPI)
+
+                // Convert canvas to image and add it to the PDF
+                const canvasImage = combinedCanvas.toDataURL("image/png"); // Convert canvas to PNG
+                pdf.addImage(canvasImage, 'PNG', 0, 0, 2480, 3508); // Add the canvas image to the PDF, scaled to A4 size in pixels
+                pdf.save('combined_image.pdf'); // Save the PDF
+            }
+
         });
 
-        combinedCanvas.toBlob(function (blob) {
-            const downloadLink = document.createElement('a');
-            downloadLink.href = URL.createObjectURL(blob);
-            downloadLink.download = 'combined_image.png';
-            downloadLink.click();
-        }, 'image/png');
-    });
+
 
 </script>
 
