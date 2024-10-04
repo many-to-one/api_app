@@ -40,8 +40,10 @@
 }
 
 #result {
-    display: none;
-    width: 100%;
+    display: flex;
+    flex-direction: column;
+    width: 20%;
+    height: 1000px;
     padding: 20px;
     margin-top: 20px;
 }
@@ -65,6 +67,13 @@
     width: 800px; /* Adjust size visually */
     /* max-height: 150px; Adjust size visually */
     position: absolute;
+}
+
+#threshold {
+    width: 500px;
+    background-color: #74a2bb;
+    padding: 10px;
+    border-radius: 10px;
 }
 
 #PDFArea {
@@ -98,7 +107,8 @@
 .resizable {
     position: absolute;
     display: inline-block;
-    border: 2px dashed gray;
+    /* border: 2px dashed gray; */
+    border: none;
     cursor: move;
     width: 300px; /* Initial width */
     /* height: 300px; Initial height */
@@ -120,6 +130,7 @@
 }
 
 .resize-handle {
+    display: none;
     width: 10px;
     height: 10px;
     background-color: #fff;
@@ -149,4 +160,30 @@
     bottom: -5px;
     right: -5px;
     cursor: nwse-resize;
+}
+
+.pr {
+    top: -5px;
+    right: -102%;
+    cursor: pointer;
+    position: relative;
+    background-image: url(/static/icons/prop.svg);
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+}
+
+.close {
+    top: 5px;
+    right: -102%;
+    cursor: pointer;
+    position: relative;
+    background-image: url(/static/icons/close.svg);
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
 }

@@ -56,22 +56,28 @@ def remove_background(request):
 def remove_bg(request):
     if request.method == "POST":
         image = request.FILES.get("image")
+        threshold = request.POST['threshold']
+        print('--------------- request ---------------', image)
         
         if image:
             # Process the image
             input_image = Image.open(image)
-            output_image = remove(input_image)
-            # Process the image using rembg (remove the background)
-            # output_image = remove(
-            #     input_image,
-            #     alpha_matting=True,
-            #     alpha_matting_foreground_threshold=240,
-            #     post_process_mask=True,
-            #     alpha_matting_background_threshold=100,
-            #     alpha_matting_erode_structure_size=5,
-            #     alpha_matting_erode_size=11,
-            #     alpha_matting_base_size=1000,
-            # )
+
+            if threshold == '0':
+                output_image = remove(input_image)
+                print('--------------- threshold == 0 ---------------', threshold)
+            else:
+                print('--------------- threshold != 0 ---------------', threshold)
+                output_image = remove(
+                    input_image,
+                    # alpha_matting=True,
+                    alpha_matting_foreground_threshold=f'{threshold}',
+                    post_process_mask=True,
+                    # alpha_matting_background_threshold=100,
+                    # alpha_matting_erode_structure_size=5,
+                    # alpha_matting_erode_size=11,
+                    # alpha_matting_base_size=1000,
+                )
             
             # Save the processed image to an in-memory bytes buffer
             buffer = BytesIO()
@@ -86,6 +92,7 @@ def remove_bg(request):
             
             return JsonResponse({
                     'success': True, 
+                    'imgName': f'{image}',
                     'image_data_url': image_data_url,
                     'range': 5, #range(5),
                 })
