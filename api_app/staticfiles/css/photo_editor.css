@@ -54,7 +54,7 @@
     border: 2px dashed #ddd;
     position: relative;
     overflow: hidden; /* Hide overflowing images */
-    margin-top: 10vh;
+    margin-top: 20px;
     background-color: white;
 }
 
@@ -186,4 +186,11 @@
     width: 20px;
     height: 20px;
     display: inline-block;
+}
+
+#navProImg {
+    margin-top: 20px;
+    width: 500px;
+    height: 50px;
+    background-color: white;
 }

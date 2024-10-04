@@ -45,6 +45,13 @@
         <p id="rangeValueDisplay">0</p>
         <input type="range" class="form-range" min="0" max="255" id="threshold" onchange="getRangeValue()">
 
+        <div id="navProImg" class="d-flex justify-content-between">
+            <img style="cursor: pointer;" src="{% static 'icons/rotate.svg' %}" width="25" alt="">
+            <img style="cursor: pointer;" src="{% static 'icons/curve.svg' %}" width="25" alt="">
+            <img style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="25" alt="">
+            <img style="cursor: pointer;" src="{% static 'icons/close.svg' %}" width="25" alt="">
+        </div>
+
         <div id="thumbnailArea" class="d-flex justify-content-center align-items-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="50" fill="currentColor" class="bi bi-images" viewBox="0 0 16 16" opacity="0.2">
               <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
@@ -70,6 +77,7 @@
         let draggedImage = null;
         let isActiveImage = false;
         let imageName = null;
+        // let activeImage = null;
 
         const resultCont = document.getElementById('result');
         resultCont.style.display = 'flex';
@@ -145,8 +153,6 @@
                         resultCont.appendChild(outputImage);
                         resultCont.appendChild(downloadLink);
 
-                        console.log('isActiveImage', isActiveImage)
-
                         // logic for create a thumbnail
                         const resizableContainer = document.createElement('div');
                         resizableContainer.classList.add('resizable');
@@ -158,8 +164,19 @@
                         imgElement.setAttribute('data-index', imageName);
 
                         imgElement.onclick = function () {
+
+                            console.log('isActiveImage', isActiveImage)
+
                             const imgIndex = this.getAttribute('data-index');
-                            resizeImage(imgIndex);  // Pass the index to the resizeImage function
+                            console.log('onclick imgIndex', imgIndex);
+
+                            if ( isActiveImage === true ) {
+                                setInactiveImg();
+                            } else {
+                                setActiveImg(imgIndex);
+                            }
+                            
+                            // resizeImage(imgIndex);  // Pass the index to the resizeImage function
                         }
                         resizableContainer.appendChild(imgElement);
 
@@ -167,31 +184,50 @@
                         const handles = ['tl', 'tr', 'bl', 'br'];
                         handles.forEach(handle => {
                             const resizeHandle = document.createElement('div');
+                            resizeHandle.setAttribute('data-index', imageName);
                             resizeHandle.classList.add('resize-handle', handle);
                             resizableContainer.appendChild(resizeHandle);
                         });
 
-                        function resizeImage(imgIndex) {
 
-                            console.log('imgIndex', imgIndex, imageName);
+                        function setInactiveImg() {
+                            resizableContainer.style.border = 'none';
+                            const resizeHandle = document.querySelectorAll('.resize-handle');
+                            resizeHandle.forEach(handler => handler.style.display = 'none');
+                            isActiveImage = false;
+                        }
+
+                        function setActiveImg(imgIndex) {
+                            resizableContainer.style.border = 'block';
+                            const resizeHandle = document.querySelectorAll('.resize-handle');
+                            resizeHandle.forEach(handler => handler.style.display = 'block');
+                            isActiveImage = true;
+                            resizeImage(imgIndex);
+                        }
+
+                        function resizeImage(imgIndex) {
+                            console.log('imgIndex', imgIndex);
+
                             // Apply a border to the container
                             resizableContainer.style.border = '2px dashed gray';
 
                             // Get all resize handles
                             const resizeHandles = document.querySelectorAll('.resize-handle');
 
-                            resizeHandles.forEach(handler => {
-                                // const handlerIndex = handler.getAttribute('data-index'); // Retrieve the data-index attribute
+                            resizeHandles.forEach((handler, index) => {
+                                console.log('handler', handler);
+
+                                const dataIndex = handler.getAttribute('data-index');
+                                console.log('dataIndex', dataIndex);
 
                                 // Show the handler if the index matches, otherwise hide it
-                                if (imageName === imgIndex) {
+                                if (dataIndex === imgIndex) {
                                     handler.style.display = 'block';
                                 } else {
                                     handler.style.display = 'none';
                                 }
                             });
                         }
-
 
 
                         // SHOW MENU
@@ -256,9 +292,8 @@
                                 resizableContainer.style.height = `${startHeight - dy}px`;
                                 resizableContainer.style.top = `${startTop + dy}px`;
                             }
-                            resizableContainer.style.border = 'none';
-                            const resizeHandle = document.querySelectorAll('.resize-handle')
-                            resizeHandle.forEach(handler => handler.style.display = 'none')
+                            
+                            // setInactiveImg()
                         }
 
                         // Event listeners for resize handles
@@ -273,6 +308,8 @@
                                 startLeft = resizableContainer.offsetLeft;
                                 startTop = resizableContainer.offsetTop;
                                 event.preventDefault();
+
+                                // setInactiveImg()
                             });
                         });
 
@@ -282,6 +319,8 @@
                                 isDragging = true;
                                 startX = event.clientX - resizableContainer.offsetLeft;
                                 startY = event.clientY - resizableContainer.offsetTop;
+
+                                // setInactiveImg()
                             }
                         });
 
@@ -297,10 +336,12 @@
                         document.addEventListener('mouseup', function () {
                             isResizing = false;
                             isDragging = false;
+
+                            // setInactiveImg()
                         });
 
                         thumbnailArea.appendChild(resizableContainer);
-                        isActiveImage = false;
+                        // isActiveImage = false;
                     } else {
                         alert('Failed to process the image.');
                     }
