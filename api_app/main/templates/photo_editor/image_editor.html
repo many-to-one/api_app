@@ -47,10 +47,13 @@
 
         <div id="navProImg" class="d-flex justify-content-between">
             <img style="cursor: pointer;" src="{% static 'icons/rotate.svg' %}" width="25" alt="">
-            <img style="cursor: pointer;" src="{% static 'icons/curve.svg' %}" width="25" alt="">
+            <img id="curve" onclick="applyCurvedEffect()" style="cursor: pointer;" src="{% static 'icons/curve.svg' %}" width="25" alt="">
             <img style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="25" alt="">
             <img style="cursor: pointer;" src="{% static 'icons/close.svg' %}" width="25" alt="">
         </div>
+
+        <canvas id="curvedCanvas" width="500" height="500" style="display: none;"></canvas>
+        <img id="imageToCurve" style="display:none;">
 
         <div id="thumbnailArea" class="d-flex justify-content-center align-items-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="50" fill="currentColor" class="bi bi-images" viewBox="0 0 16 16" opacity="0.2">
@@ -64,24 +67,94 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
+
+    <!-- JIMP - IMAGE MANIPULATIO LIBRARY -->
+    <script src="https://cdn.jsdelivr.net/npm/jimp@1.6.0/dist/commonjs/index.min.js"></script> 
+
+
     <script>
         const csrfToken = document.getElementById('csrf-token').getAttribute('data-token');
         const form = document.getElementById('imageForm');
         const inputFile = document.getElementById('image');
-        const threshold = document.getElementById('threshold');
+        const threshold_ = document.getElementById('threshold');
         const triggerFileInput = document.getElementById('triggerFileInput');
         const spinner = document.getElementById('spinner');
         const thumbnailArea = document.getElementById('thumbnailArea');
         const downloadCombined = document.getElementById('downloadCombined');
         const combinedCanvas = document.getElementById('combinedCanvas');
+        const imageNavCont = document.getElementById('navProImg');
+
+        const curveIcon = document.getElementById('curve');
         let draggedImage = null;
         let isActiveImage = false;
         let imageName = null;
-        // let activeImage = null;
+        let imagURL = null
+        let activeImage = null;
+
+
+        // function applyCurvedEffect() {
+        //     applyCurvingToImage();
+        // }
+
+
+        // Function to curve the image
+        function applyCurvedEffect() {
+            // Get the existing canvas element
+            const curvedCanvas = document.getElementById('curvedCanvas');
+            const ctx = curvedCanvas.getContext('2d');
+
+            // Get the image element by class name (or id)
+            const imgElement = document.getElementsByClassName('imgElement_IMG_5615.JPG')[0]; // Get the first element
+
+            if (!imgElement) {
+                console.error('Image element not found');
+                return;
+            }
+
+            console.log('applyCurvedEffect - imgElement', imgElement);
+
+            // Set canvas dimensions to match the image
+            curvedCanvas.width = imgElement.width;
+            curvedCanvas.height = imgElement.height;
+
+            // Create a new image object and set its source to the existing image's source
+            const img = new Image();
+            img.src = imgElement.src;
+
+            // Wait until the image has loaded before drawing
+            img.onload = function () {
+                // Draw the image on the canvas first
+                ctx.drawImage(img, 0, 0, imgElement.width, imgElement.height);
+
+                // Apply the curve processing logic here
+                const curveIntensity = 0.05; // Adjust for curve intensity
+                const curveOffset = 50; // Adjust for curve depth
+
+                const width = imgElement.width;
+                const height = imgElement.height;
+
+                // Apply curving effect row by row
+                for (let y = 0; y < height; y++) {
+                    const offset = Math.sin(y * curveIntensity) * curveOffset;
+                    ctx.drawImage(img, 0, y, width, 1, offset, y, width, 1); // Draw each row with an offset
+                }
+
+                // Now replace the original image's src with the curved image from the canvas
+                imgElement.src = curvedCanvas.toDataURL(); // Get the base64 image data
+                console.log('Curved image applied successfully');
+            };
+
+            // If the image fails to load
+            img.onerror = function () {
+                console.error('Error loading the image for curving.');
+            };
+        }
+
+
+
 
         const resultCont = document.getElementById('result');
         resultCont.style.display = 'flex';
-
 
         // GET TRASHOLD VALUE
         window.onload = function() {
@@ -95,7 +168,7 @@
         function getRangeValue() {
 
             // Get the value of the range input
-            const rangeValue = threshold.value;
+            const rangeValue = threshold_.value;
 
             // Display the value in a <p> element or use it in your logic
             document.getElementById('rangeValueDisplay').innerText = rangeValue;
@@ -113,7 +186,7 @@
                 const formData = new FormData(form);
                 // const threshold = rangeValue;
                 console.log('formData', formData)
-                formData.append('threshold', threshold.value);
+                formData.append('threshold', threshold_.value);
 
                 axios.post("{% url 'remove_bg' %}", formData, {
                     headers: {
@@ -126,10 +199,29 @@
                     if (response.data.success) {
 
                         imageName = response.data.imgName;
+                        imagURL = response.data.image_data_url
+                        workWithImage (imageName, imagURL);
+                        
+                    } else {
+                        alert('Failed to process the image.');
+                    }
+                })
+                .catch(error => {
+                    spinner.style.display = 'none';
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+            
+            }
+        });
+
+
+        function workWithImage (imageName, imagURL) {
+                        activeImage = imageName
 
                         // logic to download result in original size
                         const outputImage = document.createElement('img'); //document.getElementById('outputImage');
-                        outputImage.src = response.data.image_data_url;
+                        outputImage.src = imagURL;
                         outputImage.style.display = 'block';
                         outputImage.style.width = '150px';
 
@@ -143,7 +235,7 @@
                         }
 
                         const downloadLink = document.createElement('a'); //document.getElementById('downloadLink');
-                        downloadLink.href = response.data.image_data_url;
+                        downloadLink.href = imagURL; //response.data.image_data_url;
                         downloadLink.download = "processed_image.png";
                         downloadLink.style.display = 'block';
                         const uploadImg = document.createElement('img');
@@ -160,8 +252,9 @@
                         resizableContainer.style.height = '300px'; // Initial height
 
                         const imgElement = document.createElement('img');
-                        imgElement.src = response.data.image_data_url;
+                        imgElement.src = imagURL; //response.data.image_data_url;
                         imgElement.setAttribute('data-index', imageName);
+                        imgElement.classList.add('imgElement_' + imageName);
 
                         imgElement.onclick = function () {
 
@@ -170,8 +263,10 @@
                             const imgIndex = this.getAttribute('data-index');
                             console.log('onclick imgIndex', imgIndex);
 
+                            activeImage = imgIndex
+
                             if ( isActiveImage === true ) {
-                                setInactiveImg();
+                                setInactiveImg(imgIndex);
                             } else {
                                 setActiveImg(imgIndex);
                             }
@@ -190,10 +285,19 @@
                         });
 
 
-                        function setInactiveImg() {
+                        function setInactiveImg(imgIndex) {
                             resizableContainer.style.border = 'none';
                             const resizeHandle = document.querySelectorAll('.resize-handle');
                             resizeHandle.forEach(handler => handler.style.display = 'none');
+
+                            // Hide the rotation handle
+                            const rotationHandle = document.getElementsByClassName('rotate-handle_' + imageName);
+                            console.log('setInactiveImg - rotationHandle', rotationHandle);
+                            
+                            if (rotationHandle.length > 0) { // Check if there is a rotation handle
+                                Array.from(rotationHandle).forEach(handler => handler.style.display = 'none');
+                            }
+
                             isActiveImage = false;
                         }
 
@@ -203,6 +307,7 @@
                             resizeHandle.forEach(handler => handler.style.display = 'block');
                             isActiveImage = true;
                             resizeImage(imgIndex);
+                            startRotate(imageName);
                         }
 
                         function resizeImage(imgIndex) {
@@ -215,10 +320,10 @@
                             const resizeHandles = document.querySelectorAll('.resize-handle');
 
                             resizeHandles.forEach((handler, index) => {
-                                console.log('handler', handler);
+                                // console.log('handler', handler);
 
                                 const dataIndex = handler.getAttribute('data-index');
-                                console.log('dataIndex', dataIndex);
+                                // console.log('dataIndex', dataIndex);
 
                                 // Show the handler if the index matches, otherwise hide it
                                 if (dataIndex === imgIndex) {
@@ -228,6 +333,38 @@
                                 }
                             });
                         }
+
+
+                        // // Function to curve the image
+                        // function applyCurvingToImage() {
+                        //     const canvas = document.createElement('canvas');
+                        //     const ctx = canvas.getContext('2d');
+
+                        //     // Set canvas dimensions to match image
+                        //     canvas.width = imgElement.width;
+                        //     canvas.height = imgElement.height;
+
+                        //     // Apply the curve processing logic here
+                        //     const curveIntensity = 0.05; // Adjust for curve intensity
+                        //     const curveOffset = 20; // Adjust for curve depth
+
+                        //     const width = imgElement.width;
+                        //     const height = imgElement.height;
+
+                        //     // Draw the image on the canvas with curving effect
+                        //     const img = new Image();
+                        //     img.src = imgElement.src;
+
+                        //     img.onload = function () {
+                        //         for (let y = 0; y < height; y++) {
+                        //             const offset = Math.sin(y * curveIntensity) * curveOffset;
+                        //             ctx.drawImage(img, 0, y, width, 1, offset, y, width, 1); // Draw each row with offset
+                        //         }
+
+                        //         // Replace the image with the canvas containing the curved image
+                        //         imgElement.src = canvas.toDataURL();
+                        //     };
+                        // }
 
 
                         // SHOW MENU
@@ -271,10 +408,22 @@
 
                         let isResizing = false;
                         let isDragging = false;
+                        let isRotating = false; // New flag for rotation
                         let currentHandle = null;
                         let startX, startY, startWidth, startHeight, startLeft, startTop;
+                        let startRotation = 0; // To store the initial rotation angle
+                        let centerX, centerY; // Center of the element for rotation
 
-                        // Function to handle resizing
+                        // Function to rotate the element
+                        function handleRotation(event) {
+                            const dx = event.clientX - centerX;
+                            const dy = event.clientY - centerY;
+                            const angle = Math.atan2(dy, dx) * (180 / Math.PI); // Calculate angle in degrees
+                            const rotationAngle = angle - startRotation; // Calculate relative angle
+                            resizableContainer.style.transform = `rotate(${rotationAngle}deg)`;
+                        }
+
+                        // Function to resize the element
                         function handleResize(event, direction) {
                             const dx = event.clientX - startX;
                             const dy = event.clientY - startY;
@@ -292,11 +441,9 @@
                                 resizableContainer.style.height = `${startHeight - dy}px`;
                                 resizableContainer.style.top = `${startTop + dy}px`;
                             }
-                            
-                            // setInactiveImg()
                         }
 
-                        // Event listeners for resize handles
+                        // Add resize handles
                         resizableContainer.querySelectorAll('.resize-handle').forEach(handle => {
                             handle.addEventListener('mousedown', function (event) {
                                 isResizing = true;
@@ -308,19 +455,43 @@
                                 startLeft = resizableContainer.offsetLeft;
                                 startTop = resizableContainer.offsetTop;
                                 event.preventDefault();
-
-                                // setInactiveImg()
                             });
                         });
 
+                        function startRotate(imageName) {
+                            // Add rotation handle (for example, top-center)
+                            const rotationHandle = document.createElement('div');
+                            rotationHandle.classList.add('rotate-handle_' + imageName);
+                            rotationHandle.style.display = 'block';
+                            rotationHandle.style.position = 'absolute';
+                            rotationHandle.style.top = '-20px'; // Place it above the container
+                            rotationHandle.style.left = '-10px';
+                            rotationHandle.style.transform = 'translateX(-50%)';
+                            rotationHandle.style.cursor = 'grab';
+                            rotationHandle.style.backgroundImage = 'url(/static/icons/rotate_in.svg)';
+                            rotationHandle.style.width = '15px';
+                            rotationHandle.style.height = '15px';
+                            resizableContainer.appendChild(rotationHandle);
+
+                            // Enable rotation on mouse down
+                            rotationHandle.addEventListener('mousedown', function (event) {
+                                isRotating = true;
+                                const rect = resizableContainer.getBoundingClientRect();
+                                centerX = rect.left + rect.width / 2; // Find the center of the container
+                                centerY = rect.top + rect.height / 2;
+                                startX = event.clientX;
+                                startY = event.clientY;
+                                startRotation = Math.atan2(startY - centerY, startX - centerX) * (180 / Math.PI);
+                                event.preventDefault();
+                            });
+                        }
+
                         // Enable dragging for the resizable container
                         resizableContainer.addEventListener('mousedown', function (event) {
-                            if (!isResizing) {
+                            if (!isResizing && !isRotating) {
                                 isDragging = true;
                                 startX = event.clientX - resizableContainer.offsetLeft;
                                 startY = event.clientY - resizableContainer.offsetTop;
-
-                                // setInactiveImg()
                             }
                         });
 
@@ -330,30 +501,21 @@
                             } else if (isDragging) {
                                 resizableContainer.style.left = `${event.clientX - startX}px`;
                                 resizableContainer.style.top = `${event.clientY - startY}px`;
+                            } else if (isRotating) {
+                                handleRotation(event);
                             }
                         });
 
                         document.addEventListener('mouseup', function () {
                             isResizing = false;
                             isDragging = false;
-
-                            // setInactiveImg()
+                            isRotating = false;
                         });
+
 
                         thumbnailArea.appendChild(resizableContainer);
                         // isActiveImage = false;
-                    } else {
-                        alert('Failed to process the image.');
-                    }
-                })
-                .catch(error => {
-                    spinner.style.display = 'none';
-                    console.error('Error:', error);
-                    alert('An error occurred. Please try again.');
-                });
-            
-            }
-        });
+        }
     
 
         thumbnailArea.addEventListener('dragover', function (event) {

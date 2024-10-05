@@ -33,14 +33,31 @@
             </div>
             <!-- Placeholder for the processed image -->
             <div id="result">
-                <img id="outputImage" src="" style="display:none;" alt="Processed Image" width="300">
-                <a id="downloadLink" href="" download="processed_image.png" style="display:none;">
+                <!-- <img id="outputImage" src="" style="display:none;" alt="Processed Image" width="300"> -->
+                <!-- <a id="downloadLink" href="" download="processed_image.png" style="display:none;">
                     pobierz
-                </a>
+                </a> -->
             </div>
         </div>
 
-        <div id="thumbnailArea">Przeciągnij zdjęcie</div>
+        <label for="customRange2" class="form-label">Granica maski</label>
+        <!-- Display the range value -->
+        <p id="rangeValueDisplay">0</p>
+        <input type="range" class="form-range" min="0" max="255" id="threshold" onchange="getRangeValue()">
+
+        <div id="navProImg" class="d-flex justify-content-between">
+            <img style="cursor: pointer;" src="{% static 'icons/rotate.svg' %}" width="25" alt="">
+            <img style="cursor: pointer;" src="{% static 'icons/curve.svg' %}" width="25" alt="">
+            <img style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="25" alt="">
+            <img style="cursor: pointer;" src="{% static 'icons/close.svg' %}" width="25" alt="">
+        </div>
+
+        <div id="thumbnailArea" class="d-flex justify-content-center align-items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="50" fill="currentColor" class="bi bi-images" viewBox="0 0 16 16" opacity="0.2">
+              <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
+              <path d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-1.998 2M14 2H4a1 1 0 0 0-1 1h9.002a2 2 0 0 1 2 2v7A1 1 0 0 0 15 11V3a1 1 0 0 0-1-1M2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1z"/>
+            </svg>
+        </div>
         <button id="downloadCombined" style="margin: 20px;" type="button" class="btn btn-primary">Zapisz</button>
 
         <canvas id="combinedCanvas" style="display:none;"></canvas> <!-- Hidden Canvas for combining images -->
@@ -51,12 +68,40 @@
         const csrfToken = document.getElementById('csrf-token').getAttribute('data-token');
         const form = document.getElementById('imageForm');
         const inputFile = document.getElementById('image');
+        const threshold = document.getElementById('threshold');
         const triggerFileInput = document.getElementById('triggerFileInput');
         const spinner = document.getElementById('spinner');
         const thumbnailArea = document.getElementById('thumbnailArea');
         const downloadCombined = document.getElementById('downloadCombined');
         const combinedCanvas = document.getElementById('combinedCanvas');
+        const imageNavCont = document.getElementById('navProImg');
         let draggedImage = null;
+        let isActiveImage = false;
+        let imageName = null;
+        let activeImage = null;
+
+        const resultCont = document.getElementById('result');
+        resultCont.style.display = 'flex';
+
+        // GET TRASHOLD VALUE
+        window.onload = function() {
+            // Set the initial value to 0 when the page loads
+            const rangeInput = document.getElementById('threshold');
+            rangeInput.value = 0; // Set the default value
+
+            // Display the initial value
+            document.getElementById('rangeValueDisplay').innerText = rangeInput.value;
+        };
+        function getRangeValue() {
+
+            // Get the value of the range input
+            const rangeValue = threshold.value;
+
+            // Display the value in a <p> element or use it in your logic
+            document.getElementById('rangeValueDisplay').innerText = rangeValue;
+        }
+
+
 
         triggerFileInput.addEventListener('click', () => {
             inputFile.click(); // Trigger file input click
@@ -66,6 +111,9 @@
             if (inputFile.files.length > 0) {
                 spinner.style.display = 'block';
                 const formData = new FormData(form);
+                // const threshold = rangeValue;
+                console.log('formData', formData)
+                formData.append('threshold', threshold.value);
 
                 axios.post("{% url 'remove_bg' %}", formData, {
                     headers: {
@@ -77,15 +125,34 @@
                     spinner.style.display = 'none';
                     if (response.data.success) {
 
+                        imageName = response.data.imgName;
+                        activeImage = imageName
+
                         // logic to download result in original size
-                        const outputImage = document.getElementById('outputImage');
+                        const outputImage = document.createElement('img'); //document.getElementById('outputImage');
                         outputImage.src = response.data.image_data_url;
                         outputImage.style.display = 'block';
-                        const downloadLink = document.getElementById('downloadLink');
+                        outputImage.style.width = '150px';
+
+                        outputImage.onclick = function () {
+                            // Get all images within the same container and remove the 'activeImage' class
+                            const allImages = resultCont.querySelectorAll('img');
+                            allImages.forEach(img => img.classList.remove('activeImage'));
+
+                            // Add the 'activeImage' class only to the clicked image
+                            outputImage.classList.add('activeImage');
+                        }
+
+                        const downloadLink = document.createElement('a'); //document.getElementById('downloadLink');
                         downloadLink.href = response.data.image_data_url;
+                        downloadLink.download = "processed_image.png";
                         downloadLink.style.display = 'block';
-                        const resultImg = document.getElementById('result');
-                        resultImg.style.display = 'block';
+                        const uploadImg = document.createElement('img');
+                        uploadImg.src = "{% static 'icons/upload.svg' %}";
+                        downloadLink.appendChild(uploadImg);
+
+                        resultCont.appendChild(outputImage);
+                        resultCont.appendChild(downloadLink);
 
                         // logic for create a thumbnail
                         const resizableContainer = document.createElement('div');
@@ -95,22 +162,144 @@
 
                         const imgElement = document.createElement('img');
                         imgElement.src = response.data.image_data_url;
+                        imgElement.setAttribute('data-index', imageName);
+
+                        imgElement.onclick = function () {
+
+                            console.log('isActiveImage', isActiveImage)
+
+                            const imgIndex = this.getAttribute('data-index');
+                            console.log('onclick imgIndex', imgIndex);
+
+                            activeImage = imgIndex
+
+                            if ( isActiveImage === true ) {
+                                setInactiveImg(imgIndex);
+                            } else {
+                                setActiveImg(imgIndex);
+                            }
+                            
+                            // resizeImage(imgIndex);  // Pass the index to the resizeImage function
+                        }
                         resizableContainer.appendChild(imgElement);
 
-                        // Add resize handles for all corners
+                        // // Add resize handles for all corners
                         const handles = ['tl', 'tr', 'bl', 'br'];
                         handles.forEach(handle => {
                             const resizeHandle = document.createElement('div');
+                            resizeHandle.setAttribute('data-index', imageName);
                             resizeHandle.classList.add('resize-handle', handle);
                             resizableContainer.appendChild(resizeHandle);
                         });
 
+
+                        function setInactiveImg(imgIndex) {
+                            resizableContainer.style.border = 'none';
+                            const resizeHandle = document.querySelectorAll('.resize-handle');
+                            resizeHandle.forEach(handler => handler.style.display = 'none');
+
+                            // Hide the rotation handle
+                            const rotationHandle = document.getElementsByClassName('rotate-handle_' + imageName);
+                            console.log('setInactiveImg - rotationHandle', rotationHandle);
+                            
+                            if (rotationHandle.length > 0) { // Check if there is a rotation handle
+                                Array.from(rotationHandle).forEach(handler => handler.style.display = 'none');
+                            }
+
+                            isActiveImage = false;
+                        }
+
+                        function setActiveImg(imgIndex) {
+                            resizableContainer.style.border = 'block';
+                            const resizeHandle = document.querySelectorAll('.resize-handle');
+                            resizeHandle.forEach(handler => handler.style.display = 'block');
+                            isActiveImage = true;
+                            resizeImage(imgIndex);
+                            startRotate(imageName);
+                        }
+
+                        function resizeImage(imgIndex) {
+                            console.log('imgIndex', imgIndex);
+
+                            // Apply a border to the container
+                            resizableContainer.style.border = '2px dashed gray';
+
+                            // Get all resize handles
+                            const resizeHandles = document.querySelectorAll('.resize-handle');
+
+                            resizeHandles.forEach((handler, index) => {
+                                // console.log('handler', handler);
+
+                                const dataIndex = handler.getAttribute('data-index');
+                                // console.log('dataIndex', dataIndex);
+
+                                // Show the handler if the index matches, otherwise hide it
+                                if (dataIndex === imgIndex) {
+                                    handler.style.display = 'block';
+                                } else {
+                                    handler.style.display = 'none';
+                                }
+                            });
+                        }
+
+
+                        // SHOW MENU
+                        const properCont = document.createElement('div');
+                        properCont.classList.add('pr');
+                        let menuActive = false;
+
+                        properCont.onclick = function() { 
+                            console.log('menuActive', menuActive)
+
+                            if ( menuActive === false) {
+                                console.log('menuActive show', menuActive)
+                                const menuCont = document.createElement('div');
+                                menuCont.classList.add('menuActive')
+                                menuCont.style.display = 'flex';
+                                menuCont.style.flexDirection = 'column';
+                        
+                                const icons = ['close'];
+                                    icons.forEach(icon => {
+                                    const resizeHandle = document.createElement('div');
+                                    resizeHandle.classList.add(icon);
+                                    menuCont.appendChild(resizeHandle);
+                                });
+
+                                resizableContainer.appendChild(menuCont);
+                                menuActive = true;
+                            } else {
+                                console.log('menuActive none', menuActive)
+                                const menuCont = document.getElementsByClassName('menuActive') //[0]; // Get the first element with the class 'menuActive'
+
+                                menuCont.forEach(elem => {
+                                    elem.style.display = 'none';  // Hide the menu
+                                    menuActive = false;
+                                })
+        
+                            }
+                        };
+
+                        resizableContainer.appendChild(properCont);
+                        // END SHOW MENU
+
                         let isResizing = false;
                         let isDragging = false;
+                        let isRotating = false; // New flag for rotation
                         let currentHandle = null;
                         let startX, startY, startWidth, startHeight, startLeft, startTop;
+                        let startRotation = 0; // To store the initial rotation angle
+                        let centerX, centerY; // Center of the element for rotation
 
-                        // Function to handle resizing
+                        // Function to rotate the element
+                        function handleRotation(event) {
+                            const dx = event.clientX - centerX;
+                            const dy = event.clientY - centerY;
+                            const angle = Math.atan2(dy, dx) * (180 / Math.PI); // Calculate angle in degrees
+                            const rotationAngle = angle - startRotation; // Calculate relative angle
+                            resizableContainer.style.transform = `rotate(${rotationAngle}deg)`;
+                        }
+
+                        // Function to resize the element
                         function handleResize(event, direction) {
                             const dx = event.clientX - startX;
                             const dy = event.clientY - startY;
@@ -130,7 +319,7 @@
                             }
                         }
 
-                        // Event listeners for resize handles
+                        // Add resize handles
                         resizableContainer.querySelectorAll('.resize-handle').forEach(handle => {
                             handle.addEventListener('mousedown', function (event) {
                                 isResizing = true;
@@ -145,9 +334,37 @@
                             });
                         });
 
+                        function startRotate(imageName) {
+                            // Add rotation handle (for example, top-center)
+                            const rotationHandle = document.createElement('div');
+                            rotationHandle.classList.add('rotate-handle_' + imageName);
+                            rotationHandle.style.display = 'block';
+                            rotationHandle.style.position = 'absolute';
+                            rotationHandle.style.top = '-20px'; // Place it above the container
+                            rotationHandle.style.left = '0%';
+                            rotationHandle.style.transform = 'translateX(-50%)';
+                            rotationHandle.style.cursor = 'grab';
+                            rotationHandle.style.backgroundImage = 'url(/static/icons/rotate_in.svg)';
+                            rotationHandle.style.width = '15px';
+                            rotationHandle.style.height = '15px';
+                            resizableContainer.appendChild(rotationHandle);
+
+                            // Enable rotation on mouse down
+                            rotationHandle.addEventListener('mousedown', function (event) {
+                                isRotating = true;
+                                const rect = resizableContainer.getBoundingClientRect();
+                                centerX = rect.left + rect.width / 2; // Find the center of the container
+                                centerY = rect.top + rect.height / 2;
+                                startX = event.clientX;
+                                startY = event.clientY;
+                                startRotation = Math.atan2(startY - centerY, startX - centerX) * (180 / Math.PI);
+                                event.preventDefault();
+                            });
+                        }
+
                         // Enable dragging for the resizable container
                         resizableContainer.addEventListener('mousedown', function (event) {
-                            if (!isResizing) {
+                            if (!isResizing && !isRotating) {
                                 isDragging = true;
                                 startX = event.clientX - resizableContainer.offsetLeft;
                                 startY = event.clientY - resizableContainer.offsetTop;
@@ -160,15 +377,20 @@
                             } else if (isDragging) {
                                 resizableContainer.style.left = `${event.clientX - startX}px`;
                                 resizableContainer.style.top = `${event.clientY - startY}px`;
+                            } else if (isRotating) {
+                                handleRotation(event);
                             }
                         });
 
                         document.addEventListener('mouseup', function () {
                             isResizing = false;
                             isDragging = false;
+                            isRotating = false;
                         });
 
+
                         thumbnailArea.appendChild(resizableContainer);
+                        // isActiveImage = false;
                     } else {
                         alert('Failed to process the image.');
                     }
@@ -178,8 +400,10 @@
                     console.error('Error:', error);
                     alert('An error occurred. Please try again.');
                 });
+            
             }
         });
+    
 
         thumbnailArea.addEventListener('dragover', function (event) {
             event.preventDefault();
