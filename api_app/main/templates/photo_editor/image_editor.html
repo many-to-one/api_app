@@ -92,13 +92,78 @@
         let activeImage = null;
 
 
-        // function applyCurvedEffect() {
-        //     applyCurvingToImage();
-        // }
+        // Function to apply curve adjustments to brightness and RGB channels
+        function applyCurvedEffect() {
+            // Get the existing canvas element
+            const curvedCanvas = document.getElementById('curvedCanvas');
+            const ctx = curvedCanvas.getContext('2d');
+
+            // Get the image element by class name (or id)
+            const imgElement = document.getElementsByClassName('imgElement_IMG_5615.JPG')[0]; // Get the first element
+
+            if (!imgElement) {
+                console.error('Image element not found');
+                return;
+            }
+
+            console.log('applyCurvedEffect - imgElement', imgElement);
+
+            // Set canvas dimensions to match the image
+            curvedCanvas.width = imgElement.naturalWidth; // imgElement.naturalWidth;  // Use naturalWidth and naturalHeight for original dimensions
+            curvedCanvas.height = imgElement.naturalHeight; // imgElement.naturalHeight;
+            console.log('imgElement dimensions', imgElement.width, imgElement.height);
+            console.log('natural dimensions', curvedCanvas.naturalWidth, curvedCanvas.naturalHeight);
+
+            // Create a new image object and set its source to the existing image's source
+            const img = new Image();
+            img.src = imgElement.src;
+
+            // Wait until the image has loaded before drawing
+            img.onload = function () {
+                // Draw the image on the canvas first
+                ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight); // Ensure using natural dimensions
+
+                // Get the image data for manipulation
+                const imageData = ctx.getImageData(0, 0, curvedCanvas.width, curvedCanvas.height);
+                const data = imageData.data; // This is the array of pixel data [r,g,b,a, r,g,b,a, ...]
+
+                // Apply the curve adjustment logic for brightness and RGB channels
+                const brightnessFactor = -1.0; // Factor to increase brightness (1.0 = no change)
+                const redCurve = 1.0; // Factor to manipulate the red channel
+                const greenCurve = 1.0; // Factor to manipulate the green channel
+                const blueCurve = 1.0; // Factor to manipulate the blue channel
+
+                for (let i = 0; i < data.length; i += 4) {
+                    // Adjust RGB channels based on the curves
+                    data[i] = Math.min(255, data[i] * redCurve);   // Red channel
+                    data[i + 1] = Math.min(255, data[i + 1] * greenCurve); // Green channel
+                    data[i + 2] = Math.min(255, data[i + 2] * blueCurve);  // Blue channel
+
+                    // Adjust brightness
+                    data[i] = Math.min(255, data[i] * brightnessFactor);   // Red channel
+                    data[i + 1] = Math.min(255, data[i + 1] * brightnessFactor); // Green channel
+                    data[i + 2] = Math.min(255, data[i + 2] * brightnessFactor); // Blue channel
+                }
+
+                // Put the modified image data back onto the canvas
+                ctx.putImageData(imageData, 0, 0);
+
+                // Replace the original image's src with the adjusted image from the canvas
+                imgElement.src = curvedCanvas.toDataURL(); // Get the base64 image data
+                console.log('Curved brightness and RGB channels applied successfully');
+            };
+
+            // If the image fails to load
+            img.onerror = function () {
+                console.error('Error loading the image for curving.');
+            };
+        }
+
+
 
 
         // Function to curve the image
-        function applyCurvedEffect() {
+        function transformationffect() {
             // Get the existing canvas element
             const curvedCanvas = document.getElementById('curvedCanvas');
             const ctx = curvedCanvas.getContext('2d');
@@ -128,7 +193,7 @@
 
                 // Apply the curve processing logic here
                 const curveIntensity = 0.05; // Adjust for curve intensity
-                const curveOffset = 50; // Adjust for curve depth
+                const curveOffset = 20; // Adjust for curve depth
 
                 const width = imgElement.width;
                 const height = imgElement.height;

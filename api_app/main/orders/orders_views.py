@@ -217,12 +217,13 @@ def set_shipment_list(request, name):
 
     # if request.user.is_authenticated:
 
-        print('********************** name @@@ ****************************', name)
+        # print('********************** name @@@ ****************************', name)
 
         start_time = time.time()
+        shipment_list = []
 
         ids = request.GET.getlist('ids')
-        print('********************** IDS set_shipment_list IDS ****************************', ids)
+        # print('********************** IDS set_shipment_list IDS ****************************', ids)
 
         pickup = request.GET.getlist('pickup')
         secret = Secret.objects.get(account__name=name)
@@ -233,18 +234,25 @@ def set_shipment_list(request, name):
         secret_data = SecretSerializer(secret).data
         address_data = AddressSerializer(address).data
         # time.sleep(2)
-        print('********************** secret @@@ ****************************', secret)
-        print('********************** address @@@ ****************************', address)
+        print('********************** @@@ ****************************', secret.account)
+        # print('********************** address @@@ ****************************', address)
         
         if address:
             results = asyncio.run(set_shipment_list_async(request, ids, secret, address_data))#[0]
-        print('********************** /// results 904/// ****************************', results)  #results[1][1]
+        # print('********************** /// results 241/// ****************************', results[1:])  #results[1][1]
+        for res in results:
+            for r in res:
+                # Check if the element is a dictionary
+                if isinstance(r, dict):
+                    if len(r) == 16:
+                        # print('********************** /// results 243 loop/// ****************************', r)
+                        shipment_list.append(r)
         # time.sleep(1)
         if results:
             if secret:
                 results_ = asyncio.run(set_shipment_list_q(results, secret))
                 products = asyncio.run(get_products(results, secret))
-                print('**********************  /// results_ 909 /// ****************************', results_)
+                # print('**********************  /// results_ 250 /// ****************************', results_)
 
                 # get_invoice_task.apply_async(args=['8'])
                 # invoice = asyncio.run(get_invoice(request, results, secret_data, name, address_data) )
@@ -278,13 +286,13 @@ def set_shipment_list(request, name):
         selects = set()
         couriers = []
         for res in results_:
-            print('********************** referenceNumber ****************************', res["input"]["referenceNumber"])
+            # print('********************** referenceNumber ****************************', res["input"]["referenceNumber"])
             for courier, times in keywords.items():
                 if courier in res["input"]["referenceNumber"]:
                     selects.add((courier, tuple(times)))
             couriers.append(res["input"]["referenceNumber"])
         
-        print(' ********************** SELECTS ********************** ', selects)
+        # print(' ********************** SELECTS ********************** ', selects)
 
         context = {
             'result': results_,
@@ -292,10 +300,12 @@ def set_shipment_list(request, name):
             'couriers': couriers,
             'selects': selects,
             'warehouse_list': products,
+            'shipment_list': shipment_list,
             }
         
         # print('********************** context 921 ****************************', context)
-        print('********************** warehouse_list ****************************', products)
+        # print('********************** warehouse_list ****************************', products)
+        print('********************** shipment_list ****************************', shipment_list)
         
         end_time = time.time()
         elapsed_time = end_time - start_time
