@@ -52,8 +52,46 @@
             <img style="cursor: pointer;" src="{% static 'icons/close.svg' %}" width="25" alt="">
         </div>
 
+        <!-- TEST BRIGHTNESS CONTAINER 1 -->
         <canvas id="curvedCanvas" width="500" height="500" style="display: none;"></canvas>
         <img id="imageToCurve" style="display:none;">
+
+        <!-- TEST BRIGHTNESS CONTAINER 2 -->
+        <div id="curveContainer" style="display: none;"> 
+            <div id="curvePanel">
+                <canvas id="imageCanvas" width="500" height="500"></canvas>
+    
+                <div class="slider-container">
+                    <label for="brightnessSlider">Brightness</label>
+                    <input type="range" id="brightnessSlider" class="slider" min="0" max="2" step="0.01" value="1">
+                </div>
+                <div class="slider-container">
+                    <label for="redSlider">Red</label>
+                    <input type="range" id="redSlider" class="slider" min="0" max="2" step="0.01" value="1">
+                </div>
+                <div class="slider-container">
+                    <label for="greenSlider">Green</label>
+                    <input type="range" id="greenSlider" class="slider" min="0" max="2" step="0.01" value="1">
+                </div>
+                <div class="slider-container">
+                    <label for="blueSlider">Blue</label>
+                    <input type="range" id="blueSlider" class="slider" min="0" max="2" step="0.01" value="1">
+                </div>
+            </div>
+        </div>
+
+        <div id="curveContainer">
+            <canvas id="curveCanvas" width="500" height="500"></canvas>
+            <div id="rgbToggle">
+                <label for="rgbSelect">Adjust Channel:</label>
+                <select id="rgbSelect">
+                    <option value="rgb">RGB</option>
+                    <option value="red">Red</option>
+                    <option value="green">Green</option>
+                    <option value="blue">Blue</option>
+                </select>
+            </div>
+        </div>
 
         <div id="thumbnailArea" class="d-flex justify-content-center align-items-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="50" fill="currentColor" class="bi bi-images" viewBox="0 0 16 16" opacity="0.2">
@@ -70,6 +108,9 @@
 
     <!-- JIMP - IMAGE MANIPULATIO LIBRARY -->
     <script src="https://cdn.jsdelivr.net/npm/jimp@1.6.0/dist/commonjs/index.min.js"></script> 
+
+    <script src="{% static 'js/curveAdjustment.js' %}"></script>
+    <script src="{% static 'js/curvePanel.js' %}"></script>
 
 
     <script>
@@ -92,14 +133,22 @@
         let activeImage = null;
 
 
+
+
+
         // Function to apply curve adjustments to brightness and RGB channels
         function applyCurvedEffect() {
             // Get the existing canvas element
             const curvedCanvas = document.getElementById('curvedCanvas');
             const ctx = curvedCanvas.getContext('2d');
 
+            // const imgElements = document.querySelectorAll('.imgElement')
+            // console.log('imgElements', imgElements);
+
             // Get the image element by class name (or id)
-            const imgElement = document.getElementsByClassName('imgElement_IMG_5615.JPG')[0]; // Get the first element
+            // const imgElement = document.getElementsByClassName('imgElement_IMG_5615.JPG')[0]; // Get the first element
+            const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0]; // Get the first element
+            console.log('imgElement', imgElement);
 
             if (!imgElement) {
                 console.error('Image element not found');
