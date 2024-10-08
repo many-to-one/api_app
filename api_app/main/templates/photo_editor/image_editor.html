@@ -32,12 +32,7 @@
                 </div>
             </div>
             <!-- Placeholder for the processed image -->
-            <div id="result">
-                <!-- <img id="outputImage" src="" style="display:none;" alt="Processed Image" width="300"> -->
-                <!-- <a id="downloadLink" href="" download="processed_image.png" style="display:none;">
-                    pobierz
-                </a> -->
-            </div>
+            <div id="result"></div>
         </div>
 
         <label for="customRange2" class="form-label">Granica maski</label>
@@ -47,7 +42,7 @@
 
         <div id="navProImg" class="d-flex justify-content-between">
             <img style="cursor: pointer;" src="{% static 'icons/rotate.svg' %}" width="25" alt="">
-            <img id="curve" onclick="startToCurve()" style="cursor: pointer;" src="{% static 'icons/curve.svg' %}" width="25" alt="">
+            <img id="brightness" onclick="showProcContainer()" style="cursor: pointer;" src="{% static 'icons/curve.svg' %}" width="25" alt="">
             <img style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="25" alt="">
             <img style="cursor: pointer;" src="{% static 'icons/close.svg' %}" width="25" alt="">
         </div>
@@ -57,41 +52,35 @@
         <img id="imageToCurve" style="display:none;">
 
         <!-- TEST BRIGHTNESS CONTAINER 2 -->
-        <div id="curveContainer_" style="display: none;"> 
-            <div id="curvePanel">
-                <canvas id="imageCanvas" width="500" height="500"></canvas>
-    
-                <div class="slider-container">
-                    <label for="brightnessSlider">Brightness</label>
-                    <input type="range" id="brightnessSlider" class="slider" min="0" max="2" step="0.01" value="1">
-                </div>
-                <div class="slider-container">
-                    <label for="redSlider">Red</label>
-                    <input type="range" id="redSlider" class="slider" min="0" max="2" step="0.01" value="1">
-                </div>
-                <div class="slider-container">
-                    <label for="greenSlider">Green</label>
-                    <input type="range" id="greenSlider" class="slider" min="0" max="2" step="0.01" value="1">
-                </div>
-                <div class="slider-container">
-                    <label for="blueSlider">Blue</label>
-                    <input type="range" id="blueSlider" class="slider" min="0" max="2" step="0.01" value="1">
-                </div>
+        <div id="procContainer" style="display: none;">     
+            <div class="slider-container d-flex justify-content-evenly gap-5">
+                <label for="brightnessSlider">Brightness</label>
+                <input type="range" id="brightnessSlider" class="slider" min="0" max="2" step="0.1" value="1">
+            </div>
+            <div class="slider-container d-flex justify-content-evenly gap-5">
+                <label for="redSlider">Red</label>
+                <input type="range" id="redSlider" class="slider" min="0" max="2" step="0.1" value="1">
+            </div>
+            <div class="slider-container d-flex justify-content-evenly gap-5">
+                <label for="greenSlider">Green</label>
+                <input type="range" id="greenSlider" class="slider" min="0" max="2" step="0.1" value="1">
+            </div>
+            <div class="slider-container d-flex justify-content-evenly gap-5">
+                <label for="blueSlider">Blue</label>
+                <input type="range" id="blueSlider" class="slider" min="0" max="2" step="0.1" value="1">
+            </div>
+            <div class="slider-container">
+                <label for="blurSlider">Blur</label>
+                <input type="range" id="blurSlider" class="slider" min="0" max="30" step="1" value="0">
+            </div>
+            <div class="slider-container d-flex justify-content-evenly gap-5 mt-4">
+                <img class="set__tooltip" popovertarget="makeCopy" id="makeCopyIcon" onclick="makeCopy()" style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="15" alt="">
+                <span class="tooltip__text">Kopiuj ustawienia</span>
+                <img class="set__tooltip" popovertarget="addCopy" id="addCopyIcon" onclick="addCopy()" style="cursor: pointer;" src="{% static 'icons/paste.svg' %}" width="15" alt="">
+                <span class="tooltip__text">Wklej</span>
             </div>
         </div>
 
-        <div id="curveContainer" style="display: none;">
-            <canvas id="curveCanvas" width="500" height="500"></canvas>
-            <div id="rgbToggle">
-                <label for="rgbSelect">Adjust Channel:</label>
-                <select id="rgbSelect">
-                    <option value="rgb">RGB</option>
-                    <option value="red">Red</option>
-                    <option value="green">Green</option>
-                    <option value="blue">Blue</option>
-                </select>
-            </div>
-        </div>
 
         <div id="thumbnailArea" class="d-flex justify-content-center align-items-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="50" fill="currentColor" class="bi bi-images" viewBox="0 0 16 16" opacity="0.2">
@@ -132,225 +121,197 @@
         let imagURL = null
         let activeImage = null;
 
+        let cashedBrightnessSlider = 1;
+        let cashedRedSlider = 1;
+        let cashedGreenSlider = 1;
+        let cashedBlueSlider = 1;
+        let cashedBlurSlider = 1;
+        let addCash = false;
+        let copyCash = false;
+
+        let originalImageData = null;  // Store the original image data
 
 
-        function startToCurve() {
-            const curveCont = document.getElementById('curveContainer').style.display = 'block';
-            const canvasCP = document.getElementById('curveCanvas');
-            const ctxCP = canvasCP.getContext('2d');
-            const rgbSelect = document.getElementById('rgbSelect');
+        // // Initialize popovers using JavaScript
+        // const makeCopyEl = document.getElementById('makeCopy');
+        // const makeCopyIcon = document.getElementById('makeCopyIcon');
+        // const addCopyEl = document.getElementById('addCopy');
+        // const addCopyIcon = document.getElementById('addCopyIcon');
 
-            // Curve control points
-            let controlPoints = [{ x: 50, y: 500 }, { x: 500, y: 50 }];
-            let selectedPoint = null;
-            const curveChannel = {
-                rgb: [],
-                red: [],
-                green: [],
-                blue: []
-            };
-            let activeChannel = 'rgb';
+        // // Show popover on hover
+        // makeCopyIcon.addEventListener('mouseenter', function() {
+        //     makeCopyEl.style.display = 'block';
+        // });
+        // addCopyIcon.addEventListener('mouseenter', function() {
+        //     addCopyEl.style.display = 'block';
+        // });
 
-            // Event listeners for canvas interaction
-            canvasCP.addEventListener('mousedown', handleMouseDown);
-            canvasCP.addEventListener('mousemove', handleMouseMove);
-            canvasCP.addEventListener('mouseup', handleMouseUp);
-            rgbSelect.addEventListener('change', () => {
-                activeChannel = rgbSelect.value;
-                drawCurve();
-            });
+        // // Hide popover when the mouse leaves the button or popover
+        // makeCopyIcon.addEventListener('mouseleave', function() {
+        //     makeCopyEl.style.display = 'none';
+        // });
+        // addCopyIcon.addEventListener('mouseleave', function() {
+        //     addCopyEl.style.display = 'none';
+        // });
 
-            function handleMouseDown(event) {
-                const mousePos = getMousePos(canvasCP, event);
-                selectedPoint = findSelectedPoint(mousePos);
-                if (!selectedPoint) {
-                    // Add a new point if clicked on an empty space
-                    controlPoints.push(mousePos);
-                    selectedPoint = mousePos;
+            function showProcContainer() {
+                const processImg = document.getElementById('procContainer');
+                if ( processImg.style.display === 'none' ) {
+                    processImg.style.display = 'block';
+                } else {
+                    processImg.style.display = 'none';
                 }
-                drawCurve();
-                // applyCurvedEffect(mousePos)
             }
 
-            let debounceTimer;
-
-            function handleMouseMove(event) {
-                if (!selectedPoint) return;
-                const mousePos = getMousePos(canvasCP, event);
-                selectedPoint.x = Math.min(Math.max(mousePos.x, 0), canvasCP.width); // Constrain within canvas bounds
-                selectedPoint.y = Math.min(Math.max(mousePos.y, 0), canvasCP.height);
-                drawCurve();
-                const normalizedX = mousePos.x / canvasCP.width; // Normalizes x to a value between 0 and 1
-                console.log('Normalized X:', normalizedX.toFixed(2));
-                console.log('handleMouseMove', mousePos)
-                // Clear the previous debounce timer if it exists
-                 clearTimeout(debounceTimer);
-                    
-                // Set a new timer to call applyCurvedEffect() after a small delay (e.g., 300ms)
-                debounceTimer = setTimeout(() => {
-                    applyCurvedEffect(normalizedX.toFixed(2)); // Only called after user stops moving the mouse
-                }, 100); // Adjust the delay time (300ms) as needed
-            }
-
-            function handleMouseUp() {
-                selectedPoint = null;
-            }
-
-            // Get mouse position relative to canvas
-            function getMousePos(canvas, event) {
-                const rect = canvas.getBoundingClientRect();
-                return {
-                    x: event.clientX - rect.left,
-                    y: event.clientY - rect.top
+            // Debounce function to limit the frequency of slider adjustments
+            function debounce(func, wait = 100) {
+                let timeout;
+                return function (...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
                 };
             }
 
-            // Find the control point near the mouse position
-            function findSelectedPoint(mousePos) {
-                for (let point of controlPoints) {
-                    const distance = Math.sqrt((point.x - mousePos.x) ** 2 + (point.y - mousePos.y) ** 2);
-                    if (distance < 10) return point;
-                }
-                return null;
-            }
+            // Add event listeners for the sliders with debounce
+            document.getElementById('brightnessSlider').addEventListener('input', debounce(applyBrightness));
+            document.getElementById('redSlider').addEventListener('input', debounce(applyBrightness));
+            document.getElementById('greenSlider').addEventListener('input', debounce(applyBrightness));
+            document.getElementById('blueSlider').addEventListener('input', debounce(applyBrightness));
+            document.getElementById('blurSlider').addEventListener('input', debounce(applyBrightness));
 
-            // Draw the curve and control points
-            function drawCurve() {
-                ctxCP.clearRect(0, 0, canvasCP.width, canvasCP.height);
+            // Apply curve adjustment based on the brightness and RGB values
+            function applyBrightness() {
 
-                // Draw the curve
-                ctxCP.strokeStyle = 'black';
-                ctxCP.lineWidth = 2;
-                ctxCP.beginPath();
-                ctxCP.moveTo(0, 500);
+                console.log('addCash', addCash)
 
-                // Use bezier curve or smooth curve to join control points
-                for (let i = 0; i < controlPoints.length - 1; i++) {
-                    const cp1 = controlPoints[i];
-                    const cp2 = controlPoints[i + 1];
-                    ctxCP.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, cp2.x, cp2.y);
-                }
-                ctxCP.stroke();
+                let brightnessSlider = null
+                let redSlider = null
+                let greenSlider = null
+                let blueSlider = null
+                let blurSlider = 1
 
-                // Draw control points
-                controlPoints.forEach((point) => {
-                    ctxCP.beginPath();
-                    ctxCP.arc(point.x, point.y, 5, 0, 2 * Math.PI);
-                    ctxCP.fillStyle = 'red';
-                    ctxCP.fill();
-                    ctxCP.strokeStyle = 'black';
-                    ctxCP.stroke();
-                });
-            }
+                if ( addCash ) {
+                    console.log('addCash true')
+                    brightnessSlider = cashedBrightnessSlider;
+                    redSlider = cashedRedSlider;
+                    greenSlider = cashedGreenSlider;
+                    blueSlider = cashedBlueSlider;
+                    blurSlider = cashedBlueSlider;
+                    addCash = false;
+                } else {
+                    // Get slider values
+                    brightnessSlider = document.getElementById('brightnessSlider').value;
+                    redSlider = document.getElementById('redSlider').value;
+                    greenSlider = document.getElementById('greenSlider').value;
+                    blueSlider = document.getElementById('blueSlider').value;
+                    blurSlider = document.getElementById('blurSlider').value;
 
-            // Apply curve adjustment based on the control points
-            function applyCurveAdjustment() {
-                const data = imageData.data;
-                const points = controlPoints.sort((a, b) => a.x - b.x);
-
-                // Adjust pixels based on control points (simple interpolation for now)
-                for (let i = 0; i < data.length; i += 4) {
-                    const brightness = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-                    const curveValue = getCurveValue(brightness, points);
-
-                    // Apply curve adjustment to all RGB channels or specific channel
-                    if (activeChannel === 'rgb' || activeChannel === 'red') data[i] = Math.min(255, curveValue); // Red
-                    if (activeChannel === 'rgb' || activeChannel === 'green') data[i + 1] = Math.min(255, curveValue); // Green
-                    if (activeChannel === 'rgb' || activeChannel === 'blue') data[i + 2] = Math.min(255, curveValue); // Blue
-                }
-                return imageData;
-            }
-
-            // Get curve value based on control points (linear interpolation)
-            function getCurveValue(brightness, points) {
-                // Example: Simple linear interpolation (can be replaced with bezier curves)
-                const lower = points[0];
-                const upper = points[1];
-                return lower.y + ((brightness - lower.x) / (upper.x - lower.x)) * (upper.y - lower.y);
-            }
-
-            drawCurve();
-
-        }
-
-
-
-
-
-        // Function to apply curve adjustments to brightness and RGB channels
-        function applyCurvedEffect(value) {
-
-            // Get the existing canvas element
-            const curvedCanvas = document.getElementById('curvedCanvas');
-            const ctx = curvedCanvas.getContext('2d');
-            const rgbSelect = document.getElementById('rgbSelect');
-
-            // const imgElements = document.querySelectorAll('.imgElement')
-            // console.log('imgElements', imgElements);
-
-            // Get the image element by class name (or id)
-            // const imgElement = document.getElementsByClassName('imgElement_IMG_5615.JPG')[0]; // Get the first element
-            const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0]; // Get the first element
-            console.log('imgElement', imgElement);
-
-            if (!imgElement) {
-                console.error('Image element not found');
-                return;
-            }
-
-            // console.log('applyCurvedEffect - imgElement', imgElement);
-            console.log('applyCurvedEffect - value', value);
-
-            // Set canvas dimensions to match the image
-            curvedCanvas.width = imgElement.naturalWidth; // imgElement.naturalWidth;  // Use naturalWidth and naturalHeight for original dimensions
-            curvedCanvas.height = imgElement.naturalHeight; // imgElement.naturalHeight;
-            console.log('imgElement dimensions', imgElement.width, imgElement.height);
-            console.log('natural dimensions', curvedCanvas.naturalWidth, curvedCanvas.naturalHeight);
-
-            // Create a new image object and set its source to the existing image's source
-            const img = new Image();
-            img.src = imgElement.src;
-
-            // Wait until the image has loaded before drawing
-            img.onload = function () {
-                // Draw the image on the canvas first
-                ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight); // Ensure using natural dimensions
-
-                // Get the image data for manipulation
-                const imageData = ctx.getImageData(0, 0, curvedCanvas.width, curvedCanvas.height);
-                const data = imageData.data; // This is the array of pixel data [r,g,b,a, r,g,b,a, ...]
-
-                // Apply the curve adjustment logic for brightness and RGB channels
-                const brightnessFactor = 1.1; //-1.0; // Factor to increase brightness (1.0 = no change)
-                const redCurve = 1.0; // Factor to manipulate the red channel
-                const greenCurve = 1.0; // Factor to manipulate the green channel
-                const blueCurve = 1.0; // Factor to manipulate the blue channel
-
-                for (let i = 0; i < data.length; i += 4) {
-                    // Adjust RGB channels based on the curves
-                    data[i] = Math.min(255, data[i] * redCurve);   // Red channel
-                    data[i + 1] = Math.min(255, data[i + 1] * greenCurve); // Green channel
-                    data[i + 2] = Math.min(255, data[i + 2] * blueCurve);  // Blue channel
-
-                    // Adjust brightness
-                    data[i] = Math.min(255, data[i] * brightnessFactor);   // Red channel
-                    data[i + 1] = Math.min(255, data[i + 1] * brightnessFactor); // Green channel
-                    data[i + 2] = Math.min(255, data[i + 2] * brightnessFactor); // Blue channel
                 }
 
-                // Put the modified image data back onto the canvas
-                ctx.putImageData(imageData, 0, 0);
+                console.log('brightnessSlider:', brightnessSlider);
+                console.log('redSlider:', redSlider);
+                console.log('greenSlider:', greenSlider);
+                console.log('blueSlider:', blueSlider);
+                console.log('blurSlider:', blurSlider);
 
-                // Replace the original image's src with the adjusted image from the canvas
-                imgElement.src = curvedCanvas.toDataURL(); // Get the base64 image data
-                console.log('Curved brightness and RGB channels applied successfully');
-            };
+                // Get the existing canvas and image element
+                const curvedCanvas = document.getElementById('curvedCanvas');
+                const ctx = curvedCanvas.getContext('2d');
+                const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
 
-            // If the image fails to load
-            img.onerror = function () {
-                console.error('Error loading the image for curving.');
-            };
-        }
+                if (!imgElement) {
+                    console.error('Image element not found');
+                    return;
+                }
+
+                // Set canvas dimensions once (on initial load)
+                if (!originalImageData) {
+                    curvedCanvas.width = imgElement.naturalWidth;
+                    curvedCanvas.height = imgElement.naturalHeight;
+
+                    // Draw the image onto the canvas and store the original image data
+                    const img = new Image();
+                    img.src = imgElement.src;
+
+                    img.onload = function () {
+                        console.log('blurSlider', blurSlider)
+                        if ( blurSlider !== 0 ) {
+                            console.log('blurSlider !== 0', blurSlider)
+                            // ctx.filter = `blur(${parseFloat(blurSlider)}px)`;
+                            ctx.filter = `drop-shadow(1px ${parseInt(blurSlider)}px 17px #000000)`;
+                        }
+                        ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+
+                        originalImageData = ctx.getImageData(0, 0, curvedCanvas.width, curvedCanvas.height); // Save original data
+                        applyChanges();
+                    };
+
+                    img.onerror = function () {
+                        console.error('Error loading the image for curving.');
+                    };
+                } else {
+                    if ( blurSlider !== 0 ) {
+                            console.log('blurSlider !== 0 else', blurSlider)
+                            ctx.filter = `blur(${parseFloat(blurSlider)}px)`;
+                        }
+                    applyChanges();  // Apply changes on subsequent slider movements
+                }
+
+                // Function to apply brightness and RGB adjustments to original image data
+                function applyChanges() {
+                    // Get the original image data for manipulation (clone it each time to reset to original)
+                    const imageData = new ImageData(
+                        new Uint8ClampedArray(originalImageData.data),
+                        originalImageData.width,
+                        originalImageData.height
+                    );
+                    const data = imageData.data; // Array of pixel data [r,g,b,a, r,g,b,a, ...]
+
+                    // Apply the curve adjustment logic for brightness and RGB channels
+                    const brightnessFactor = parseFloat(brightnessSlider);
+                    const redFactor = parseFloat(redSlider);
+                    const greenFactor = parseFloat(greenSlider);
+                    const blueFactor = parseFloat(blueSlider);
+
+                    for (let i = 0; i < data.length; i += 4) {
+                        data[i] = Math.min(255, data[i] * redFactor * brightnessFactor);   // Red channel
+                        data[i + 1] = Math.min(255, data[i + 1] * greenFactor * brightnessFactor); // Green channel
+                        data[i + 2] = Math.min(255, data[i + 2] * blueFactor * brightnessFactor);  // Blue channel
+                    }
+
+
+                    // Put the modified image data back onto the canvas
+                    ctx.putImageData(imageData, 0, 0);
+
+                    // Replace the original image's src with the adjusted image from the canvas
+                    imgElement.src = curvedCanvas.toDataURL(); // Get the base64 image data
+                }
+            }
+
+
+            // Function to apply brightness and RGB adjustments to original image data
+            function makeCopy() {
+                    // Get slider values
+                const brightnessSlider = document.getElementById('brightnessSlider').value;
+                const redSlider = document.getElementById('redSlider').value;
+                const greenSlider = document.getElementById('greenSlider').value;
+                const blueSlider = document.getElementById('blueSlider').value;
+                const blurSlider = document.getElementById('blueSlider').value;
+
+                cashedBrightnessSlider = brightnessSlider;
+                cashedRedSlider = redSlider;
+                cashedGreenSlider = greenSlider;
+                cashedBlueSlider = blueSlider;
+                cashedBlurSlider = blurSlider;
+
+                copyCash = true;
+            }
+
+            function addCopy() {
+                addCash = true;
+                applyBrightness()
+            }
+
 
 
 
@@ -458,6 +419,14 @@
 
                         imageName = response.data.imgName;
                         imagURL = response.data.image_data_url
+
+                        document.getElementById('brightnessSlider').value = 1;
+                        document.getElementById('redSlider').value = 1;
+                        document.getElementById('greenSlider').value = 1;
+                        document.getElementById('blueSlider').value = 1;
+                        document.getElementById('blurSlider').value = 0;
+                        originalImageData = null;
+
                         workWithImage (imageName, imagURL);
                         
                     } else {
@@ -475,8 +444,9 @@
 
 
         function workWithImage (imageName, imagURL) {
-                        activeImage = imageName
 
+                        originalImageData = null; // delete cashed image for brightness and color correction
+                        activeImage = imageName
                         // logic to download result in original size
                         const outputImage = document.createElement('img'); //document.getElementById('outputImage');
                         outputImage.src = imagURL;
@@ -544,6 +514,7 @@
 
 
                         function setInactiveImg(imgIndex) {
+                            originalImageData = null;
                             resizableContainer.style.border = 'none';
                             const resizeHandle = document.querySelectorAll('.resize-handle');
                             resizeHandle.forEach(handler => handler.style.display = 'none');
@@ -560,6 +531,9 @@
                         }
 
                         function setActiveImg(imgIndex) {
+                            // const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
+                            // originalImageData = imgElement;
+                            originalImageData = null;
                             resizableContainer.style.border = 'block';
                             const resizeHandle = document.querySelectorAll('.resize-handle');
                             resizeHandle.forEach(handler => handler.style.display = 'block');
@@ -782,6 +756,14 @@
 
         // Function to combine images inside the thumbnailArea and download the result
         downloadCombined.addEventListener('click', function () {
+
+            cashedBrightnessSlider = 1;
+            cashedRedSlider = 1;
+            cashedGreenSlider = 1;
+            cashedBlueSlider = 1;
+            copyCash = false;
+            addCash = false;
+            originalImageData = null;
 
             const resizableContainers = thumbnailArea.querySelectorAll('.resizable');
             if (resizableContainers.length === 0) {

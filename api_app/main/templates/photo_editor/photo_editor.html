@@ -47,9 +47,50 @@
 
         <div id="navProImg" class="d-flex justify-content-between">
             <img style="cursor: pointer;" src="{% static 'icons/rotate.svg' %}" width="25" alt="">
-            <img style="cursor: pointer;" src="{% static 'icons/curve.svg' %}" width="25" alt="">
+            <img id="curve" onclick="startToCurve()" style="cursor: pointer;" src="{% static 'icons/curve.svg' %}" width="25" alt="">
             <img style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="25" alt="">
             <img style="cursor: pointer;" src="{% static 'icons/close.svg' %}" width="25" alt="">
+        </div>
+
+        <!-- TEST BRIGHTNESS CONTAINER 1 -->
+        <canvas id="curvedCanvas" width="500" height="500" style="display: none;"></canvas>
+        <img id="imageToCurve" style="display:none;">
+
+        <!-- TEST BRIGHTNESS CONTAINER 2 -->
+        <div id="curveContainer_" style="display: none;"> 
+            <div id="curvePanel">
+                <canvas id="imageCanvas" width="500" height="500"></canvas>
+    
+                <div class="slider-container">
+                    <label for="brightnessSlider">Brightness</label>
+                    <input type="range" id="brightnessSlider" class="slider" min="0" max="2" step="0.01" value="1">
+                </div>
+                <div class="slider-container">
+                    <label for="redSlider">Red</label>
+                    <input type="range" id="redSlider" class="slider" min="0" max="2" step="0.01" value="1">
+                </div>
+                <div class="slider-container">
+                    <label for="greenSlider">Green</label>
+                    <input type="range" id="greenSlider" class="slider" min="0" max="2" step="0.01" value="1">
+                </div>
+                <div class="slider-container">
+                    <label for="blueSlider">Blue</label>
+                    <input type="range" id="blueSlider" class="slider" min="0" max="2" step="0.01" value="1">
+                </div>
+            </div>
+        </div>
+
+        <div id="curveContainer" style="display: none;">
+            <canvas id="curveCanvas" width="500" height="500"></canvas>
+            <div id="rgbToggle">
+                <label for="rgbSelect">Adjust Channel:</label>
+                <select id="rgbSelect">
+                    <option value="rgb">RGB</option>
+                    <option value="red">Red</option>
+                    <option value="green">Green</option>
+                    <option value="blue">Blue</option>
+                </select>
+            </div>
         </div>
 
         <div id="thumbnailArea" class="d-flex justify-content-center align-items-center">
@@ -64,21 +105,354 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
+
+    <!-- JIMP - IMAGE MANIPULATIO LIBRARY -->
+    <script src="https://cdn.jsdelivr.net/npm/jimp@1.6.0/dist/commonjs/index.min.js"></script> 
+
+    <!-- <script src="{% static 'js/curveAdjustment.js' %}"></script>
+    <script src="{% static 'js/curvePanel.js' %}"></script> -->
+
+
     <script>
         const csrfToken = document.getElementById('csrf-token').getAttribute('data-token');
         const form = document.getElementById('imageForm');
         const inputFile = document.getElementById('image');
-        const threshold = document.getElementById('threshold');
+        const threshold_ = document.getElementById('threshold');
         const triggerFileInput = document.getElementById('triggerFileInput');
         const spinner = document.getElementById('spinner');
         const thumbnailArea = document.getElementById('thumbnailArea');
         const downloadCombined = document.getElementById('downloadCombined');
         const combinedCanvas = document.getElementById('combinedCanvas');
         const imageNavCont = document.getElementById('navProImg');
+
+        const curveIcon = document.getElementById('curve');
         let draggedImage = null;
         let isActiveImage = false;
         let imageName = null;
+        let imagURL = null
         let activeImage = null;
+
+
+
+        function startToCurve() {
+            const curveCont = document.getElementById('curveContainer').style.display = 'block';
+            const canvasCP = document.getElementById('curveCanvas');
+            const ctxCP = canvasCP.getContext('2d');
+            const rgbSelect = document.getElementById('rgbSelect');
+
+            // Curve control points
+            let controlPoints = [{ x: 50, y: 500 }, { x: 500, y: 50 }];
+            let selectedPoint = null;
+            const curveChannel = {
+                rgb: [],
+                red: [],
+                green: [],
+                blue: []
+            };
+            let activeChannel = 'rgb';
+
+            // Event listeners for canvas interaction
+            canvasCP.addEventListener('mousedown', handleMouseDown);
+            canvasCP.addEventListener('mousemove', handleMouseMove);
+            canvasCP.addEventListener('mouseup', handleMouseUp);
+            rgbSelect.addEventListener('change', () => {
+                activeChannel = rgbSelect.value;
+                drawCurve();
+            });
+
+            function handleMouseDown(event) {
+                const mousePos = getMousePos(canvasCP, event);
+                selectedPoint = findSelectedPoint(mousePos);
+                if (!selectedPoint) {
+                    // Add a new point if clicked on an empty space
+                    controlPoints.push(mousePos);
+                    selectedPoint = mousePos;
+                }
+                drawCurve();
+                // applyCurvedEffect(mousePos)
+            }
+
+            let debounceTimer;
+
+            function handleMouseMove(event) {
+                if (!selectedPoint) return;
+                const mousePos = getMousePos(canvasCP, event);
+                selectedPoint.x = Math.min(Math.max(mousePos.x, 0), canvasCP.width); // Constrain within canvas bounds
+                selectedPoint.y = Math.min(Math.max(mousePos.y, 0), canvasCP.height);
+                drawCurve();
+                // const normalizedX = mousePos.x / canvasCP.width; // Normalizes x to a value between 0 and 1
+                // console.log('Normalized X:', normalizedX.toFixed(2));
+                // console.log('handleMouseMove', mousePos)
+                // Clear the previous debounce timer if it exists
+                 clearTimeout(debounceTimer);
+                    
+                // Set a new timer to call applyCurvedEffect() after a small delay (e.g., 300ms)
+                debounceTimer = setTimeout(() => {
+                    applyCurvedEffect(); // Only called after user stops moving the mouse
+                }, 100); // Adjust the delay time (300ms) as needed
+            }
+
+            function handleMouseUp() {
+                selectedPoint = null;
+            }
+
+            // Get mouse position relative to canvas
+            function getMousePos(canvas, event) {
+                const rect = canvas.getBoundingClientRect();
+                return {
+                    x: event.clientX - rect.left,
+                    y: event.clientY - rect.top
+                };
+            }
+
+            // Find the control point near the mouse position
+            function findSelectedPoint(mousePos) {
+                for (let point of controlPoints) {
+                    const distance = Math.sqrt((point.x - mousePos.x) ** 2 + (point.y - mousePos.y) ** 2);
+                    if (distance < 10) return point;
+                }
+                return null;
+            }
+
+            // Draw the curve and control points
+            function drawCurve() {
+                ctxCP.clearRect(0, 0, canvasCP.width, canvasCP.height);
+
+                // Draw the curve
+                ctxCP.strokeStyle = 'black';
+                ctxCP.lineWidth = 2;
+                ctxCP.beginPath();
+                ctxCP.moveTo(0, 500);
+
+                // Use bezier curve or smooth curve to join control points
+                for (let i = 0; i < controlPoints.length - 1; i++) {
+                    const cp1 = controlPoints[i];
+                    const cp2 = controlPoints[i + 1];
+                    ctxCP.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, cp2.x, cp2.y);
+                }
+                ctxCP.stroke();
+
+                // Draw control points
+                controlPoints.forEach((point) => {
+                    ctxCP.beginPath();
+                    ctxCP.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+                    ctxCP.fillStyle = 'red';
+                    ctxCP.fill();
+                    ctxCP.strokeStyle = 'black';
+                    ctxCP.stroke();
+                });
+            }
+
+             // Apply curve adjustment based on the brightness value
+        function applyCurvedEffect() {
+            // Get the existing canvas element
+            const curvedCanvas = document.getElementById('curvedCanvas');
+            const ctx = curvedCanvas.getContext('2d');
+
+            // Get the image element by class name
+            const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0]; // Get the first element
+            if (!imgElement) {
+                console.error('Image element not found');
+                return;
+            }
+
+            // Set canvas dimensions to match the image
+            curvedCanvas.width = imgElement.naturalWidth;
+            curvedCanvas.height = imgElement.naturalHeight;
+
+            // Create a new image object and set its source to the existing image's source
+            const img = new Image();
+            img.src = imgElement.src;
+
+            // Wait until the image has loaded before drawing
+            img.onload = function () {
+                // Draw the image on the canvas first (refreshing the canvas with original image data)
+                ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+
+                // Get the image data for manipulation
+                const imageData = ctx.getImageData(0, 0, curvedCanvas.width, curvedCanvas.height);
+                const data = imageData.data; // This is the array of pixel data [r,g,b,a, r,g,b,a, ...]
+
+                const points = controlPoints.sort((a, b) => a.x - b.x);
+                console.log('points', points)
+
+                // Adjust pixels based on control points (simple interpolation for now)
+                // for (let i = 0; i < data.length; i += 4) {
+                //     const brightness = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+                //     const curveValue = getCurveValue(brightness, points);
+
+                //     // Apply curve adjustment to all RGB channels or specific channel
+                //     if (activeChannel === 'rgb' || activeChannel === 'red') data[i] = Math.min(255, curveValue); // Red
+                //     if (activeChannel === 'rgb' || activeChannel === 'green') data[i + 1] = Math.min(255, curveValue); // Green
+                //     if (activeChannel === 'rgb' || activeChannel === 'blue') data[i + 2] = Math.min(255, curveValue); // Blue
+                // }
+
+                // Apply a curve transformation
+                for (let i = 0; i < data.length; i += 4) {
+                    const brightness = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+                    const curveValue = getCurveValue(brightness, points);
+                    // Example curve transformation: invert colors
+                    data[i] = 255 - curveValue;     // Red
+                    // console.log('Red', data[i])
+                    data[i + 1] = 255 - curveValue; // Green
+                    // console.log('Green curveValue', curveValue)
+                    data[i + 2] = 255 - curveValue; // Blue
+                    // console.log('Blue', data[i + 2])
+                }
+
+
+                // Put the modified image data back onto the canvas
+                ctx.putImageData(imageData, 0, 0);
+
+                // Replace the original image's src with the adjusted image from the canvas
+                imgElement.src = curvedCanvas.toDataURL(); // Get the base64 image data
+                // console.log('Curved brightness and RGB channels applied successfully');
+            };
+
+            // If the image fails to load
+            img.onerror = function () {
+                console.error('Error loading the image for curving.');
+            };
+        }
+
+            // Get curve value based on control points (linear interpolation)
+            function getCurveValue(brightness, points) {
+                // Example: Simple linear interpolation (can be replaced with bezier curves)
+                const lower = points[0];
+                const upper = points[1];
+                return lower.y + ((brightness - lower.x) / (upper.x - lower.x)) * (upper.y - lower.y);
+            }
+
+            drawCurve();
+
+        }
+
+
+
+
+
+        // Apply curve adjustment based on the brightness value
+        function applyCurvedEffect_(value) {
+            // Get the existing canvas element
+            const curvedCanvas = document.getElementById('curvedCanvas');
+            const ctx = curvedCanvas.getContext('2d');
+
+            // Get the image element by class name
+            const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0]; // Get the first element
+            if (!imgElement) {
+                console.error('Image element not found');
+                return;
+            }
+
+            // Set canvas dimensions to match the image
+            curvedCanvas.width = imgElement.naturalWidth;
+            curvedCanvas.height = imgElement.naturalHeight;
+
+            // Create a new image object and set its source to the existing image's source
+            const img = new Image();
+            img.src = imgElement.src;
+
+            // Wait until the image has loaded before drawing
+            img.onload = function () {
+                // Draw the image on the canvas first (refreshing the canvas with original image data)
+                ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+
+                // Get the image data for manipulation
+                const imageData = ctx.getImageData(0, 0, curvedCanvas.width, curvedCanvas.height);
+                const data = imageData.data; // This is the array of pixel data [r,g,b,a, r,g,b,a, ...]
+
+                // Apply the curve adjustment logic for brightness and RGB channels
+                const brightnessFactor = parseFloat(value) + 1; // Use the passed value directly
+                console.log('brightnessFactor added', brightnessFactor)
+                const redCurve = 1.0; // Modify as needed for red channel adjustment
+                const greenCurve = 1.0; // Modify as needed for green channel adjustment
+                const blueCurve = 1.0; // Modify as needed for blue channel adjustment
+
+                for (let i = 0; i < data.length; i += 4) {
+                    // Adjust RGB channels based on the curves (optional, can be modified)
+                    data[i] = Math.min(255, data[i] * redCurve);   // Red channel
+                    data[i + 1] = Math.min(255, data[i + 1] * greenCurve); // Green channel
+                    data[i + 2] = Math.min(255, data[i + 2] * blueCurve);  // Blue channel
+
+                    // Adjust brightness (using the passed brightness factor)
+                    data[i] = Math.min(255, data[i] * brightnessFactor);   // Red channel
+                    data[i + 1] = Math.min(255, data[i + 1] * brightnessFactor); // Green channel
+                    data[i + 2] = Math.min(255, data[i + 2] * brightnessFactor); // Blue channel
+                }
+
+                // Put the modified image data back onto the canvas
+                ctx.putImageData(imageData, 0, 0);
+
+                // Replace the original image's src with the adjusted image from the canvas
+                imgElement.src = curvedCanvas.toDataURL(); // Get the base64 image data
+                console.log('Curved brightness and RGB channels applied successfully');
+            };
+
+            // If the image fails to load
+            img.onerror = function () {
+                console.error('Error loading the image for curving.');
+            };
+        }
+
+
+
+
+
+        // Function to curve the image
+        function transformationffect() {
+            // Get the existing canvas element
+            const curvedCanvas = document.getElementById('curvedCanvas');
+            const ctx = curvedCanvas.getContext('2d');
+
+            // Get the image element by class name (or id)
+            const imgElement = document.getElementsByClassName('imgElement_IMG_5615.JPG')[0]; // Get the first element
+
+            if (!imgElement) {
+                console.error('Image element not found');
+                return;
+            }
+
+            console.log('applyCurvedEffect - imgElement', imgElement);
+
+            // Set canvas dimensions to match the image
+            curvedCanvas.width = imgElement.width;
+            curvedCanvas.height = imgElement.height;
+
+            // Create a new image object and set its source to the existing image's source
+            const img = new Image();
+            img.src = imgElement.src;
+
+            // Wait until the image has loaded before drawing
+            img.onload = function () {
+                // Draw the image on the canvas first
+                ctx.drawImage(img, 0, 0, imgElement.width, imgElement.height);
+
+                // Apply the curve processing logic here
+                const curveIntensity = 0.05; // Adjust for curve intensity
+                const curveOffset = 20; // Adjust for curve depth
+
+                const width = imgElement.width;
+                const height = imgElement.height;
+
+                // Apply curving effect row by row
+                for (let y = 0; y < height; y++) {
+                    const offset = Math.sin(y * curveIntensity) * curveOffset;
+                    ctx.drawImage(img, 0, y, width, 1, offset, y, width, 1); // Draw each row with an offset
+                }
+
+                // Now replace the original image's src with the curved image from the canvas
+                imgElement.src = curvedCanvas.toDataURL(); // Get the base64 image data
+                console.log('Curved image applied successfully');
+            };
+
+            // If the image fails to load
+            img.onerror = function () {
+                console.error('Error loading the image for curving.');
+            };
+        }
+
+
+
 
         const resultCont = document.getElementById('result');
         resultCont.style.display = 'flex';
@@ -95,7 +469,7 @@
         function getRangeValue() {
 
             // Get the value of the range input
-            const rangeValue = threshold.value;
+            const rangeValue = threshold_.value;
 
             // Display the value in a <p> element or use it in your logic
             document.getElementById('rangeValueDisplay').innerText = rangeValue;
@@ -113,7 +487,7 @@
                 const formData = new FormData(form);
                 // const threshold = rangeValue;
                 console.log('formData', formData)
-                formData.append('threshold', threshold.value);
+                formData.append('threshold', threshold_.value);
 
                 axios.post("{% url 'remove_bg' %}", formData, {
                     headers: {
@@ -126,11 +500,29 @@
                     if (response.data.success) {
 
                         imageName = response.data.imgName;
+                        imagURL = response.data.image_data_url
+                        workWithImage (imageName, imagURL);
+                        
+                    } else {
+                        alert('Failed to process the image.');
+                    }
+                })
+                .catch(error => {
+                    spinner.style.display = 'none';
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+            
+            }
+        });
+
+
+        function workWithImage (imageName, imagURL) {
                         activeImage = imageName
 
                         // logic to download result in original size
                         const outputImage = document.createElement('img'); //document.getElementById('outputImage');
-                        outputImage.src = response.data.image_data_url;
+                        outputImage.src = imagURL;
                         outputImage.style.display = 'block';
                         outputImage.style.width = '150px';
 
@@ -144,7 +536,7 @@
                         }
 
                         const downloadLink = document.createElement('a'); //document.getElementById('downloadLink');
-                        downloadLink.href = response.data.image_data_url;
+                        downloadLink.href = imagURL; //response.data.image_data_url;
                         downloadLink.download = "processed_image.png";
                         downloadLink.style.display = 'block';
                         const uploadImg = document.createElement('img');
@@ -161,8 +553,9 @@
                         resizableContainer.style.height = '300px'; // Initial height
 
                         const imgElement = document.createElement('img');
-                        imgElement.src = response.data.image_data_url;
+                        imgElement.src = imagURL; //response.data.image_data_url;
                         imgElement.setAttribute('data-index', imageName);
+                        imgElement.classList.add('imgElement_' + imageName);
 
                         imgElement.onclick = function () {
 
@@ -241,6 +634,38 @@
                                 }
                             });
                         }
+
+
+                        // // Function to curve the image
+                        // function applyCurvingToImage() {
+                        //     const canvas = document.createElement('canvas');
+                        //     const ctx = canvas.getContext('2d');
+
+                        //     // Set canvas dimensions to match image
+                        //     canvas.width = imgElement.width;
+                        //     canvas.height = imgElement.height;
+
+                        //     // Apply the curve processing logic here
+                        //     const curveIntensity = 0.05; // Adjust for curve intensity
+                        //     const curveOffset = 20; // Adjust for curve depth
+
+                        //     const width = imgElement.width;
+                        //     const height = imgElement.height;
+
+                        //     // Draw the image on the canvas with curving effect
+                        //     const img = new Image();
+                        //     img.src = imgElement.src;
+
+                        //     img.onload = function () {
+                        //         for (let y = 0; y < height; y++) {
+                        //             const offset = Math.sin(y * curveIntensity) * curveOffset;
+                        //             ctx.drawImage(img, 0, y, width, 1, offset, y, width, 1); // Draw each row with offset
+                        //         }
+
+                        //         // Replace the image with the canvas containing the curved image
+                        //         imgElement.src = canvas.toDataURL();
+                        //     };
+                        // }
 
 
                         // SHOW MENU
@@ -341,7 +766,7 @@
                             rotationHandle.style.display = 'block';
                             rotationHandle.style.position = 'absolute';
                             rotationHandle.style.top = '-20px'; // Place it above the container
-                            rotationHandle.style.left = '0%';
+                            rotationHandle.style.left = '-10px';
                             rotationHandle.style.transform = 'translateX(-50%)';
                             rotationHandle.style.cursor = 'grab';
                             rotationHandle.style.backgroundImage = 'url(/static/icons/rotate_in.svg)';
@@ -391,18 +816,7 @@
 
                         thumbnailArea.appendChild(resizableContainer);
                         // isActiveImage = false;
-                    } else {
-                        alert('Failed to process the image.');
-                    }
-                })
-                .catch(error => {
-                    spinner.style.display = 'none';
-                    console.error('Error:', error);
-                    alert('An error occurred. Please try again.');
-                });
-            
-            }
-        });
+        }
     
 
         thumbnailArea.addEventListener('dragover', function (event) {

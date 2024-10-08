@@ -233,16 +233,18 @@ canvas {
  /* _______________________________ */
 
 
- #curveContainer {
+ #procContainer {
     width: 500px;
-    height: 500px;
-    border: 2px solid gray;
+    height: auto;
+    border: none;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     margin: 20px auto;
+    padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: white;
 }
 #curveCanvas {
     width: 100%;
@@ -252,4 +254,9 @@ canvas {
 }
 #rgbToggle {
     margin-top: 20px;
+}
+
+#makeCopy #addCopy {
+    border-radius: 5px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
 }
