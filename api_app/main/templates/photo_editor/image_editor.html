@@ -184,11 +184,11 @@
 
                 console.log('addCash', addCash)
 
-                let brightnessSlider = null
-                let redSlider = null
-                let greenSlider = null
-                let blueSlider = null
-                let blurSlider = 1
+                let brightnessSlider = null;
+                let redSlider = null;
+                let greenSlider = null;
+                let blueSlider = null;
+                let blurSlider = 0;
 
                 if ( addCash ) {
                     console.log('addCash true')
@@ -235,11 +235,11 @@
 
                     img.onload = function () {
                         console.log('blurSlider', blurSlider)
-                        if ( blurSlider !== 0 ) {
-                            console.log('blurSlider !== 0', blurSlider)
-                            // ctx.filter = `blur(${parseFloat(blurSlider)}px)`;
-                            ctx.filter = `drop-shadow(1px ${parseInt(blurSlider)}px 17px #000000)`;
-                        }
+                        // if ( blurSlider !== 0 ) {
+                        //     console.log('blurSlider !== 0', blurSlider)
+                        //     // ctx.filter = `blur(${parseFloat(blurSlider)}px)`;
+                        //     // ctx.filter = `drop-shadow(50px ${parseInt(blurSlider)}px 400px #000000)`;
+                        // }
                         ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
 
                         originalImageData = ctx.getImageData(0, 0, curvedCanvas.width, curvedCanvas.height); // Save original data
@@ -250,10 +250,10 @@
                         console.error('Error loading the image for curving.');
                     };
                 } else {
-                    if ( blurSlider !== 0 ) {
-                            console.log('blurSlider !== 0 else', blurSlider)
-                            ctx.filter = `blur(${parseFloat(blurSlider)}px)`;
-                        }
+                    // if ( blurSlider !== 0 ) {
+                    //         console.log('blurSlider !== 0 else', blurSlider)
+                    //         ctx.filter = `blur(${parseFloat(blurSlider)}px)`;
+                    //     }
                     applyChanges();  // Apply changes on subsequent slider movements
                 }
 
