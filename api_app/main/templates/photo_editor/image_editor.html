@@ -44,6 +44,7 @@
             <img style="cursor: pointer;" src="{% static 'icons/rotate.svg' %}" width="25" alt="">
             <img id="brightness" onclick="showProcContainer()" style="cursor: pointer;" src="{% static 'icons/curve.svg' %}" width="25" alt="">
             <img id="duplicateImg" onclick="duplicateImg()" style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="25" alt="">
+            <img id="duplicateImg" onclick="showShadowContainer()" style="cursor: pointer;" src="{% static 'icons/options.svg' %}" width="25" alt="">
             <img style="cursor: pointer;" src="{% static 'icons/close.svg' %}" width="25" alt="">
         </div>
 
@@ -52,7 +53,7 @@
         <img id="imageToCurve" style="display:none;">
 
         <!-- TEST BRIGHTNESS CONTAINER 2 -->
-        <div id="procContainer" style="display: none;">     
+        <div id="procContainer" class="proContainer" style="display: none;">     
             <div class="slider-container d-flex justify-content-evenly gap-5">
                 <label for="brightnessSlider">Ekspozycja</label>
                 <input type="range" id="brightnessSlider" class="slider" min="0" max="2" step="0.1" value="1">
@@ -80,6 +81,32 @@
                 <span class="tooltip__text">Wklej</span>
             </div>
         </div>
+
+
+         <!-- TEST shadow CONTAINER  -->
+         <div id="shadowContainer" class="proContainer" style="display: none;">     
+            <div class="slider-container d-flex justify-content-evenly gap-5">
+                <label for="brightnessSlider">Cień</label>
+                <img id="duplicateImg" onclick="addShadow()" style="cursor: pointer;" src="{% static 'icons/shadow.svg' %}" width="25" alt="">
+            </div>
+            <div class="slider-container d-flex justify-content-evenly gap-5">
+                <label for="brightnessSlider">Odbij poziomo</label>
+                <img id="duplicateImg" onclick="horizontalTurn()" style="cursor: pointer;" src="{% static 'icons/shadow.svg' %}" width="25" alt="">
+            </div>
+            <div class="slider-container d-flex justify-content-evenly gap-5">
+                <label for="brightnessSlider">Odbij pionowo</label>
+                <img id="duplicateImg" onclick="verticalFlip()" style="cursor: pointer;" src="{% static 'icons/shadow.svg' %}" width="25" alt="">
+            </div>
+            <div class="slider-container d-flex justify-content-evenly gap-5">
+                <label for="brightnessSlider">Lustrzane odbicie</label>
+                <img id="duplicateImg" onclick="addGradientToImage()" style="cursor: pointer;" src="{% static 'icons/shadow.svg' %}" width="25" alt="">
+            </div>
+
+
+                
+                
+        </div>
+
 
 
         <div id="thumbnailArea" class="d-flex justify-content-center align-items-center">
@@ -172,6 +199,148 @@
 
             workWithImage (newImgName, imgElement.src)
         }
+
+        function horizontalTurn() {
+            const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
+            
+            // Toggle the mirror effect
+            if (imgElement.style.transform === 'scaleX(-1)') {
+                imgElement.style.transform = ''; // Reset to normal
+            } else {
+                imgElement.style.transform = 'scaleX(-1)'; // Mirror horizontally
+            }
+        }
+
+        function verticalFlip() {
+            const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
+
+            // Toggle vertical mirror effect
+            if (imgElement.style.transform === 'scaleY(-1)') {
+                imgElement.style.transform = ''; // Reset to normal
+            } else {
+                imgElement.style.transform = 'scaleY(-1)'; // Mirror vertically
+            }
+        }
+
+
+
+        function addGradientToImage() {
+
+            const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
+
+            const topPosition = 220; // Use your desired value here
+            const leftPosition = 0;
+
+            const resizableContainer = document.createElement('div');
+            resizableContainer.classList.add('resizable');
+            resizableContainer.style.width = '300px';  // Initial width
+            resizableContainer.style.height = '300px'; // Initial height
+            resizableContainer.style.zIndex = zIndexCounter++;
+
+            const cloneElement = document.createElement('img');
+            let newImgName = null;
+            newImgName = `${activeImage}_${nameCounter}`;
+            nameCounter++;
+            cloneElement.src = imgElement.src; //response.data.image_data_url;
+            cloneElement.setAttribute('data-index', newImgName);
+            cloneElement.classList.add('imgElement_' + newImgName);
+            const mirrorElement = document.createElement('img');
+            let mirrorElementName = null;
+            newImgMirrorName = `${activeImage}_${nameCounter}`;
+            nameCounter++;
+            mirrorElement.setAttribute('data-index', newImgMirrorName);
+            mirrorElement.classList.add('imgElement_' + newImgMirrorName);
+            mirrorElement.src = imgElement.src;
+            mirrorElement.style.transform = 'scaleX(-1)';
+            mirrorElement.style.transform = 'scaleY(-1)'; 
+            mirrorElement.style.maskImage = 'linear-gradient(to top, rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0) 40%)';
+            mirrorElement.style.position = 'absolute';
+            mirrorElement.style.top = '220px';
+            mirrorElement.style.left = '0';
+
+
+            var c = document.getElementById("curvedCanvas");
+            var ctx = c.getContext("2d");
+            var imageObj1 = new Image();
+            var imageObj2 = new Image();
+            imageObj1.src = cloneElement.src
+            imageObj1.onload = function() {
+                ctx.drawImage(imageObj1, 0, 0, 300, 300);
+                imageObj2.src = mirrorElement.src;
+
+                imageObj2.onload = function() {
+
+                    // ctx.drawImage(imageObj2, 0, 220, 300, 300);
+                    // var img = c.toDataURL("image/png");
+                    // workWithImage(newImgMirrorName, img)
+                    // Save the current context
+                    
+                    ctx.save();
+
+                    // Flip the canvas horizontally and vertically
+                    ctx.translate(leftPosition + 300, topPosition + 300); // Translate to the bottom right of the image
+                    ctx.scale(-1, -1); // Scale both axes negatively
+
+                    // Draw the mirrored image (the image is now flipped)
+                    ctx.drawImage(imageObj2, 0, 0, 300, 300);
+
+                    // Restore the context to original state
+                    ctx.restore();
+
+                    var img = c.toDataURL("image/png");
+                    workWithImage(newImgMirrorName, img); 
+                }
+
+            };
+
+            // resizableContainer.appendChild(cloneElement);
+            // resizableContainer.appendChild(mirrorElement);
+            // thumbnailArea.appendChild(resizableContainer);
+            imgElement.remove();
+
+        }
+
+
+
+
+        function showShadowContainer() {
+                const processImg = document.getElementById('shadowContainer');
+                if ( processImg.style.display === 'none' ) {
+                    processImg.style.display = 'block';
+                } else {
+                    processImg.style.display = 'none';
+                }
+            }
+
+
+        function addShadow() {
+
+            const imagePath = '/static/icons/shadow_shape.png';
+            let newImgName = null;
+            newImgName = `shadow_shape_${nameCounter}`;
+            nameCounter++;
+
+            const imageData64 = encodeImageToBase64(newImgName, imagePath);
+
+        }
+
+        function encodeImageToBase64(newImgName, imagePath) {
+            fetch(imagePath)
+                .then(response => response.blob())  // Get the image as a blob
+                .then(blob => {
+                    const reader = new FileReader();
+                    reader.onloadend = function () {
+                        const base64String = reader.result; // Base64 encoded string
+                        console.log(base64String);
+                        // Now you can use the base64String in your image src or anywhere else
+                        // e.g., pass it to your function
+                        workWithImage(newImgName, base64String);
+                    };
+                    reader.readAsDataURL(blob);  // Convert blob to base64
+                })
+                .catch(error => console.error('Error encoding image to base64:', error));
+        }
+
 
 
             function showProcContainer() {
@@ -348,12 +517,6 @@
                 cashedBlueSlider = blueSlider;
                 cashedContrastSlider = contrastSlider;
 
-                // brightnessSlider = cashedBrightnessSlider;
-                // redSlider = cashedRedSlider;
-                // greenSlider = cashedGreenSlider;
-                // blueSlider = cashedBlueSlider;
-                // contrastSlider = cashedContrastSlider;
-
                 copyCash = true;
             }
 
@@ -367,12 +530,6 @@
             function setValues(imgIndex) {
 
                 const elem = document.getElementsByClassName('imgElement_' + imgIndex)[0];
-
-                // const brightnessSlider = document.getElementById('brightnessSlider');
-                // const redSlider = document.getElementById('redSlider');
-                // const greenSlider = document.getElementById('greenSlider');
-                // const blueSlider = document.getElementById('blueSlider');
-                // const contrastSlider = document.getElementById('contrastSlider');
 
                 brightnessSlider.value = elem.getAttribute('brightness');
                 redSlider.value = elem.getAttribute('red');

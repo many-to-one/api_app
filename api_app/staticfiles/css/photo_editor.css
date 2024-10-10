@@ -233,7 +233,7 @@ canvas {
  /* _______________________________ */
 
 
- #procContainer {
+ .proContainer {
     width: 500px;
     height: auto;
     border: none;
