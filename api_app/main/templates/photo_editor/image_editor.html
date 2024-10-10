@@ -227,6 +227,7 @@
         function addGradientToImage() {
 
             const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
+            console.log('size', imgElement.naturalWidth, imgElement.naturalHeight)
 
             const topPosition = 220; // Use your desired value here
             const leftPosition = 0;
@@ -263,26 +264,27 @@
             var ctx = c.getContext("2d");
             var imageObj1 = new Image();
             var imageObj2 = new Image();
-            imageObj1.src = cloneElement.src
+            imageObj1.src = imgElement.src
             imageObj1.onload = function() {
-                ctx.drawImage(imageObj1, 0, 0, 300, 300);
-                imageObj2.src = mirrorElement.src;
+                ctx.drawImage(imageObj1, 0, 0, imageObj1.naturalWidth/10, imageObj1.naturalHeight/10);
+                imageObj2.src = imgElement.src;
 
                 imageObj2.onload = function() {
 
-                    // ctx.drawImage(imageObj2, 0, 220, 300, 300);
+                    // ctx.drawImage(imageObj2, 0, 0, imageObj2.naturalWidth/10, imageObj2.naturalHeight/10);
                     // var img = c.toDataURL("image/png");
                     // workWithImage(newImgMirrorName, img)
+
                     // Save the current context
                     
                     ctx.save();
 
                     // Flip the canvas horizontally and vertically
-                    ctx.translate(leftPosition + 300, topPosition + 300); // Translate to the bottom right of the image
+                    ctx.translate(leftPosition + imageObj2.naturalWidth/10, topPosition + imageObj2.naturalHeight/10); // Translate to the bottom right of the image
                     ctx.scale(-1, -1); // Scale both axes negatively
 
                     // Draw the mirrored image (the image is now flipped)
-                    ctx.drawImage(imageObj2, 0, 0, 300, 300);
+                    ctx.drawImage(imageObj2, 0, 0, imageObj2.naturalWidth/10, imageObj2.naturalHeight/10);
 
                     // Restore the context to original state
                     ctx.restore();
