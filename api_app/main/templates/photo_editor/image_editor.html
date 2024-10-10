@@ -43,7 +43,7 @@
         <div id="navProImg" class="d-flex justify-content-between">
             <img style="cursor: pointer;" src="{% static 'icons/rotate.svg' %}" width="25" alt="">
             <img id="brightness" onclick="showProcContainer()" style="cursor: pointer;" src="{% static 'icons/curve.svg' %}" width="25" alt="">
-            <img style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="25" alt="">
+            <img id="duplicateImg" onclick="duplicateImg()" style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="25" alt="">
             <img style="cursor: pointer;" src="{% static 'icons/close.svg' %}" width="25" alt="">
         </div>
 
@@ -54,24 +54,24 @@
         <!-- TEST BRIGHTNESS CONTAINER 2 -->
         <div id="procContainer" style="display: none;">     
             <div class="slider-container d-flex justify-content-evenly gap-5">
-                <label for="brightnessSlider">Brightness</label>
+                <label for="brightnessSlider">Ekspozycja</label>
                 <input type="range" id="brightnessSlider" class="slider" min="0" max="2" step="0.1" value="1">
             </div>
             <div class="slider-container d-flex justify-content-evenly gap-5">
-                <label for="redSlider">Red</label>
+                <label for="redSlider">Czerwony</label>
                 <input type="range" id="redSlider" class="slider" min="0" max="2" step="0.1" value="1">
             </div>
             <div class="slider-container d-flex justify-content-evenly gap-5">
-                <label for="greenSlider">Green</label>
+                <label for="greenSlider">Zielony</label>
                 <input type="range" id="greenSlider" class="slider" min="0" max="2" step="0.1" value="1">
             </div>
             <div class="slider-container d-flex justify-content-evenly gap-5">
-                <label for="blueSlider">Blue</label>
+                <label for="blueSlider">Niebieski</label>
                 <input type="range" id="blueSlider" class="slider" min="0" max="2" step="0.1" value="1">
             </div>
             <div class="slider-container">
-                <label for="blurSlider">Blur</label>
-                <input type="range" id="blurSlider" class="slider" min="0" max="30" step="1" value="0">
+                <label for="contrastSlider">Kontrast</label>
+                <input type="range" id="contrastSlider" class="slider" min="-100" max="150" step="1" value="0">
             </div>
             <div class="slider-container d-flex justify-content-evenly gap-5 mt-4">
                 <img class="set__tooltip" popovertarget="makeCopy" id="makeCopyIcon" onclick="makeCopy()" style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="15" alt="">
@@ -114,18 +114,26 @@
         const combinedCanvas = document.getElementById('combinedCanvas');
         const imageNavCont = document.getElementById('navProImg');
 
+        const brightnessSlider = document.getElementById('brightnessSlider');
+        const redSlider = document.getElementById('redSlider');
+        const greenSlider = document.getElementById('greenSlider');
+        const blueSlider = document.getElementById('blueSlider');
+        const contrastSlider = document.getElementById('contrastSlider');
+
         const curveIcon = document.getElementById('curve');
         let draggedImage = null;
         let isActiveImage = false;
         let imageName = null;
         let imagURL = null
         let activeImage = null;
+        let zIndexCounter = 1;
+        let nameCounter = 0;
 
         let cashedBrightnessSlider = 1;
         let cashedRedSlider = 1;
         let cashedGreenSlider = 1;
         let cashedBlueSlider = 1;
-        let cashedBlurSlider = 1;
+        let cashedContrastSlider = 1;
         let addCash = false;
         let copyCash = false;
 
@@ -154,6 +162,18 @@
         //     addCopyEl.style.display = 'none';
         // });
 
+
+        function duplicateImg() {
+
+            const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
+            let newImgName = null;
+            newImgName = `${activeImage}_${nameCounter}`;
+            nameCounter++;
+
+            workWithImage (newImgName, imgElement.src)
+        }
+
+
             function showProcContainer() {
                 const processImg = document.getElementById('procContainer');
                 if ( processImg.style.display === 'none' ) {
@@ -177,7 +197,7 @@
             document.getElementById('redSlider').addEventListener('input', debounce(applyBrightness));
             document.getElementById('greenSlider').addEventListener('input', debounce(applyBrightness));
             document.getElementById('blueSlider').addEventListener('input', debounce(applyBrightness));
-            document.getElementById('blurSlider').addEventListener('input', debounce(applyBrightness));
+            document.getElementById('contrastSlider').addEventListener('input', debounce(applyBrightness));
 
             // Apply curve adjustment based on the brightness and RGB values
             function applyBrightness() {
@@ -188,7 +208,7 @@
                 let redSlider = null;
                 let greenSlider = null;
                 let blueSlider = null;
-                let blurSlider = 0;
+                let contrastSlider = 0;
 
                 if ( addCash ) {
                     console.log('addCash true')
@@ -196,7 +216,7 @@
                     redSlider = cashedRedSlider;
                     greenSlider = cashedGreenSlider;
                     blueSlider = cashedBlueSlider;
-                    blurSlider = cashedBlueSlider;
+                    contrastSlider = cashedContrastSlider;
                     addCash = false;
                 } else {
                     // Get slider values
@@ -204,7 +224,7 @@
                     redSlider = document.getElementById('redSlider').value;
                     greenSlider = document.getElementById('greenSlider').value;
                     blueSlider = document.getElementById('blueSlider').value;
-                    blurSlider = document.getElementById('blurSlider').value;
+                    contrastSlider = document.getElementById('contrastSlider').value;
 
                 }
 
@@ -212,7 +232,7 @@
                 console.log('redSlider:', redSlider);
                 console.log('greenSlider:', greenSlider);
                 console.log('blueSlider:', blueSlider);
-                console.log('blurSlider:', blurSlider);
+                console.log('contrastSlider:', contrastSlider);
 
                 // Get the existing canvas and image element
                 const curvedCanvas = document.getElementById('curvedCanvas');
@@ -234,11 +254,12 @@
                     img.src = imgElement.src;
 
                     img.onload = function () {
-                        console.log('blurSlider', blurSlider)
+                        console.log('contrastSlider', contrastSlider)
                         // if ( blurSlider !== 0 ) {
-                        //     console.log('blurSlider !== 0', blurSlider)
+                        //     console.log('contrastSlider !== 0', contrastSlider)
                         //     // ctx.filter = `blur(${parseFloat(blurSlider)}px)`;
                         //     // ctx.filter = `drop-shadow(50px ${parseInt(blurSlider)}px 400px #000000)`;
+                        //     ctx.filter = `contrast(150%)`;
                         // }
                         ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
 
@@ -257,7 +278,7 @@
                     applyChanges();  // Apply changes on subsequent slider movements
                 }
 
-                // Function to apply brightness and RGB adjustments to original image data
+
                 function applyChanges() {
                     // Get the original image data for manipulation (clone it each time to reset to original)
                     const imageData = new ImageData(
@@ -267,42 +288,71 @@
                     );
                     const data = imageData.data; // Array of pixel data [r,g,b,a, r,g,b,a, ...]
 
-                    // Apply the curve adjustment logic for brightness and RGB channels
+                    // Apply the curve adjustment logic for brightness, RGB channels, and contrast
                     const brightnessFactor = parseFloat(brightnessSlider);
                     const redFactor = parseFloat(redSlider);
                     const greenFactor = parseFloat(greenSlider);
                     const blueFactor = parseFloat(blueSlider);
+                    const contrastValue = parseFloat(contrastSlider); // Assuming you have a slider for contrast
+
+                    // Calculate contrast factor
+                    const contrastFactor = (259 * (contrastValue + 255)) / (255 * (259 - contrastValue));
 
                     for (let i = 0; i < data.length; i += 4) {
-                        data[i] = Math.min(255, data[i] * redFactor * brightnessFactor);   // Red channel
+                        // Apply RGB and brightness adjustments first
+                        data[i] = Math.min(255, data[i] * redFactor * brightnessFactor);     // Red channel
                         data[i + 1] = Math.min(255, data[i + 1] * greenFactor * brightnessFactor); // Green channel
                         data[i + 2] = Math.min(255, data[i + 2] * blueFactor * brightnessFactor);  // Blue channel
-                    }
 
+                        // Apply contrast adjustment for each channel (R, G, B)
+                        data[i] = clamp(((data[i] - 128) * contrastFactor) + 128);   // Red channel contrast
+                        data[i + 1] = clamp(((data[i + 1] - 128) * contrastFactor) + 128); // Green channel contrast
+                        data[i + 2] = clamp(((data[i + 2] - 128) * contrastFactor) + 128); // Blue channel contrast
+                    }
 
                     // Put the modified image data back onto the canvas
                     ctx.putImageData(imageData, 0, 0);
 
                     // Replace the original image's src with the adjusted image from the canvas
+                    imgElement.setAttribute('brightness', parseFloat(brightnessSlider));
+                    imgElement.setAttribute('red', parseFloat(redSlider));
+                    imgElement.setAttribute('green', parseFloat(greenSlider));
+                    imgElement.setAttribute('blue', parseFloat(blueSlider));
+                    imgElement.setAttribute('contrast', parseFloat(contrastSlider));
+
+                    // Replace the original image's src with the adjusted image from the canvas
                     imgElement.src = curvedCanvas.toDataURL(); // Get the base64 image data
                 }
+
+                // Helper function to clamp values between 0 and 255
+                function clamp(value) {
+                    return Math.max(0, Math.min(255, value));
+                }
+
+
             }
 
 
             // Function to apply brightness and RGB adjustments to original image data
             function makeCopy() {
-                    // Get slider values
+                // Get slider values
                 const brightnessSlider = document.getElementById('brightnessSlider').value;
                 const redSlider = document.getElementById('redSlider').value;
                 const greenSlider = document.getElementById('greenSlider').value;
                 const blueSlider = document.getElementById('blueSlider').value;
-                const blurSlider = document.getElementById('blueSlider').value;
+                const contrastSlider = document.getElementById('contrastSlider').value;
 
                 cashedBrightnessSlider = brightnessSlider;
                 cashedRedSlider = redSlider;
                 cashedGreenSlider = greenSlider;
                 cashedBlueSlider = blueSlider;
-                cashedBlurSlider = blurSlider;
+                cashedContrastSlider = contrastSlider;
+
+                // brightnessSlider = cashedBrightnessSlider;
+                // redSlider = cashedRedSlider;
+                // greenSlider = cashedGreenSlider;
+                // blueSlider = cashedBlueSlider;
+                // contrastSlider = cashedContrastSlider;
 
                 copyCash = true;
             }
@@ -310,6 +360,26 @@
             function addCopy() {
                 addCash = true;
                 applyBrightness()
+            }
+
+
+            // Function to apply brightness and RGB adjustments to original image data
+            function setValues(imgIndex) {
+
+                const elem = document.getElementsByClassName('imgElement_' + imgIndex)[0];
+
+                // const brightnessSlider = document.getElementById('brightnessSlider');
+                // const redSlider = document.getElementById('redSlider');
+                // const greenSlider = document.getElementById('greenSlider');
+                // const blueSlider = document.getElementById('blueSlider');
+                // const contrastSlider = document.getElementById('contrastSlider');
+
+                brightnessSlider.value = elem.getAttribute('brightness');
+                redSlider.value = elem.getAttribute('red');
+                greenSlider.value = elem.getAttribute('green');
+                blueSlider.value = elem.getAttribute('blue');
+                contrastSlider.value = elem.getAttribute('contrast');
+
             }
 
 
@@ -424,7 +494,7 @@
                         document.getElementById('redSlider').value = 1;
                         document.getElementById('greenSlider').value = 1;
                         document.getElementById('blueSlider').value = 1;
-                        document.getElementById('blurSlider').value = 0;
+                        document.getElementById('contrastSlider').value = 0;
                         originalImageData = null;
 
                         workWithImage (imageName, imagURL);
@@ -473,16 +543,25 @@
                         resultCont.appendChild(outputImage);
                         resultCont.appendChild(downloadLink);
 
+                        // let zIndexCounter = 1;
+
                         // logic for create a thumbnail
                         const resizableContainer = document.createElement('div');
                         resizableContainer.classList.add('resizable');
                         resizableContainer.style.width = '300px';  // Initial width
                         resizableContainer.style.height = '300px'; // Initial height
+                        resizableContainer.style.zIndex = zIndexCounter++;
 
                         const imgElement = document.createElement('img');
                         imgElement.src = imagURL; //response.data.image_data_url;
                         imgElement.setAttribute('data-index', imageName);
                         imgElement.classList.add('imgElement_' + imageName);
+
+                        imgElement.setAttribute('brightness', 1);
+                        imgElement.setAttribute('red', 1);
+                        imgElement.setAttribute('green', 1);
+                        imgElement.setAttribute('blue', 1);
+                        imgElement.setAttribute('contrast', 0);
 
                         imgElement.onclick = function () {
 
@@ -538,8 +617,17 @@
                             const resizeHandle = document.querySelectorAll('.resize-handle');
                             resizeHandle.forEach(handler => handler.style.display = 'block');
                             isActiveImage = true;
+                            activeImage = imgIndex;
+
+                             // Add click event listener to bring the clicked image to the front
+                            resizableContainer.addEventListener('mousedown', function () {
+                                // Bring this container to the front
+                                resizableContainer.style.zIndex = zIndexCounter++;
+                            });
+
                             resizeImage(imgIndex);
                             startRotate(imageName);
+                            setValues(imageName);
                         }
 
                         function resizeImage(imgIndex) {
