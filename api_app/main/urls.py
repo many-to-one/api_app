@@ -87,5 +87,6 @@ urlpatterns = [
     path('get_returns/<str:name>/', returns.get_returns, name='get_returns'),
     path('photo_editor/', photo_editor.remove_background, name='photo_editor'),
     path('remove_bg/', photo_editor.remove_bg, name='remove_bg'), 
+    path('mirror_image/', photo_editor.mirror_image, name='mirror_image'), 
     path('pdf_creator/', pdf_creator.pdf_creator, name='pdf_creator'),
 ] 

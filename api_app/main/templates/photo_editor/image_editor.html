@@ -223,41 +223,72 @@
         }
 
 
+        function justEncodeImageToBase64(imagePath) {
+            return fetch(imagePath)
+                .then(response => response.blob())       // Fetch and convert to blob
+                .then(blob => {
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);  // Base64 string
+                        reader.onerror = reject;
+                        reader.readAsDataURL(blob);  // Start the conversion
+                    });
+                })
+                .catch(error => {
+                    console.error('Error encoding image to base64:', error);
+                    throw error;
+                });
+        }
+
+
+        async function addGradientToImage_() {
+            const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
+            const imageSrc = imgElement.src;
+
+            let mirrorElementName = null;
+            newImgMirrorName = `${activeImage}_${nameCounter}`;
+            nameCounter++;
+
+            // Fetch the image as a Blob
+            const response = await fetch(imageSrc);
+            const blob = await response.blob();
+
+            const formData = new FormData();
+            formData.append('image', blob, 'image.png'); // Append the image blob with a filename
+            console.log('formData front', formData)
+
+            // Send the image to your backend API
+            try {
+                const result = await axios.post("{% url 'mirror_image' %}", formData, {
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'multipart/form-data',
+                    }
+                });
+
+                console.log('formData response', response)
+                // imageName = response.data.imgName;
+                imagURL = response.url //data.image_data_url
+                workWithImage(mirrorElementName, imagURL)
+
+            } catch (error) {
+                console.error('Error sending image to server:', error);
+            }
+        }
+
+
+
 
         function addGradientToImage() {
 
             const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
-            console.log('size', imgElement.naturalWidth, imgElement.naturalHeight)
+            // console.log('size', imgElement.naturalWidth/8, imgElement.naturalHeight/8/2)
+            console.log('addGradientToImage - imgElement', imgElement)
 
-            const topPosition = 220; // Use your desired value here
-            const leftPosition = 0;
-
-            const resizableContainer = document.createElement('div');
-            resizableContainer.classList.add('resizable');
-            resizableContainer.style.width = '300px';  // Initial width
-            resizableContainer.style.height = '300px'; // Initial height
-            resizableContainer.style.zIndex = zIndexCounter++;
-
-            const cloneElement = document.createElement('img');
-            let newImgName = null;
-            newImgName = `${activeImage}_${nameCounter}`;
-            nameCounter++;
-            cloneElement.src = imgElement.src; //response.data.image_data_url;
-            cloneElement.setAttribute('data-index', newImgName);
-            cloneElement.classList.add('imgElement_' + newImgName);
-            const mirrorElement = document.createElement('img');
             let mirrorElementName = null;
             newImgMirrorName = `${activeImage}_${nameCounter}`;
             nameCounter++;
-            mirrorElement.setAttribute('data-index', newImgMirrorName);
-            mirrorElement.classList.add('imgElement_' + newImgMirrorName);
-            mirrorElement.src = imgElement.src;
-            mirrorElement.style.transform = 'scaleX(-1)';
-            mirrorElement.style.transform = 'scaleY(-1)'; 
-            mirrorElement.style.maskImage = 'linear-gradient(to top, rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0) 40%)';
-            mirrorElement.style.position = 'absolute';
-            mirrorElement.style.top = '220px';
-            mirrorElement.style.left = '0';
+            // mirrorElement.style.maskImage = 'linear-gradient(to top, rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0) 40%)';
 
 
             var c = document.getElementById("curvedCanvas");
@@ -266,31 +297,33 @@
             var imageObj2 = new Image();
             imageObj1.src = imgElement.src
             imageObj1.onload = function() {
-                ctx.drawImage(imageObj1, 0, 0, imageObj1.naturalWidth/10, imageObj1.naturalHeight/10);
+                ctx.drawImage(imageObj1, 0, 0, imageObj1.naturalWidth/8, imageObj1.naturalHeight/8);
                 imageObj2.src = imgElement.src;
-
                 imageObj2.onload = function() {
 
                     // ctx.drawImage(imageObj2, 0, 0, imageObj2.naturalWidth/10, imageObj2.naturalHeight/10);
                     // var img = c.toDataURL("image/png");
                     // workWithImage(newImgMirrorName, img)
 
-                    // Save the current context
-                    
-                    ctx.save();
+                    let height_ = imageObj2.naturalHeight/8
+                    let width_ = imageObj2.naturalWidth/8
 
-                    // Flip the canvas horizontally and vertically
-                    ctx.translate(leftPosition + imageObj2.naturalWidth/10, topPosition + imageObj2.naturalHeight/10); // Translate to the bottom right of the image
-                    ctx.scale(-1, -1); // Scale both axes negatively
+                    // Save the current context                   
+                    // ctx.save();
+                    // Flip the canvas horizontally and vertically //leftPosition + imageObj2.naturalWidth/10, topPosition + imageObj2.naturalHeight/10
+                    ctx.translate(0, imageObj2.naturalHeight/8 + (imageObj2.naturalHeight/8/1.2)); // Translate to the bottom right of the image
+                    ctx.scale(1, -1); // flip by x, y
+                    ctx.filter = "opacity(0.20)";
 
                     // Draw the mirrored image (the image is now flipped)
-                    ctx.drawImage(imageObj2, 0, 0, imageObj2.naturalWidth/10, imageObj2.naturalHeight/10);
+                    ctx.drawImage(imageObj2, 0, 0, imageObj2.naturalWidth/8, imageObj2.naturalHeight/8);
 
                     // Restore the context to original state
-                    ctx.restore();
+                    // ctx.restore();
 
                     var img = c.toDataURL("image/png");
                     workWithImage(newImgMirrorName, img); 
+                    // addGrad(newImgMirrorName, img, height_, width_); 
                 }
 
             };
@@ -301,6 +334,48 @@
             imgElement.remove();
 
         }
+
+        function addGrad(newImgMirrorName, img, height, width) {
+
+            console.log('addGrad', img)
+
+            var c = document.getElementById("curvedCanvas");
+            var ctx = c.getContext("2d");
+
+            //-----------------------------------------------------------------------
+            // Create a new image element from the base64 data
+            const imageObj = new Image();
+            imageObj.src = img; // Set the base64 image source
+
+            // Wait for the image to load
+            imageObj.onload = function () {
+                // Draw the base64 image on the canvas
+                ctx.drawImage(imageObj, 0, 0, width, height);
+
+                // Create a gradient that fades from bottom (fully opaque) to top (fully transparent)
+                const gradient = ctx.createLinearGradient(0, 0, 0, height);
+                gradient.addColorStop(0, 'rgba(0, 0, 0, 1)');  // Fully opaque at the bottom
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');  // Fully transparent at the top
+
+                // Set the global composite operation to 'destination-in' to mask the image
+                ctx.globalCompositeOperation = 'destination-in'; // This will keep only the areas where the gradient and image overlap
+
+                // Apply the gradient as a fill style
+                ctx.fillStyle = gradient;
+
+                // Draw a rectangle over the image to apply the gradient
+                ctx.fillRect(0, 0, width, height);
+
+                // Reset global composite operation to default
+                // ctx.globalCompositeOperation = 'source-over';
+
+                //-----------------------------------------------------------------------
+                // Now that the gradient is applied, you can proceed with any further processing
+                var img2 = c.toDataURL("image/png");
+                workWithImage(newImgMirrorName, img); 
+            };
+        }
+
 
 
 

@@ -98,3 +98,51 @@ def remove_bg(request):
                 })
 
     return JsonResponse({'success': False, 'error': 'Image processing failed'})
+
+
+async def mirror_image(request):
+
+    if request.method == 'POST':
+        # Check if the image is part of the request
+        if not request.FILES:
+            return JsonResponse({"error": "Please provide an image."}, status=400)
+
+        image_file = request.FILES['image']
+        print('********* mirror_image **********', image_file)
+        original_image = Image.open(image_file)
+
+        # Flip the image vertically
+        flipped_image = original_image.transpose(Image.FLIP_TOP_BOTTOM)
+
+        # Get dimensions of the original image
+        width, height = original_image.size
+
+        # Create a new blank image with the combined height
+        combined_image = Image.new('RGBA', (width, height * 2))
+
+        # Paste the original image on the top
+        combined_image.paste(original_image, (0, 0))
+
+        # Paste the flipped image on the bottom
+        combined_image.paste(flipped_image, (0, height))
+        combined_image.show()
+
+        # Save the combined image to a BytesIO object
+        buffer = BytesIO()
+        combined_image.save(buffer, format="PNG")
+        buffer.seek(0)
+        
+        # Encode the image as base64
+        image_base64 = base64.b64encode(buffer.read()).decode('utf-8')
+
+        # Construct the base64 string to be used in the frontend
+        image_data_url = f"data:image/png;base64,{image_base64}"
+
+        return JsonResponse({
+            'success': True, 
+            'imgName': f'{image_file}',  # Using name for clarity
+            'image_data_url': image_data_url,
+            'range': 5,  # Example static value
+        })
+    else:
+        return JsonResponse({"error": "Invalid method."}, status=405)
