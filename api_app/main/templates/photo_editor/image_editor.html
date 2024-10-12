@@ -45,7 +45,7 @@
             <img id="brightness" onclick="showProcContainer()" style="cursor: pointer;" src="{% static 'icons/curve.svg' %}" width="25" alt="">
             <img id="duplicateImg" onclick="duplicateImg()" style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="25" alt="">
             <img id="duplicateImg" onclick="showShadowContainer()" style="cursor: pointer;" src="{% static 'icons/options.svg' %}" width="25" alt="">
-            <img style="cursor: pointer;" src="{% static 'icons/close.svg' %}" width="25" alt="">
+            <img style="cursor: pointer;" onclick="deleteImg()" src="{% static 'icons/close.svg' %}" width="25" alt="">
         </div>
 
         <!-- TEST BRIGHTNESS CONTAINER 1 -->
@@ -229,6 +229,22 @@
         }
 
 
+        function addGrad() {
+            const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
+            imgElement.style.maskImage = 'linear-gradient(to top, rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0) 40%)';
+        }
+
+
+        function deleteImg() {
+            const fullImgCont = document.getElementById('resizable' + activeImage);
+            const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
+            console.log('fullImgCont and imgElement', fullImgCont, imgElement)
+            console.log('imageName and activeImage', imageName, activeImage)
+            imgElement.remove();
+            fullImgCont.remove();
+        }
+
+
         function justEncodeImageToBase64(imagePath) {
             return fetch(imagePath)
                 .then(response => response.blob())       // Fetch and convert to blob
@@ -247,105 +263,100 @@
         }
 
 
-        async function addGradientToImage_() {
-            const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
-            const imageSrc = imgElement.src;
+        // async function addGradientToImage_() {
+        //     const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
+        //     const imageSrc = imgElement.src;
 
-            let mirrorElementName = null;
-            newImgMirrorName = `${activeImage}_${nameCounter}`;
-            nameCounter++;
+        //     let mirrorElementName = null;
+        //     newImgMirrorName = `${activeImage}_${nameCounter}`;
+        //     nameCounter++;
 
-            // Fetch the image as a Blob
-            const response = await fetch(imageSrc);
-            const blob = await response.blob();
+        //     // Fetch the image as a Blob
+        //     const response = await fetch(imageSrc);
+        //     const blob = await response.blob();
 
-            const formData = new FormData();
-            formData.append('image', blob, 'image.png'); // Append the image blob with a filename
-            console.log('formData front', formData)
+        //     const formData = new FormData();
+        //     formData.append('image', blob, 'image.png'); // Append the image blob with a filename
+        //     console.log('formData front', formData)
 
-            // Send the image to your backend API
-            try {
-                const result = await axios.post("{% url 'mirror_image' %}", formData, {
-                    headers: {
-                        'X-CSRFToken': csrfToken,
-                        'Content-Type': 'multipart/form-data',
-                    }
-                });
+        //     // Send the image to your backend API
+        //     try {
+        //         const result = await axios.post("{% url 'mirror_image' %}", formData, {
+        //             headers: {
+        //                 'X-CSRFToken': csrfToken,
+        //                 'Content-Type': 'multipart/form-data',
+        //             }
+        //         });
 
-                console.log('formData response', response)
-                // imageName = response.data.imgName;
-                imagURL = response.url //data.image_data_url
-                workWithImage(mirrorElementName, imagURL)
+        //         console.log('formData response', response)
+        //         // imageName = response.data.imgName;
+        //         imagURL = response.url //data.image_data_url
+        //         workWithImage(mirrorElementName, imagURL)
 
-            } catch (error) {
-                console.error('Error sending image to server:', error);
-            }
-        }
-
-
-
-
-        function addGradientToImage() {
-
-            const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
-            // console.log('size', imgElement.naturalWidth/8, imgElement.naturalHeight/8/2)
-            console.log('addGradientToImage - imgElement', imgElement)
-
-            let mirrorElementName = null;
-            newImgMirrorName = `${activeImage}_${nameCounter}`;
-            nameCounter++;
-            // mirrorElement.style.maskImage = 'linear-gradient(to top, rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0) 40%)';
-
-
-            var c = document.getElementById("curvedCanvas");
-            var ctx = c.getContext("2d");
-            var imageObj1 = new Image();
-            var imageObj2 = new Image();
-            imageObj1.src = imgElement.src
-            imageObj1.onload = function() {
-                ctx.drawImage(imageObj1, 0, 0, imageObj1.naturalWidth/8, imageObj1.naturalHeight/8);
-                imageObj2.src = imgElement.src;
-                imageObj2.onload = function() {
-
-                    // ctx.drawImage(imageObj2, 0, 0, imageObj2.naturalWidth/10, imageObj2.naturalHeight/10);
-                    // var img = c.toDataURL("image/png");
-                    // workWithImage(newImgMirrorName, img)
-
-                    let height_ = imageObj2.naturalHeight/8
-                    let width_ = imageObj2.naturalWidth/8
-
-                    // Save the current context                   
-                    // ctx.save();
-                    // Flip the canvas horizontally and vertically //leftPosition + imageObj2.naturalWidth/10, topPosition + imageObj2.naturalHeight/10
-                    ctx.translate(0, imageObj2.naturalHeight/8 + (imageObj2.naturalHeight/8/1.5)); // Translate to the bottom right of the image
-                    ctx.scale(1, -1); // flip by x, y
-                    ctx.filter = "opacity(0.20)";
-
-                    // Draw the mirrored image (the image is now flipped)
-                    ctx.drawImage(imageObj2, 0, 0, imageObj2.naturalWidth/8, imageObj2.naturalHeight/8);
-
-                    // Restore the context to original state
-                    // ctx.restore();
-
-                    var img = c.toDataURL("image/png");
-                    workWithImage(newImgMirrorName, img); 
-                    addGrad();
-                    // addGrad(newImgMirrorName, img, height_, width_); 
-                }
-
-            };
-            imgElement.remove();
-
-        }
-
-        function addGrad() {
-            const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
-            imgElement.style.maskImage = 'linear-gradient(to top, rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0) 40%)';
-        }
+        //     } catch (error) {
+        //         console.error('Error sending image to server:', error);
+        //     }
+        // }
 
 
 
 
+        // function addGradientToImage() {
+
+        //     const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
+        //     let height_ = imgElement.offsetHeight; //imageObj2.naturalHeight/8
+        //     let width_ = imgElement.offsetWidth; //imageObj2.naturalWidth/8
+        //     console.log('size', height_, width_)
+        //     // console.log('addGradientToImage - imgElement', imgElement)
+
+        //     let mirrorElementName = null;
+        //     newImgMirrorName = `${activeImage}_${nameCounter}`;
+        //     nameCounter++;
+        //     // mirrorElement.style.maskImage = 'linear-gradient(to top, rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0) 40%)';
+
+
+        //     var c = document.getElementById("curvedCanvas");
+        //     var ctx = c.getContext("2d");
+        //     var imageObj1 = new Image();
+        //     var imageObj2 = new Image();
+        //     imageObj1.src = imgElement.src
+        //     imageObj1.onload = function() {
+        //         ctx.drawImage(imageObj1, 0, 0, width_, height_);
+        //         imageObj2.src = imgElement.src;
+        //         imageObj2.onload = function() {
+
+        //             // ctx.drawImage(imageObj2, 0, 0, imageObj2.naturalWidth/10, imageObj2.naturalHeight/10);
+        //             // var img = c.toDataURL("image/png");
+        //             // workWithImage(newImgMirrorName, img)
+
+        //             // let height_ = imageObj2.offsetHeight; //imageObj2.naturalHeight/8
+        //             // let width_ = imageObj2.offsetWidth; //imageObj2.naturalWidth/8
+
+        //             // Save the current context                   
+        //             // ctx.save();
+        //             // Flip the canvas horizontally and vertically //leftPosition + imageObj2.naturalWidth/10, topPosition + imageObj2.naturalHeight/10
+        //             ctx.translate(0, height_ + width_); // Translate to the bottom right of the image
+        //             ctx.scale(1, -1); // flip by x, y
+        //             ctx.filter = "opacity(0.20)";
+
+        //             // Draw the mirrored image (the image is now flipped)
+        //             ctx.drawImage(imageObj2, 0, 0, width_, height_);
+
+        //             // Restore the context to original state
+        //             // ctx.restore();
+
+        //             var img = c.toDataURL("image/png");
+        //             workWithImage(newImgMirrorName, img); 
+        //             addGrad();
+        //             // addGrad(newImgMirrorName, img, height_, width_); 
+        //         }
+
+        //     };
+        //     imgElement.remove();
+
+        // }
+
+        
 
         function showShadowContainer() {
                 const processImg = document.getElementById('shadowContainer');
@@ -719,10 +730,34 @@
                         originalImageData = null; // delete cashed image for brightness and color correction
                         activeImage = imageName
                         // logic to download result in original size
-                        const outputImage = document.createElement('img'); //document.getElementById('outputImage');
+                        const outputImageCont = document.createElement('div');
+                        outputImageCont.id = `outputImageCont${imageName}`;
+                        outputImageCont.style.display = 'flex';
+                        outputImageCont.style.alignItems = 'center';
+                        outputImageCont.style.justifyContent = 'space-between';
+                        const outputImage = document.createElement('img'); 
+                        outputImage.id = `outputImage${imageName}`;
                         outputImage.src = imagURL;
                         outputImage.style.display = 'block';
                         outputImage.style.width = '150px';
+
+                        // Make the image draggable
+                        outputImage.draggable = true;
+                        outputImage.ondragstart = function(event) {
+                            event.dataTransfer.setData('text/plain', event.target.id);
+                        };
+
+                        thumbnailArea.ondrop = function(event) {
+                            event.preventDefault();
+                            nameCounter++;
+                            const dragImg = document.getElementById(`outputImage${imageName}`);
+                            let newImgName = null;
+                            newImgName = `${activeImage}_${nameCounter}`;
+                            nameCounter++;
+
+                            workWithImage (newImgName, dragImg.src)
+                        };
+
 
                         outputImage.onclick = function () {
                             // Get all images within the same container and remove the 'activeImage' class
@@ -741,14 +776,28 @@
                         uploadImg.src = "{% static 'icons/upload.svg' %}";
                         downloadLink.appendChild(uploadImg);
 
+                        const addImg = document.createElement('img');
+                        addImg.src = "{% static 'icons/close.svg' %}";
+                        addImg.style.width = '16px';
+                        addImg.onclick = function () {
+                            deleteImg();
+                            outputImage.remove();
+                            outputImageCont.remove();
+                        }
+
+                        outputImageCont.appendChild(downloadLink);
+                        outputImageCont.appendChild(addImg);
+
                         resultCont.appendChild(outputImage);
-                        resultCont.appendChild(downloadLink);
+                        resultCont.appendChild(outputImageCont);
 
                         // let zIndexCounter = 1;
 
                         // logic for create a thumbnail
                         const resizableContainer = document.createElement('div');
                         resizableContainer.classList.add('resizable');
+                        resizableContainer.id = 'resizable' + imageName;
+
                         if ( resizableCash ) {
                             resizableContainer.style.width = `${resizableCashWidth}px`;  // Initial width
                             resizableContainer.style.height = `${resizableCashHeight}px`; // Initial height
@@ -899,6 +948,7 @@
                         // SHOW MENU
                         const properCont = document.createElement('div');
                         properCont.classList.add('pr');
+                        const icons = ['close'];
                         let menuActive = false;
 
                         properCont.onclick = function() { 
@@ -906,27 +956,51 @@
 
                             if ( menuActive === false) {
                                 console.log('menuActive show', menuActive)
-                                const menuCont = document.createElement('div');
-                                menuCont.classList.add('menuActive')
-                                menuCont.style.display = 'flex';
-                                menuCont.style.flexDirection = 'column';
-                        
-                                const icons = ['close'];
+
+                                const menuContExisted = document.getElementsByClassName('menuActive' + imageName) [0];
+                                if ( menuContExisted ) {
+                                    console.log('menuContExisted', menuContExisted)
+                                    menuContExisted.style.display = 'flex';
+
                                     icons.forEach(icon => {
-                                    const resizeHandle = document.createElement('div');
-                                    resizeHandle.classList.add(icon);
-                                    menuCont.appendChild(resizeHandle);
-                                });
+                                        const iconCont = document.getElementsByClassName(icon)[0]
+                                        iconCont.style.display = 'block';  // Hide the menu
+                                        menuActive = true;
+                                    })
+                                } else {
+                                    const menuCont = document.createElement('div');
+                                    menuCont.classList.add('menuActive' + imageName);
+                                    menuCont.style.display = 'flex';
+                                    menuCont.style.flexDirection = 'column';
+                            
+                                    icons.forEach(icon => {
+                                        const resizeHandle = document.createElement('div');
+                                        resizeHandle.classList.add(icon);
+                                        
+                                        // Add onclick event
+                                        resizeHandle.onclick = function() {
+                                            deleteImg()
+                                        };
 
-                                resizableContainer.appendChild(menuCont);
-                                menuActive = true;
+                                        menuCont.appendChild(resizeHandle);
+                                    });
+
+
+                                    resizableContainer.appendChild(menuCont);
+                                    menuActive = true;
+                                }
                             } else {
+                                
                                 console.log('menuActive none', menuActive)
-                                const menuCont = document.getElementsByClassName('menuActive') //[0]; // Get the first element with the class 'menuActive'
+                                // const menuCont = document.getElementsByClassName('menuActive') [0]; // Get the first element with the class 'menuActive'
 
-                                menuCont.forEach(elem => {
-                                    elem.style.display = 'none';  // Hide the menu
-                                    menuActive = false;
+                                // properCont.style.display = 'none';
+                                menuActive = false;
+
+                                icons.forEach(icon => {
+                                    const iconCont = document.getElementsByClassName(icon)[0]
+                                    iconCont.style.display = 'none';  // Hide the menu
+                                    // menuActive = false;
                                 })
         
                             }

@@ -78,6 +78,12 @@ def remove_bg(request):
                     # alpha_matting_erode_size=11,
                     # alpha_matting_base_size=1000,
                 )
+
+            # Get bounding box of the object
+            bbox = output_image.getbbox()
+            if bbox:
+                # Crop the image to the bounding box
+                output_image = output_image.crop(bbox)
             
             # Save the processed image to an in-memory bytes buffer
             buffer = BytesIO()
