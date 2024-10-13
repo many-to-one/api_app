@@ -115,6 +115,26 @@
               <path d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-1.998 2M14 2H4a1 1 0 0 0-1 1h9.002a2 2 0 0 1 2 2v7A1 1 0 0 0 15 11V3a1 1 0 0 0-1-1M2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1z"/>
             </svg>
         </div>
+        <div class="d-flex justify-content-center">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="jpg" id="jpgCheck" checked>
+                <label class="form-check-label" for="flexCheckDefault">
+                  .jpg
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="png" id="pngCheck">
+                <label class="form-check-label" for="flexCheckChecked">
+                  .png
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="svg" id="svgCheck">
+                <label class="form-check-label" for="flexCheckChecked">
+                  .svg
+                </label>
+              </div>
+        </div>
         <button id="downloadCombined" style="margin: 20px;" type="button" class="btn btn-primary">Zapisz</button>
 
         <canvas id="combinedCanvas" style="display:none;"></canvas> <!-- Hidden Canvas for combining images -->
@@ -745,10 +765,6 @@
                         outputImage.draggable = true;
                         outputImage.ondragstart = function(event) {
                             event.dataTransfer.setData('text/plain', event.target.id);
-                        };
-
-                        thumbnailArea.ondrop = function(event) {
-                            event.preventDefault();
                             nameCounter++;
                             const dragImg = document.getElementById(`outputImage${imageName}`);
                             let newImgName = null;
@@ -757,6 +773,17 @@
 
                             workWithImage (newImgName, dragImg.src)
                         };
+
+                        // thumbnailArea.ondrop = function(event) {
+                        //     event.preventDefault();
+                        //     nameCounter++;
+                        //     const dragImg = document.getElementById(`outputImage${imageName}`);
+                        //     let newImgName = null;
+                        //     newImgName = `${activeImage}_${nameCounter}`;
+                        //     nameCounter++;
+
+                        //     workWithImage (newImgName, dragImg.src)
+                        // };
 
 
                         outputImage.onclick = function () {
@@ -780,9 +807,14 @@
                         addImg.src = "{% static 'icons/close.svg' %}";
                         addImg.style.width = '16px';
                         addImg.onclick = function () {
-                            deleteImg();
+                            const fullImgCont = document.getElementById('resizable' + imageName);
+                            if ( fullImgCont ) {
+                                fullImgCont.remove();
+                            }
                             outputImage.remove();
-                            outputImageCont.remove();
+                            if ( outputImageCont ) {
+                                outputImageCont.remove();
+                            }
                         }
 
                         outputImageCont.appendChild(downloadLink);
@@ -849,8 +881,82 @@
                             resizableContainer.appendChild(resizeHandle);
                         });
 
+                        // SHOW MENU
+                            const properCont = document.createElement('div');
+                            properCont.classList.add('pr');
+                            properCont.style.display = 'none';
+                            const icons = ['close'];
+                            let menuActive = false;
+
+                            properCont.onclick = function() { 
+                                console.log('menuActive', menuActive)
+
+                                if ( menuActive === false) {
+                                    console.log('menuActive show', menuActive)
+
+                                    const menuContExisted = document.getElementsByClassName('menuActive' + imageName) [0];
+                                    if ( menuContExisted ) {
+                                        console.log('menuContExisted', menuContExisted)
+                                        menuContExisted.style.display = 'flex';
+
+                                        icons.forEach(icon => {
+                                            const iconCont = document.getElementsByClassName(icon)[0]
+                                            iconCont.style.display = 'block';  // Hide the menu
+                                            menuActive = true;
+                                        })
+                                    } else {
+                                        const menuCont = document.createElement('div');
+                                        menuCont.classList.add('menuActive' + imageName);
+                                        menuCont.style.display = 'flex';
+                                        menuCont.style.flexDirection = 'column';
+                                
+                                        icons.forEach(icon => {
+                                            const resizeHandle = document.createElement('div');
+                                            resizeHandle.classList.add(icon);
+                                            
+                                            // Add onclick event
+                                            resizeHandle.onclick = function() {
+                                                deleteImg()
+                                            };
+
+                                            menuCont.appendChild(resizeHandle);
+                                        });
+
+
+                                        resizableContainer.appendChild(menuCont);
+                                        menuActive = true;
+                                    }
+                                } else {
+                                    
+                                    console.log('menuActive none', menuActive)
+                                    // const menuCont = document.getElementsByClassName('menuActive') [0]; // Get the first element with the class 'menuActive'
+
+                                    // properCont.style.display = 'none';
+                                    menuActive = false;
+
+                                    icons.forEach(icon => {
+                                        const iconCont = document.getElementsByClassName(icon)[0]
+                                        iconCont.style.display = 'none';  // Hide the menu
+                                        // menuActive = false;
+                                    })
+            
+                                }
+                            };
+
+                            resizableContainer.appendChild(properCont);
+                        // END SHOW MENU
+
+                        function showMenuMini() {
+                            if ( properCont.style.display === 'none' ) {
+                                properCont.style.display = 'block';
+                            } else {
+                                properCont.style.display = 'none';
+                            }
+                        }
+
 
                         function setInactiveImg(imgIndex) {
+                            showMenuMini();
                             originalImageData = null;
                             resizableContainer.style.border = 'none';
                             const resizeHandle = document.querySelectorAll('.resize-handle');
@@ -868,8 +974,7 @@
                         }
 
                         function setActiveImg(imgIndex) {
-                            // const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
-                            // originalImageData = imgElement;
+                            showMenuMini();
                             originalImageData = null;
                             resizableContainer.style.border = 'block';
                             const resizeHandle = document.querySelectorAll('.resize-handle');
@@ -944,70 +1049,6 @@
                         //     };
                         // }
 
-
-                        // SHOW MENU
-                        const properCont = document.createElement('div');
-                        properCont.classList.add('pr');
-                        const icons = ['close'];
-                        let menuActive = false;
-
-                        properCont.onclick = function() { 
-                            console.log('menuActive', menuActive)
-
-                            if ( menuActive === false) {
-                                console.log('menuActive show', menuActive)
-
-                                const menuContExisted = document.getElementsByClassName('menuActive' + imageName) [0];
-                                if ( menuContExisted ) {
-                                    console.log('menuContExisted', menuContExisted)
-                                    menuContExisted.style.display = 'flex';
-
-                                    icons.forEach(icon => {
-                                        const iconCont = document.getElementsByClassName(icon)[0]
-                                        iconCont.style.display = 'block';  // Hide the menu
-                                        menuActive = true;
-                                    })
-                                } else {
-                                    const menuCont = document.createElement('div');
-                                    menuCont.classList.add('menuActive' + imageName);
-                                    menuCont.style.display = 'flex';
-                                    menuCont.style.flexDirection = 'column';
-                            
-                                    icons.forEach(icon => {
-                                        const resizeHandle = document.createElement('div');
-                                        resizeHandle.classList.add(icon);
-                                        
-                                        // Add onclick event
-                                        resizeHandle.onclick = function() {
-                                            deleteImg()
-                                        };
-
-                                        menuCont.appendChild(resizeHandle);
-                                    });
-
-
-                                    resizableContainer.appendChild(menuCont);
-                                    menuActive = true;
-                                }
-                            } else {
-                                
-                                console.log('menuActive none', menuActive)
-                                // const menuCont = document.getElementsByClassName('menuActive') [0]; // Get the first element with the class 'menuActive'
-
-                                // properCont.style.display = 'none';
-                                menuActive = false;
-
-                                icons.forEach(icon => {
-                                    const iconCont = document.getElementsByClassName(icon)[0]
-                                    iconCont.style.display = 'none';  // Hide the menu
-                                    // menuActive = false;
-                                })
-        
-                            }
-                        };
-
-                        resizableContainer.appendChild(properCont);
-                        // END SHOW MENU
 
                         let isResizing = false;
                         let isDragging = false;
@@ -1125,6 +1166,22 @@
             event.preventDefault();
         });
 
+
+        const checkboxes = document.querySelectorAll('.form-check-input');
+
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    checkboxes.forEach(other => {
+                        if (other !== checkbox) {
+                            other.checked = false;
+                        }
+                    });
+                }
+            });
+        });
+
+
         // Function to combine images inside the thumbnailArea and download the result
         downloadCombined.addEventListener('click', function () {
 
@@ -1148,20 +1205,45 @@
             combinedCanvas.width = canvasWidth;
             combinedCanvas.height = canvasHeight;
 
+            let format = null
+
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    format = checkbox.value
+                    // selectedFormats.push(checkbox.value);
+                }
+            })
+
             const ctx = combinedCanvas.getContext('2d');
             ctx.clearRect(0, 0, canvasWidth, canvasHeight); // Clear canvas
+            if ( format === 'jpg' ) {
+                ctx.fillStyle = "rgb(255, 255, 255)"; 
+            } else {
+                ctx.fillStyle = "rgba(0, 0, 0, 0)"; 
+            }
+            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
             let imagesLoaded = 0;
 
             // Helper function to trigger download after all images are drawn
             function checkAllImagesLoaded() {
+                
+                // let format = null
+                // // const checkboxes = document.querySelectorAll('.form-check-input');
+                // checkboxes.forEach(checkbox => {
+                //     if (checkbox.checked) {
+                //         format = checkbox.value
+                //         // selectedFormats.push(checkbox.value);
+                //     }
+                // })
+
                 if (imagesLoaded === resizableContainers.length) {
                     combinedCanvas.toBlob(function (blob) {
                         const downloadLink = document.createElement('a');
                         downloadLink.href = URL.createObjectURL(blob);
-                        downloadLink.download = 'combined_image.png';
+                        downloadLink.download = `result.${format}`;
                         downloadLink.click();
-                    }, 'image/png');
+                    }, `image/${format}`);
                 }
             }
 
@@ -1170,8 +1252,6 @@
                 const img = container.querySelector('img');
                 const left = parseInt(container.style.left) || 0;
                 const top = parseInt(container.style.top) || 0;
-                // const containerWidth = container.offsetWidth;
-                // const containerHeight = container.offsetHeight;
 
                 // Create a new image object to ensure it's loaded properly
                 const imgElement = new Image();
