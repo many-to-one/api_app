@@ -46,6 +46,7 @@
             <img id="duplicateImg" onclick="duplicateImg()" style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="25" alt="">
             <img id="duplicateImg" onclick="showShadowContainer()" style="cursor: pointer;" src="{% static 'icons/options.svg' %}" width="25" alt="">
             <img style="cursor: pointer;" onclick="deleteImg()" src="{% static 'icons/close.svg' %}" width="25" alt="">
+            <img style="cursor: pointer;" onclick=" isDraw__()" src="{% static 'icons/close.svg' %}" width="25" alt="">
         </div>
 
         <!-- TEST BRIGHTNESS CONTAINER 1 -->
@@ -110,6 +111,7 @@
 
 
         <div id="thumbnailArea" class="d-flex justify-content-center align-items-center">
+            <canvas id="selectionCanvas" width="500" height="500" style="display: none;"></canvas>
             <svg xmlns="http://www.w3.org/2000/svg" width="50" fill="currentColor" class="bi bi-images" viewBox="0 0 16 16" opacity="0.2">
               <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
               <path d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-1.998 2M14 2H4a1 1 0 0 0-1 1h9.002a2 2 0 0 1 2 2v7A1 1 0 0 0 15 11V3a1 1 0 0 0-1-1M2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1z"/>
@@ -147,6 +149,8 @@
 
     <!-- <script src="{% static 'js/curveAdjustment.js' %}"></script>
     <script src="{% static 'js/curvePanel.js' %}"></script> -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/esm"></script> 
 
 
     <script>
@@ -189,6 +193,11 @@
 
         let originalImageData = null;  // Store the original image data
 
+        // Get the existing canvas and image element
+        const curvedCanvas = document.getElementById('curvedCanvas');
+        const ctx = curvedCanvas.getContext('2d');
+        const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
+
 
         // // Initialize popovers using JavaScript
         // const makeCopyEl = document.getElementById('makeCopy');
@@ -211,6 +220,131 @@
         // addCopyIcon.addEventListener('mouseleave', function() {
         //     addCopyEl.style.display = 'none';
         // });
+
+        function isDraw__() {
+
+            let x = null;
+            let y = null;
+            let points = [];
+            let isDrawing = false;
+
+            const resizable = document.getElementsByClassName('resizable')[0];
+
+            // Funkcja rysowania linii między punktami
+            resizable.addEventListener('click', function(e) {
+                const rect = curvedCanvas.getBoundingClientRect();
+                x = e.clientX - rect.left;
+                y = e.clientY - rect.top;
+
+                if (!isDrawing) {
+                    isDrawing = true;
+                    points.push({x: x, y: y});
+                } else {
+                    points.push({x: x, y: y});
+                    drawLine(points[points.length - 2], points[points.length - 1]);
+                }
+
+                console.log('points', points);
+            });
+
+            // Funkcja rysowania linii
+            function drawLine(point1, point2) {
+                ctx.beginPath();
+                ctx.moveTo(point1.x, point1.y);
+                ctx.lineTo(point2.x, point2.y);
+                ctx.stroke();
+            }
+
+            // Funkcja zamknięcia obszaru
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && points.length > 2) {
+                    closeArea();
+                }
+            });
+
+            function closeArea() {
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    ctx.lineTo(points[i].x, points[i].y);
+                }
+                ctx.closePath();
+                ctx.stroke();
+            }
+
+            // Usuwanie zaznaczonego obszaru
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Delete' && points.length > 2) {
+                    deleteSelectedArea();
+                }
+            });
+
+            function deleteSelectedArea() {
+                ctx.save();
+                ctx.globalCompositeOperation = 'destination-out';  // Ustaw tryb usuwania
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    ctx.lineTo(points[i].x, points[i].y);
+                }
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+
+                // Resetujemy zaznaczone punkty
+                points = [];
+                isDrawing = false;
+            }
+        }
+
+
+        function isDraw_ () {
+            const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
+            console.log('isDraw', imgElement)
+            const canvas = document.getElementById('selectionCanvas'); 
+            const ctx = canvas.getContext('2d');
+            let isDragging = false;
+            let startX, startY, endX, endY;
+
+            canvas.addEventListener('mousedown', (e) => {
+                startX = e.offsetX;
+                startY = e.offsetY;
+                isDragging = true;
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    endX = e.offsetX;
+                    endY = e.offsetY;
+                    console.log('isDraw mousemove', endX)
+                    draw();
+                }
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            canvas.addEventListener('mouseout', () => {
+                isDragging = false;
+            });
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = 'red';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(startX, startY, endX - startX, endY - startY);
+            }
+
+            // Load an image onto the canvas (optional)
+            const img = new Image();
+            img.src = imgElement.src; // Replace with your image URL
+            img.onload = () => {
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            };
+
+        }
+
 
 
         function duplicateImg() {
@@ -991,7 +1125,106 @@
                             resizeImage(imgIndex);
                             startRotate(imageName);
                             setValues(imageName);
+                            // isDraw(imageName);
                         }
+
+
+                        function isDraw(imageName) {
+
+                            console.log('isDraw');
+
+                            isDrawing = false;
+                            let x = null;
+                            let y = null;
+                            let points = [];
+
+                            let lineSVG = document.createElement('svg');
+                            let line = document.createElement('line');
+                            line.setAttribute('x1', '0');
+                            line.setAttribute('y1', '0');
+                            line.setAttribute('x2', '100px'); // For viewport width
+                            line.setAttribute('y2', '100px'); // For viewport height
+                            line.style.stroke = 'red';
+                            line.style.strokeWidth = '2px';
+                            lineSVG.appendChild(line);
+                            resizableContainer.appendChild(lineSVG);
+
+                            // Funkcja rysowania linii między punktami
+                            resizableContainer.addEventListener('click', function(e) {
+                                // let lineSVG = document.createElement('svg');
+                                // let line = document.createElement('line');
+                                // line.setAttribute('x1', '0');
+                                // line.setAttribute('y1', '0');
+                                // line.setAttribute('x2', '100px'); // For viewport width
+                                // line.setAttribute('y2', '100px'); // For viewport height
+                                // line.style.stroke = 'red';
+                                // line.style.strokeWidth = '2px';
+                                // lineSVG.appendChild(line);
+                                // resizableContainer.appendChild(lineSVG);
+                                x = e.clientX;
+                                y = e.clientY;
+
+                                if (!isDrawing) {
+                                    isDrawing = true;
+                                    points.push({x: x, y: y});
+                                } else {
+                                    points.push({x: x, y: y});
+                                    // drawLine(points[points.length - 2], points[points.length - 1]);
+                                }
+
+                                console.log('points', points);
+                            });
+
+                            // // Funkcja rysowania linii
+                            // function drawLine(point1, point2) {
+                            //     ctx.beginPath();
+                            //     ctx.moveTo(point1.x, point1.y);
+                            //     ctx.lineTo(point2.x, point2.y);
+                            //     ctx.stroke();
+                            // }
+
+                            // // Funkcja zamknięcia obszaru
+                            // document.addEventListener('keydown', function(e) {
+                            //     if (e.key === 'Enter' && points.length > 2) {
+                            //         closeArea();
+                            //     }
+                            // });
+
+                            // function closeArea() {
+                            //     ctx.beginPath();
+                            //     ctx.moveTo(points[0].x, points[0].y);
+                            //     for (let i = 1; i < points.length; i++) {
+                            //         ctx.lineTo(points[i].x, points[i].y);
+                            //     }
+                            //     ctx.closePath();
+                            //     ctx.stroke();
+                            // }
+
+                            // // Usuwanie zaznaczonego obszaru
+                            // document.addEventListener('keydown', function(e) {
+                            //     if (e.key === 'Delete' && points.length > 2) {
+                            //         deleteSelectedArea();
+                            //     }
+                            // });
+
+                            // function deleteSelectedArea() {
+                            //     ctx.save();
+                            //     ctx.globalCompositeOperation = 'destination-out';  // Ustaw tryb usuwania
+                            //     ctx.beginPath();
+                            //     ctx.moveTo(points[0].x, points[0].y);
+                            //     for (let i = 1; i < points.length; i++) {
+                            //         ctx.lineTo(points[i].x, points[i].y);
+                            //     }
+                            //     ctx.closePath();
+                            //     ctx.fill();
+                            //     ctx.restore();
+
+                            //     // Resetujemy zaznaczone punkty
+                            //     points = [];
+                            //     isDrawing = false;
+                            // }
+                        }
+
 
                         function resizeImage(imgIndex) {
                             console.log('imgIndex', imgIndex);
@@ -1053,6 +1286,7 @@
                         let isResizing = false;
                         let isDragging = false;
                         let isRotating = false; // New flag for rotation
+                        let isDrawing = false;
                         let currentHandle = null;
                         let startX, startY, startWidth, startHeight, startLeft, startTop;
                         let startRotation = 0; // To store the initial rotation angle
@@ -1147,7 +1381,7 @@
                                 resizableContainer.style.top = `${event.clientY - startY}px`;
                             } else if (isRotating) {
                                 handleRotation(event);
-                            }
+                            } 
                         });
 
                         document.addEventListener('mouseup', function () {
@@ -1155,6 +1389,18 @@
                             isDragging = false;
                             isRotating = false;
                         });
+
+                        // function draw(event) {
+                        //     isDrawing = true;
+                        //     startX = event.clientX;
+                        //     startY = event.clientY;
+                        //     var canvas = document.getElementById("curvedCanvas");
+                        //     var ctx = canvas.getContext("2d");
+                        //     ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        //     ctx.strokeStyle = 'red';
+                        //     ctx.lineWidth = 2;
+                        //     ctx.strokeRect(startX, startY, endX - startX, endY - startY);
+                        // }
 
 
                         thumbnailArea.appendChild(resizableContainer);
