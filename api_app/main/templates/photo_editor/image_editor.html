@@ -111,7 +111,7 @@
 
 
         <div id="thumbnailArea" class="d-flex justify-content-center align-items-center">
-            <canvas id="selectionCanvas" width="500" height="500" style="display: none;"></canvas>
+            <canvas class="resizable" id="selectionCanvas" width="300" height="300" style="display: none;"></canvas>
             <svg xmlns="http://www.w3.org/2000/svg" width="50" fill="currentColor" class="bi bi-images" viewBox="0 0 16 16" opacity="0.2">
               <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
               <path d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-1.998 2M14 2H4a1 1 0 0 0-1 1h9.002a2 2 0 0 1 2 2v7A1 1 0 0 0 15 11V3a1 1 0 0 0-1-1M2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1z"/>
@@ -221,14 +221,26 @@
         //     addCopyEl.style.display = 'none';
         // });
 
-        function isDraw__() {
+        function isDraw_() {
 
+            const resizable = document.getElementById('resizable' + activeImage);
             let x = null;
             let y = null;
             let points = [];
             let isDrawing = false;
+            let lineSVG = document.createElement('svg');
+            let line = document.createElement('line');
+            line.setAttribute('x1', '0');
+            line.setAttribute('y1', '0');
+            line.setAttribute('x2', '100px'); // For viewport width
+            line.setAttribute('y2', '100px'); // For viewport height
+            line.style.stroke = 'red';
+            line.style.strokeWidth = '2px';
+            lineSVG.appendChild(line);
+            lineSVG.style.zIndex = resizable.style.zIndex + 1;
+            resizable.appendChild(lineSVG);
 
-            const resizable = document.getElementsByClassName('resizable')[0];
+            
 
             // Funkcja rysowania linii między punktami
             resizable.addEventListener('click', function(e) {
@@ -244,15 +256,22 @@
                     drawLine(points[points.length - 2], points[points.length - 1]);
                 }
 
-                console.log('points', points);
+                // console.log('points', points);
             });
 
             // Funkcja rysowania linii
             function drawLine(point1, point2) {
-                ctx.beginPath();
-                ctx.moveTo(point1.x, point1.y);
-                ctx.lineTo(point2.x, point2.y);
-                ctx.stroke();
+
+                console.log('point1', point1);
+                console.log('point2', point2);
+                line.setAttribute('x1', point1.x);
+                line.setAttribute('y1', point2.y);
+                line.setAttribute('x2', point2.x); // For viewport width
+                line.setAttribute('y2', point2.y);
+                // ctx.beginPath();
+                // ctx.moveTo(point1.x, point1.y);
+                // ctx.lineTo(point2.x, point2.y);
+                // ctx.stroke();
             }
 
             // Funkcja zamknięcia obszaru
@@ -298,52 +317,140 @@
         }
 
 
-        function isDraw_ () {
+        function isDraw__() {
+            const resizable = document.getElementById('resizable' + activeImage);
             const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
-            console.log('isDraw', imgElement)
-            const canvas = document.getElementById('selectionCanvas'); 
-            const ctx = canvas.getContext('2d');
-            let isDragging = false;
-            let startX, startY, endX, endY;
+            let points = [];
+            let isDrawing = false;
 
-            canvas.addEventListener('mousedown', (e) => {
-                startX = e.offsetX;
-                startY = e.offsetY;
-                isDragging = true;
-            });
+            let canvas = document.getElementById('selectionCanvas');
+            canvas.style.display = 'block';
+            canvas.style.background = 'transparent';
+            canvas.style.zIndex = resizable.style.zIndex + 1;
+            let ctx = canvas.getContext('2d');
 
-            canvas.addEventListener('mousemove', (e) => {
-                if (isDragging) {
-                    endX = e.offsetX;
-                    endY = e.offsetY;
-                    console.log('isDraw mousemove', endX)
-                    draw();
+            // Event listener for clicks to draw lines between points
+            canvas.addEventListener('click', function (e) {
+                const rect = resizable.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                if (!isDrawing) {
+                    isDrawing = true;
+                    points.push({ x: x, y: y });
+                } else {
+                    points.push({ x: x, y: y });
+                    drawLine(points[points.length - 2], points[points.length - 1]);
+
+                    if (points.length >= 3 && isShapeClosed(points)) {
+                        isDrawing = false;
+                    }
                 }
             });
 
-            canvas.addEventListener('mouseup', () => {
-                isDragging = false;
-            });
-
-            canvas.addEventListener('mouseout', () => {
-                isDragging = false;
-            });
-
-            function draw() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Function to draw a line between two points
+            function drawLine(point1, point2) {
+                ctx.beginPath();
+                ctx.moveTo(point1.x, point1.y);
+                ctx.lineTo(point2.x, point2.y);
                 ctx.strokeStyle = 'red';
                 ctx.lineWidth = 2;
-                ctx.strokeRect(startX, startY, endX - startX, endY - startY);
+                ctx.stroke();
             }
 
-            // Load an image onto the canvas (optional)
-            const img = new Image();
-            img.src = imgElement.src; // Replace with your image URL
-            img.onload = () => {
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            };
+            // Function to check if the shape is closed
+            function isShapeClosed(points) {
+                const dx = Math.abs(points[0].x - points[points.length - 1].x);
+                const dy = Math.abs(points[0].y - points[points.length - 1].y);
+                return dx < 5 && dy < 5; // Tolerance for closure
+            }
 
+            // Listen for the 'Delete' key press to clear the area inside the drawn shape
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Delete' && points.length > 2) {
+                    clearImageDataInside(points);
+                }
+            });
+
+            // Function to clear the image data inside the drawn shape
+            function clearImageDataInside(points) {
+                const rect = resizable.getBoundingClientRect();
+                const img = new Image();
+                img.src = imgElement.src;
+                console.log('img', img)
+
+                let originData = null;
+
+                console.log('img.natural demensions', img.naturalWidth, img.naturalHeight)
+                img.onload = function () {
+                    canvas.width = img.naturalWidth; // Set canvas size to match the image
+                    canvas.height = img.naturalHeight;
+                    ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+                    originData = ctx.getImageData(0, 0, canvas.width, canvas.height); // Get the image data after drawing
+                    console.log('originData', originData.data);
+                    deleteData();
+                };
+
+                function deleteData() {
+                    const imageData = new ImageData(
+                    new Uint8ClampedArray(originData.data),
+                        originData.width,
+                        originData.height
+                    );
+
+                    const data = imageData.data;
+                    console.log('imageData.data', data)
+
+                    const xValues = points.map(p => p.x);
+                    const yValues = points.map(p => p.y);
+                    const minX = Math.min(...xValues);
+                    const minY = Math.min(...yValues);
+                    const maxX = Math.max(...xValues);
+                    const maxY = Math.max(...yValues);
+
+                    const length = data.length;
+                    start = Math.max(0, 3000000); // Ensure start is not negative
+                    end = Math.min(length - 1, 3999999); // Ensure end is within bounds
+                    for (let i = start; i <= end; i++) {
+                        data[i] = 0;
+                    }
+
+                    console.log('imageData.after', data)
+
+                    // // Loop over the image pixels within the bounding box
+                    // for (let y = minY; y <= maxY; y++) {
+                    //     for (let x = minX; x <= maxX; x++) {
+                    //         // Check if the point is inside the drawn polygon
+                    //         if (isPointInPolygon(points, x, y)) {
+                    //             const index = (y * canvas.width + x) * 4;
+                    //             console.log('data[index + 3]', data[index + 3])
+                    //             // Set the alpha channel to 0 (transparent)
+                    //             data[index + 3] = 0; // Alpha channel
+                    //         }
+                    //     }
+                    // }
+
+                    imgElement.remove();
+                    ctx.putImageData(imageData, 0, 0); // Put the modified image data back on the canvas
+
+                }
+            }
+
+            // Function to check if a point is inside a polygon
+            function isPointInPolygon(points, x, y) {
+                let isInside = false;
+                for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+                    const xi = points[i].x, yi = points[i].y;
+                    const xj = points[j].x, yj = points[j].y;
+
+                    const intersect = ((yi > y) !== (yj > y)) &&
+                        (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                    if (intersect) isInside = !isInside;
+                }
+                return isInside;
+            }
         }
+
 
 
 
@@ -633,12 +740,6 @@
 
                     img.onload = function () {
                         console.log('contrastSlider', contrastSlider)
-                        // if ( blurSlider !== 0 ) {
-                        //     console.log('contrastSlider !== 0', contrastSlider)
-                        //     // ctx.filter = `blur(${parseFloat(blurSlider)}px)`;
-                        //     // ctx.filter = `drop-shadow(50px ${parseInt(blurSlider)}px 400px #000000)`;
-                        //     ctx.filter = `contrast(150%)`;
-                        // }
                         ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
 
                         originalImageData = ctx.getImageData(0, 0, curvedCanvas.width, curvedCanvas.height); // Save original data
