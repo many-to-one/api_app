@@ -377,7 +377,7 @@
                 const rect = resizable.getBoundingClientRect();
                 const img = new Image();
                 img.src = imgElement.src;
-                console.log('img', img)
+                // console.log('img', img)
 
                 let originData = null;
 
@@ -403,6 +403,10 @@
 
                     const xValues = points.map(p => p.x);
                     const yValues = points.map(p => p.y);
+                    console.log('xValues', xValues);
+                    console.log('yValues', yValues);
+                    // The points is inside 500 x 500 px but original size of the image is too much bigger
+                    // So I need to pre calculate points or image size to be good;
                     const minX = Math.min(...xValues);
                     const minY = Math.min(...yValues);
                     const maxX = Math.max(...xValues);
