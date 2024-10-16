@@ -155,7 +155,7 @@
                                     {% for of in result.offers %}
                                         {% if s.id == of.id %}
                                             <!-- <p class="set__name">{{ of.id }}</p> -->
-                                            <input style="width: 20px;" id="disc__piece_{{ offer.id }}" value="{{ s.quantity }}" type="text" onchange="setCount('{{ offer.id }}')">
+                                            <input style="width: 20px;" id="disc__piece_{{ offer.id }}" value="{{ s.requiredQuantity }}" type="text" onchange="setCount('{{ offer.id }}')">
                                         {% endif %}
                                     {% endfor %}
                                 {% endfor %}
@@ -163,14 +163,14 @@
                                     <p class="set__name" id="{{priceOfferFalse}}_{{set.id}}">{{ offer.sellingMode.price.amount }}</p>
                                     <p class="set__name" id="{{pcurrencyOfferFalse}}_{{set.id}}">{{ offer.sellingMode.price.currency }}</p>
                                 </div>
-                                <!-- <p class="set__name">{{ set.0.set_id }}</p> -->
+                                <!-- <p class="set__name">tutaj: {{ set.0.set_id }}</p> -->
                                 {% for s in set.1|slice:"1:" %}
                                     {% for of in result.offers %}
                                         {% if s.id == of.id %}
                                             <img class="set__photo" src="{{of.primaryImage.url}}" alt="">
                                             <p class="set__name">{{ of.name }}</p>
                                             <label for="">Sztuki:</label>
-                                            <input style="width: 20px;" id="disc__piece_{{ of.id }}" value="{{ s.quantity }}" type="text" onchange="setCount('{{ of.id }}')">
+                                            <input style="width: 20px;" id="disc__piece_{{ of.id }}" value="{{ s.requiredQuantity }}" type="text" onchange="setCount('{{ of.id }}')">
                                             <div class="price__cont" >
                                                 <p class="set__name" id="{{priceSetFalse}}_{{of.id}}">{{ of.sellingMode.price.amount }}</p>
                                                 <p class="set__name" id="{{pcurrencySetFalse}}_{{of.id}}">{{ of.sellingMode.price.currency }}</p>
@@ -191,7 +191,10 @@
                                     </svg>
                                     <span class="tooltip__text">Kopiuj zestaw</span>
                                 </div>
-                                <div class="add__set set__tooltip">
+                                <div 
+                                    class="add__set set__tooltip"
+                                    onclick="deleteSet('{{ set.0.set_id }}')"
+                                >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                                       <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
                                       <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
@@ -417,7 +420,7 @@
 
 
         // LIST WITH COPIED OFFER(S)
-        var setContainer = []
+        let setContainer = []
         function copySet(set) {
             console.log('SET', set)
             let jsonString = set
@@ -428,6 +431,7 @@
             let array = JSON.parse(jsonString);
             console.log('SET array',  array);
             setContainer.push(array)
+            console.log('setContainer copy', setContainer)
             showMessage('Zestaw został skopiowany do schowka', 200)
         }
 
@@ -436,8 +440,9 @@
         async function submitCopySet(offerId) {
 
             // Create the data object to send to the server
+            console.log('setContainer submit', setContainer)
             const data = {
-                set_id: setContainer[0][0]['set_id'],
+                set_id: setContainer[0][0]['set_id'],//['set_id'],
                 main_offer: offerId,
                 disc__money: setContainer[0][3] || null,
                 disc__percent: setContainer[0][5] || null,
@@ -484,7 +489,39 @@
         }
 
 
-        copyGroupCont = []
+        async function deleteSet (setId) {
+            console.log('deleteSet ++', setId);
+
+            const resp = await axios.delete(
+                // `https://api.allegro.pl.allegrosandbox.pl/sale/bundles/${setId}`,
+                //backend endpoint
+                {
+                    headers: {
+                        'X-CSRFToken': csrftoken
+                    }
+                }
+            )
+            .then(function (response) {    
+                console.log('deleteSet', response)              
+                    // if ( response.data.context.status === 'ok' ) {
+                    //     showMessage(response.data.context.message, 200)
+                    //     setTimeout(reFresh, 1000);
+                    // } else if ( response.data.context.status === '!ok' ) {
+                    //     showMessage(response.data.context.message, 300)
+                    //     setTimeout(reFresh, 1000);
+                    // } else {
+                    //     console.log('postSet', 500);
+                    //     showMessage(response.data.context.message, 500)
+                    // }
+                })
+                .catch(function(error) {
+                // Handle error
+                console.error('Error updating stock:', error);
+                showMessage(error, 500)
+            });
+        }
+
+        let copyGroupCont = []
 
         async function copyGroupSet (offerId) {
 

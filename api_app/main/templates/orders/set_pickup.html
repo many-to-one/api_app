@@ -185,24 +185,17 @@
             doc.text(`Lista wysyłkowa wygenerowana: ${date} ${time}`, 10, 10);
 
             let currentY = 20; // Y-coordinate for the content
-            const lineHeight = 6; // Reduced line height
+            const lineHeight = 4; // Reduced line height
             const paddingX = 10; // X-coordinate for left padding
             const contentWidth = 190; // Content width for borders
 
             shipmentListCont.forEach(item => {
                 let initialY = currentY; // Store starting Y position for border
 
-                // // First Row: Shipment Data
-                // doc.text(`ID Zamówienia: ${item.id}`, paddingX + 2, currentY + lineHeight);
-                // doc.text(`Nabywca: ${item.buyer.firstName} ${item.buyer.lastName}`, paddingX + 2, currentY + lineHeight * 2);
-                // doc.text(`Adres: ${item.buyer.address.street}, ${item.buyer.address.city}, ${item.buyer.address.postCode}`, paddingX + 2, currentY + lineHeight * 3);
-                // doc.text(`Telefon: ${item.buyer.phoneNumber} | Email: ${item.buyer.email}`, paddingX + 2, currentY + lineHeight * 4);
-                // currentY += lineHeight * 5; // Adjust after shipment data
-
                 // First Row: Shipment Data
-                doc.text(`${item.id}, ${item.buyer.firstName} ${item.buyer.lastName}`, paddingX + 2, currentY + lineHeight);
-                doc.text(`Adres: ${item.buyer.address.street}, ${item.buyer.address.city}, ${item.buyer.address.postCode}, ${item.buyer.phoneNumber}`, paddingX + 2, currentY + lineHeight * 3);
-                currentY += lineHeight * 5; // Adjust after shipment data
+                doc.text(`${item.id}`, paddingX + 2, currentY + lineHeight); 
+                doc.text(`${item.delivery.address.firstName} ${item.delivery.address.lastName}, ${item.delivery.address.street}, ${item.delivery.address.city}, ${item.delivery.address.zipCode}, ${item.delivery.address.countryCode}, ${item.delivery.address.phoneNumber} ${item.delivery.address.companyName || 'Osob prywatna'}`, paddingX + 2, currentY + lineHeight * 2);
+                currentY += lineHeight * 3; // Adjust after shipment data
 
                 // Add a border for the shipment data row
                 doc.rect(paddingX, initialY, contentWidth, currentY - initialY);
@@ -211,8 +204,8 @@
                 item.lineItems.forEach((lineItem, index) => {
                     initialY = currentY; // Store starting Y for each product
 
-                    doc.text(`${index + 1}. [${lineItem.offer.external.id}] ${lineItem.offer.name} - ${lineItem.quantity}`, paddingX + 2, currentY + lineHeight);
-                    currentY += lineHeight * 3; // Adjust after product
+                    doc.text(`${index + 1}. [${lineItem.offer.external.id}] ${lineItem.offer.name} - [${lineItem.quantity}]`, paddingX + 2, currentY + lineHeight);
+                    currentY += lineHeight * 2; // Adjust after product
 
                     // Add a border for each product
                     doc.rect(paddingX, initialY, contentWidth, currentY - initialY);
@@ -220,7 +213,7 @@
 
                 // Third Row: Order Notes
                 initialY = currentY; // Store starting Y for notes
-                doc.text(`Uwagi: ${item.note || 'Brak uwag'} [${item.buyer.login}] [[${item.delivery.method.name}]]`, paddingX + 2, currentY + lineHeight);
+                doc.text(`Uwagi: ${item.messageToSeller || 'Brak uwag'} [${item.buyer.login}] [${item.delivery.method.name}]`, paddingX + 2, currentY + lineHeight);
                 currentY += lineHeight * 2; // Adjust after notes
 
                 // Add a border for the notes row
@@ -231,8 +224,9 @@
             });
 
             // Save the PDF
-            doc.save('shipment_list.pdf');
+            doc.save('lista_wysyłkowa.pdf');
         }
+
 
 
 

@@ -358,50 +358,36 @@ async def prepare_post_copy_offers(request, secret, offers, amount, main_offer):
 
 async def post_copy_offers(request, secret, offers, amount, main_offer):
 
-    # print('############ post_copy_offers amount ##############', amount['discount'])
+    # print('############ offers offers ##############', offers)
     offers[0]['id'] = f'{main_offer}'
-    print('############ post_copy_offers offers[0] ##############', offers[0]['id'])
-    print(' #########  amount post_cpy_offers ##########', amount)
-    print(' ######### type amount post_copy_offers ##########', type(amount))
-
-    # main_offer = {
-    #     "id": f'{main_offer_id}',
-    #     "quantity": main_count, 
-    #     "promotionEntryPoint": True, 
-    # }
-    # offers.insert(0, main_offer)
+    # print('############ post_copy_offers offers[0] ##############', offers[0]['id'])
+    # print(' #########  amount post_cpy_offers ##########', amount)
+    # print(' ######### type amount post_copy_offers ##########', type(amount))
 
     try:
         async with httpx.AsyncClient() as client:
-            url = "https://api.allegro.pl.allegrosandbox.pl/sale/loyalty/promotions" 
+            url = "https://api.allegro.pl.allegrosandbox.pl/sale/bundles" 
             # headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
             headers = {
                 'Authorization': f'Bearer {secret.access_token}',
                 'Accept': 'application/vnd.allegro.public.v1+json',
                 'Content-Type': 'application/vnd.allegro.public.v1+json'
             }
+
             data = {
-                "benefits": [
+                "offers": offers,
+                "discounts": [                    
                     {
-                    "specification": {
-                        "type": "ORDER_FIXED_DISCOUNT",
-                        "value": {                         
-                                                
-                            "amount": amount if isinstance(amount, str) else amount['discount'],
-                            "currency": "PLN"
-                        }
-                    }
-                    }
-                ],
-                "offerCriteria": [
-                    {
-                    "type": "CONTAINS_OFFERS",
-                    "offers": offers,
+                    "marketplace": {              
+                        "id": "allegro-pl"
+                    },
+                    "amount": amount if isinstance(amount, str) else amount['discount'],           
+                    "currency": "PLN"             
                     }
                 ]
-                }
+            }
             product_result = await client.post(url, headers=headers, json=data)
-            print('product_result @@@@@@@@@', product_result)
+            # print('product_result @@@@@@@@@', product_result)
             result = product_result.json()
             print('post_copy_offers @@@@@@@@@', result)
 
