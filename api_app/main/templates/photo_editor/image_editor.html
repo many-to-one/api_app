@@ -382,6 +382,7 @@
                 let originData = null;
 
                 console.log('img.natural demensions', img.naturalWidth, img.naturalHeight)
+                console.log('points', points)
                 img.onload = function () {
                     canvas.width = img.naturalWidth; // Set canvas size to match the image
                     canvas.height = img.naturalHeight;
@@ -412,27 +413,30 @@
                     const maxX = Math.max(...xValues);
                     const maxY = Math.max(...yValues);
 
-                    const length = data.length;
-                    start = Math.max(0, 3000000); // Ensure start is not negative
-                    end = Math.min(length - 1, 3999999); // Ensure end is within bounds
-                    for (let i = start; i <= end; i++) {
-                        data[i] = 0;
-                    }
-
-                    console.log('imageData.after', data)
-
-                    // // Loop over the image pixels within the bounding box
-                    // for (let y = minY; y <= maxY; y++) {
-                    //     for (let x = minX; x <= maxX; x++) {
-                    //         // Check if the point is inside the drawn polygon
-                    //         if (isPointInPolygon(points, x, y)) {
-                    //             const index = (y * canvas.width + x) * 4;
-                    //             console.log('data[index + 3]', data[index + 3])
-                    //             // Set the alpha channel to 0 (transparent)
-                    //             data[index + 3] = 0; // Alpha channel
-                    //         }
-                    //     }
+                    // const length = data.length;
+                    // start = Math.max(0, 3000000); // Ensure start is not negative
+                    // end = Math.min(length - 1, 3999999); // Ensure end is within bounds
+                    // for (let i = start; i <= end; i++) {
+                    //     data[i] = 0;
                     // }
+
+                    // console.log('imageData.after', data)
+
+                    // Loop over the image pixels within the bounding box
+                    for (let y = minY; y <= maxY; y++) {
+                        for (let x = minX; x <= maxX; x++) {
+                            // Check if the point is inside the drawn polygon
+                            if (isPointInPolygon(points, x, y)) {
+                                // const index = (y * canvas.width + x) * 4;
+                                const index = (y * img.naturalWidth + x) * 4;
+                                console.log('index', Math.round(index))
+                                console.log('data[index + 3]', data[Math.round(index) + 3])
+                                data[Math.round(index) + 3] = 0; // Alpha channel
+                                // Set the alpha channel to 0 (transparent)
+                                // data[index + 3] = 0; // Alpha channel
+                            }
+                        }
+                    }
 
                     imgElement.remove();
                     ctx.putImageData(imageData, 0, 0); // Put the modified image data back on the canvas
