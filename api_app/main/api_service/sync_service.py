@@ -35,7 +35,6 @@ class Offers:
     def __init__(self, name):
         self.name = name
 
-
     def credentials(self):
         secret = Secret.objects.get(account__name=self.name)
         token = secret.access_token
@@ -248,3 +247,25 @@ class Offers:
             
             except requests.exceptions.HTTPError as err:
                 raise SystemExit(err)
+            
+
+    def delete_(self, request, url, debug_name):
+
+        context = self.credentials()
+        # print('************** SEND_MESSAGE delete_ **************', url)
+
+        try:
+            headers = {
+                'Authorization': f'Bearer {context["token"]}', 
+                'Accept': 'application/vnd.allegro.public.v1+json',
+                'Content-Type': 'application/vnd.allegro.public.v1+json'
+            }
+            json_result = requests.delete(f'{ENVIRONMENT}/{url}', headers=headers)
+            # print('json_result @@@@@@@@@', json_result.status_code)
+            # print('delete_result @@@@@@@@@', json_result)
+            # print(f'@@@@@@@@@ sync_get HEADERS for {debug_name} @@@@@@@@@', json_result.headers)
+
+            return json_result.status_code
+        
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)

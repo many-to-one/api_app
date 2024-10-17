@@ -16,6 +16,8 @@ from .views_folder import accounts_views, orders_views_test, errors_views, gener
 from .ebay.views import *
 
 urlpatterns = [
+
+    # FIRST STEPS AND AUTHENTICATION LOGIC
     path('', index, name='index'),
     path('success/<str:text>', success, name='success'),
     path('add_account', accounts_views.add_account, name='add_account'),
@@ -26,8 +28,9 @@ urlpatterns = [
     path('get_authorization_code', get_authorization_code, name='get_authorization_code'),
     path('get_access_token/<str:authorization_code>/<str:name>/', get_access_token, name='get_access_token'),
     path('get_refresh_token/<str:authorization_code>', get_refresh_token, name='get_refresh_token'),
-    path('post_product', post_product, name='post_product'),
+    path('invalid_token/<str:name>/', errors_views.invalid_token, name='invalid_token'),
 
+    # ORDERS
     path('get_orders/<str:name>/<str:delivery>/<str:status>/<str:client>/<str:fromDate>/<str:toDate>/', orders_views.get_orders, name='get_orders'),
     # path('get_orders_by_client/<str:name>/<str:delivery>/<str:status>/<str:client>/', orders_views_test.get_orders_by_client, name='get_orders_by_client'),
     path('get_order_details/<uuid:id>/<str:name>/', orders_views.get_order_details, name='get_order_details'),
@@ -43,11 +46,15 @@ urlpatterns = [
     path('prepare_get_shipment_status_id/<str:name>/', orders_views.prepare_get_shipment_status_id, name='prepare_get_shipment_status_id'),
     # path('get_shipment_status_id/<str:name>/', orders.get_shipment_status_id, name='get_shipment_status_id'),
 
-    path('invalid_token/<str:name>/', errors_views.invalid_token, name='invalid_token'),
-    path('get_all_offers/<str:name>/', offer_views.get_all_offers, name='get_all_offers'),
+    # SETS
     path('set_offers/<str:name>/', set_offers_views.set_offers, name='set_offers'),
     path('set_add/<str:name>/<str:offer_id>/', set_offers_views.set_add, name='set_add'),
     path('sets_add/<str:name>/<str:offer_id>/', set_offers_views.sets_add, name='sets_add'),
+    path('delete_set/<str:name>/<str:id>/', set_offers_views.delete_set, name='delete_set'),
+
+    # OFFERS
+    path('get_all_offers/<str:name>/', offer_views.get_all_offers, name='get_all_offers'),
+    path('post_product', post_product, name='post_product'),
     path('add_offers/', set_offers_views.add_offers, name='add_offers'),
     path('add_offers_one/', set_offers_views.add_offers_one, name='add_offers_one'),
     path('add_discount/<str:name>/', set_offers_views.add_discount, name='add_discount'),
@@ -60,6 +67,7 @@ urlpatterns = [
     # path('edit_offers_csv/<str:name>/', offer_views.edit_offers_csv, name='edit_offers_csv'),
     path('download_all_offers/<str:name>/', offer_views.download_all_offers, name='download_all_offers'),
 
+    # BULK EDITION
     path('bulk_edit/<str:name>/<str:ed_value>/', bulk_edit_views.bulk_edit, name='bulk_edit'),
     path('PRICE/<str:name>/<str:secret>/<str:offers>/', bulk_edit_views.PRICE, name='PRICE'),
     path('QUANTITY/<str:name>/<str:secret>/<str:offers>/', bulk_edit_views.QUANTITY, name='QUANTITY'),
@@ -68,25 +76,36 @@ urlpatterns = [
     path('JSON_OFFERS/', bulk_edit_views.JSON_OFFERS, name='JSON_OFFERS'),
     path('upload_json_offers/<str:shipping_rates_id>/<str:after_sale_id>/<str:vat>/', offer_views.upload_json_offers, name='upload_json_offers'),
 
+    # MESSAGES
     path('all_messages/<str:name>/', messages.all_messages, name='all_messages'),
     path('get_one_message/', messages.get_one_message, name='get_one_message'),
     path('send_message/', messages.send_message, name='send_message'),
     # path('chatbot_response/', chatbot.chatbot_response, name='chatbot_response'),
 
+    # ALLEGRO OFFERS
     path('offers_listing/<str:name>/', offers_listing.offers_listing, name='offers_listing'),
     path('offers_listing_response/', offers_listing.offers_listing_response, name='offers_listing_response'),
 
-    path('ebay_token/', ebay_token, name='ebay_token'),
-
+    # ADDRESS
     path('add_address/<str:name>/', add_address, name='add_address'),
     path('edit_address/<str:name>/', edit_address, name='edit_address'),
     path('get_address/<str:name>/', get_address, name='get_address'),
 
+    # INVOICES
     path('get_invoice_file/<str:name>/<str:buyer>/', generate_pdf.get_invoice_file, name='get_invoice_file'),
 
+    # RETURNS
     path('get_returns/<str:name>/', returns.get_returns, name='get_returns'),
+
+    # PHOTO EDITOR
     path('photo_editor/', photo_editor.remove_background, name='photo_editor'),
     path('remove_bg/', photo_editor.remove_bg, name='remove_bg'), 
     path('mirror_image/', photo_editor.mirror_image, name='mirror_image'), 
+
+    # PDF CREATOR
     path('pdf_creator/', pdf_creator.pdf_creator, name='pdf_creator'),
+
+
+    # EBAY
+    path('ebay_token/', ebay_token, name='ebay_token'),
 ] 

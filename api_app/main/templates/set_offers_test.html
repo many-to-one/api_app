@@ -146,7 +146,7 @@
                 {% if set.1.0.id == offer.id %}
 
                 <div class="set__offers__line">
-                    <div class="conto">
+                    <div class="conto" id="oneSet_{{ set.0.set_id }}">
                         <div class="conto__column" data-set="{{ set }}" id="setRow">
                             
                                 <img class="set__photo" src="{{offer.primaryImage.url}}" alt="">
@@ -491,10 +491,10 @@
 
         async function deleteSet (setId) {
             console.log('deleteSet ++', setId);
+            var csrftoken = getCSRFToken();
+            var set = document.getElementById('oneSet_' + setId); 
 
-            const resp = await axios.delete(
-                // `https://api.allegro.pl.allegrosandbox.pl/sale/bundles/${setId}`,
-                //backend endpoint
+            const resp = await axios.delete(`/delete_set/${name}/${setId}/`,
                 {
                     headers: {
                         'X-CSRFToken': csrftoken
@@ -503,16 +503,17 @@
             )
             .then(function (response) {    
                 console.log('deleteSet', response)              
-                    // if ( response.data.context.status === 'ok' ) {
-                    //     showMessage(response.data.context.message, 200)
-                    //     setTimeout(reFresh, 1000);
-                    // } else if ( response.data.context.status === '!ok' ) {
-                    //     showMessage(response.data.context.message, 300)
-                    //     setTimeout(reFresh, 1000);
-                    // } else {
-                    //     console.log('postSet', 500);
-                    //     showMessage(response.data.context.message, 500)
-                    // }
+                    if ( response.data.context.status === 'ok' ) {
+                        showMessage(response.data.context.message, 200)
+                        set.remove()
+                        // setTimeout(reFresh, 1000);
+                    } else if ( response.data.context.status === '!ok' ) {
+                        showMessage(response.data.context.message, 300)
+                        // setTimeout(reFresh, 1000);
+                    } else {
+                        console.log('deleteSet', 500);
+                        showMessage(response.data.context.message, 500)
+                    }
                 })
                 .catch(function(error) {
                 // Handle error

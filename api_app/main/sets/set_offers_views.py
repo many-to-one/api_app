@@ -334,10 +334,36 @@ def add_copy_offers_one(request):
     
 
 
-def delete_set(request, id, name):
+def delete_set(request, name, id):
+
+    print("############### delete_set id, name ##################", id, name)
 
     url = f'sale/bundles/{id}'
     debug_name = 'set_offers (all_offers) 15'
-    all_offers = sync_service.Offers(name)
-    # result = all_offers.del(request, url, debug_name)
-    # print("############### all_offers ##################", result)
+    all_sets = sync_service.Offers(name)
+    result = all_sets.delete_(request, url, debug_name)
+    # result = all_offers.de(request, url, debug_name)
+    print("############### delete_set ##################", result)
+
+    # if 'errors' in result[0]:
+    #     context = {
+    #                 'result': result[0]['errors'][0]['userMessage'],
+    #                 'name': name,
+    #                 'message': result[0]['errors'][0]['userMessage'], 
+    #                 'status': 'error'
+    #             }
+    # else:
+    context = {
+                'result': result,
+                'name': name,
+                'message': 'Zestaw(y) usunięto poprawnie',
+                'status': 'ok',
+            }
+
+    return JsonResponse(
+                    {
+                        'message': 'Set(s) deleted successfully',
+                        'context': context,
+                    }, 
+                    status=200,
+                )
