@@ -374,18 +374,25 @@ async def post_copy_offers(request, secret, offers, amount, main_offer):
                 'Content-Type': 'application/vnd.allegro.public.v1+json'
             }
 
-            data = {
-                "offers": offers,
-                "discounts": [                    
-                    {
-                    "marketplace": {              
-                        "id": "allegro-pl"
-                    },
-                    "amount": amount if isinstance(amount, str) else amount['discount'],           
-                    "currency": "PLN"             
-                    }
-                ]
-            }
+            print('############ AMOUNT ##############', amount)
+            if amount['discount'] == '0.00':
+                data = {
+                    "offers": offers,
+                    "discounts": []
+                }
+            else:
+                data = {
+                    "offers": offers,
+                    "discounts": [                    
+                        {
+                        "marketplace": {              
+                            "id": "allegro-pl"
+                        },
+                        "amount": amount if isinstance(amount, str) else amount['discount'],           
+                        "currency": "PLN"             
+                        }
+                    ]
+                }
             product_result = await client.post(url, headers=headers, json=data)
             # print('product_result @@@@@@@@@', product_result)
             result = product_result.json()

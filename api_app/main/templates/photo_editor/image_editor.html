@@ -1548,7 +1548,9 @@
             addCash = false;
             originalImageData = null;
 
-            const resizableContainers = thumbnailArea.querySelectorAll('.resizable');
+            // const resizableContainers = thumbnailArea.querySelectorAll('.resizable');
+            const resizableContainers = Array.from(thumbnailArea.querySelectorAll('.resizable')).slice(1); // because of canvas container for selection inside of thumbnailArea
+
             if (resizableContainers.length === 0) {
                 alert("No images to combine!");
                 return;
@@ -1603,8 +1605,10 @@
             }
 
             // Draw each image on the canvas in the right size and position
+            console.log('resizableContainers', resizableContainers)
             resizableContainers.forEach(container => {
                 const img = container.querySelector('img');
+                console.log('save loop container', container)
                 const left = parseInt(container.style.left) || 0;
                 const top = parseInt(container.style.top) || 0;
 

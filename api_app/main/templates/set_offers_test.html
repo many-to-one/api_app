@@ -120,22 +120,15 @@
 
                         <div class="conto__row">
                             <div class="add__set set__tooltip" onclick="copyGroupSet('{{ offer.id }}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
-                                  <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
-                                </svg>
+                                <img style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="16" alt="">
                                 <span class="tooltip__text">Kopiuj zestawy</span>
                             </div>
                             <div class="add__set set__tooltip">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                                  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
-                                  <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
-                                </svg>
+                                <img style="cursor: pointer;" src="{% static 'icons/delete.svg' %}" width="16" alt="">
                                 <span class="tooltip__text">Usuń zestawy</span>
                             </div>
                             <div class="add__set set__tooltip" onclick="submitGroupCopySet('{{ offer.id }}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-square" viewBox="0 0 16 16">
-                                  <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm8.5 2.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293z"/>
-                                </svg>
+                                <img style="cursor: pointer;" src="{% static 'icons/paste.svg' %}" width="16" alt="">
                                 <span class="tooltip__text">Wklej zestawy</span>
                             </div>
                         </div>
@@ -145,8 +138,8 @@
                 {% for set in sets %}
                 {% if set.1.0.id == offer.id %}
 
-                <div class="set__offers__line">
-                    <div class="conto" id="oneSet_{{ set.0.set_id }}">
+                <div class="set__offers__line" id="oneSet_{{ set.0.set_id }}">
+                    <div class="conto">
                         <div class="conto__column" data-set="{{ set }}" id="setRow">
                             
                                 <img class="set__photo" src="{{offer.primaryImage.url}}" alt="">
@@ -186,19 +179,14 @@
                                     class="add__set set__tooltip" 
                                     onclick="copySet('{{ set|escapejs }}')"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
-                                      <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
-                                    </svg>
+                                    <img style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="16" alt="">
                                     <span class="tooltip__text">Kopiuj zestaw</span>
                                 </div>
                                 <div 
                                     class="add__set set__tooltip"
                                     onclick="deleteSet('{{ set.0.set_id }}')"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                                      <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
-                                      <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
-                                    </svg>
+                                    <img style="cursor: pointer;" src="{% static 'icons/delete.svg' %}" width="16" alt="">
                                     <span class="tooltip__text">Usuń zestaw</span>
                                 </div>
                             </div>
@@ -228,21 +216,15 @@
                     <div class="set__offers__line">
                         <div class="conto__row">
                             <div class="add__set set__tooltip" onclick="setSearch('{{forloop.counter}}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-square" viewBox="0 0 16 16">
-                                  <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
-                                </svg>
+                                <img style="cursor: pointer;" src="{% static 'icons/add.svg' %}" width="16" alt="">
                                 <span class="tooltip__text">Dodaj pojedyńczy zestaw</span>
                             </div>
                             <div class="add__set set__tooltip" onclick="setsAdd('{{forloop.counter}}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
-                                  <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
-                                </svg>
+                                <img style="cursor: pointer;" src="{% static 'icons/multi_add.svg' %}" width="16" alt="">
                                 <span class="tooltip__text">Dodaj multi zestaw</span>
                             </div>
                             <div class="add__set set__tooltip" onclick="submitCopySet('{{ offer.id }}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-square" viewBox="0 0 16 16">
-                                  <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm8.5 2.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293z"/>
-                                </svg>
+                                <img style="cursor: pointer;" src="{% static 'icons/paste.svg' %}" width="16" alt="">
                                 <span class="tooltip__text">Wklej zestaw</span>
                             </div>
                         </div>
@@ -422,16 +404,16 @@
         // LIST WITH COPIED OFFER(S)
         let setContainer = []
         function copySet(set) {
-            console.log('SET', set)
+            // console.log('SET', set)
             let jsonString = set
             .replace(/'/g, '"')  // Replace single quotes with double quotes
             .replace(/True/g, 'true')  // Replace True with true
             .replace(/False/g, 'false');  // Replace False with false        
             console.log(jsonString);
             let array = JSON.parse(jsonString);
-            console.log('SET array',  array);
+            // console.log('SET array',  array);
             setContainer.push(array)
-            console.log('setContainer copy', setContainer)
+            // console.log('setContainer copy', setContainer)
             showMessage('Zestaw został skopiowany do schowka', 200)
         }
 
@@ -440,7 +422,6 @@
         async function submitCopySet(offerId) {
 
             // Create the data object to send to the server
-            console.log('setContainer submit', setContainer)
             const data = {
                 set_id: setContainer[0][0]['set_id'],//['set_id'],
                 main_offer: offerId,
