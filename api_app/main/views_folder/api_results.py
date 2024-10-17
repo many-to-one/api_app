@@ -375,7 +375,12 @@ async def post_copy_offers(request, secret, offers, amount, main_offer):
             }
 
             print('############ AMOUNT ##############', amount)
-            if amount['discount'] == '0.00':
+            if amount == '0.00':
+                data = {
+                    "offers": offers,
+                    "discounts": []
+                }
+            elif amount['discount'] == '0.00':
                 data = {
                     "offers": offers,
                     "discounts": []
