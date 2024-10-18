@@ -152,6 +152,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/esm"></script> 
 
+    <!-- IMAGE COMPRESION -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pica/9.0.1/pica.min.js"></script>
+
+
 
     <script>
         const csrfToken = document.getElementById('csrf-token').getAttribute('data-token');
@@ -1583,26 +1587,41 @@
             let imagesLoaded = 0;
 
             // Helper function to trigger download after all images are drawn
-            function checkAllImagesLoaded() {
-                
-                // let format = null
-                // // const checkboxes = document.querySelectorAll('.form-check-input');
-                // checkboxes.forEach(checkbox => {
-                //     if (checkbox.checked) {
-                //         format = checkbox.value
-                //         // selectedFormats.push(checkbox.value);
-                //     }
-                // })
+            // function checkAllImagesLoaded() {
 
+            //     if (imagesLoaded === resizableContainers.length) {
+            //         combinedCanvas.toBlob(function (blob) {
+            //             const downloadLink = document.createElement('a');
+            //             downloadLink.href = URL.createObjectURL(blob);
+            //             downloadLink.download = `result.${format}`;
+            //             downloadLink.click();
+            //         }, `image/${format}`);
+            //     }
+            // }
+
+            // Helper function to trigger download after all images are drawn
+            function checkAllImagesLoaded() {
                 if (imagesLoaded === resizableContainers.length) {
-                    combinedCanvas.toBlob(function (blob) {
+                    const pica = new Pica();
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = combinedCanvas.width;
+                    tempCanvas.height = combinedCanvas.height;
+
+                    pica.resize(combinedCanvas, tempCanvas, {
+                        quality: 3,
+                        alpha: true
+                    })
+                    .then(() => pica.toBlob(tempCanvas, `image/${format}`, 0.9)) // Use high-quality compression
+                    .then(blob => {
                         const downloadLink = document.createElement('a');
                         downloadLink.href = URL.createObjectURL(blob);
                         downloadLink.download = `result.${format}`;
                         downloadLink.click();
-                    }, `image/${format}`);
+                    })
+                    .catch(error => console.error('Compression error:', error));
                 }
             }
+
 
             // Draw each image on the canvas in the right size and position
             console.log('resizableContainers', resizableContainers)
