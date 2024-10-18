@@ -37,12 +37,13 @@
     flex-direction: column;
     justify-content: flex-start;
     padding: 10px;
+    gap: 40px;
 }
 
 .set__row {
     display: flex;
-    gap: 1%;
-    width: 100%;
+    gap: 2%;
+    overflow-x: scroll;
 }
 
 .set__offers__line {
@@ -50,9 +51,13 @@
     flex-direction: column;
     background-color: var(--light);
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-    width: 12%;
     margin-top: 10px;
     padding: 10px;
+    height: 350px;
+    width: 305px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex-shrink: 0; /* for scroll by x inside set__row container */
 }
 
 .conto {
@@ -63,11 +68,44 @@
 .conto__column {
     display: flex;
     flex-direction: column;
+    margin-top: 30px;
 }
 
 .conto__row {
     display: flex;
+    gap: 5px;
+    padding: 10px;
+    margin-left: -5px;
+    width: 279px;
+    background-color: #e9e6e6;
+}
+
+.set__result {
+    display: flex;
+    justify-content: center;
     gap: 10px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.conto__row input {
+    width: 25px;
+    height: 25px;
+}
+
+.set__price {
+    display: flex;
+    width: 25px;
+    gap: 5px;
+}
+
+.icons__row {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 5px;
+    position: relative;
+    top: -30px;
+    left: 0;
 }
 
 .set__tooltip {
@@ -105,7 +143,8 @@
 }
 
 .discount input {
-    width: 40px;
+    width: 60px;
+    height: 30px;
 }
 
 .so_mini_cont {

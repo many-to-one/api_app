@@ -118,14 +118,14 @@
                             <p>{{ id }}</p>
                         </div>
 
-                        <div class="conto__row">
-                            <div class="add__set set__tooltip" onclick="copyGroupSet('{{ offer.id }}')">
-                                <img style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="16" alt="">
-                                <span class="tooltip__text">Kopiuj zestawy</span>
-                            </div>
+                        <div class="icons__row mt-4">
                             <div class="add__set set__tooltip">
                                 <img style="cursor: pointer;" src="{% static 'icons/delete.svg' %}" width="16" alt="">
                                 <span class="tooltip__text">Usuń zestawy</span>
+                            </div>
+                            <div class="add__set set__tooltip" onclick="copyGroupSet('{{ offer.id }}')">
+                                <img style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="16" alt="">
+                                <span class="tooltip__text">Kopiuj zestawy</span>
                             </div>
                             <div class="add__set set__tooltip" onclick="submitGroupCopySet('{{ offer.id }}')">
                                 <img style="cursor: pointer;" src="{% static 'icons/paste.svg' %}" width="16" alt="">
@@ -142,7 +142,25 @@
                     <div class="conto">
                         <div class="conto__column" data-set="{{ set }}" id="setRow">
 
-                            <img id="offerOneImg_{{ set.0.set_id }}" class="set__photo" src="{{offer.primaryImage.url}}" alt="">
+                            <div class="icons__row">
+                                <div 
+                                    class="add__set set__tooltip"
+                                    onclick="deleteSet('{{ set.0.set_id }}')"
+                                >
+                                    <img style="cursor: pointer;" src="{% static 'icons/delete.svg' %}" width="16" alt="">
+                                    <span class="tooltip__text">Usuń zestaw</span>
+                                </div>
+                                <div 
+                                    class="add__set set__tooltip" 
+                                    onclick="copySet('{{ set|escapejs }}')"
+                                >
+                                    <img style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="16" alt="">
+                                    <span class="tooltip__text">Kopiuj zestaw</span>
+                                </div>
+                            </div>
+
+                            <div class="conto__row bg-primary-subtle" id="offerSetMain">
+                                <img id="offerOneImg_{{ set.0.set_id }}" class="set__photo" src="{{offer.primaryImage.url}}" alt="">
                                 <p id="offerOneName_{{ set.0.set_id }}" class="set__name">{{ offer.name }}</p>
                                 {% for s in set.1|slice:":1" %}
                                     {% for of in result.offers %}
@@ -151,61 +169,64 @@
                                         {% endif %}
                                     {% endfor %}
                                 {% endfor %}
-                                <div class="price__cont">
+                                <div class="set__price">
                                     <p class="set__name" id="{{priceOfferFalse}}_{{set.id}}">{{ offer.sellingMode.price.amount }}</p>
                                     <p class="set__name" id="{{pcurrencyOfferFalse}}_{{set.id}}">{{ offer.sellingMode.price.currency }}</p>
                                 </div>
+                            </div>
+                            <hr>
                             
                                 <!-- <p class="set__name">tutaj: {{ set.0.set_id }}</p> -->
                                 {% for s in set.1|slice:"1:" %}
                                     {% for of in result.offers %}
                                         {% if s.id == of.id %}
-                                            <img class="set__photo" src="{{of.primaryImage.url}}" alt="">
-                                            <p class="set__name">{{ of.name }}</p>
-                                            <label for="">Sztuki:</label>
-                                            <input style="width: 20px;" id="disc__piece_{{ of.id }}" value="{{ s.requiredQuantity }}" type="text" onchange="setCount('{{ of.id }}')">
-                                            <div class="price__cont" >
-                                                <p class="set__name" id="{{priceSetFalse}}_{{of.id}}">{{ of.sellingMode.price.amount }}</p>
-                                                <p class="set__name" id="{{pcurrencySetFalse}}_{{of.id}}">{{ of.sellingMode.price.currency }}</p>
+                                            <div class="conto__row" id="offerSet">
+                                                <img class="set__photo" src="{{of.primaryImage.url}}" alt="">
+                                                <p class="set__name">{{ of.name }}</p>
+                                                <input style="width: 20px;" id="disc__piece_{{ of.id }}" value="{{ s.requiredQuantity }}" type="text" onchange="setCount('{{ of.id }}')">
+                                                <div class="set__price" >
+                                                    <p class="set__name" id="{{priceSetFalse}}_{{of.id}}">{{ of.sellingMode.price.amount }}</p>
+                                                    <p class="set__name" id="{{pcurrencySetFalse}}_{{of.id}}">{{ of.sellingMode.price.currency }}</p>
+                                                </div>
                                             </div>
                                         {% endif %}
                                     {% endfor %}
                                 {% endfor %}
 
+                                <hr>
+
+                                <div class="discount">
+                                    <div class="set__result">
+                                        <div class="d-flex gap-2">
+                                            <p>zł</p>
+                                            <input id="disc__money_{{ set.0.set_id }}" value="{{ set.3.discount }}" type="text">
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <input id="disc__percent_{{ set.0.set_id }}" value="{{ set.5.discount_percentage }}" type="text">
+                                            <p>%</p>
+                                        </div>
+                                    </div>
+                                    <!-- <label for="">Sztuki</label>
+                                    <input id="disc__piece_{{ set.0.set_id }}" value="1" type="text"> -->
+                                    <div class="set__result">
+                                        <div id="disc__price_{{ set.0.set_id }}" value="{{ set.2.price }}">
+                                            <p>Cena do:</p>
+                                            <p class="p-1 ml-2 bg-secondary-subtle text-secondary-emphasis">{{ set.2.price }}</p>
+                                        </div>
+                                        <div>
+                                            <p>Cena po:</p>
+                                            <p id="afterPrice_{{ set.0.set_id }}" class="p-1 ml-2 bg-info text-white">{{ set.4.price_after }}</p>
+                                        </div>
+                                    </div>
+                                    <button class="jsn_start" onclick="submitDiscount('{{ set.0.set_id }}', '{{ set.2.price }}')">Dodaj</button>
+                                </div>
+
                         </div>
-                        <div class="conto__column">
-                            <div class="conto__row">
-                                <div 
-                                    class="add__set set__tooltip" 
-                                    onclick="copySet('{{ set|escapejs }}')"
-                                >
-                                    <img style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="16" alt="">
-                                    <span class="tooltip__text">Kopiuj zestaw</span>
-                                </div>
-                                <div 
-                                    class="add__set set__tooltip"
-                                    onclick="deleteSet('{{ set.0.set_id }}')"
-                                >
-                                    <img style="cursor: pointer;" src="{% static 'icons/delete.svg' %}" width="16" alt="">
-                                    <span class="tooltip__text">Usuń zestaw</span>
-                                </div>
-                            </div>
-                            <div class="discount">
-                                <label for="">Rabat zł</label>
-                                <input id="disc__money_{{ set.0.set_id }}" value="{{ set.3.discount }}" type="text">
-                                <label for="">Rabat %</label>
-                                <input id="disc__percent_{{ set.0.set_id }}" value="{{ set.5.discount_percentage }}" type="text">
-                                <!-- <label for="">Sztuki</label>
-                                <input id="disc__piece_{{ set.0.set_id }}" value="1" type="text"> -->
-                                <div id="disc__price_{{ set.0.set_id }}" value="{{ set.2.price }}">
-                                    <p>Cena do:</p>
-                                    <p>{{ set.2.price }}</p>
-                                </div>
-                                <p>Cena po:</p>
-                                <p id="afterPrice_{{ set.0.set_id }}">{{ set.4.price_after }}</p>
-                                <button class="jsn_start" onclick="submitDiscount('{{ set.0.set_id }}', '{{ set.2.price }}')">Dodaj</button>
-                            </div>
-                        </div>
+
+                        <!-- <div class="conto__column"> -->
+                            
+                            <!-- here Rabat and ... -->
+                        <!-- </div> -->
                     </div>
                 </div>
                 
@@ -214,18 +235,18 @@
 
                 {% if offer.publication.status == 'ACTIVE' %}
                     <div class="set__offers__line">
-                        <div class="conto__row">
-                            <div class="add__set set__tooltip" onclick="setSearch('{{forloop.counter}}')">
-                                <img style="cursor: pointer;" src="{% static 'icons/add.svg' %}" width="16" alt="">
-                                <span class="tooltip__text">Dodaj pojedyńczy zestaw</span>
+                        <div class="icons__row mt-4">
+                            <div class="add__set set__tooltip" onclick="submitCopySet('{{ offer.id }}')">
+                                <img style="cursor: pointer;" src="{% static 'icons/paste.svg' %}" width="16" alt="">
+                                <span class="tooltip__text">Wklej zestaw</span>
                             </div>
                             <div class="add__set set__tooltip" onclick="setsAdd('{{forloop.counter}}')">
                                 <img style="cursor: pointer;" src="{% static 'icons/multi_add.svg' %}" width="16" alt="">
                                 <span class="tooltip__text">Dodaj multi zestaw</span>
                             </div>
-                            <div class="add__set set__tooltip" onclick="submitCopySet('{{ offer.id }}')">
-                                <img style="cursor: pointer;" src="{% static 'icons/paste.svg' %}" width="16" alt="">
-                                <span class="tooltip__text">Wklej zestaw</span>
+                            <div class="add__set set__tooltip" onclick="setSearch('{{forloop.counter}}')">
+                                <img style="cursor: pointer;" src="{% static 'icons/add.svg' %}" width="16" alt="">
+                                <span class="tooltip__text">Dodaj pojedyńczy zestaw</span>
                             </div>
                         </div>
                     </div>
