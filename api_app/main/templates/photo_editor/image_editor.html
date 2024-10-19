@@ -156,7 +156,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pica/9.0.1/pica.min.js"></script>
 
 
-
     <script>
         const csrfToken = document.getElementById('csrf-token').getAttribute('data-token');
         const form = document.getElementById('imageForm');
@@ -1021,16 +1020,16 @@
                             workWithImage (newImgName, dragImg.src)
                         };
 
-                        // thumbnailArea.ondrop = function(event) {
-                        //     event.preventDefault();
-                        //     nameCounter++;
-                        //     const dragImg = document.getElementById(`outputImage${imageName}`);
-                        //     let newImgName = null;
-                        //     newImgName = `${activeImage}_${nameCounter}`;
-                        //     nameCounter++;
+                        thumbnailArea.ondrop = function(event) {
+                            event.preventDefault();
+                            nameCounter++;
+                            const dragImg = document.getElementById(`outputImage${imageName}`);
+                            let newImgName = null;
+                            newImgName = `${activeImage}_${nameCounter}`;
+                            nameCounter++;
 
-                        //     workWithImage (newImgName, dragImg.src)
-                        // };
+                            workWithImage (newImgName, dragImg.src)
+                        };
 
 
                         outputImage.onclick = function () {
@@ -1081,8 +1080,8 @@
                             resizableContainer.style.width = `${resizableCashWidth}px`;  // Initial width
                             resizableContainer.style.height = `${resizableCashHeight}px`; // Initial height
                         } else {
-                            resizableContainer.style.width = '300px';  // Initial width
-                            resizableContainer.style.height = '300px'; // Initial height
+                            resizableContainer.style.width = '300px';  //`${300 * aspectRatio}px`; // Initial width
+                            resizableContainer.style.height = '300px';//`${300 / aspectRatio}px`; // Initial height
                         }
                         
                         resizableContainer.style.zIndex = zIndexCounter++;
@@ -1097,6 +1096,15 @@
                         imgElement.setAttribute('green', 1);
                         imgElement.setAttribute('blue', 1);
                         imgElement.setAttribute('contrast', 0);
+
+                        // Calculate aspect ratio and fit image within the container's size
+                        const originalWidth = imgElement.naturalWidth;
+                        const originalHeight = imgElement.naturalHeight;
+                        const aspectRatio = originalWidth / originalHeight;
+                        console.log('originalWidth x originalHeight', originalWidth, originalHeight)
+                        console.log('aspectRatio', aspectRatio)
+                        console.log('300 / aspectRatio', 300 / aspectRatio)
+                        console.log('imgElement dimensions', imgElement.offsetWidth, imgElement.offsetHeight)
 
                         imgElement.onclick = function () {
 
@@ -1586,41 +1594,49 @@
 
             let imagesLoaded = 0;
 
-            // Helper function to trigger download after all images are drawn
-            // function checkAllImagesLoaded() {
 
-            //     if (imagesLoaded === resizableContainers.length) {
-            //         combinedCanvas.toBlob(function (blob) {
-            //             const downloadLink = document.createElement('a');
-            //             downloadLink.href = URL.createObjectURL(blob);
-            //             downloadLink.download = `result.${format}`;
-            //             downloadLink.click();
-            //         }, `image/${format}`);
-            //     }
-            // }
-
-            // Helper function to trigger download after all images are drawn
             function checkAllImagesLoaded() {
                 if (imagesLoaded === resizableContainers.length) {
-                    const pica = new Pica();
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = combinedCanvas.width;
-                    tempCanvas.height = combinedCanvas.height;
+                    combinedCanvas.toBlob(function (blob) {
+                    const img = new Image();
+                    img.src = URL.createObjectURL(blob);
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Set canvas to desired dimensions
+                        canvas.width = 2560;
+                        canvas.height = 2560;
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-                    pica.resize(combinedCanvas, tempCanvas, {
-                        quality: 3,
-                        alpha: true
-                    })
-                    .then(() => pica.toBlob(tempCanvas, `image/${format}`, 0.9)) // Use high-quality compression
-                    .then(blob => {
+                        let quality = 1.0;
+                        let outputBlob;
+
+                        do {
+                        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                        outputBlob = dataURLToBlob(dataUrl);
+                        quality -= 0.1;
+                        } while (outputBlob.size > 500 * 1024 && quality > 0.1);
+
                         const downloadLink = document.createElement('a');
-                        downloadLink.href = URL.createObjectURL(blob);
+                        downloadLink.href = URL.createObjectURL(outputBlob);
                         downloadLink.download = `result.${format}`;
                         downloadLink.click();
-                    })
-                    .catch(error => console.error('Compression error:', error));
+                    };
+                    }, `image/${format}`);
                 }
-            }
+                }
+
+                function dataURLToBlob(dataURL) {
+                const byteString = atob(dataURL.split(',')[1]);
+                const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+                const ab = new ArrayBuffer(byteString.length);
+                const ia = new Uint8Array(ab);
+                for (let i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+                return new Blob([ab], { type: mimeString });
+                }
 
 
             // Draw each image on the canvas in the right size and position
@@ -1628,8 +1644,12 @@
             resizableContainers.forEach(container => {
                 const img = container.querySelector('img');
                 console.log('save loop container', container)
-                const left = parseInt(container.style.left) || 0;
-                const top = parseInt(container.style.top) || 0;
+                // Centering uploaded image event without moving it
+                const defaultLeft = (container.parentElement.offsetWidth - container.offsetWidth) / 2;
+                const defaultTop = (container.parentElement.offsetHeight - container.offsetHeight) / 2;
+                const left = parseInt(container.style.left) || defaultLeft;
+                const top = parseInt(container.style.top) || defaultTop;
+
 
                 // Create a new image object to ensure it's loaded properly
                 const imgElement = new Image();
@@ -1668,10 +1688,15 @@
                     ctx.drawImage(imgElement, drawX, drawY, scaledWidth, scaledHeight);
 
                     imagesLoaded++;  // Increment the count of loaded images
-                    checkAllImagesLoaded();  // Check if all images are loaded and drawn
+
+                    // Check if all images are loaded and drawn 
+                    // and save with compression to minimal size (> 1MB)
+                    checkAllImagesLoaded();
                 };
-                    });
-                });
+            });
+
+
+        });
     </script>
 
 </body>
