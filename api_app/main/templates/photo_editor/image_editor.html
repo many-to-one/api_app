@@ -1020,16 +1020,16 @@
                             workWithImage (newImgName, dragImg.src)
                         };
 
-                        thumbnailArea.ondrop = function(event) {
-                            event.preventDefault();
-                            nameCounter++;
-                            const dragImg = document.getElementById(`outputImage${imageName}`);
-                            let newImgName = null;
-                            newImgName = `${activeImage}_${nameCounter}`;
-                            nameCounter++;
+                        // thumbnailArea.ondrop = function(event) {
+                        //     event.preventDefault();
+                        //     nameCounter++;
+                        //     const dragImg = document.getElementById(`outputImage${imageName}`);
+                        //     let newImgName = null;
+                        //     newImgName = `${activeImage}_${nameCounter}`;
+                        //     nameCounter++;
 
-                            workWithImage (newImgName, dragImg.src)
-                        };
+                        //     workWithImage (newImgName, dragImg.src)
+                        // };
 
 
                         outputImage.onclick = function () {
