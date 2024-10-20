@@ -18,6 +18,12 @@
         value="{{ sets }}"
     />
 
+    <input 
+        id="offers-data" 
+        style="display:none;"
+        value="{{ result.offers }}"
+    />
+
     <div id="error_13" style="display: none;">
         Nieprawidłowa zawartość EAN
         <button onclick="closeError()">X</button>
@@ -98,8 +104,8 @@
 
         {% for offer in result.offers %}
 
-            <div class="set__row">
-                <div class="set__offers__line" data-title="{{ offer.name }}" data-id="{{ offer.external.id }}">
+            <div class="set__row" id="rowSet_{{ offer.id }}">
+                <div class="set__offers__line" data-title="{{ offer.name }}" data-id="{{ offer.external.id }}" id="mainSetOffer_{{ offer.id }}">
                     <div class="conto">
                         <input 
                             class="labels" 
@@ -111,8 +117,8 @@
                             value="{{ offer.id }}"               
                         >
                         <div class="conto__column">
-                            <img class="set__photo" src="{{offer.primaryImage.url}}" alt="">
-                            <p class="set__name">{{ offer.name }}</p> 
+                            <img class="set__photo" src="{{offer.primaryImage.url}}" id="mainSetOfferImg_{{ offer.id }}" alt="">
+                            <p class="set__name" id="mainSetOfferName_{{ offer.id }}">{{ offer.name }}</p> 
                             <p>{{offer.publication.status}}</p>
                             <p>{{ offer.id }}</p>
                             <p>{{ id }}</p>
@@ -159,7 +165,7 @@
                                 </div>
                             </div>
 
-                            <div class="conto__row bg-primary-subtle" id="offerSetMain">
+                            <div class="conto__row bg-primary-subtle" id="offerSetMain_{{ offer.id }}">
                                 <img id="offerOneImg_{{ set.0.set_id }}" class="set__photo" src="{{offer.primaryImage.url}}" alt="">
                                 <p id="offerOneName_{{ set.0.set_id }}" class="set__name">{{ offer.name }}</p>
                                 {% for s in set.1|slice:":1" %}
@@ -234,7 +240,7 @@
                 {% endfor %}
 
                 {% if offer.publication.status == 'ACTIVE' %}
-                    <div class="set__offers__line">
+                    <div class="set__offers__line" id="lastChild">
                         <div class="icons__row mt-4">
                             <div class="add__set set__tooltip" onclick="submitCopySet('{{ offer.id }}')">
                                 <img style="cursor: pointer;" src="{% static 'icons/paste.svg' %}" width="16" alt="">
@@ -274,6 +280,21 @@
             let array = JSON.parse(jsonString);
             console.log('setsData array',  array);
             setMainContainer.push(array)
+        });
+
+        offersContainer = []
+        document.addEventListener('DOMContentLoaded', function () {
+            var offersData = document.getElementById('offers-data').value;
+            console.log('offersData', offersData)
+            let jsonString = offersData
+            .replace(/'/g, '"')  // Replace single quotes with double quotes
+            .replace(/True/g, 'true')  // Replace True with true
+            .replace(/False/g, 'false')  // Replace False with false   
+            .replace(/None/g, 'null');     
+            console.log(jsonString);
+            let array = JSON.parse(jsonString);
+            console.log('offersContainer array',  array);
+            offersContainer.push(array)
         });
 
 
@@ -454,18 +475,18 @@
                 name: name,
             };
 
-            await addCopyOffers (data)
+            await addCopyOffers (data, offerId)
         }
 
 
-        async function addCopyOffers (data) {
+        async function addCopyOffers (data, offerId) {
 
             var csrftoken = getCSRFToken();
 
             // var setContainer = document.getElementById('oneSet_' + data['set_id']);
             // console.log('setContainer', setContainer);
 
-            // console.log('addCopyOffers in loop', data);
+            console.log('addCopyOffers in loop', data);
 
             await axios.post(`/add_copy_offers_one/`, data, {
                 headers: {
@@ -474,9 +495,10 @@
             })
                 .then(function (response) {                  
                     if ( response.data.context.status === 'ok' ) {
-                        console.log('add_copy_offers_one - ok', response.data.context);
+                        console.log('add_copy_offers_one - ok response', response.data.context);
                         showMessage(response.data.context.message, 200)
-                        createSetData(response.data.context, data);
+                        // createSetData(response.data.context, data);
+                        createElementHTML(response.data.context, data, offerId);
                         // setTimeout(reFresh, 1000);
                     } else if ( response.data.context.status === '!ok' ) {
                         showMessage(response.data.context.message, 300)
@@ -496,7 +518,193 @@
         }
 
 
-        function createSetData (resp, data) {
+
+        function createElementHTML(resp, data, offerId) {
+
+            console.log('setMainContainer', setMainContainer);
+            console.log('data', data);
+
+            var SetOffersContainer = document.getElementById('SetOffersContainer');
+            console.log('resp.result[0].offers', resp.result[0].offers[0].id)
+
+            var mainOfferImg = document.getElementById('mainSetOfferImg_' + offerId);
+            console.log('mainOfferImg', mainOfferImg);
+
+            var mainOfferName = document.getElementById('mainSetOfferName_' + offerId);
+            console.log('mainOfferName', mainOfferName);
+
+            offersContainer[0].map(of => {
+                console.log('******* of ******', of)
+            })
+
+            // const rowSet = document.getElementById(`rowSet_${offerId}`);
+            const rowSet = document.getElementById(`rowSet_${data.main_offer}`);
+            var lastChild = rowSet.lastElementChild;
+
+            const setElement = document.createElement('div');
+            setElement.className = 'set__offers__line';
+            setElement.id = `oneSet_${resp.result[0].offers[0].id}`;
+  
+            setElement.innerHTML = `
+                    <div class="conto">
+                        <div class="conto__column" data-set="{{ 0 }}" id="setRow"> 
+
+                            <div class="icons__row">
+                                <div 
+                                    class="add__set set__tooltip"
+                                    onclick="deleteSet('${resp.result[0].offers}')"
+                                >
+                                    <img style="cursor: pointer;" src="{% static 'icons/delete.svg' %}" width="16" alt="">
+                                    <span class="tooltip__text">Usuń zestaw</span>
+                                </div>
+                                <div 
+                                    class="add__set set__tooltip" 
+                                    onclick="copySet('${resp.result[0].offers}')"
+                                >
+                                    <img style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="16" alt="">
+                                    <span class="tooltip__text">Kopiuj zestaw</span>
+                                </div>
+                            </div>
+
+                            <div class="conto__row bg-primary-subtle" id="offerSetMain_${offerId}">
+                                <img id="offerOneImg_${offerId}" class="set__photo" src="${mainOfferImg.src}" alt="">
+                                <p id="offerOneName_{{ set.0.set_id }}" class="set__name">${mainOfferName.textContent}</p>
+
+                                            <input style="width: 20px;" id="disc__piece_${offerId}" value="{{ s.requiredQuantity }}" type="text" onchange="setCount('{{ offer.id }}')">
+
+                                <div class="set__price">
+                                    <p class="set__name" id="{{priceOfferFalse}}_{{set.id}}">{{ offer.sellingMode.price.amount }}</p>
+                                    <p class="set__name" id="{{pcurrencyOfferFalse}}_{{set.id}}">{{ offer.sellingMode.price.currency }}</p>
+                                </div>
+                            </div>
+                            <hr>
+                            
+                                ${resp.result[0].offers.slice(1).map(of => (
+                                    offersContainer[0].map(offer => offer.id === of.id ? (
+                                            `
+                                            <div class="conto__row" id="offerSet">
+                                                    <img class="set__photo" src="${offer.primaryImage.url}" alt="">
+                                                    <p class="set__name">${offer.name}</p>
+                                                    <input style="width: 20px;" id="disc__piece_${offer.id}" value="${of.requiredQuantity}" type="text" onchange="setCount(${offer.id})">
+                                                    <div class="set__price" >
+                                                        <p class="set__name" id="{{priceSetFalse}}_${offer.id}">{{ of.sellingMode.price.amount }}</p>
+                                                        <p class="set__name" id="{{pcurrencySetFalse}}_${offer.id}">{{ of.sellingMode.price.currency }}</p>
+                                                    </div>
+                                                </div>
+                                            `
+                                        
+                                    ):'')
+                                ))}
+
+                                <hr>
+
+                                <div class="discount">
+                                    <div class="set__result">
+                                        <div class="d-flex gap-2">
+                                            <p>zł</p>
+                                            <input id="disc__money_{{ set.0.set_id }}" value="{{ set.3.discount }}" type="text">
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <input id="disc__percent_{{ set.0.set_id }}" value="{{ set.5.discount_percentage }}" type="text">
+                                            <p>%</p>
+                                        </div>
+                                    </div>
+                                    <!-- <label for="">Sztuki</label>
+                                    <input id="disc__piece_{{ set.0.set_id }}" value="1" type="text"> -->
+                                    <div class="set__result">
+                                        <div id="disc__price_{{ set.0.set_id }}" value="{{ set.2.price }}">
+                                            <p>Cena do:</p>
+                                            <p class="p-1 ml-2 bg-secondary-subtle text-secondary-emphasis">{{ set.2.price }}</p>
+                                        </div>
+                                        <div>
+                                            <p>Cena po:</p>
+                                            <p id="afterPrice_{{ set.0.set_id }}" class="p-1 ml-2 bg-info text-white">{{ set.4.price_after }}</p>
+                                        </div>
+                                    </div>
+                                    <button class="jsn_start" onclick="submitDiscount('{{ set.0.set_id }}', '{{ set.2.price }}')">Dodaj</button>
+                                </div>
+
+                        </div>
+                    </div>
+            `;
+
+            rowSet.insertBefore(setElement, lastChild);
+        }
+
+
+        
+        function createSetData(resp, data) {
+
+            var SetOffersContainer = document.getElementById('SetOffersContainer');
+
+            // Create main container
+            var setContainer = document.createElement('div');
+            setContainer.className = 'set__offers__line';
+            setContainer.id = `oneSet_${resp.result[0].id}`;
+
+            // Create conto container
+            var conto = document.createElement('div');
+            conto.className = 'conto';
+
+            // Create conto column
+            var contoColumn = document.createElement('div');
+            contoColumn.className = 'conto__column';
+            contoColumn.setAttribute('data-set', resp);
+            contoColumn.id = 'setRow';
+
+            // Create icons row
+            var iconsRow = document.createElement('div');
+            iconsRow.className = 'icons__row';
+
+            // Create delete set icon
+            var deleteSetDiv = document.createElement('div');
+            deleteSetDiv.className = 'add__set set__tooltip';
+            deleteSetDiv.setAttribute('onclick', `deleteSet(${resp.result[0].id})`);
+            var deleteSetImg = document.createElement('img');
+            deleteSetImg.style.cursor = 'pointer';
+            deleteSetImg.src = '{% static "icons/delete.svg" %}';
+            deleteSetImg.width = 16;
+            deleteSetImg.alt = '';
+            var deleteSetTooltip = document.createElement('span');
+            deleteSetTooltip.className = 'tooltip__text';
+            deleteSetTooltip.textContent = 'Usuń zestaw';
+            deleteSetDiv.appendChild(deleteSetImg);
+            deleteSetDiv.appendChild(deleteSetTooltip);
+
+            // Create copy set icon
+            var copySetDiv = document.createElement('div');
+            copySetDiv.className = 'add__set set__tooltip';
+            copySetDiv.setAttribute('onclick', `copySet('${resp}')`);
+            var copySetImg = document.createElement('img');
+            copySetImg.style.cursor = 'pointer';
+            copySetImg.src = '{% static "icons/copy.svg" %}';
+            copySetImg.width = 16;
+            copySetImg.alt = '';
+            var copySetTooltip = document.createElement('span');
+            copySetTooltip.className = 'tooltip__text';
+            copySetTooltip.textContent = 'Kopiuj zestaw';
+            copySetDiv.appendChild(copySetImg);
+            copySetDiv.appendChild(copySetTooltip);
+
+            // Append icons to icons row
+            iconsRow.appendChild(deleteSetDiv);
+            iconsRow.appendChild(copySetDiv);
+
+            // Create main offer row
+            var offerSetMain = document.createElement('div');
+            offerSetMain.className = 'conto__row bg-primary-subtle';
+            offerSetMain.id = 'offerSetMain';
+
+            contoColumn.appendChild(iconsRow);
+            contoColumn.appendChild(offerSetMain);
+
+            setContainer.appendChild(contoColumn);
+            SetOffersContainer.appendChild(setContainer);
+        }
+
+
+
+        function createSetData_ (resp, data) {
             var SetOffersContainer = document.getElementById('SetOffersContainer');
 
             var setContainer = document.createElement('div'); 
