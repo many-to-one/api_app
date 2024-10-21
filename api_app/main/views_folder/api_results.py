@@ -358,7 +358,7 @@ async def prepare_post_copy_offers(request, secret, offers, amount, main_offer):
 
 async def post_copy_offers(request, secret, offers, amount, main_offer):
 
-    # print('############ offers offers ##############', offers)
+    print('############ offers offers ##############', offers)
     offers[0]['id'] = f'{main_offer}'
     # print('############ post_copy_offers offers[0] ##############', offers[0]['id'])
     # print(' #########  amount post_cpy_offers ##########', amount)
@@ -375,6 +375,8 @@ async def post_copy_offers(request, secret, offers, amount, main_offer):
             }
 
             print('############ AMOUNT ##############', amount)
+            print(' ######### type AMOUNT ##########', type(amount))
+            print('############ OFFERS ##############', offers)
             if amount == '0.00':
                 data = {
                     "offers": offers,

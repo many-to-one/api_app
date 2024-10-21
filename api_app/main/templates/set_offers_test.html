@@ -121,7 +121,9 @@
                             <p class="set__name" id="mainSetOfferName_{{ offer.id }}">{{ offer.name }}</p> 
                             <p>{{offer.publication.status}}</p>
                             <p>{{ offer.id }}</p>
-                            <p>{{ id }}</p>
+                            <p class="set__name" data-set="{{ offer.sellingMode.price.amount }}" id="mainSetOfferPrice_{{ offer.id }}">
+                                {{ offer.sellingMode.price.amount }} {{ offer.sellingMode.price.currency }}
+                            </p>
                         </div>
 
                         <div class="icons__row mt-4">
@@ -130,8 +132,12 @@
                                 <span class="tooltip__text">Usuń zestawy</span>
                             </div>
                             <div class="add__set set__tooltip" onclick="copyGroupSet('{{ offer.id }}')">
-                                <img style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="16" alt="">
-                                <span class="tooltip__text">Kopiuj zestawy</span>
+                                <img style="cursor: pointer;" src="{% static 'icons/copy_money.png' %}" width="26" alt="">
+                                <span class="tooltip__text">Kopiuj zestawy $</span>
+                            </div>
+                            <div class="add__set set__tooltip" onclick="copyGroupSet('{{ offer.id }}')">
+                                <img style="cursor: pointer;" src="{% static 'icons/copy_percentage.png' %}" width="26" alt="">
+                                <span class="tooltip__text">Kopiuj zestawy %</span>
                             </div>
                             <div class="add__set set__tooltip" onclick="submitGroupCopySet('{{ offer.id }}')">
                                 <img style="cursor: pointer;" src="{% static 'icons/paste.svg' %}" width="16" alt="">
@@ -160,8 +166,15 @@
                                     class="add__set set__tooltip" 
                                     onclick="copySet('{{ set|escapejs }}')"
                                 >
-                                    <img style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="16" alt="">
-                                    <span class="tooltip__text">Kopiuj zestaw</span>
+                                    <img style="cursor: pointer;" src="{% static 'icons/copy_money.png' %}" width="26" alt="">
+                                    <span class="tooltip__text">Kopiuj zestaw $</span>
+                                </div>
+                                <div 
+                                    class="add__set set__tooltip" 
+                                    onclick="copySet('{{ set|escapejs }}')"
+                                >
+                                    <img style="cursor: pointer;" src="{% static 'icons/copy_percentage.png' %}" width="26" alt="">
+                                    <span class="tooltip__text">Kopiuj zestaw %</span>
                                 </div>
                             </div>
 
@@ -463,10 +476,25 @@
         // SUBMIT DISCOUNT
         async function submitCopySet(offerId) {
 
+            var sumValue = null;
+
+            var mainOfferPrice = document.getElementById('mainSetOfferPrice_' + offerId).getAttribute('data-set');
+            // console.log('mainOfferPrice for forEach', parseFloat(mainOfferPrice));
+            sumValue = parseFloat(mainOfferPrice);
+
+            // GET SUM OF COPIED SET OFFER(S) WITH THE NEW MAIN OFFER
+            setContainer[0][1].slice(1).forEach(of => {
+                var setOffersPrice = document.getElementById('mainSetOfferPrice_' + of['id']).getAttribute('data-set');
+                // console.log('setOffersPrice in data', setOffersPrice)
+                sumValue += parseFloat(setOffersPrice)
+                // console.log('sumValue in data', sumValue)
+            })
+
             // Create the data object to send to the server
             const data = {
                 set_id: setContainer[0][0]['set_id'],//['set_id'],
                 main_offer: offerId,
+                main_offer_price: sumValue,
                 disc__money: setContainer[0][3] || null,
                 disc__percent: setContainer[0][5] || null,
                 count_array: setContainer[0][1] || null,
@@ -531,13 +559,40 @@
             console.log('mainOfferImg', mainOfferImg);
 
             var mainOfferName = document.getElementById('mainSetOfferName_' + offerId);
-            console.log('mainOfferName', mainOfferName);
+            console.log('mainOfferName', mainOfferName); //mainSetOfferPrice_
 
-            offersContainer[0].map(of => {
-                console.log('******* of ******', of)
-            })
+            var mainOfferPrice = document.getElementById('mainSetOfferPrice_' + offerId);
 
-            // const rowSet = document.getElementById(`rowSet_${offerId}`);
+            // offersContainer[0].map(of => {
+            //     console.log('******* of ******', of)
+            // })
+
+            var priceBefore = 0;
+            var priceAfter = 0;
+            var perVal = 0;
+
+            resp.result[0].offers.forEach(of => {
+                offersContainer[0].forEach(offer => {
+                    if (offer.id === of.id) {
+                        // Summing the price amount for matching offers
+                        priceBefore += parseFloat(offer.sellingMode.price.amount);
+                        console.log('offer.sellingMode.price.amount', offer.sellingMode.price.amount)
+                    }
+                });
+            });
+
+            if ( data.disc__percent.discount_percentage === '0.00') {
+                priceAfter = priceBefore - parseFloat(data.disc__money.discount);
+                console.log('% === 0.00', priceAfter)
+            } else {
+                perVal = priceBefore / 100 * parseFloat(data.disc__percent.discount_percentage);
+                priceAfter = priceBefore - perVal;
+                console.log('% === yes priceBefore', priceBefore)
+                console.log('% === yes perVal', perVal)
+                console.log('% === yes', priceAfter)
+            }
+
+            
             const rowSet = document.getElementById(`rowSet_${data.main_offer}`);
             var lastChild = rowSet.lastElementChild;
 
@@ -561,7 +616,14 @@
                                     class="add__set set__tooltip" 
                                     onclick="copySet('${resp.result[0].offers}')"
                                 >
-                                    <img style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="16" alt="">
+                                    <img style="cursor: pointer;" src="{% static 'icons/copy_percentage.png' %}" width="26" alt="">
+                                    <span class="tooltip__text">Kopiuj zestaw</span>
+                                </div>
+                                <div 
+                                    class="add__set set__tooltip" 
+                                    onclick="copySet('${resp.result[0].offers}')"
+                                >
+                                    <img style="cursor: pointer;" src="{% static 'icons/copy_money.png' %}" width="26" alt="">
                                     <span class="tooltip__text">Kopiuj zestaw</span>
                                 </div>
                             </div>
@@ -570,10 +632,10 @@
                                 <img id="offerOneImg_${offerId}" class="set__photo" src="${mainOfferImg.src}" alt="">
                                 <p id="offerOneName_{{ set.0.set_id }}" class="set__name">${mainOfferName.textContent}</p>
 
-                                            <input style="width: 20px;" id="disc__piece_${offerId}" value="{{ s.requiredQuantity }}" type="text" onchange="setCount('{{ offer.id }}')">
+                                            <input style="width: 20px;" id="disc__piece_${offerId}" value="${data.count_array[0].requiredQuantity}" type="text" onchange="setCount(${offerId})">
 
                                 <div class="set__price">
-                                    <p class="set__name" id="{{priceOfferFalse}}_{{set.id}}">{{ offer.sellingMode.price.amount }}</p>
+                                    <p class="set__name" id="{{priceOfferFalse}}_{{set.id}}">${mainOfferPrice.textContent}</p>
                                     <p class="set__name" id="{{pcurrencyOfferFalse}}_{{set.id}}">{{ offer.sellingMode.price.currency }}</p>
                                 </div>
                             </div>
@@ -587,13 +649,13 @@
                                                     <p class="set__name">${offer.name}</p>
                                                     <input style="width: 20px;" id="disc__piece_${offer.id}" value="${of.requiredQuantity}" type="text" onchange="setCount(${offer.id})">
                                                     <div class="set__price" >
-                                                        <p class="set__name" id="{{priceSetFalse}}_${offer.id}">{{ of.sellingMode.price.amount }}</p>
-                                                        <p class="set__name" id="{{pcurrencySetFalse}}_${offer.id}">{{ of.sellingMode.price.currency }}</p>
+                                                        <p class="set__name" id="{{priceSetFalse}}_${offer.id}">${ offer.sellingMode.price.amount }</p>
+                                                        <p class="set__name" id="{{pcurrencySetFalse}}_${offer.id}">${ offer.sellingMode.price.currency }</p>
                                                     </div>
                                                 </div>
                                             `
                                         
-                                    ):'')
+                                    ):'-')
                                 ))}
 
                                 <hr>
@@ -602,10 +664,10 @@
                                     <div class="set__result">
                                         <div class="d-flex gap-2">
                                             <p>zł</p>
-                                            <input id="disc__money_{{ set.0.set_id }}" value="{{ set.3.discount }}" type="text">
+                                            <input id="disc__money_{{ set.0.set_id }}" value="${perVal}" type="text">
                                         </div>
                                         <div class="d-flex gap-2">
-                                            <input id="disc__percent_{{ set.0.set_id }}" value="{{ set.5.discount_percentage }}" type="text">
+                                            <input id="disc__percent_{{ set.0.set_id }}" value="${data.disc__percent.discount_percentage}" type="text">
                                             <p>%</p>
                                         </div>
                                     </div>
@@ -614,11 +676,11 @@
                                     <div class="set__result">
                                         <div id="disc__price_{{ set.0.set_id }}" value="{{ set.2.price }}">
                                             <p>Cena do:</p>
-                                            <p class="p-1 ml-2 bg-secondary-subtle text-secondary-emphasis">{{ set.2.price }}</p>
+                                            <p class="p-1 ml-2 bg-secondary-subtle text-secondary-emphasis">${priceBefore}</p>
                                         </div>
                                         <div>
                                             <p>Cena po:</p>
-                                            <p id="afterPrice_{{ set.0.set_id }}" class="p-1 ml-2 bg-info text-white">{{ set.4.price_after }}</p>
+                                            <p id="afterPrice_{{ set.0.set_id }}" class="p-1 ml-2 bg-info text-white">${priceAfter}</p>
                                         </div>
                                     </div>
                                     <button class="jsn_start" onclick="submitDiscount('{{ set.0.set_id }}', '{{ set.2.price }}')">Dodaj</button>

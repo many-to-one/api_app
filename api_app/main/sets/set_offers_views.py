@@ -288,16 +288,24 @@ def add_copy_offers_one(request):
         print('********** add_copy_offers_one *************', data)
         name = data['name']
         offers = data['count_array']
-        amount = data['disc__money']
+        if data['disc__percent']['discount_percentage'] == '0.00':
+            amount = data['disc__money']
+        else:
+            percen_val = float(data['main_offer_price']) / 100 * float(data['disc__percent']['discount_percentage'])
+            # amount = float(data['main_offer_price']) - percen_val
+            amount = {'discount': f'{round(percen_val, 2)}'}
+            print(' ######### percen_val ##########', percen_val)
+            print(' ######### new amount ##########', amount)
+
         # amount = float(amount_)
         print(' ######### amount ##########', amount)
-        print(' ######### type amount ##########', type(amount))
+        # print(' ######### type amount ##########', type(amount))
         main_offer = data['main_offer']
         # for offer in offers:
         #     print(' ######### res ##########', offer)
         secret = Secret.objects.get(account__name=name)
         res = post_copy_offers_api(request, secret, offers, amount, main_offer)
-        print(' ######### secret ##########', secret)
+        # print(' ######### secret ##########', secret)
 
         if 'errors' in res[0]:
             print(' ######### res errors ##########', res[0]['errors'][0]['userMessage'])
