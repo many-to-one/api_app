@@ -164,14 +164,14 @@
                                 </div>
                                 <div 
                                     class="add__set set__tooltip" 
-                                    onclick="copySet('{{ set|escapejs }}')"
+                                    onclick="copySet('{{ set|escapejs }}', 'copy_money')"
                                 >
                                     <img style="cursor: pointer;" src="{% static 'icons/copy_money.png' %}" width="26" alt="">
                                     <span class="tooltip__text">Kopiuj zestaw $</span>
                                 </div>
                                 <div 
                                     class="add__set set__tooltip" 
-                                    onclick="copySet('{{ set|escapejs }}')"
+                                    onclick="copySet('{{ set|escapejs }}', 'copy_percentage')"
                                 >
                                     <img style="cursor: pointer;" src="{% static 'icons/copy_percentage.png' %}" width="26" alt="">
                                     <span class="tooltip__text">Kopiuj zestaw %</span>
@@ -218,10 +218,10 @@
                                     <div class="set__result">
                                         <div class="d-flex gap-2">
                                             <p>zł</p>
-                                            <input id="disc__money_{{ set.0.set_id }}" value="{{ set.3.discount }}" type="text">
+                                            <input data-set="disc__money" onchange="editTypeChange('disc__money', event)" id="disc__money_{{ set.0.set_id }}" value="{{ set.3.discount }}" type="text">
                                         </div>
                                         <div class="d-flex gap-2">
-                                            <input id="disc__percent_{{ set.0.set_id }}" value="{{ set.5.discount_percentage }}" type="text">
+                                            <input data-set="disc__percent" onchange="editTypeChange('disc__percent', event)" id="disc__percent_{{ set.0.set_id }}" value="{{ set.5.discount_percentage }}" type="text">
                                             <p>%</p>
                                         </div>
                                     </div>
@@ -230,7 +230,7 @@
                                     <div class="set__result">
                                         <div id="disc__price_{{ set.0.set_id }}" value="{{ set.2.price }}">
                                             <p>Cena do:</p>
-                                            <p class="p-1 ml-2 bg-secondary-subtle text-secondary-emphasis">{{ set.2.price }}</p>
+                                            <p id="beforePrice_{{ set.0.set_id }}" class="p-1 ml-2 bg-secondary-subtle text-secondary-emphasis">{{ set.2.price }}</p>
                                         </div>
                                         <div>
                                             <p>Cena po:</p>
@@ -390,14 +390,32 @@
             console.log('countArray:', countArray);
         }
 
+
+        let editType = null;
+        function editTypeChange(type, event) {
+
+            editType = type;
+            // // Get the input element that triggered the event
+            // const inputElement = event.target;
+
+            // // Get the new value of the input
+            // const newValue = inputElement.value;
+            
+
+            // // Perform your logic based on the type and new value
+            // console.log(`Type: ${type}, New Value: ${newValue}`);
+        }
+
         // SUBMIT DISCOUNT
         function submitDiscount(set_id, price) {
 
-            console.log('set_id:', set_id);
-            console.log('price:', price);
+            // console.log('set_id:', set_id);
+            // console.log('price:', price);
+            console.log('submitDiscount type:', editType);
             var csrftoken = getCSRFToken();
             let discMoney = parseFloat(document.getElementById('disc__money_' + set_id).value);
             const discPercent = parseFloat(document.getElementById('disc__percent_' + set_id).value);
+            const discPercenElem = document.getElementById('disc__percent_' + set_id);
             // const discPiece = parseInt(document.getElementById('disc__piece_' + set_id).value);
             const discPrice = parseInt(document.getElementById('disc__price_' + set_id).value);
 
@@ -406,17 +424,24 @@
 
             let priceAfter;
 
-             if (discPercent !== 0) {
+             if (discPercent !== 0 && editType === 'disc__percent') {
+                const beforePrice = document.getElementById('beforePrice_' + set_id).textContent;
                 priceAfter = (parseFloat(price) * discPercent) / 100 ; 
                 discMoney = priceAfter
                 console.log('priceAfter %:', priceAfter, discMoney);
                 const afterPrice = document.getElementById('afterPrice_' + set_id);
-                afterPrice.textContent = priceAfter.toFixed(2);
-            } if (discMoney !== 0) {
+                afterPrice.textContent = priceAfter;
+            } if (discMoney !== 0 && editType === 'disc__money') {
+                const beforePrice = document.getElementById('beforePrice_' + set_id).textContent;
+                var percent = discMoney / (parseFloat(beforePrice) / 100)
                 priceAfter = parseFloat(price) - discMoney;
                 console.log('priceAfter:', priceAfter);
+                console.log('disc__money percent:', percent.toFixed(2));
+                var percentAfter = percent.toFixed(2);
                 const afterPrice = document.getElementById('afterPrice_' + set_id);
-                afterPrice.textContent = priceAfter.toFixed(2);
+                afterPrice.textContent = priceAfter;
+                // discPercenElem.setAttribute('value', percentAfter) //priceAfter.toFixed(2);
+                discPercenElem.value = percentAfter;
             }
 
             console.log('discMoney data:', discMoney);
@@ -429,6 +454,7 @@
                 // disc__piece: discPiece || 1,
                 count_array: countArray || null,
                 disc__price: parseFloat(price)|| null, 
+                edit_type: editType,
             };
 
             console.log('data:', data);
@@ -458,8 +484,11 @@
 
         // LIST WITH COPIED OFFER(S)
         let setContainer = []
-        function copySet(set) {
-            // console.log('SET', set)
+        let copyValue = null;
+        function copySet(set, val) {
+            // console.log('copySet val', val)
+            copyValue = val;
+            console.log('copyValue', copyValue)
             let jsonString = set
             .replace(/'/g, '"')  // Replace single quotes with double quotes
             .replace(/True/g, 'true')  // Replace True with true
@@ -501,6 +530,7 @@
                 disc__price: parseFloat(setContainer[0][2])|| 0, 
                 price__after: setContainer[0][4],
                 name: name,
+                copy_type: copyValue
             };
 
             await addCopyOffers (data, offerId)
@@ -570,6 +600,7 @@
             var priceBefore = 0;
             var priceAfter = 0;
             var perVal = 0;
+            var percent = 0;
 
             resp.result[0].offers.forEach(of => {
                 offersContainer[0].forEach(offer => {
@@ -581,12 +612,18 @@
                 });
             });
 
-            if ( data.disc__percent.discount_percentage === '0.00') {
+            if ( data.disc__percent.discount_percentage === '0.00' || copyValue === 'copy_money') {
                 priceAfter = priceBefore - parseFloat(data.disc__money.discount);
-                console.log('% === 0.00', priceAfter)
+                perVal = priceBefore - priceAfter;
+                percent = perVal / (priceBefore / 100);
+                console.log('copy_money priceAfter', priceAfter)
+                console.log('copy_money priceBefore', priceBefore)
+                console.log('copy_money perVal', perVal)
+                console.log('copy_money percent', percent)
             } else {
                 perVal = priceBefore / 100 * parseFloat(data.disc__percent.discount_percentage);
                 priceAfter = priceBefore - perVal;
+                percent = parseFloat(data.disc__percent.discount_percentage);
                 console.log('% === yes priceBefore', priceBefore)
                 console.log('% === yes perVal', perVal)
                 console.log('% === yes', priceAfter)
@@ -664,10 +701,10 @@
                                     <div class="set__result">
                                         <div class="d-flex gap-2">
                                             <p>zł</p>
-                                            <input id="disc__money_{{ set.0.set_id }}" value="${perVal}" type="text">
+                                            <input id="disc__money_{{ set.0.set_id }}" value="${perVal.toFixed(2)}" type="text">
                                         </div>
                                         <div class="d-flex gap-2">
-                                            <input id="disc__percent_{{ set.0.set_id }}" value="${data.disc__percent.discount_percentage}" type="text">
+                                            <input id="disc__percent_{{ set.0.set_id }}" value="${percent.toFixed(2)}" type="text">
                                             <p>%</p>
                                         </div>
                                     </div>

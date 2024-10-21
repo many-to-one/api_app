@@ -254,6 +254,7 @@ def add_discount(request, name):
         # disc__piece = data['disc__piece']
         count_array = data['count_array']
         disc__price = data['disc__price']
+        print('**** EDIT data ****', data)
 
         res = get_set(request, name, secret, set_id)
         for offer in count_array:
@@ -288,8 +289,9 @@ def add_copy_offers_one(request):
         print('********** add_copy_offers_one *************', data)
         name = data['name']
         offers = data['count_array']
-        if data['disc__percent']['discount_percentage'] == '0.00':
+        if data['disc__percent']['discount_percentage'] == '0.00' or data['copy_type'] == 'copy_money':
             amount = data['disc__money']
+            print(' ######### copy_money amount ##########', amount)
         else:
             percen_val = float(data['main_offer_price']) / 100 * float(data['disc__percent']['discount_percentage'])
             # amount = float(data['main_offer_price']) - percen_val
