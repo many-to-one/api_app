@@ -406,31 +406,32 @@
             // console.log(`Type: ${type}, New Value: ${newValue}`);
         }
 
-        // SUBMIT DISCOUNT
+        // SUBMIT DISCOUNT - edit the money or % discount
         function submitDiscount(set_id, price) {
 
-            // console.log('set_id:', set_id);
-            // console.log('price:', price);
             console.log('submitDiscount type:', editType);
             var csrftoken = getCSRFToken();
             let discMoney = parseFloat(document.getElementById('disc__money_' + set_id).value);
+            const discMoneyElem = document.getElementById('disc__money_' + set_id);
             const discPercent = parseFloat(document.getElementById('disc__percent_' + set_id).value);
             const discPercenElem = document.getElementById('disc__percent_' + set_id);
-            // const discPiece = parseInt(document.getElementById('disc__piece_' + set_id).value);
             const discPrice = parseInt(document.getElementById('disc__price_' + set_id).value);
 
-            console.log('discMoney:', discMoney);
-            console.log('discPercent:', discPercent);
+            // console.log('discMoney:', discMoney);
+            // console.log('discPercent:', discPercent);
 
             let priceAfter;
 
              if (discPercent !== 0 && editType === 'disc__percent') {
                 const beforePrice = document.getElementById('beforePrice_' + set_id).textContent;
-                priceAfter = (parseFloat(price) * discPercent) / 100 ; 
-                discMoney = priceAfter
-                console.log('priceAfter %:', priceAfter, discMoney);
+                moneyDisc = (parseFloat(price) * discPercent) / 100 ; 
+                discMoney = moneyDisc
+                perVal = moneyDisc
+                priceAfter = parseFloat(beforePrice) - moneyDisc;
+                console.log('priceAfter %:', priceAfter, moneyDisc);
                 const afterPrice = document.getElementById('afterPrice_' + set_id);
                 afterPrice.textContent = priceAfter;
+                discMoneyElem.value = moneyDisc;
             } if (discMoney !== 0 && editType === 'disc__money') {
                 const beforePrice = document.getElementById('beforePrice_' + set_id).textContent;
                 var percent = discMoney / (parseFloat(beforePrice) / 100)
@@ -599,8 +600,8 @@
 
             var priceBefore = 0;
             var priceAfter = 0;
-            var perVal = 0;
             var percent = 0;
+            var perVal = 0;
 
             resp.result[0].offers.forEach(of => {
                 offersContainer[0].forEach(offer => {
@@ -629,7 +630,7 @@
                 console.log('% === yes', priceAfter)
             }
 
-            
+
             const rowSet = document.getElementById(`rowSet_${data.main_offer}`);
             var lastChild = rowSet.lastElementChild;
 
@@ -732,105 +733,105 @@
 
 
         
-        function createSetData(resp, data) {
+        // function createSetData(resp, data) {
 
-            var SetOffersContainer = document.getElementById('SetOffersContainer');
+        //     var SetOffersContainer = document.getElementById('SetOffersContainer');
 
-            // Create main container
-            var setContainer = document.createElement('div');
-            setContainer.className = 'set__offers__line';
-            setContainer.id = `oneSet_${resp.result[0].id}`;
+        //     // Create main container
+        //     var setContainer = document.createElement('div');
+        //     setContainer.className = 'set__offers__line';
+        //     setContainer.id = `oneSet_${resp.result[0].id}`;
 
-            // Create conto container
-            var conto = document.createElement('div');
-            conto.className = 'conto';
+        //     // Create conto container
+        //     var conto = document.createElement('div');
+        //     conto.className = 'conto';
 
-            // Create conto column
-            var contoColumn = document.createElement('div');
-            contoColumn.className = 'conto__column';
-            contoColumn.setAttribute('data-set', resp);
-            contoColumn.id = 'setRow';
+        //     // Create conto column
+        //     var contoColumn = document.createElement('div');
+        //     contoColumn.className = 'conto__column';
+        //     contoColumn.setAttribute('data-set', resp);
+        //     contoColumn.id = 'setRow';
 
-            // Create icons row
-            var iconsRow = document.createElement('div');
-            iconsRow.className = 'icons__row';
+        //     // Create icons row
+        //     var iconsRow = document.createElement('div');
+        //     iconsRow.className = 'icons__row';
 
-            // Create delete set icon
-            var deleteSetDiv = document.createElement('div');
-            deleteSetDiv.className = 'add__set set__tooltip';
-            deleteSetDiv.setAttribute('onclick', `deleteSet(${resp.result[0].id})`);
-            var deleteSetImg = document.createElement('img');
-            deleteSetImg.style.cursor = 'pointer';
-            deleteSetImg.src = '{% static "icons/delete.svg" %}';
-            deleteSetImg.width = 16;
-            deleteSetImg.alt = '';
-            var deleteSetTooltip = document.createElement('span');
-            deleteSetTooltip.className = 'tooltip__text';
-            deleteSetTooltip.textContent = 'Usuń zestaw';
-            deleteSetDiv.appendChild(deleteSetImg);
-            deleteSetDiv.appendChild(deleteSetTooltip);
+        //     // Create delete set icon
+        //     var deleteSetDiv = document.createElement('div');
+        //     deleteSetDiv.className = 'add__set set__tooltip';
+        //     deleteSetDiv.setAttribute('onclick', `deleteSet(${resp.result[0].id})`);
+        //     var deleteSetImg = document.createElement('img');
+        //     deleteSetImg.style.cursor = 'pointer';
+        //     deleteSetImg.src = '{% static "icons/delete.svg" %}';
+        //     deleteSetImg.width = 16;
+        //     deleteSetImg.alt = '';
+        //     var deleteSetTooltip = document.createElement('span');
+        //     deleteSetTooltip.className = 'tooltip__text';
+        //     deleteSetTooltip.textContent = 'Usuń zestaw';
+        //     deleteSetDiv.appendChild(deleteSetImg);
+        //     deleteSetDiv.appendChild(deleteSetTooltip);
 
-            // Create copy set icon
-            var copySetDiv = document.createElement('div');
-            copySetDiv.className = 'add__set set__tooltip';
-            copySetDiv.setAttribute('onclick', `copySet('${resp}')`);
-            var copySetImg = document.createElement('img');
-            copySetImg.style.cursor = 'pointer';
-            copySetImg.src = '{% static "icons/copy.svg" %}';
-            copySetImg.width = 16;
-            copySetImg.alt = '';
-            var copySetTooltip = document.createElement('span');
-            copySetTooltip.className = 'tooltip__text';
-            copySetTooltip.textContent = 'Kopiuj zestaw';
-            copySetDiv.appendChild(copySetImg);
-            copySetDiv.appendChild(copySetTooltip);
+        //     // Create copy set icon
+        //     var copySetDiv = document.createElement('div');
+        //     copySetDiv.className = 'add__set set__tooltip';
+        //     copySetDiv.setAttribute('onclick', `copySet('${resp}')`);
+        //     var copySetImg = document.createElement('img');
+        //     copySetImg.style.cursor = 'pointer';
+        //     copySetImg.src = '{% static "icons/copy.svg" %}';
+        //     copySetImg.width = 16;
+        //     copySetImg.alt = '';
+        //     var copySetTooltip = document.createElement('span');
+        //     copySetTooltip.className = 'tooltip__text';
+        //     copySetTooltip.textContent = 'Kopiuj zestaw';
+        //     copySetDiv.appendChild(copySetImg);
+        //     copySetDiv.appendChild(copySetTooltip);
 
-            // Append icons to icons row
-            iconsRow.appendChild(deleteSetDiv);
-            iconsRow.appendChild(copySetDiv);
+        //     // Append icons to icons row
+        //     iconsRow.appendChild(deleteSetDiv);
+        //     iconsRow.appendChild(copySetDiv);
 
-            // Create main offer row
-            var offerSetMain = document.createElement('div');
-            offerSetMain.className = 'conto__row bg-primary-subtle';
-            offerSetMain.id = 'offerSetMain';
+        //     // Create main offer row
+        //     var offerSetMain = document.createElement('div');
+        //     offerSetMain.className = 'conto__row bg-primary-subtle';
+        //     offerSetMain.id = 'offerSetMain';
 
-            contoColumn.appendChild(iconsRow);
-            contoColumn.appendChild(offerSetMain);
+        //     contoColumn.appendChild(iconsRow);
+        //     contoColumn.appendChild(offerSetMain);
 
-            setContainer.appendChild(contoColumn);
-            SetOffersContainer.appendChild(setContainer);
-        }
+        //     setContainer.appendChild(contoColumn);
+        //     SetOffersContainer.appendChild(setContainer);
+        // }
 
 
 
-        function createSetData_ (resp, data) {
-            var SetOffersContainer = document.getElementById('SetOffersContainer');
+        // function createSetData_ (resp, data) {
+        //     var SetOffersContainer = document.getElementById('SetOffersContainer');
 
-            var setContainer = document.createElement('div'); 
-            setContainer.className = 'set__offers__line';
-            setContainer.id = `oneSet_${resp.result[0].id}`;
+        //     var setContainer = document.createElement('div'); 
+        //     setContainer.className = 'set__offers__line';
+        //     setContainer.id = `oneSet_${resp.result[0].id}`;
 
-            var conto = document.createElement('div'); 
-            conto.className = 'conto';
+        //     var conto = document.createElement('div'); 
+        //     conto.className = 'conto';
 
-            var conto__column = document.createElement('div'); 
-            conto__column.className = 'conto__column';
-            conto__column.id = 'setRow';
-            conto__column.dataset = resp;
+        //     var conto__column = document.createElement('div'); 
+        //     conto__column.className = 'conto__column';
+        //     conto__column.id = 'setRow';
+        //     conto__column.dataset = resp;
 
-            var mainOfferImg = document.getElementById('offerOneImg_' + data['set_id']);
-            var mainOfferOneName = document.getElementById('offerOneName' + data['set_id']);
+        //     var mainOfferImg = document.getElementById('offerOneImg_' + data['set_id']);
+        //     var mainOfferOneName = document.getElementById('offerOneName' + data['set_id']);
             
-            var offerOneImg = document.createElement('img');
-            offerOneImg.id = `offerOneImg_${resp.result[0].id}`;
-            offerOneImg.src = mainOfferImg.src;
-            // console.log('setContainer.id', setContainer);
+        //     var offerOneImg = document.createElement('img');
+        //     offerOneImg.id = `offerOneImg_${resp.result[0].id}`;
+        //     offerOneImg.src = mainOfferImg.src;
+        //     // console.log('setContainer.id', setContainer);
 
-            conto__column.appendChild(offerOneImg);
-            conto.appendChild(conto__column);
-            setContainer.appendChild(conto);
-            SetOffersContainer.appendChild(setContainer);
-        }
+        //     conto__column.appendChild(offerOneImg);
+        //     conto.appendChild(conto__column);
+        //     setContainer.appendChild(conto);
+        //     SetOffersContainer.appendChild(setContainer);
+        // }
 
 
         async function deleteSet (setId) {
