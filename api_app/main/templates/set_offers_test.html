@@ -24,16 +24,6 @@
         value="{{ result.offers }}"
     />
 
-    <div id="error_13" style="display: none;">
-        Nieprawidłowa zawartość EAN
-        <button onclick="closeError()">X</button>
-    </div>
-
-    <div id="error" style="display: none;">
-        Wystąpił błąd, skontaktuj się z właścicielem aplikacji
-        <button onclick="closeError()">X</button>
-    </div>
-
     <div id="loadIcon" style="display: none;">
         <img class="icon loading" src="{% static 'icons/load.png' %}" alt="">
     </div>
@@ -41,50 +31,14 @@
         <div class="list__header_orders">
             <p class="print" id="name" >{{name}}</p>
             <input class="check_o labels" type="button" id="check-all-button">
-            <select class="edit_h var_select order" id="status_select" onchange="bulkEdit()">
+            <select class="edit_h var_select order" id="action_select" onchange="bulkEdit()">
                 <option selected disabled value=" ">Edytuj...</option>
-                <option value="PRICE">Cena</option>
-                <option value="QUANTITY">Ilość</option>
-                <option value="STATUS">Status</option>
-                <option value="DELIVERY_PRICE">Cennik dostawy</option>
-                <option value="DELIVERY_TIME">Czas wysyłki</option>
-                <option value="BULK_PRICE">Cennik hurtowy</option> 
-                <option value="VAT_INFO">Informacje o fakturze</option>
-                <option value="POST_OFFERS">Wystaw oferty</option>
-                <option value="JSON_OFFERS">Zapisz oferty (json)</option>
+                <option data-option="PASTE">Wklej zaznaczone</option>
+                <option data-option="DELETE">Usuń zaznaczone</option>
             </select>
 
             <input type="search" class="search_h" id="searchInput" placeholder="Szukaj..." onkeyup="searchOffers()">
 
-            <select class="vat__select var_select" id="vatSelect" required>
-                <option value="" selected disabled>VAT</option>
-                <option value="23.00">23%</option>
-                <option value="5.00">5%</option>
-            </select>
-
-            <select class="aftersale_select var_select" id="afterSaleSelect" required>
-                <option value="" selected disabled>Reklamacja...</option>
-                {% for method in aftersale_services.returnPolicies %}
-                    <option id="method_{{ forloop.counter }}" value="{{ method.id }}">
-                        {{ method.name }}
-                    </option>
-                {% endfor %}
-            </select>
-
-            <select class="delivery_select var_select" id="deliverySelect" required>
-                <option value="" selected disabled>Dostawa...</option>
-                {% for method in shipping_rates.shippingRates %}
-                    <option id="method_{{ forloop.counter }}" value="{{ method.id }}">
-                        {{ method.name }}
-                    </option>
-                {% endfor %}
-            </select>
-            <button class="jsn_start_absl jsn_start" id="jsnStart" onclick="jsnStartGo()">Załaduj aukcję</button>
-            <form class="jsn_h" method="post" id="uploadForm" enctype="multipart/form-data">
-                {% csrf_token %}
-                <input type="file" id="jsonFile" name="jsonFile" accept="application/json">
-                <button type="button" onclick="uploadFile()">Upload</button>
-            </form>
         </div>
 
         <div class="list__header_orders_media">
@@ -279,6 +233,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
 
     <script>
+
+        // CHECK / UNCHECK SETS
+        document.getElementById('check-all-button').addEventListener('click', function() {
+            console.log('check-all-button CLICKED!')
+ 
+            var checkboxes = document.querySelectorAll('input[name="selected_items"]');
+            
+            // Loop through each checkbox
+            checkboxes.forEach(function(checkbox) {
+                // Check only if the fulfillment status is 'NEW' and it is currently unchecked
+                if (!checkbox.checked) { //checkbox.dataset.fulfillmentStatus === 'NEW' && 
+                    checkbox.checked = true;
+                    // console.log('checkbox', checkbox.value)
+                }
+                else if (checkbox.checked) {
+                    checkbox.checked = false;
+                }
+            });
+        });
 
         setMainContainer = []
 
@@ -853,13 +826,7 @@
 
         async function deleteGroupSet (offerId) {
 
-            // console.log('** copyGroupCont deleteGroupSet **', copyGroupCont);
-
             for (set of setMainContainer) {
-            //     console.log('** SET deleteGroupSet **', set);
-                // for (s of set) {
-                //     console.log('** SET deleteGroupSet **', s[0]); // set_id
-                // }
                 
                 for (s of set) {
                     for (off of s.slice(1, 2)) {
@@ -872,9 +839,34 @@
                         }
                     }
                 }
-                // console.log('copyGroupCont', copyGroupCont);
-                // showMessage('Zestaw został skopiowany do schowka', 200)
+
+                showMessage('Zestawy zostały usunięte', 200)
             }
+
+        }
+
+        async function bulkEdit() {
+            
+            var optionSelect = document.getElementById('action_select');
+            var selectedOption = optionSelect.selectedOptions[0];
+            var dataOptionValue = selectedOption.getAttribute('data-option');
+            console.log('bulkEdit optionSelect clicked', dataOptionValue)
+
+            var checkboxes = document.querySelectorAll('input[name="selected_items"]');
+
+            var checkedItems = [];
+
+            checkboxes.forEach(function(checkbox) {
+                if (checkbox.checked) {
+                    console.log('checkbox =>', checkbox.value)
+                    if ( dataOptionValue === 'PASTE') {
+                        submitGroupCopySet(checkbox.value);
+                    } else {
+                        deleteGroupSet(checkbox.value);
+                    }
+                    
+                }
+            });
 
         }
         
