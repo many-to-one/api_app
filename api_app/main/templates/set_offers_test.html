@@ -127,16 +127,16 @@
                         </div>
 
                         <div class="icons__row mt-4">
-                            <div class="add__set set__tooltip">
+                            <div class="add__set set__tooltip" onclick="deleteGroupSet('{{ offer.id }}')">
                                 <img style="cursor: pointer;" src="{% static 'icons/delete.svg' %}" width="16" alt="">
                                 <span class="tooltip__text">Usuń zestawy</span>
                             </div>
-                            <div class="add__set set__tooltip" onclick="copyGroupSet('{{ offer.id }}')">
-                                <img style="cursor: pointer;" src="{% static 'icons/copy_money.png' %}" width="26" alt="">
+                            <div class="add__set set__tooltip" onclick="copyGroupSet('{{ offer.id }}', 'copy_percentage')">
+                                <img style="cursor: pointer;" src="{% static 'icons/copy_percentage.png' %}" width="26" alt="">
                                 <span class="tooltip__text">Kopiuj zestawy $</span>
                             </div>
-                            <div class="add__set set__tooltip" onclick="copyGroupSet('{{ offer.id }}')">
-                                <img style="cursor: pointer;" src="{% static 'icons/copy_percentage.png' %}" width="26" alt="">
+                            <div class="add__set set__tooltip" onclick="copyGroupSet('{{ offer.id }}', 'copy_money')">
+                                <img style="cursor: pointer;" src="{% static 'icons/copy_money.png' %}" width="26" alt="">
                                 <span class="tooltip__text">Kopiuj zestawy %</span>
                             </div>
                             <div class="add__set set__tooltip" onclick="submitGroupCopySet('{{ offer.id }}')">
@@ -502,6 +502,16 @@
             showMessage('Zestaw został skopiowany do schowka', 200)
         }
 
+        // LIST WITH COPIED OFFER(S)
+        // let setContainerGroupe = []
+        // let copyValueGroupe = null;
+        // function copyGroupSet(offerId) {
+        //     console.log('copyGroupSet val', offerId) 
+        //     console.log('copyGroupSet setMainContainer', setMainContainer) 
+        //     console.log('copyGroupSet offersContainer', offersContainer)
+        //     showMessage('Zestaw został skopiowany do schowka', 200)
+        // }
+
 
         // SUBMIT DISCOUNT
         async function submitCopySet(offerId) {
@@ -732,107 +742,7 @@
         }
 
 
-        
-        // function createSetData(resp, data) {
-
-        //     var SetOffersContainer = document.getElementById('SetOffersContainer');
-
-        //     // Create main container
-        //     var setContainer = document.createElement('div');
-        //     setContainer.className = 'set__offers__line';
-        //     setContainer.id = `oneSet_${resp.result[0].id}`;
-
-        //     // Create conto container
-        //     var conto = document.createElement('div');
-        //     conto.className = 'conto';
-
-        //     // Create conto column
-        //     var contoColumn = document.createElement('div');
-        //     contoColumn.className = 'conto__column';
-        //     contoColumn.setAttribute('data-set', resp);
-        //     contoColumn.id = 'setRow';
-
-        //     // Create icons row
-        //     var iconsRow = document.createElement('div');
-        //     iconsRow.className = 'icons__row';
-
-        //     // Create delete set icon
-        //     var deleteSetDiv = document.createElement('div');
-        //     deleteSetDiv.className = 'add__set set__tooltip';
-        //     deleteSetDiv.setAttribute('onclick', `deleteSet(${resp.result[0].id})`);
-        //     var deleteSetImg = document.createElement('img');
-        //     deleteSetImg.style.cursor = 'pointer';
-        //     deleteSetImg.src = '{% static "icons/delete.svg" %}';
-        //     deleteSetImg.width = 16;
-        //     deleteSetImg.alt = '';
-        //     var deleteSetTooltip = document.createElement('span');
-        //     deleteSetTooltip.className = 'tooltip__text';
-        //     deleteSetTooltip.textContent = 'Usuń zestaw';
-        //     deleteSetDiv.appendChild(deleteSetImg);
-        //     deleteSetDiv.appendChild(deleteSetTooltip);
-
-        //     // Create copy set icon
-        //     var copySetDiv = document.createElement('div');
-        //     copySetDiv.className = 'add__set set__tooltip';
-        //     copySetDiv.setAttribute('onclick', `copySet('${resp}')`);
-        //     var copySetImg = document.createElement('img');
-        //     copySetImg.style.cursor = 'pointer';
-        //     copySetImg.src = '{% static "icons/copy.svg" %}';
-        //     copySetImg.width = 16;
-        //     copySetImg.alt = '';
-        //     var copySetTooltip = document.createElement('span');
-        //     copySetTooltip.className = 'tooltip__text';
-        //     copySetTooltip.textContent = 'Kopiuj zestaw';
-        //     copySetDiv.appendChild(copySetImg);
-        //     copySetDiv.appendChild(copySetTooltip);
-
-        //     // Append icons to icons row
-        //     iconsRow.appendChild(deleteSetDiv);
-        //     iconsRow.appendChild(copySetDiv);
-
-        //     // Create main offer row
-        //     var offerSetMain = document.createElement('div');
-        //     offerSetMain.className = 'conto__row bg-primary-subtle';
-        //     offerSetMain.id = 'offerSetMain';
-
-        //     contoColumn.appendChild(iconsRow);
-        //     contoColumn.appendChild(offerSetMain);
-
-        //     setContainer.appendChild(contoColumn);
-        //     SetOffersContainer.appendChild(setContainer);
-        // }
-
-
-
-        // function createSetData_ (resp, data) {
-        //     var SetOffersContainer = document.getElementById('SetOffersContainer');
-
-        //     var setContainer = document.createElement('div'); 
-        //     setContainer.className = 'set__offers__line';
-        //     setContainer.id = `oneSet_${resp.result[0].id}`;
-
-        //     var conto = document.createElement('div'); 
-        //     conto.className = 'conto';
-
-        //     var conto__column = document.createElement('div'); 
-        //     conto__column.className = 'conto__column';
-        //     conto__column.id = 'setRow';
-        //     conto__column.dataset = resp;
-
-        //     var mainOfferImg = document.getElementById('offerOneImg_' + data['set_id']);
-        //     var mainOfferOneName = document.getElementById('offerOneName' + data['set_id']);
-            
-        //     var offerOneImg = document.createElement('img');
-        //     offerOneImg.id = `offerOneImg_${resp.result[0].id}`;
-        //     offerOneImg.src = mainOfferImg.src;
-        //     // console.log('setContainer.id', setContainer);
-
-        //     conto__column.appendChild(offerOneImg);
-        //     conto.appendChild(conto__column);
-        //     setContainer.appendChild(conto);
-        //     SetOffersContainer.appendChild(setContainer);
-        // }
-
+    
 
         async function deleteSet (setId) {
             console.log('deleteSet ++', setId);
@@ -867,12 +777,15 @@
             });
         }
 
+
         let copyGroupCont = []
 
-        async function copyGroupSet (offerId) {
+        async function copyGroupSet (offerId, val) {
 
             // console.log('offerId ++', offerId);
             // console.log('set ++', set);
+
+            copyValue = val;
 
             for (set of setMainContainer) {
                 // console.log('**SET**', set);
@@ -882,7 +795,9 @@
                             console.log('loop set', id);
                             if ( id['id'] === offerId ) {
                                 // console.log('=== set', id);
-                                copyGroupCont.push(s)
+                                // copyGroupCont.push(s)
+                                const combinedData = { ...s, copy_type: copyValue };
+                                copyGroupCont.push(combinedData);
                             }
                         }
                     }
@@ -898,22 +813,67 @@
             console.log('submitGroupCopySet was called!');
 
             for ( con of copyGroupCont ) {
-                console.log('copyGroupCont in loop', con);
-                console.log('copyGroupCont set_id', con[0]['set_id']);
-                console.log('copyGroupCont disc__money', con[3]['discount']);
-                console.log('copyGroupCont count_array', con[1]);
+
+                console.log('copyGroupCont con in loop', con);
+
+                var sumValue = null;
+
+                var mainOfferPrice = document.getElementById('mainSetOfferPrice_' + offerId).getAttribute('data-set');
+                // console.log('mainOfferPrice for forEach', parseFloat(mainOfferPrice));
+                sumValue = parseFloat(mainOfferPrice);
+
+                // GET SUM OF COPIED SET OFFER(S) WITH THE NEW MAIN OFFER
+                con[1].slice(1).forEach(of => {
+                    var setOffersPrice = document.getElementById('mainSetOfferPrice_' + of['id']).getAttribute('data-set');
+                    // console.log('setOffersPrice in data', setOffersPrice)
+                    sumValue += parseFloat(setOffersPrice)
+                    // console.log('sumValue in data', sumValue)
+                })
+
+                // Create the data object to send to the server
                 const data = {
                     set_id: con[0]['set_id'],
                     main_offer: offerId,
-                    disc__money: con[3]['discount'] || null,
-                    disc__percent: con[5]['discount_percentage'] || 0,
+                    main_offer_price: sumValue,
+                    disc__money: con[3] || null,
+                    disc__percent: con[5] || null,
                     count_array: con[1] || null,
-                    disc__price: parseFloat(con[2]['price']) || 0, 
-                    price__after: con[4]['price_after'],
+                    disc__price: parseFloat(con[2])|| 0, 
+                    price__after: con[4],
                     name: name,
+                    copy_type: copyValue
                 };
 
-                await addCopyOffers (data)
+                // console.log('copyGroupCont data in loop', data);
+
+                await addCopyOffers (data, offerId);
+            }
+
+        }
+
+        async function deleteGroupSet (offerId) {
+
+            // console.log('** copyGroupCont deleteGroupSet **', copyGroupCont);
+
+            for (set of setMainContainer) {
+            //     console.log('** SET deleteGroupSet **', set);
+                // for (s of set) {
+                //     console.log('** SET deleteGroupSet **', s[0]); // set_id
+                // }
+                
+                for (s of set) {
+                    for (off of s.slice(1, 2)) {
+                        for (id of off.slice(0, 1)) {
+                            console.log('deleteGroupSet loop set', id);
+                            if ( id['id'] === offerId ) {
+                                console.log('deleteGroupSet === set', s[0]['set_id']);
+                                await deleteSet(s[0]['set_id'])
+                            }
+                        }
+                    }
+                }
+                // console.log('copyGroupCont', copyGroupCont);
+                // showMessage('Zestaw został skopiowany do schowka', 200)
             }
 
         }
