@@ -372,6 +372,7 @@
         }
 
 
+        let copiedDataCont = [];
 
         // SUBMIT DISCOUNT - edit the money or % discount
         function submitDiscount(set_id, price) {
@@ -379,6 +380,7 @@
             console.log('submitDiscount type:', editType);
             console.log('submitDiscount set_id:', set_id);
             console.log('submitDiscount price:', price);
+            console.log('submitDiscount setMainContainer:', setMainContainer);
             var csrftoken = getCSRFToken();
             let discMoney = parseFloat(document.getElementById('disc__money_' + set_id).value);
             const discMoneyElem = document.getElementById('disc__money_' + set_id);
@@ -442,6 +444,9 @@
                        showMessage(response.data.res.errors[0].userMessage, 500)
                     } else {
                         console.log('Response:', response.data.res); 
+                        copiedDataCont.push(data);
+                        copiedDataCont[0]['count_array'] = response.data.res['offerCriteria'][0]['offers']
+                        console.log('copiedDataCont after Response:', copiedDataCont); 
                         showMessage(response.data.userMessage, 200)
                     }
                     countArray = []
@@ -461,7 +466,7 @@
             copyValue = val;
             console.log('copyValue', copyValue)
             console.log('copySet', set)
-            console.log('setMainContainer', setMainContainer)
+            console.log('copiedDataCont in copySet', copiedDataCont[0])
             let jsonString = set
             .replace(/'/g, '"')  // Replace single quotes with double quotes
             .replace(/True/g, 'true')  // Replace True with true
@@ -476,12 +481,42 @@
 
 
 
+        // LIST WITH COPIED OFFER(S)
+        // let setContainer = []
+        // let copyValue = null;
+        function copySet_(set, val) {
+            // console.log('copySet val', val)
+            copyValue = val;
+            console.log('copyValue', copyValue)
+            console.log('copySet', set)
+            console.log('copiedDataCont in copySet', copiedDataCont[0])
+            let jsonString = set
+            .replace(/'/g, '"')  // Replace single quotes with double quotes
+            .replace(/True/g, 'true')  // Replace True with true
+            .replace(/False/g, 'false');  // Replace False with false        
+            // console.log(jsonString);
+            let array = JSON.parse(jsonString);
+            if ( array['set_id'] === copiedDataCont[0]['set_id'] ) {
+                array['disc__money']['discount'] = copiedDataCont[0]['disc__money'];
+                array['disc__percent']['discount_percentage'] = copiedDataCont[0]['disc__percent'];
+                console.log('CopySet_ array', array);
+                // console.log('SET array',  array);
+                setContainer.push(array)
+            }
+            
+            // console.log('setContainer copy', setContainer)
+            showMessage('Zestaw został skopiowany do schowka', 200)
+        }
+
+
+
         // SUBMIT DISCOUNT
         async function submitCopySet(offerId) {
 
             var sumValue = null;
 
             var mainOfferPrice = document.getElementById('mainSetOfferPrice_' + offerId).getAttribute('data-set');
+            console.log('submitCopySet setContainer', setContainer[0]);
             console.log('setContainer lendth', setContainer[0].length);
             console.log('setContainer', setContainer[0]['disc__money']);
 
@@ -563,6 +598,9 @@
                         console.log('add_copy_offers_one - ok response', response.data.context);
                         showMessage(response.data.context.message, 200)
                         // createSetData(response.data.context, data);
+                        data['set_id'] = response.data.context.result[0]['id'];
+                        console.log('updated data[set_id]', data['set_id']);
+                        // copiedDataCont = [];
                         createElementHTML(response.data.context, data, offerId);
                         // setTimeout(reFresh, 1000);
                     } else if ( response.data.context.status === '!ok' ) {
@@ -578,7 +616,7 @@
                 console.error('Error updating stock:', error);
                 showMessage(error, 500)
             });
-            setContainer.length = 0
+            setContainer.length = 0 // DELETE SETCONTAINER?
 
         }
 
@@ -596,7 +634,7 @@
                 .replace(/-/g, '\\u002D')      // Replace hyphens
                 .replace(/"/g, '\\u0022')      // Optionally replace double quotes
 
-                return jsonString;
+            return jsonString;
         }
 
         function createElementHTML(resp, data, offerId) {
@@ -681,14 +719,14 @@
                                 </div>
                                 <div 
                                     class="add__set set__tooltip" 
-                                    onclick="copySet('${jsonStringifyData}', 'copy_percentage')"
+                                    onclick="copySet_('${jsonStringifyData}', 'copy_percentage')"
                                 >
                                     <img style="cursor: pointer;" src="{% static 'icons/copy_percentage.png' %}" width="26" alt="">
                                     <span class="tooltip__text">Kopiuj zestaw</span>
                                 </div>
                                 <div 
                                     class="add__set set__tooltip" 
-                                    onclick="copySet('${jsonStringifyData}', 'copy_money')"
+                                    onclick="copySet_('${jsonStringifyData}', 'copy_money')"
                                 >
                                     <img style="cursor: pointer;" src="{% static 'icons/copy_money.png' %}" width="26" alt="">
                                     <span class="tooltip__text">Kopiuj zestaw</span>
