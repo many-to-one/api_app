@@ -62,7 +62,7 @@ def set_offers(request, name):
         'sets': offers[::-1], #all_sets[0]['promotions'],
     }
 
-    return render(request, 'set_offers_test.html', context)
+    return render(request, 'set_offers.html', context)
 
         # try:
         #     url = "https://api.allegro.pl.allegrosandbox.pl/sale/offers" 

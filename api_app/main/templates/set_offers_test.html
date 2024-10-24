@@ -616,7 +616,7 @@
                 console.error('Error updating stock:', error);
                 showMessage(error, 500)
             });
-            setContainer.length = 0 // DELETE SETCONTAINER?
+            // setContainer.length = 0 // DELETE SETCONTAINER?
 
         }
 
@@ -647,16 +647,16 @@
             // console.log('dataJSON', dataJSON);
 
             const jsonStringifyData = prepareCopySetData(data, resp.result[0]);
-            console.log('dataJSON', jsonStringifyData);
+            // console.log('dataJSON', jsonStringifyData);
 
             var SetOffersContainer = document.getElementById('SetOffersContainer');
-            console.log('resp.result[0].offers', resp.result[0].offers[0].id)
+            // console.log('resp.result[0].offers', resp.result[0].offers[0].id)
 
             var mainOfferImg = document.getElementById('mainSetOfferImg_' + offerId);
-            console.log('mainOfferImg', mainOfferImg);
+            // console.log('mainOfferImg', mainOfferImg);
 
             var mainOfferName = document.getElementById('mainSetOfferName_' + offerId);
-            console.log('mainOfferName', mainOfferName); //mainSetOfferPrice_
+            // console.log('mainOfferName', mainOfferName); //mainSetOfferPrice_
 
             var mainOfferPrice = document.getElementById('mainSetOfferPrice_' + offerId);
 
