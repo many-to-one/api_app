@@ -106,7 +106,7 @@
 
                 <div class="set__offers__line" id="oneSet_{{ set.0.set_id }}">
                     <div class="conto">
-                        <div class="conto__column" data-set="{{ set }}" id="setRow">
+                        <div class="conto__column" data-set="{{ set }}" data-id="{{ set.0.set_id }}" id="setRow_{{ offer.id }}">
 
                             <div class="icons__row">
                                 <div 
@@ -118,7 +118,7 @@
                                 </div>
                                 <div 
                                     class="add__set set__tooltip" 
-                                    onclick="copySet('{{ set|escapejs }}', 'copy_money')"
+                                    onclick="copySet('{{ set|escapejs }}', 'copy_money',)"
                                 >
                                     <img style="cursor: pointer;" src="{% static 'icons/copy_money.png' %}" width="26" alt="">
                                     <span class="tooltip__text">Kopiuj zestaw $</span>
@@ -153,7 +153,7 @@
                                 {% for s in set.1|slice:"1:" %}
                                     {% for of in result.offers %}
                                         {% if s.id == of.id %}
-                                            <div class="conto__row inSet" data-set="{{ of.id }}" id="offerSet_{{ s.id }}">
+                                            <div class="conto__row inSet" data-set="{{ of.id }}" id="offerSet_{{ set.0.set_id }}">
                                                 <img class="set__photo" src="{{of.primaryImage.url}}" alt="">
                                                 <p class="set__name">{{ of.name }}</p>
                                                 <input style="width: 20px;" id="disc__piece_{{ of.id }}" value="{{ s.requiredQuantity }}" type="text" onchange="setCount('{{ of.id }}')">
@@ -378,9 +378,9 @@
         function submitDiscount(set_id, price) {
 
             console.log('submitDiscount type:', editType);
-            console.log('submitDiscount set_id:', set_id);
+            // console.log('submitDiscount set_id:', set_id);
             console.log('submitDiscount price:', price);
-            console.log('submitDiscount setMainContainer:', setMainContainer);
+            // console.log('submitDiscount setMainContainer:', setMainContainer);
             var csrftoken = getCSRFToken();
             let discMoney = parseFloat(document.getElementById('disc__money_' + set_id).value);
             const discMoneyElem = document.getElementById('disc__money_' + set_id);
@@ -389,27 +389,31 @@
             const discPrice = parseInt(document.getElementById('disc__price_' + set_id).value);
 
             const beforePrice = document.getElementById('beforePrice_' + set_id)
-            console.log('beforePrice:', beforePrice);
-            // console.log('discPercent:', discPercent);
+            // console.log('beforePrice:', beforePrice);
+            console.log('discPercent:', discPercent);
+            console.log('discPercent:', discPrice);
 
             let priceAfter;
 
-             if (discPercent !== 0 && editType === 'disc__percent') {
+            //  if (discPercent !== 0 && editType === 'disc__percent') {
+            if (editType === 'disc__percent') {
                 const beforePrice = document.getElementById('beforePrice_' + set_id).textContent;
                 moneyDisc = (parseFloat(price) * discPercent) / 100 ; 
                 discMoney = moneyDisc
                 perVal = moneyDisc
                 priceAfter = parseFloat(beforePrice) - moneyDisc;
-                console.log('priceAfter %:', priceAfter, moneyDisc);
+                console.log('priceAfter moneyDisc %:', priceAfter, moneyDisc);
                 const afterPrice = document.getElementById('afterPrice_' + set_id);
                 afterPrice.textContent = priceAfter;
                 discMoneyElem.value = moneyDisc;
-            } if (discMoney !== 0 && editType === 'disc__money') {
+            } 
+
+            if (editType === 'disc__money') {
                 const beforePrice = document.getElementById('beforePrice_' + set_id).textContent;
                 var percent = discMoney / (parseFloat(beforePrice) / 100)
                 priceAfter = parseFloat(price) - discMoney;
                 console.log('priceAfter:', priceAfter);
-                console.log('disc__money percent:', percent.toFixed(2));
+                console.log('disc__money percentAfter:', percent.toFixed(2));
                 var percentAfter = percent.toFixed(2);
                 const afterPrice = document.getElementById('afterPrice_' + set_id);
                 afterPrice.textContent = priceAfter;
@@ -475,37 +479,10 @@
             let array = JSON.parse(jsonString);
             // console.log('SET array',  array);
             setContainer.push(array);
-            // setMainContainer[0].push(array);
-            // console.log('setContainer copy', setContainer)
-            showMessage('Zestaw został skopiowany do schowka', 200)
-        }
-
-
-
-        // LIST WITH COPIED OFFER(S)
-        // let setContainer = []
-        // let copyValue = null;
-        function copySet_(set, val) {
-            // console.log('copySet val', val)
-            copyValue = val;
-            console.log('copyValue', copyValue)
-            console.log('copySet', set)
-            console.log('copiedDataCont in copySet', copiedDataCont[0])
-            let jsonString = set
-            .replace(/'/g, '"')  // Replace single quotes with double quotes
-            .replace(/True/g, 'true')  // Replace True with true
-            .replace(/False/g, 'false');  // Replace False with false        
-            // console.log(jsonString);
-            let array = JSON.parse(jsonString);
-            if ( array['set_id'] === copiedDataCont[0]['set_id'] ) {
-                array['disc__money']['discount'] = copiedDataCont[0]['disc__money'];
-                array['disc__percent']['discount_percentage'] = copiedDataCont[0]['disc__percent'];
-                console.log('CopySet_ array', array);
-                console.log('SET array',  array);
-                setContainer.push(array);
-                // setMainContainer[0].push(array);
-            }
-            
+            //test
+            setContainer[0].push({'name': name});
+            setContainer[0].push({'copy_type': copyValue});
+            //end test
             // console.log('setContainer copy', setContainer)
             showMessage('Zestaw został skopiowany do schowka', 200)
         }
@@ -514,41 +491,37 @@
 
         // CORRECT FUNCTION TO DINAMICALLY COPY AND CHANGE DATA
         function copySet_a( setId, copyValue, offerId ) {
+
             var set = document.getElementById('oneSet_' + setId); 
             var discMoney = document.getElementById('disc__money_' + setId); 
             var discPercent = document.getElementById('disc__percent_' + setId); 
             var offerSetM_ = document.getElementById('offerSetMain_' + offerId);
             var offerSetMQuant = document.getElementById('disc__piece_' + offerId)
-            console.log('offerSetMQuant', offerSetMQuant)
 
-            var counArray = [
+            var countArray = [
                 {id: offerId, requiredQuantity: offerSetMQuant.value, entryPoint: true}
             ]
 
             var setOffers = document.querySelectorAll(`#offerSet_${setId}`);
             for (set of setOffers) {
                 var requiredQuantity_ = document.getElementById('disc__piece_' + set.dataset['set'])
-                counArray.push({id: set.dataset['set'], requiredQuantity: requiredQuantity_.value, entryPoint: false})
-                // console.log('set.dataset', set.dataset['set'])
-                console.log('requiredQuantity_', requiredQuantity_)
+                countArray.push({id: set.dataset['set'], requiredQuantity: requiredQuantity_.value, entryPoint: false})
             }
-
-            console.log('counArray', counArray);
-            
 
             dataToSendArr = [
                     {set_id: setId},
-                    // [counArray || null],
-                    counArray || null,
+                    countArray || null,
                     {price: 0 || 0}, 
                     {discount: discMoney.value || 0},
                     {price__after: 0},
                     {discount_percentage: discPercent.value || 0},
                     {name: name},
                     {copy_type: copyValue}
-        ];
+            ];
 
-                setContainer.push(dataToSendArr)
+            setContainer.push(dataToSendArr);
+            showMessage('Zestaw został skopiowany do schowka', 200);
+
         };
 
 
@@ -561,74 +534,11 @@
             var mainOfferPrice = document.getElementById('mainSetOfferPrice_' + offerId).getAttribute('data-set');
             console.log('submitCopySet setContainer', setContainer);
             console.log('setContainer lendth', setContainer.length);
-            // console.log('setContainer', setContainer[0]['disc__money']);
-
 
             let dataToSend;
 
-            // IF ONLY ONE SET IS COPIED FROM PREVIOUSE COPIED SET
-            // ANOTHER WORDS - TO PROCCESS DATA THAT ADDED DINAMICALLY
-            if ( setContainer.length === 0 && setContainer[0].length !== 6) {
+                console.log('setContainer.length === 2 +')
 
-                setContainer.forEach(of => {
-                    if (of['count_array']) {
-                        of['count_array'].forEach( offer => {
-                            // console.log('setContainer first loop', offer);
-                            var setOffersPrice = document.getElementById('mainSetOfferPrice_' + offer['id']).getAttribute('data-set');
-                            console.log('setOffersPrice my', setOffersPrice)
-                            sumValue += parseFloat(setOffersPrice)
-                            console.log('sumValue in data', sumValue)
-                        })
-                    }
-                })
-
-                copiedDataCont[0]['main_offer'] = offerId;
-                copiedDataCont[0]['main_offer_price'] = sumValue;
-                copiedDataCont[0]['price__after'] = 0;
-                copiedDataCont[0]['name'] = name;
-                copiedDataCont[0]['copy_type'] = copyValue;
-
-                console.log('copiedDataCont in submit', copiedDataCont[0])
-
-                dataToSend = {
-                    set_id: setContainer[0]['set_id'],
-                    main_offer: offerId,
-                    main_offer_price: sumValue,
-                    disc__money: setContainer[0]['disc__money'] || null,
-                    disc__percent: setContainer[0]['disc__percent']|| null,
-                    count_array: setContainer[0]['count_array'] || null,
-                    disc__price: parseFloat(setContainer[0]['disc__price'])|| 0, 
-                    price__after: setContainer[0]['price__after'],
-                    name: name,
-                    copy_type: copyValue
-                };
-
-                console.log('dataToSend in submit', dataToSend)
-
-            } else if ( setContainer.length === 1 ) {
-                // GET SUM OF COPIED SET OFFER(S) WITH THE NEW MAIN OFFER
-                setContainer[setContainer.length - 1][1].slice(1).forEach(of => {
-                    var setOffersPrice = document.getElementById('mainSetOfferPrice_' + of['id']).getAttribute('data-set');
-                    console.log('setOffersPrice', setOffersPrice)
-                    sumValue += parseFloat(setOffersPrice)
-                    console.log('sumValue in data', sumValue)
-                })
-
-                dataToSend = {
-                        set_id: setContainer[0][0]['set_id'],
-                        main_offer: offerId,
-                        main_offer_price: sumValue,
-                        disc__money: setContainer[0][3] || null,
-                        disc__percent: setContainer[0][5] || null,
-                        count_array: setContainer[0][1] || null,
-                        disc__price: parseFloat(setContainer[0][2])|| 0, 
-                        price__after: setContainer[0][4],
-                        name: name,
-                        copy_type: copyValue
-                    };
-            }
-            
-            else {
                 // GET SUM OF COPIED SET OFFER(S) WITH THE NEW MAIN OFFER
                 setContainer[setContainer.length - 1][1].slice(1).forEach(of => {
                     var setOffersPrice = document.getElementById('mainSetOfferPrice_' + of['id']).getAttribute('data-set');
@@ -648,10 +558,9 @@
                         count_array: setContainer[setContainer.length - 1][1] || null,
                         disc__price: parseFloat(setContainer[setContainer.length - 1][2])|| 0, 
                         price__after: setContainer[setContainer.length - 1][4],
-                        name: name,
-                        copy_type: copyValue
+                        name: setContainer[setContainer.length - 1][6]['name'],
+                        copy_type: setContainer[setContainer.length - 1][7]['copy_type'],
                     };
-            }
 
             await addCopyOffers (dataToSend, offerId)
         }
@@ -675,10 +584,14 @@
                     if ( response.data.context.status === 'ok' ) {
                         console.log('add_copy_offers_one - ok response', response.data.context);
                         showMessage(response.data.context.message, 200)
-                        // createSetData(response.data.context, data);
+
                         data['set_id'] = response.data.context.result[0]['id'];
-                        console.log('updated data[set_id]', data['set_id']);
-                        // setMainContainer[0].push(data);
+
+                        setMainContainer[0].push([
+                            {'set_id': data['set_id']}, 
+                            response.data.context.result[0]['offers']
+                        ]); // TEST for delete group sets logic
+
                         copiedDataCont = [];
                         createElementHTML(response.data.context, data, offerId);
                         // setTimeout(reFresh, 1000);
@@ -760,7 +673,8 @@
                 });
             });
 
-            if ( data.disc__percent.discount_percentage === '0.00' || copyValue === 'copy_money') {
+            // if ( data.disc__percent.discount_percentage === '0.00' || copyValue === 'copy_money') {
+            if ( data['copy_type'] === 'copy_money') {
                 priceAfter = priceBefore - parseFloat(data.disc__money.discount);
                 perVal = priceBefore - priceAfter;
                 percent = perVal / (priceBefore / 100);
@@ -788,7 +702,7 @@
             setElement.innerHTML = `
                 
                     <div class="conto">
-                        <div class="conto__column" data-set="${resp.result[0]['id']}" id="setRow"> 
+                        <div class="conto__column" data-set="${resp.result[0]['id']}" data-id="${resp.result[0]['id']}" id="setRow_${offerId}"> 
 
                             <div class="icons__row">
                                 <div 
@@ -887,74 +801,116 @@
             console.log('deleteSet ++', setId);
             var csrftoken = getCSRFToken();
             var set = document.getElementById('oneSet_' + setId); 
+            console.log('set in deleteSet', set);
 
-            const resp = await axios.delete(`/delete_set/${name}/${setId}/`,
-                {
-                    headers: {
-                        'X-CSRFToken': csrftoken
+            if ( set === null ) {
+                showMessage('Wybrany zestaw nie istnieje')
+            } else {
+
+                const resp = await axios.delete(`/delete_set/${name}/${setId}/`,
+                    {
+                        headers: {
+                            'X-CSRFToken': csrftoken
+                        }
                     }
-                }
-            )
-            .then(function (response) {    
-                console.log('deleteSet', response)              
-                    if ( response.data.context.status === 'ok' ) {
-                        showMessage(response.data.context.message, 200)
-                        set.remove()
-                        // setTimeout(reFresh, 1000);
-                    } else if ( response.data.context.status === '!ok' ) {
-                        showMessage(response.data.context.message, 300)
-                        // setTimeout(reFresh, 1000);
-                    } else {
-                        console.log('deleteSet', 500);
-                        showMessage(response.data.context.message, 500)
-                    }
-                })
-                .catch(function(error) {
-                // Handle error
-                console.error('Error updating stock:', error);
-                showMessage(error, 500)
-            });
+                )
+                .then(function (response) {    
+                    console.log('deleteSet', response)              
+                        if ( response.data.context.status === 'ok' ) {
+                            showMessage(response.data.context.message, 200)
+                            set.remove()
+                            // setTimeout(reFresh, 1000);
+                        } else if ( response.data.context.status === '!ok' ) {
+                            showMessage(response.data.context.message, 300)
+                            // setTimeout(reFresh, 1000);
+                        } else {
+                            console.log('deleteSet', 500);
+                            showMessage(response.data.context.message, 500)
+                        }
+                    })
+                    .catch(function(error) {
+                    // Handle error
+                    console.error('Error updating stock:', error);
+                    showMessage(error, 500)
+                });
+
+            }
+
+            
         }
 
+
+        // NEW GROUP COPY LOGIC
+        async function copyGroupSet (offerId, val) {
+
+            var setOffers = document.querySelectorAll(`#setRow_${offerId}`);
+            console.log('copyGroupSet', setOffers);
+
+            for (set of setOffers) {
+                // console.log('data-set', set.dataId['set']);
+                setId = set.getAttribute('data-id');
+                console.log('data-id', setId);
+                copySet_group(setId, val, offerId);
+            }
+        }
 
 
         let copyGroupCont = []
 
-        async function copyGroupSet (offerId, val) {
+        // CORRECT FUNCTION TO DINAMICALLY COPY AND CHANGE DATA OF GROUP SETS
+        function copySet_group( setId, copyValue, offerId ) {
 
-            // console.log('offerId ++', offerId);
-            // console.log('set ++', set);
+            var set = document.getElementById('oneSet_' + setId); 
+            var discMoney = document.getElementById('disc__money_' + setId); 
+            var discPercent = document.getElementById('disc__percent_' + setId); 
+            var offerSetM_ = document.getElementById('offerSetMain_' + offerId);
+            var offerSetMQuant = document.getElementById('disc__piece_' + offerId)
 
-            copyValue = val;
+            var countArray = [
+                {id: offerId, requiredQuantity: offerSetMQuant.value, entryPoint: true}
+            ]
 
-            for (set of setMainContainer) {
-                // console.log('**SET**', set);
-                for (s of set) {
-                    for (off of s.slice(1, 2)) {
-                        for (id of off.slice(0, 1)) {
-                            console.log('loop set', id);
-                            if ( id['id'] === offerId ) {
-                                // console.log('=== set', id);
-                                // copyGroupCont.push(s)
-                                const combinedData = { ...s, copy_type: copyValue };
-                                copyGroupCont.push(combinedData);
-                            }
-                        }
-                    }
-                }
-                console.log('copyGroupCont', copyGroupCont);
-                showMessage('Zestaw został skopiowany do schowka', 200)
+            var setOffers = document.querySelectorAll(`#offerSet_${setId}`);
+            for (set of setOffers) {
+                var requiredQuantity_ = document.getElementById('disc__piece_' + set.dataset['set'])
+                countArray.push({id: set.dataset['set'], requiredQuantity: requiredQuantity_.value, entryPoint: false})
             }
 
-        }
+            dataToSendArr = [
+                    {set_id: setId},
+                    countArray || null,
+                    {price: 0 || 0}, 
+                    {discount: discMoney.value || 0},
+                    {price__after: 0},
+                    {discount_percentage: discPercent.value || 0},
+                    {name: name},
+                    {copy_type: copyValue}
+            ];
+
+            copyGroupCont.push(dataToSendArr);
+            showMessage('Zestaw został skopiowany do schowka', 200);
+
+            };
 
 
 
         async function submitGroupCopySet(offerId) {
 
-            console.log('submitGroupCopySet was called!');
+            console.log('submitGroupCopySet was called!', copyGroupCont);
 
-            for ( con of copyGroupCont ) {
+            gropuSetsArray = [];
+
+            if ( copyGroupCont.length > 2 ) {
+                gropuSetsArray[0] = copyGroupCont[copyGroupCont.length - 2]
+                gropuSetsArray[1] = copyGroupCont[copyGroupCont.length - 1]
+                console.log('gropuSetsArray > 2', gropuSetsArray);
+            } else {
+                gropuSetsArray = copyGroupCont;
+                console.log('gropuSetsArray else', gropuSetsArray);
+            };
+
+
+            for ( con of gropuSetsArray ) {
 
                 console.log('copyGroupCont con in loop', con);
 
@@ -982,8 +938,8 @@
                     count_array: con[1] || null,
                     disc__price: parseFloat(con[2])|| 0, 
                     price__after: con[4],
-                    name: name,
-                    copy_type: copyValue
+                    name: con[6]['name'],
+                    copy_type: con[7]['copy_type']
                 };
 
                 // console.log('copyGroupCont data in loop', data);
