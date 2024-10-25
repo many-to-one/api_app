@@ -46,7 +46,11 @@
     overflow-x: scroll;
 }
 
-.set__offers__line {
+.set__offers__line { 
+    display: none;
+}
+
+.set__offers__line.show {
     display: flex;
     flex-direction: column;
     background-color: var(--light);
