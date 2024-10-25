@@ -1604,7 +1604,7 @@
                     img.onload = function() {
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
-                        
+
                         // Set canvas to desired dimensions
                         canvas.width = 2560;
                         canvas.height = 2560;
@@ -1654,6 +1654,7 @@
                 const defaultTop = (container.parentElement.offsetHeight - container.offsetHeight) / 2;
                 const left = parseInt(container.style.left) || defaultLeft;
                 const top = parseInt(container.style.top) || defaultTop;
+                // const rotation = parseInt(container.style.transform.match(/rotate\((-?\d+)deg\)/)?.[1]) || 0
 
 
                 // Create a new image object to ensure it's loaded properly
@@ -1691,6 +1692,24 @@
                     
                     // Draw the image onto the canvas at the calculated position and size
                     ctx.drawImage(imgElement, drawX, drawY, scaledWidth, scaledHeight);
+
+                    // test save rotate position
+
+                    // // Save the current context state
+                    // // ctx.save();
+                    // const transX = drawX + scaledWidth / 2
+                    // const transY = drawY + scaledHeight / 2
+                    // // Move the context origin to the center of the image to rotate around its center
+                    // ctx.translate(drawX + scaledWidth / 2, drawY + scaledHeight / 2);
+                    // ctx.rotate(rotation * Math.PI / 180);
+
+                    // // Draw the image centered on the translated origin
+                    // ctx.drawImage(imgElement, -scaledWidth / 2, -scaledHeight / 2, scaledWidth, scaledHeight);
+
+                    // // Restore the context to its original state
+                    // // ctx.restore();
+
+                    // end rotate save logic
 
                     imagesLoaded++;  // Increment the count of loaded images
 

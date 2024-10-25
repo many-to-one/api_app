@@ -720,7 +720,7 @@
             var lastChild = rowSet.lastElementChild;
 
             const setElement = document.createElement('div');
-            setElement.className = 'set__offers__line';
+            setElement.className = 'set__offers__line show';
             setElement.id = `oneSet_${resp.result[0]['id']}`;
   
             setElement.innerHTML = `
@@ -1016,7 +1016,8 @@
                     } else {
                         deleteGroupSet(checkbox.value);
                     }
-                    
+                    // Uncheck the checkbox after the function call
+                    checkbox.checked = false;
                 }
             });
 
