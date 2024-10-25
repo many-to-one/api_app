@@ -3,9 +3,9 @@
     flex-direction: column;
 }
 
-.order__details {
+/* .order__details {
     width: 50vw;
-}
+} */
 
 .line {
     display: flex;
