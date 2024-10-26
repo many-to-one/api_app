@@ -66,6 +66,7 @@ urlpatterns = [
     path('get_description/<str:id>/<str:name>/', offer_views.get_description, name='get_description'),
     # path('edit_offers_csv/<str:name>/', offer_views.edit_offers_csv, name='edit_offers_csv'),
     path('download_all_offers/<str:name>/', offer_views.download_all_offers, name='download_all_offers'),
+    path('get_one_offer_json/<str:name>/<str:id>/', offer_views.get_one_offer_json, name='get_one_offer_json'),
 
     # BULK EDITION
     path('bulk_edit/<str:name>/<str:ed_value>/', bulk_edit_views.bulk_edit, name='bulk_edit'),

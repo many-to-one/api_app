@@ -3,6 +3,7 @@ import os
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.core.files.storage import default_storage
+from ..api_service import sync_service
 from rembg import remove
 from PIL import Image
 from io import BytesIO
@@ -49,7 +50,25 @@ from django.views.decorators.http import require_POST
 #     return render(request, 'photo_editor/photo_editor.html')
 
 def remove_background(request):
-    return render(request, 'photo_editor/image_editor.html')
+
+    name = request.user.username
+    url = f'sale/offers'
+    debug_name = 'set_offers (all_offers) 15'
+    all_offers = sync_service.Offers(name)
+    result = all_offers.get_(request, url, debug_name)
+    offers_cont = []
+    for offer in result['offers']:
+        offers_cont.append({
+            'id': offer['id'], 
+            'name': offer['name'], 
+            'primaryImage': offer['primaryImage']
+        })
+        print("############### remove_background offers result ##################", offer['id']) 
+    context = {
+        'offers': offers_cont,
+        'name': name,
+    }
+    return render(request, 'photo_editor/image_editor.html', context)
 
 
 @require_POST

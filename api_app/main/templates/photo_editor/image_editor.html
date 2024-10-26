@@ -13,6 +13,12 @@
 {% block content %}
 <body>
 
+    <input 
+        id="offers-data" 
+        style="display:none;"
+        value="{{ offers }}"
+    />
+
     <div id="csrf-token" data-token="{{ csrf_token }}"></div>
 
     <div class="offers__cont" id="of_cont">
@@ -140,6 +146,30 @@
         <button id="downloadCombined" style="margin: 20px;" type="button" class="btn btn-primary">Zapisz</button>
 
         <canvas id="combinedCanvas" style="display:none;"></canvas> <!-- Hidden Canvas for combining images -->
+
+        <div id="name" value="{{ name }}">
+            <p class="print">{{name}}</p>
+        </div>
+
+        <div id="imageGallery" class="d-flex justify-content-start gap-2 m-2 w-75"></div>
+
+        <div class="input-group mb-3 w-75">
+          <input type="search" class="form-control" placeholder="Wpisz nazwę produktu..." id="searchInput" onkeyup="searchOffers()">
+          <button class="btn btn-outline-secondary h-100" type="button" id="button-addon2">Szukaj</button>
+        </div>
+
+        <div id="offersContainer">
+
+            {% for offer in offers %}
+                <div class="offers__line" data-title="{{ offer.name }}" data-id="{{ offer.external.id }}">
+                    <img class="photo" src="{{offer.primaryImage.url}}" alt="">
+                    <p class="acti" id="acti_{{ offer.id }}">{{ offer.name }}</p>
+                    <img id="edit_{{ offer.id }}" class="icon edit__stock" src="{% static 'icons/edit2.png' %}" onclick="getImg('{{ offer.id }}')">
+                </div>
+            {% endfor %}
+
+        </div>
+
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
@@ -154,6 +184,119 @@
 
     <!-- IMAGE COMPRESION -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pica/9.0.1/pica.min.js"></script>
+
+
+    <script>
+
+        // Function to get CSRF token from cookie
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    // Check if the cookie name matches the desired name
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+
+        // Function to get all offers
+        offersContainer = []
+        document.addEventListener('DOMContentLoaded', function () {
+            var offersData = document.getElementById('offers-data').value;
+            // console.log('offersData', offersData)
+            let jsonString = offersData
+            .replace(/'/g, '"')  // Replace single quotes with double quotes
+            .replace(/True/g, 'true')  // Replace True with true
+            .replace(/False/g, 'false')  // Replace False with false   
+            .replace(/None/g, 'null');     
+            // console.log(jsonString);
+            let array = JSON.parse(jsonString);
+            console.log('offersContainer array',  array);
+            offersContainer.push(array)
+        });
+
+        
+        // Function to get serching offer
+        function searchOffers() {
+            // Get the search query
+            var query = document.getElementById('searchInput').value.toLowerCase();
+
+            // Get all the offers
+            var offers = document.querySelectorAll('#offersContainer .offers__line');
+
+            // Loop through the offers and filter them
+            offers.forEach(function(offer) {
+                    var title = offer.getAttribute('data-title').toLowerCase();
+                    var id = offer.getAttribute('data-id').toLowerCase();
+                    if (title.includes(query) || id.includes(query)) {
+                        offer.classList.add('show');
+                        // console.log('query', offer)
+                    } else {
+                        offer.classList.remove('show');
+                        // console.log('no-query', offer)
+                    }
+                });
+        }
+
+
+        // Function to get images of serched offer
+        function getImg(offerId) {
+
+            var csrftoken = getCookie('csrftoken');
+            var nameId = document.getElementById('name');
+            var name = nameId.getAttribute('value')
+            console.log('name', name)
+
+            axios.get(`/get_one_offer_json/${name}/${offerId}/`, {
+                headers: {
+                        'X-CSRFToken': csrftoken
+                    }
+            })
+
+            .then(function(response) {
+                // console.log('status', response.data.newValue)
+                if(response.status == 200) {
+                    var resp = response;
+                    console.log('getImg', resp.data.result.images);
+                    putImg( resp.data.result.images );
+
+                }
+            })
+            .catch(function(error) {
+                // Handle error
+                console.error('Error getImg:', error);
+            });
+
+        }
+
+
+        function putImg(images) {
+
+            var imageGallery = document.getElementById('imageGallery');
+            imageGallery.style.width = '100%';
+            imageGallery.style.height = '160px';
+            imageGallery.style.border = '1px solid gray';
+            imageGallery.style.backgroundColor = '#f0f0f0';
+
+            images.forEach((img) => {
+                var imageElem = document.createElement('img');
+                imageElem.src = img;
+                imageElem.style.objectFit = 'cover'
+                imageElem.style.width = '150px';
+                imageElem.style.height = '150px';
+
+                imageGallery.appendChild(imageElem);
+            })
+        }
+
+    </script>
 
 
     <script>
@@ -1659,7 +1802,11 @@
                 // Finding the angle position of the image
                 const rotationData = container.style.transform; //parseFloat(container.style.transform)
                 const rotationArray = rotationData.match(/rotate\(([-\d.]+)deg\)/);
-                const rotationAngle = parseFloat(rotationArray[1])
+                var rotationAngle = 0;
+                console.log('rotationArray', rotationArray)
+                if ( rotationArray !== null ) {
+                    rotationAngle = parseFloat(rotationArray[1]) || 0;
+                }
 
                 // Create a new image object to ensure it's loaded properly
                 const imgElement = new Image();

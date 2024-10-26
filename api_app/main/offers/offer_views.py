@@ -166,6 +166,21 @@ def get_one_offer(request, name, id):
 
     return render(request, 'offers/get_one_offer.html', context)
 
+
+# GET OFFER DESCRIPTION
+def get_one_offer_json(request, name, id):
+
+    url = f"sale/product-offers/{id}"
+    debug_name = 'get_all_offers 126'
+
+    offers = sync_service.Offers(name)
+    result = offers.get_(request, url, debug_name)
+
+    return JsonResponse({
+        'message': 'Success',
+        'result': result,
+    }, status=200,)
+
     
 
 def get_description(request, id, name):
