@@ -1648,14 +1648,18 @@
             console.log('resizableContainers', resizableContainers)
             resizableContainers.forEach(container => {
                 const img = container.querySelector('img');
-                console.log('save loop container', container)
+                // console.log('save loop container', container)
+
                 // Centering uploaded image event without moving it
                 const defaultLeft = (container.parentElement.offsetWidth - container.offsetWidth) / 2;
                 const defaultTop = (container.parentElement.offsetHeight - container.offsetHeight) / 2;
                 const left = parseInt(container.style.left) || defaultLeft;
                 const top = parseInt(container.style.top) || defaultTop;
-                // const rotation = parseInt(container.style.transform.match(/rotate\((-?\d+)deg\)/)?.[1]) || 0
 
+                // Finding the angle position of the image
+                const rotationData = container.style.transform; //parseFloat(container.style.transform)
+                const rotationArray = rotationData.match(/rotate\(([-\d.]+)deg\)/);
+                const rotationAngle = parseFloat(rotationArray[1])
 
                 // Create a new image object to ensure it's loaded properly
                 const imgElement = new Image();
@@ -1689,27 +1693,20 @@
                     // Calculate the final position on the canvas using the image's own position
                     const drawX = (left + (containerWidth - drawWidth) / 2) * scaleFactor; // Centering the image
                     const drawY = (top + (containerHeight - drawHeight) / 2) * scaleFactor; // Centering the image   
-                    
-                    // Draw the image onto the canvas at the calculated position and size
-                    ctx.drawImage(imgElement, drawX, drawY, scaledWidth, scaledHeight);
 
-                    // test save rotate position
+                    // Save the current context state
+                    ctx.save();
+                    const transX = drawX + scaledWidth / 2
+                    const transY = drawY + scaledHeight / 2
+                    // Move the context origin to the center of the image to rotate around its center
+                    ctx.translate(drawX + scaledWidth / 2, drawY + scaledHeight / 2);
+                    ctx.rotate(rotationAngle * Math.PI / 180);
 
-                    // // Save the current context state
-                    // // ctx.save();
-                    // const transX = drawX + scaledWidth / 2
-                    // const transY = drawY + scaledHeight / 2
-                    // // Move the context origin to the center of the image to rotate around its center
-                    // ctx.translate(drawX + scaledWidth / 2, drawY + scaledHeight / 2);
-                    // ctx.rotate(rotation * Math.PI / 180);
+                    // Draw the image centered on the translated origin
+                    ctx.drawImage(imgElement, -scaledWidth / 2, -scaledHeight / 2, scaledWidth, scaledHeight);
 
-                    // // Draw the image centered on the translated origin
-                    // ctx.drawImage(imgElement, -scaledWidth / 2, -scaledHeight / 2, scaledWidth, scaledHeight);
-
-                    // // Restore the context to its original state
-                    // // ctx.restore();
-
-                    // end rotate save logic
+                    // Restore the context to its original state
+                    ctx.restore();
 
                     imagesLoaded++;  // Increment the count of loaded images
 
