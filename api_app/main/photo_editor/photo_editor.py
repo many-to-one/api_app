@@ -49,6 +49,7 @@ from django.views.decorators.http import require_POST
 
 #     return render(request, 'photo_editor/photo_editor.html')
 
+
 def remove_background(request):
 
     name = request.user.username
@@ -74,6 +75,7 @@ def remove_background(request):
 @require_POST
 def remove_bg(request):
     if request.method == "POST":
+        print('################## remove bg POST body #################', request)
         image = request.FILES.get("image")
         threshold = request.POST['threshold']
         print('--------------- request ---------------', image)

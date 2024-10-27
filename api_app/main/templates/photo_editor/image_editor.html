@@ -51,8 +51,9 @@
             <img id="brightness" onclick="showProcContainer()" style="cursor: pointer;" src="{% static 'icons/curve.svg' %}" width="25" alt="">
             <img id="duplicateImg" onclick="duplicateImg()" style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="25" alt="">
             <img id="duplicateImg" onclick="showShadowContainer()" style="cursor: pointer;" src="{% static 'icons/options.svg' %}" width="25" alt="">
+            <!-- <img style="cursor: pointer;" onclick=" isDraw__()" src="{% static 'icons/close.svg' %}" width="25" alt=""> -->
+            <img style="cursor: pointer;" onclick=" removeBackGround()" src="{% static 'icons/rembg.svg' %}" width="25" alt="">
             <img style="cursor: pointer;" onclick="deleteImg()" src="{% static 'icons/close.svg' %}" width="25" alt="">
-            <img style="cursor: pointer;" onclick=" isDraw__()" src="{% static 'icons/close.svg' %}" width="25" alt="">
         </div>
 
         <!-- TEST BRIGHTNESS CONTAINER 1 -->
@@ -117,6 +118,12 @@
 
 
         <div id="thumbnailArea" class="d-flex justify-content-center align-items-center">
+            <!-- Spinner -->
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status" id="spinner2">
+                <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
             <canvas class="resizable" id="selectionCanvas" width="300" height="300" style="display: none;"></canvas>
             <svg xmlns="http://www.w3.org/2000/svg" width="50" fill="currentColor" class="bi bi-images" viewBox="0 0 16 16" opacity="0.2">
               <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
@@ -151,11 +158,21 @@
             <p class="print">{{name}}</p>
         </div>
 
-        <div id="imageGallery" class="d-flex justify-content-start gap-2 m-2 w-75"></div>
+        <div id="imageGallery" class="d-flex justify-content-start gap-2 m-2 w-75">
+
+                <div class="square-form">
+                    <form id="imageForm2" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="file" name="imageBG" id="imageBG" required style="display:none;">
+                        <button type="button" id="triggerFileInput2">+</button>
+                    </form>
+                </div>
+
+        </div>
 
         <div class="input-group mb-3 w-75">
           <input type="search" class="form-control" placeholder="Wpisz nazwę produktu..." id="searchInput" onkeyup="searchOffers()">
-          <button class="btn btn-outline-secondary h-100" type="button" id="button-addon2">Szukaj</button>
+          <button class="btn btn-outline-secondary h-100" type="button" id="button-addon2">Zapisz</button>
         </div>
 
         <div id="offersContainer">
@@ -277,35 +294,96 @@
         }
 
 
+        function getImageTypeFromSrc(src) {
+            // Extract the type from the data URL
+            if (src.startsWith('data:image/')) {
+                const type = src.substring(11, src.indexOf(';'));
+                return type; // This will return "jpeg", "png", etc.
+            }
+            return null; // Return null if the src is not a valid data URL
+        }
+
+
+        let nameCounter = 0;
+        let activeImage = null;
+        let imageBGName = null;
+        var squareForm = document.getElementById('squareForm');
+        var imageGallery = document.getElementById('imageGallery');
+        imageGallery.style.width = '100%';
+        imageGallery.style.height = '160px';
+        const spinner = document.getElementById('spinner');
+        const spinner2 = document.getElementById('spinner2');
+
         function putImg(images) {
 
-            var imageGallery = document.getElementById('imageGallery');
-            imageGallery.style.width = '100%';
-            imageGallery.style.height = '160px';
-            imageGallery.style.border = '1px solid gray';
-            imageGallery.style.backgroundColor = '#f0f0f0';
-
             images.forEach((img) => {
+                var imageCont = document.createElement('div');
+                imageCont.id = 'squareForm';
+                imageCont.className = 'square-form';
+
                 var imageElem = document.createElement('img');
                 imageElem.src = img;
                 imageElem.style.objectFit = 'cover'
                 imageElem.style.width = '150px';
                 imageElem.style.height = '150px';
+                var imgType = getImageTypeFromSrc(img);
+                imageBGName = `outputImageBG${nameCounter}.${imgType}`;
+                imageElem.id = imageBGName;
+                imageElem.draggable = true;
 
-                imageGallery.appendChild(imageElem);
+                // Drag and drop logic
+                imageElem.ondragstart = function(event) {
+                event.dataTransfer.setData('text/plain', event.target.id);
+                nameCounter++;
+
+                workWithImage (imageBGName, imageElem.src)
+            };
+
+                imageCont.appendChild(imageElem);
+                imageGallery.appendChild(imageCont);
             })
-        }
 
-    </script>
+            // Move squareForm to the end
+            imageGallery.appendChild(squareForm);
+
+        };
 
 
-    <script>
+        // Upload the image and add it to the image gallery
+        // Options: add it to the offer or start the proccessing it
+        var inputImageBG = document.getElementById('imageBG');
+        triggerFileInput2.addEventListener('click', () => {
+            inputImageBG.click(); // Trigger file input click
+        });
+
+        inputImageBG.addEventListener('change', () => {
+            if (inputImageBG.files.length > 0) {
+                // spinner2.style.display = 'block';
+                var file = inputImageBG.files[0];
+                var reader = new FileReader();
+
+                // Read the image file as a data URL
+                reader.onload = function(event) {
+                    var imageSrc = event.target.result; // This is the image src
+                    putImg([imageSrc]); // Pass the image src to putImg as an array
+                    spinner.style.display = 'none'; // Hide spinner after loading the image
+                };
+
+                reader.readAsDataURL(file); // Start reading the file
+            }
+
+        });
+
+        
+        
+
+
         const csrfToken = document.getElementById('csrf-token').getAttribute('data-token');
         const form = document.getElementById('imageForm');
         const inputFile = document.getElementById('image');
         const threshold_ = document.getElementById('threshold');
         const triggerFileInput = document.getElementById('triggerFileInput');
-        const spinner = document.getElementById('spinner');
+        // const spinner = document.getElementById('spinner');
         const thumbnailArea = document.getElementById('thumbnailArea');
         const downloadCombined = document.getElementById('downloadCombined');
         const combinedCanvas = document.getElementById('combinedCanvas');
@@ -322,9 +400,9 @@
         let isActiveImage = false;
         let imageName = null;
         let imagURL = null
-        let activeImage = null;
+        // let activeImage = null;
         let zIndexCounter = 1;
-        let nameCounter = 0;
+        // let nameCounter = 0;
 
         let cashedBrightnessSlider = 1;
         let cashedRedSlider = 1;
@@ -1086,6 +1164,12 @@
 
 
 
+
+
+
+        // ############################################### //
+
+        // UPLOAD FILE WITH THE BACKGROUND RAMOVIG LOGIC
         triggerFileInput.addEventListener('click', () => {
             inputFile.click(); // Trigger file input click
         });
@@ -1129,9 +1213,71 @@
                     console.error('Error:', error);
                     alert('An error occurred. Please try again.');
                 });
-            
             }
         });
+
+
+        function removeBackGround() {
+
+            imgToRemove = document.getElementById(`resizable${imageBGName}`)
+            imgToRemove.remove();
+            spinner2.style.display = 'block';
+
+            var imgInGallery = document.getElementById(imageBGName);
+            // var squareInGallery = document.getElementById(imageBGName);
+
+            var image = document.getElementById(imageBGName);
+            console.log('removeBackGround', image)
+
+            // Extract base64 string from image.src
+            const base64Data = image.src.split(',')[1]; // Split to get the base64 part
+
+            // Convert base64 to a Blob to send as binary
+            const blob = fetch(`data:image/png;base64,${base64Data}`)
+                .then(res => res.blob())
+                .then(blob => {
+                    // Create a FormData object
+                    const formData = new FormData();
+                    formData.append('image', blob, 'image.png'); // You can specify a filename
+                    formData.append('threshold', threshold_.value);
+
+                    // Send the POST request
+                    return axios.post("{% url 'remove_bg' %}", formData, {
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                        }
+                    });
+                })
+                .then(response => {
+                    spinner2.style.display = 'none';
+                    if (response.data.success) {
+                        imageName = response.data.imgName;
+                        imagURL = response.data.image_data_url;
+
+                        // Reset sliders and other settings
+                        document.getElementById('brightnessSlider').value = 1;
+                        document.getElementById('redSlider').value = 1;
+                        document.getElementById('greenSlider').value = 1;
+                        document.getElementById('blueSlider').value = 1;
+                        document.getElementById('contrastSlider').value = 0;
+                        originalImageData = null;
+                        imgInGallery.src = null;
+                        imgInGallery.src = imagURL;
+                        imgInGallery.style.width = '150px';
+                        imgInGallery.style.height = 'auto';
+                        console.log('imgInGallery', imgInGallery)
+                        workWithImage(imageName, imagURL);
+                    } else {
+                        alert('Failed to process the image.');
+                    }
+                })
+                .catch(error => {
+                    spinner.style.display = 'none';
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+        }
+
 
 
         function workWithImage (imageName, imagURL) {
