@@ -176,7 +176,7 @@
 
         <div class="input-group mb-3 w-75">
           <input type="search" class="form-control" placeholder="Wpisz nazwę produktu..." id="searchInput" onkeyup="searchOffers()">
-          <button class="btn btn-outline-secondary h-100" type="button" id="button-addon2">Zapisz</button>
+          <button class="btn btn-outline-secondary h-100" type="button" id="button-addon2" onclick="editOfferGallery()">Zapisz</button>
         </div>
 
         <div id="offersContainer">
@@ -320,8 +320,10 @@
         const spinner = document.getElementById('spinner');
         const spinner2 = document.getElementById('spinner2');
         const thumbnailArea = document.getElementById('thumbnailArea');
-        let imgIndex = 0;
+        let dragstart = null;
+        let drop = null;
 
+        // PUT IMAGE INSIDE IMAGE GALLERY LOGIC
         function putImg(images) {
 
             images.forEach((img) => {
@@ -329,14 +331,13 @@
                 imageCont.className = 'square-form';
 
                 var imageElem = document.createElement('img');
-                imageElem.dataset = imgIndex + 1;
-                imgIndex +=1;
                 imageElem.src = img;
                 imageElem.style.objectFit = 'cover'
                 imageElem.style.width = '150px';
                 imageElem.style.height = '150px';
                 var imgType = getImageTypeFromSrc(img);
                 imageBGName = `outputImageBG${nameCounter}.${imgType}`;
+                nameCounter ++;
                 imageElem.id = imageBGName;
                 imageElem.draggable = true;
 
@@ -346,53 +347,41 @@
                     workWithImage (imageBGName, imageElem.src);                 
                 });
 
-                let draggedIndex = 0;
 
-                imageElem.addEventListener('dragstart', (event) => {
-                    dragged = event.target;
-                    const parent = imageCont.parentNode; // Get the parent (imageGallery)
-                    const children = Array.from(parent.children); // Convert the children to an array
-                    const index = children.indexOf(imageCont); // Find the index of the clicked element
-                    
-                    console.log(`The clicked element's index is: ${index}`);
-                    draggedIndex = index;
-                    
+                // DRAG AND DROP LOGIC INSIDE IMAGE GALLERY
+                imageElem.addEventListener('dragstart', (event) => { 
+                    dragstart = document.getElementById(`squareForm${imageElem.id}`);             
                 });
 
                 imageElem.addEventListener('dragover', (event) => {
                     event.preventDefault();
                 });
 
-                // function drugover() {
-                //     imageElem.addEventListener('dragover', (event) => {
-                //     event.preventDefault();
-                // });
-                // }
-
                 imageElem.addEventListener('drop', (event) => {
+
                     event.preventDefault();
-                    // dragged.parentNode.removeChild(dragged);
-                    // event.target.appendChild(dragged);
-                    var indexEl = getElementPosition(imageCont);
-                    console.log(`drop is: ${indexEl}`);
-                    console.log(`draggedIndex: ${draggedIndex}`);
+                    drop = document.getElementById(`squareForm${imageElem.id}`); 
+
+                    dropImg = drop.querySelector('img')
+                    dragstartImg = dragstart.querySelector('img')
+                    srcStorage = dropImg.src
+
+
+                    dropImg.src = dragstartImg.src;
+                    dragstartImg.src = srcStorage;
                 });
-
-
-                function getElementPosition(element) {
-                    const parent = element.parentNode; // Get the parent (imageGallery)
-                    const children = Array.from(parent.children); // Convert the children to an array
-                    return children.indexOf(element); // Find the index of the element
-                };
+                // END OF DRAG AND DROP LOGIC INSIDE IMAGE GALLERY
 
                 imageCont.appendChild(imageElem);
                 imageGallery.appendChild(imageCont);
             })
 
+
             // Move squareForm to the end
             imageGallery.appendChild(mainSquareForm);
-
+            
         };
+        // END OFPUT IMAGE INSIDE IMAGE GALLERY LOGIC
 
 
 
@@ -428,6 +417,23 @@
         }
         
 
+        function editOfferGallery() {
+            const images = imageGallery.querySelectorAll('.square-form');
+            imagesArray = []
+
+            images.forEach((imgContainer) => {
+                const imgElement = imgContainer.querySelector('img'); // Get the img element inside each square-form
+
+                if (imgElement && imgElement.src) { // Check if imgElement exists and has a src
+                    // console.log('imageGallery img src:', imgElement.src);
+                    imagesArray.push(imgElement.src); // Add src to imagesArray if not null
+                } 
+            });
+
+            console.log('imageGallery imagesArray:', imagesArray);
+
+        }
+    
 
         const csrfToken = document.getElementById('csrf-token').getAttribute('data-token');
         const form = document.getElementById('imageForm');

@@ -24,3 +24,7 @@ urlpatterns = [
     path('', include('main.urls')),
     path('users/', include('users.urls'),)
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# Serve media files during development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
