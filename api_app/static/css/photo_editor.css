@@ -17,8 +17,8 @@
 }
 
 .square-form {
-    width: 150px;
-    height: 150px;
+    width: 160px;
+    height: 160px;
     background-color: #f0f0f0;
     border: 2px dashed #ccc;
     display: flex;

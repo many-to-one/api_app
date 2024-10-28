@@ -149,8 +149,12 @@
                   .svg
                 </label>
               </div>
+              <div style="padding-left: 20px;" class="set__tooltip">
+                 <img src="{% static 'icons/upload.svg' %}" id="downloadCombined" type="button">
+                 <span class="tooltip__text" style="margin-left: 160px;">Pobierz obraz</span>
+              </div>
         </div>
-        <button id="downloadCombined" style="margin: 20px;" type="button" class="btn btn-primary">Zapisz</button>
+        <button id="addToGallery" style="margin: 20px;" type="button" class="btn btn-primary">Dodaj do Galerii</button>
 
         <canvas id="combinedCanvas" style="display:none;"></canvas> <!-- Hidden Canvas for combining images -->
 
@@ -263,6 +267,7 @@
         }
 
 
+
         // Function to get images of serched offer
         function getImg(offerId) {
 
@@ -305,23 +310,27 @@
 
 
         let nameCounter = 0;
+        let initialY = 0;
         let activeImage = null;
         let imageBGName = null;
-        var squareForm = document.getElementById('squareForm');
+        var mainSquareForm = document.getElementById('squareForm');
         var imageGallery = document.getElementById('imageGallery');
         imageGallery.style.width = '100%';
         imageGallery.style.height = '160px';
         const spinner = document.getElementById('spinner');
         const spinner2 = document.getElementById('spinner2');
+        const thumbnailArea = document.getElementById('thumbnailArea');
+        let imgIndex = 0;
 
         function putImg(images) {
 
             images.forEach((img) => {
                 var imageCont = document.createElement('div');
-                imageCont.id = 'squareForm';
                 imageCont.className = 'square-form';
 
                 var imageElem = document.createElement('img');
+                imageElem.dataset = imgIndex + 1;
+                imgIndex +=1;
                 imageElem.src = img;
                 imageElem.style.objectFit = 'cover'
                 imageElem.style.width = '150px';
@@ -331,22 +340,60 @@
                 imageElem.id = imageBGName;
                 imageElem.draggable = true;
 
-                // Drag and drop logic
-                imageElem.ondragstart = function(event) {
-                event.dataTransfer.setData('text/plain', event.target.id);
-                nameCounter++;
+                imageCont.id = `squareForm${imageBGName}`;
 
-                workWithImage (imageBGName, imageElem.src)
-            };
+                imageElem.addEventListener('dblclick', function () {
+                    workWithImage (imageBGName, imageElem.src);                 
+                });
+
+                let draggedIndex = 0;
+
+                imageElem.addEventListener('dragstart', (event) => {
+                    dragged = event.target;
+                    const parent = imageCont.parentNode; // Get the parent (imageGallery)
+                    const children = Array.from(parent.children); // Convert the children to an array
+                    const index = children.indexOf(imageCont); // Find the index of the clicked element
+                    
+                    console.log(`The clicked element's index is: ${index}`);
+                    draggedIndex = index;
+                    
+                });
+
+                imageElem.addEventListener('dragover', (event) => {
+                    event.preventDefault();
+                });
+
+                // function drugover() {
+                //     imageElem.addEventListener('dragover', (event) => {
+                //     event.preventDefault();
+                // });
+                // }
+
+                imageElem.addEventListener('drop', (event) => {
+                    event.preventDefault();
+                    // dragged.parentNode.removeChild(dragged);
+                    // event.target.appendChild(dragged);
+                    var indexEl = getElementPosition(imageCont);
+                    console.log(`drop is: ${indexEl}`);
+                    console.log(`draggedIndex: ${draggedIndex}`);
+                });
+
+
+                function getElementPosition(element) {
+                    const parent = element.parentNode; // Get the parent (imageGallery)
+                    const children = Array.from(parent.children); // Convert the children to an array
+                    return children.indexOf(element); // Find the index of the element
+                };
 
                 imageCont.appendChild(imageElem);
                 imageGallery.appendChild(imageCont);
             })
 
             // Move squareForm to the end
-            imageGallery.appendChild(squareForm);
+            imageGallery.appendChild(mainSquareForm);
 
         };
+
 
 
         // Upload the image and add it to the image gallery
@@ -375,6 +422,10 @@
         });
 
         
+        function addImgToGallery() {
+            const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
+            putImg([imgElement.src]);
+        }
         
 
 
@@ -384,7 +435,7 @@
         const threshold_ = document.getElementById('threshold');
         const triggerFileInput = document.getElementById('triggerFileInput');
         // const spinner = document.getElementById('spinner');
-        const thumbnailArea = document.getElementById('thumbnailArea');
+        // const thumbnailArea = document.getElementById('thumbnailArea');
         const downloadCombined = document.getElementById('downloadCombined');
         const combinedCanvas = document.getElementById('combinedCanvas');
         const imageNavCont = document.getElementById('navProImg');
@@ -2011,6 +2062,183 @@
 
 
         });
+
+
+
+
+         // Function to combine images inside the thumbnailArea and put it inside image gallery
+         var addToGallery = document.getElementById('addToGallery');
+         addToGallery.addEventListener('click', function () {
+
+            cashedBrightnessSlider = 1;
+            cashedRedSlider = 1;
+            cashedGreenSlider = 1;
+            cashedBlueSlider = 1;
+            copyCash = false;
+            addCash = false;
+            originalImageData = null;
+
+            // const resizableContainers = thumbnailArea.querySelectorAll('.resizable');
+            const resizableContainers = Array.from(thumbnailArea.querySelectorAll('.resizable')).slice(1); // because of canvas container for selection inside of thumbnailArea
+
+            if (resizableContainers.length === 0) {
+                alert("No images to combine!");
+                return;
+            }
+
+            // Set the canvas dimensions
+            const canvasWidth = 2560;
+            const canvasHeight = 2560;
+            combinedCanvas.width = canvasWidth;
+            combinedCanvas.height = canvasHeight;
+
+            let format = null
+
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    format = checkbox.value
+                    // selectedFormats.push(checkbox.value);
+                }
+            })
+
+            const ctx = combinedCanvas.getContext('2d');
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight); // Clear canvas
+            if ( format === 'jpeg' ) {
+                ctx.fillStyle = "rgb(255, 255, 255)"; 
+            } 
+            else {
+                ctx.fillStyle = "rgba(0, 0, 0, 0)"; 
+            }
+            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+            let imagesLoaded = 0;
+
+
+            function checkAllImagesLoaded() {
+                if (imagesLoaded === resizableContainers.length) {
+                    combinedCanvas.toBlob(function (blob) {
+                    const img = new Image();
+                    img.src = URL.createObjectURL(blob);
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+
+                        // Set canvas to desired dimensions
+                        canvas.width = 2560;
+                        canvas.height = 2560;
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                        let quality = 1.0;
+                        let outputBlob;
+
+
+
+                        do {
+                        const dataUrl = canvas.toDataURL(`image/${format}`, quality);
+                        outputBlob = dataURLToBlob(dataUrl);
+                        quality -= 0.1;
+                        } while (outputBlob.size > 500 * 1024 && quality > 0.1);
+
+                        var imgToGallery = URL.createObjectURL(outputBlob);
+                        console.log('imgToGallery', imgToGallery);
+                        putImg([imgToGallery]);
+                    };
+                    }, `image/${format}`);
+                }
+            }
+
+                function dataURLToBlob(dataURL) {
+                const byteString = atob(dataURL.split(',')[1]);
+                const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+                const ab = new ArrayBuffer(byteString.length);
+                const ia = new Uint8Array(ab);
+                for (let i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+                return new Blob([ab], { type: mimeString });
+                }
+
+
+
+
+                // Draw each image on the canvas in the right size and position
+                console.log('resizableContainers', resizableContainers)
+                resizableContainers.forEach(container => {
+                    const img = container.querySelector('img');
+                    // console.log('save loop container', container)
+
+                    // Centering uploaded image event without moving it
+                    const defaultLeft = (container.parentElement.offsetWidth - container.offsetWidth) / 2;
+                    const defaultTop = (container.parentElement.offsetHeight - container.offsetHeight) / 2;
+                    const left = parseInt(container.style.left) || defaultLeft;
+                    const top = parseInt(container.style.top) || defaultTop;
+
+                    // Finding the angle position of the image
+                    const rotationData = container.style.transform; //parseFloat(container.style.transform)
+                    const rotationArray = rotationData.match(/rotate\(([-\d.]+)deg\)/);
+                    var rotationAngle = 0;
+                    console.log('rotationArray', rotationArray)
+                    if ( rotationArray !== null ) {
+                        rotationAngle = parseFloat(rotationArray[1]) || 0;
+                    }
+
+                    // Create a new image object to ensure it's loaded properly
+                    const imgElement = new Image();
+                    imgElement.src = img.src;
+
+                    imgElement.onload = function () {
+
+                        const containerWidth = container.offsetWidth; // Width of the container
+                        const containerHeight = container.offsetHeight;
+
+                        // Calculate aspect ratio and fit image within the container's size
+                        const originalWidth = imgElement.naturalWidth;
+                        const originalHeight = imgElement.naturalHeight;
+                        const aspectRatio = originalWidth / originalHeight;
+
+                        // Determine the correct drawing size and position to maintain aspect ratio
+                        let drawWidth, drawHeight;
+                        if (containerWidth / containerHeight > aspectRatio) {
+                            drawHeight = containerHeight;
+                            drawWidth = drawHeight * aspectRatio;
+                        } else {
+                            drawWidth = containerWidth;
+                            drawHeight = drawWidth / aspectRatio;
+                        }
+
+                        // Calculate scale factor based on canvas size change
+                        const scaleFactor = canvasWidth / 500; // Assuming original canvas was 1000x1000
+                        const scaledWidth = drawWidth * scaleFactor;
+                        const scaledHeight = drawHeight * scaleFactor;
+
+                        // Calculate the final position on the canvas using the image's own position
+                        const drawX = (left + (containerWidth - drawWidth) / 2) * scaleFactor; // Centering the image
+                        const drawY = (top + (containerHeight - drawHeight) / 2) * scaleFactor; // Centering the image   
+
+                        // Save the current context state
+                        ctx.save();
+                        const transX = drawX + scaledWidth / 2
+                        const transY = drawY + scaledHeight / 2
+                        // Move the context origin to the center of the image to rotate around its center
+                        ctx.translate(drawX + scaledWidth / 2, drawY + scaledHeight / 2);
+                        ctx.rotate(rotationAngle * Math.PI / 180);
+
+                        // Draw the image centered on the translated origin
+                        ctx.drawImage(imgElement, -scaledWidth / 2, -scaledHeight / 2, scaledWidth, scaledHeight);
+
+                        // Restore the context to its original state
+                        ctx.restore();
+
+                        imagesLoaded++;  // Increment the count of loaded images
+
+                        // Check if all images are loaded and drawn 
+                        // and save with compression to minimal size (> 1MB)
+                        checkAllImagesLoaded();
+                    };
+                });
+
+        });
+
     </script>
 
 </body>
