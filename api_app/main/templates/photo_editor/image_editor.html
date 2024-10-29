@@ -162,7 +162,7 @@
             <p class="print">{{name}}</p>
         </div>
 
-        <div id="imageGallery" class="d-flex justify-content-start gap-2 m-2 w-75">
+        <div id="imageGallery" class="d-flex justify-content-start flex-wrap gap-2 m-2 w-75">
 
                 <div class="square-form">
                     <form id="imageForm2" method="POST" enctype="multipart/form-data">
@@ -316,17 +316,24 @@
         var mainSquareForm = document.getElementById('squareForm');
         var imageGallery = document.getElementById('imageGallery');
         imageGallery.style.width = '100%';
-        imageGallery.style.height = '160px';
+        imageGallery.style.height = 'auto';
         const spinner = document.getElementById('spinner');
         const spinner2 = document.getElementById('spinner2');
         const thumbnailArea = document.getElementById('thumbnailArea');
         let dragstart = null;
         let drop = null;
 
+
         // PUT IMAGE INSIDE IMAGE GALLERY LOGIC
         function putImg(images) {
 
             images.forEach((img) => {
+                // var fullImageCont = document.createElement('div');
+                // fullImageCont.id = 'fullImageCont';
+                // fullImageCont.style.display = 'flex';
+                // fullImageCont.style.flexDirection = 'column';
+                // fullImageCont.style.alignItems = 'center';
+
                 var imageCont = document.createElement('div');
                 imageCont.className = 'square-form';
 
@@ -343,35 +350,93 @@
 
                 imageCont.id = `squareForm${imageBGName}`;
 
-                imageElem.addEventListener('dblclick', function () {
-                    workWithImage (imageBGName, imageElem.src);                 
+                // // CLOSE IMG IN GALLERY AND UPLOAD IMG LOGIC
+                // var closeUp = document.createElement('div')
+                // closeUp.style.height = '25px';
+                // closeUp.style.width = '50px';
+                // closeUp.style.backgroundColor = 'white';
+                // closeUp.style.opacity = '.8';
+                // closeUp.style.display = 'flex';
+                // closeUp.style.alignItems = 'center';
+                // closeUp.style.justifyContent = 'space-evenly';
+                // closeUp.style.position = 'absolute';
+                // closeUp.style.top = '0';
+                // closeUp.style.right = '0';
+
+                // var closeIcon = document.createElement('img');
+                // closeIcon.id = 'closeIcon';
+                // closeIcon.src = "{% static 'icons/close.svg' %}";
+                // closeIcon.style.width = '16px';
+                // closeIcon.onclick = function () {
+                //     imageElem.remove();
+                //     imageCont.remove();
+                // }
+
+                // var downloadLink = document.createElement('a'); //document.getElementById('downloadLink');
+                // downloadLink.id = 'downloadLink'
+                // downloadLink.href = img; //response.data.image_data_url;
+                // downloadLink.download = "processed_image.png";
+                // downloadLink.style.display = 'block';
+                // const uploadImg = document.createElement('img');
+                // uploadImg.id = 'uploadImg';
+                // uploadImg.style.marginTop = '-5px';
+                // uploadImg.src = "{% static 'icons/upload.svg' %}";
+                // downloadLink.appendChild(uploadImg);
+
+                // closeUp.appendChild(downloadLink);
+                // closeUp.appendChild(closeIcon);
+
+                // // imageCont.appendChild(closeUp);
+                // // END OF CLOSE IMG IN GALLERY AND UPLOAD IMG LOGIC
+
+
+                imageElem.addEventListener('dblclick', (event) => {
+                    console.log('dblclick on start', event.target.id)  
+                    console.log('dblclick imageElem.id', imageElem.id) 
+                    console.log('dblclick imageBGName', imageBGName) 
+                    imageBGName = event.target.id
+                    workWithImage (imageBGName, imageElem.src);   //imageBGName `resizable${imageBGName}`              
                 });
 
 
                 // DRAG AND DROP LOGIC INSIDE IMAGE GALLERY
                 imageElem.addEventListener('dragstart', (event) => { 
-                    dragstart = document.getElementById(`squareForm${imageElem.id}`);             
+                    dragstart = document.getElementById(`squareForm${imageElem.id}`);  
+                    console.log('dragstart on start', dragstart)           
+                });
+
+                imageElem.addEventListener('click', (event) => { 
+                    console.log('imageElem click on start', imageElem)           
                 });
 
                 imageElem.addEventListener('dragover', (event) => {
                     event.preventDefault();
                 });
 
-                imageElem.addEventListener('drop', (event) => {
 
-                    event.preventDefault();
-                    drop = document.getElementById(`squareForm${imageElem.id}`); 
+                    imageElem.addEventListener('drop', (event) => {
 
-                    dropImg = drop.querySelector('img')
-                    dragstartImg = dragstart.querySelector('img')
-                    srcStorage = dropImg.src
+                        event.preventDefault();
+                        drop = document.getElementById(`squareForm${imageElem.id}`); 
+
+                        dropImg = drop.querySelector('img')
+                        dragstartImg = dragstart.querySelector('img')
+                        srcStorage = dropImg.src
+                        idStorage = dropImg.id
 
 
-                    dropImg.src = dragstartImg.src;
-                    dragstartImg.src = srcStorage;
-                });
+                        dropImg.src = dragstartImg.src;
+                        dropImg.id = dragstartImg.id;
+                        drop.id = `squareForm${dropImg.id}`;
+                        dragstartImg.src = srcStorage;
+                        dragstartImg.id = idStorage;
+                        dragstart.id = `squareForm${idStorage}`;
+
+                    });
+
                 // END OF DRAG AND DROP LOGIC INSIDE IMAGE GALLERY
 
+                // imageCont.appendChild(closeUp);
                 imageCont.appendChild(imageElem);
                 imageGallery.appendChild(imageCont);
             })
@@ -1276,6 +1341,7 @@
 
         function removeBackGround() {
 
+            console.log('removeBackGround imgToRemove', imageBGName)
             imgToRemove = document.getElementById(`resizable${imageBGName}`)
             imgToRemove.remove();
             spinner2.style.display = 'block';
@@ -1295,7 +1361,7 @@
                 .then(blob => {
                     // Create a FormData object
                     const formData = new FormData();
-                    formData.append('image', blob, 'image.png'); // You can specify a filename
+                    formData.append('image', blob, `resizable${imageBGName}`); // You can specify a filename `${imgToRemove}.png`
                     formData.append('threshold', threshold_.value);
 
                     // Send the POST request
@@ -1341,33 +1407,24 @@
 
                         originalImageData = null; // delete cashed image for brightness and color correction
                         activeImage = imageName
-                        // logic to download result in original size
-                        const outputImageCont = document.createElement('div');
-                        outputImageCont.id = `outputImageCont${imageName}`;
-                        outputImageCont.style.display = 'flex';
-                        outputImageCont.style.alignItems = 'center';
-                        outputImageCont.style.justifyContent = 'space-between';
-                        const outputImage = document.createElement('img'); 
-                        outputImage.id = `outputImage${imageName}`;
-                        outputImage.src = imagURL;
-                        outputImage.style.display = 'block';
-                        outputImage.style.width = '150px';
 
-                        // Make the image draggable
-                        outputImage.draggable = true;
-                        outputImage.ondragstart = function(event) {
-                            event.dataTransfer.setData('text/plain', event.target.id);
-                            nameCounter++;
-                            const dragImg = document.getElementById(`outputImage${imageName}`);
-                            let newImgName = null;
-                            newImgName = `${activeImage}_${nameCounter}`;
-                            nameCounter++;
 
-                            workWithImage (newImgName, dragImg.src)
-                        };
+                        // // logic to download result in original size
+                        // const outputImageCont = document.createElement('div');
+                        // outputImageCont.id = `outputImageCont${imageName}`;
+                        // outputImageCont.style.display = 'flex';
+                        // outputImageCont.style.alignItems = 'center';
+                        // outputImageCont.style.justifyContent = 'space-between';
+                        // const outputImage = document.createElement('img'); 
+                        // outputImage.id = `outputImage${imageName}`;
+                        // outputImage.src = imagURL;
+                        // outputImage.style.display = 'block';
+                        // outputImage.style.width = '150px';
 
-                        // thumbnailArea.ondrop = function(event) {
-                        //     event.preventDefault();
+                        // // Make the image draggable
+                        // outputImage.draggable = true;
+                        // outputImage.ondragstart = function(event) {
+                        //     event.dataTransfer.setData('text/plain', event.target.id);
                         //     nameCounter++;
                         //     const dragImg = document.getElementById(`outputImage${imageName}`);
                         //     let newImgName = null;
@@ -1377,43 +1434,42 @@
                         //     workWithImage (newImgName, dragImg.src)
                         // };
 
+                        // outputImage.onclick = function () {
+                        //     // Get all images within the same container and remove the 'activeImage' class
+                        //     const allImages = resultCont.querySelectorAll('img');
+                        //     allImages.forEach(img => img.classList.remove('activeImage'));
 
-                        outputImage.onclick = function () {
-                            // Get all images within the same container and remove the 'activeImage' class
-                            const allImages = resultCont.querySelectorAll('img');
-                            allImages.forEach(img => img.classList.remove('activeImage'));
+                        //     // Add the 'activeImage' class only to the clicked image
+                        //     outputImage.classList.add('activeImage');
+                        // }
 
-                            // Add the 'activeImage' class only to the clicked image
-                            outputImage.classList.add('activeImage');
-                        }
+                        // const downloadLink = document.createElement('a'); //document.getElementById('downloadLink');
+                        // downloadLink.href = imagURL; //response.data.image_data_url;
+                        // downloadLink.download = "processed_image.png";
+                        // downloadLink.style.display = 'block';
+                        // const uploadImg = document.createElement('img');
+                        // uploadImg.src = "{% static 'icons/upload.svg' %}";
+                        // downloadLink.appendChild(uploadImg);
 
-                        const downloadLink = document.createElement('a'); //document.getElementById('downloadLink');
-                        downloadLink.href = imagURL; //response.data.image_data_url;
-                        downloadLink.download = "processed_image.png";
-                        downloadLink.style.display = 'block';
-                        const uploadImg = document.createElement('img');
-                        uploadImg.src = "{% static 'icons/upload.svg' %}";
-                        downloadLink.appendChild(uploadImg);
+                        // const addImg = document.createElement('img');
+                        // addImg.src = "{% static 'icons/close.svg' %}";
+                        // addImg.style.width = '16px';
+                        // addImg.onclick = function () {
+                        //     const fullImgCont = document.getElementById('resizable' + imageName);
+                        //     if ( fullImgCont ) {
+                        //         fullImgCont.remove();
+                        //     }
+                        //     outputImage.remove();
+                        //     if ( outputImageCont ) {
+                        //         outputImageCont.remove();
+                        //     }
+                        // }
 
-                        const addImg = document.createElement('img');
-                        addImg.src = "{% static 'icons/close.svg' %}";
-                        addImg.style.width = '16px';
-                        addImg.onclick = function () {
-                            const fullImgCont = document.getElementById('resizable' + imageName);
-                            if ( fullImgCont ) {
-                                fullImgCont.remove();
-                            }
-                            outputImage.remove();
-                            if ( outputImageCont ) {
-                                outputImageCont.remove();
-                            }
-                        }
+                        // outputImageCont.appendChild(downloadLink);
+                        // outputImageCont.appendChild(addImg);
 
-                        outputImageCont.appendChild(downloadLink);
-                        outputImageCont.appendChild(addImg);
-
-                        resultCont.appendChild(outputImage);
-                        resultCont.appendChild(outputImageCont);
+                        // resultCont.appendChild(outputImage);
+                        // resultCont.appendChild(outputImageCont);
 
                         // let zIndexCounter = 1;
 
@@ -1447,10 +1503,10 @@
                         const originalWidth = imgElement.naturalWidth;
                         const originalHeight = imgElement.naturalHeight;
                         const aspectRatio = originalWidth / originalHeight;
-                        console.log('originalWidth x originalHeight', originalWidth, originalHeight)
-                        console.log('aspectRatio', aspectRatio)
-                        console.log('300 / aspectRatio', 300 / aspectRatio)
-                        console.log('imgElement dimensions', imgElement.offsetWidth, imgElement.offsetHeight)
+                        // console.log('originalWidth x originalHeight', originalWidth, originalHeight)
+                        // console.log('aspectRatio', aspectRatio)
+                        // console.log('300 / aspectRatio', 300 / aspectRatio)
+                        // console.log('imgElement dimensions', imgElement.offsetWidth, imgElement.offsetHeight)
 
                         imgElement.onclick = function () {
 
@@ -1582,12 +1638,15 @@
                             resizeHandle.forEach(handler => handler.style.display = 'block');
                             isActiveImage = true;
                             activeImage = imgIndex;
+                            console.log('resizableContainer', resizableContainer)
 
                              // Add click event listener to bring the clicked image to the front
                             resizableContainer.addEventListener('mousedown', function () {
                                 // Bring this container to the front
                                 resizableContainer.style.zIndex = zIndexCounter++;
                             });
+
+                            console.log('setActiveImg - zIndexCounter', zIndexCounter)
 
                             resizeImage(imgIndex);
                             startRotate(imageName);
