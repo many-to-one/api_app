@@ -143,12 +143,12 @@
                   .png
                 </label>
               </div>
-              <div class="form-check">
+              <!-- <div class="form-check">
                 <input class="form-check-input" type="checkbox" value="svg" id="svgCheck">
                 <label class="form-check-label" for="flexCheckChecked">
                   .svg
                 </label>
-              </div>
+              </div> -->
               <div style="padding-left: 20px;" class="set__tooltip">
                  <img src="{% static 'icons/upload.svg' %}" id="downloadCombined" type="button">
                  <span class="tooltip__text" style="margin-left: 160px;">Pobierz obraz</span>
@@ -328,11 +328,6 @@
         function putImg(images) {
 
             images.forEach((img) => {
-                // var fullImageCont = document.createElement('div');
-                // fullImageCont.id = 'fullImageCont';
-                // fullImageCont.style.display = 'flex';
-                // fullImageCont.style.flexDirection = 'column';
-                // fullImageCont.style.alignItems = 'center';
 
                 var imageCont = document.createElement('div');
                 imageCont.className = 'square-form';
@@ -350,44 +345,43 @@
 
                 imageCont.id = `squareForm${imageBGName}`;
 
-                // // CLOSE IMG IN GALLERY AND UPLOAD IMG LOGIC
-                // var closeUp = document.createElement('div')
-                // closeUp.style.height = '25px';
-                // closeUp.style.width = '50px';
-                // closeUp.style.backgroundColor = 'white';
-                // closeUp.style.opacity = '.8';
-                // closeUp.style.display = 'flex';
-                // closeUp.style.alignItems = 'center';
-                // closeUp.style.justifyContent = 'space-evenly';
-                // closeUp.style.position = 'absolute';
-                // closeUp.style.top = '0';
-                // closeUp.style.right = '0';
+                // CLOSE IMG IN GALLERY AND UPLOAD IMG LOGIC
+                var closeUp = document.createElement('div')
+                closeUp.style.height = '25px';
+                closeUp.style.width = '50px';
+                closeUp.style.backgroundColor = 'white';
+                closeUp.style.opacity = '.8';
+                closeUp.style.display = 'flex';
+                closeUp.style.alignItems = 'center';
+                closeUp.style.justifyContent = 'space-evenly';
+                closeUp.style.position = 'absolute';
+                closeUp.style.top = '0';
+                closeUp.style.right = '0';
 
-                // var closeIcon = document.createElement('img');
-                // closeIcon.id = 'closeIcon';
-                // closeIcon.src = "{% static 'icons/close.svg' %}";
-                // closeIcon.style.width = '16px';
-                // closeIcon.onclick = function () {
-                //     imageElem.remove();
-                //     imageCont.remove();
-                // }
+                var closeIcon = document.createElement('img');
+                closeIcon.id = 'closeIcon';
+                closeIcon.src = "{% static 'icons/close.svg' %}";
+                closeIcon.style.width = '16px';
+                closeIcon.onclick = function () {
+                    imageCont.remove();
+                    imageCont.remove();
+                }
 
-                // var downloadLink = document.createElement('a'); //document.getElementById('downloadLink');
-                // downloadLink.id = 'downloadLink'
-                // downloadLink.href = img; //response.data.image_data_url;
-                // downloadLink.download = "processed_image.png";
-                // downloadLink.style.display = 'block';
-                // const uploadImg = document.createElement('img');
-                // uploadImg.id = 'uploadImg';
-                // uploadImg.style.marginTop = '-5px';
-                // uploadImg.src = "{% static 'icons/upload.svg' %}";
-                // downloadLink.appendChild(uploadImg);
+                var downloadLink = document.createElement('a');
+                downloadLink.id = `downloadLink${imageBGName}`;
+                downloadLink.href = img; 
+                downloadLink.download = "processed_image.png";
+                downloadLink.style.display = 'block';
+                const uploadImg = document.createElement('img');
+                uploadImg.id = 'uploadImg';
+                uploadImg.style.marginTop = '-5px';
+                uploadImg.src = "{% static 'icons/upload.svg' %}";
+                downloadLink.appendChild(uploadImg);
 
-                // closeUp.appendChild(downloadLink);
-                // closeUp.appendChild(closeIcon);
-
-                // // imageCont.appendChild(closeUp);
-                // // END OF CLOSE IMG IN GALLERY AND UPLOAD IMG LOGIC
+                closeUp.appendChild(downloadLink);
+                closeUp.appendChild(closeIcon);
+                imageCont.appendChild(closeUp);
+                // END OF CLOSE IMG IN GALLERY AND UPLOAD IMG LOGIC
 
 
                 imageElem.addEventListener('dblclick', (event) => {
@@ -401,8 +395,8 @@
 
                 // DRAG AND DROP LOGIC INSIDE IMAGE GALLERY
                 imageElem.addEventListener('dragstart', (event) => { 
-                    dragstart = document.getElementById(`squareForm${imageElem.id}`);  
-                    console.log('dragstart on start', dragstart)           
+                    dragstart = imageElem;  
+                    console.log('dragstart on start', dragstart)     
                 });
 
                 imageElem.addEventListener('click', (event) => { 
@@ -414,29 +408,55 @@
                 });
 
 
-                    imageElem.addEventListener('drop', (event) => {
+                imageElem.addEventListener('drop', (event) => {
 
-                        event.preventDefault();
-                        drop = document.getElementById(`squareForm${imageElem.id}`); 
+                    event.preventDefault();
+                    drop = imageElem; 
+                    const dropCont = document.getElementById(`squareForm${imageElem.id}`)
 
-                        dropImg = drop.querySelector('img')
-                        dragstartImg = dragstart.querySelector('img')
-                        srcStorage = dropImg.src
-                        idStorage = dropImg.id
+                    srcStorage = drop.src
+                    idStorage = drop.id
 
+                    drop.src = dragstart.src;
+                    drop.id = dragstart.id;
+                    dragstart.src = srcStorage;
+                    dragstart.id = idStorage;
 
-                        dropImg.src = dragstartImg.src;
-                        dropImg.id = dragstartImg.id;
-                        drop.id = `squareForm${dropImg.id}`;
-                        dragstartImg.src = srcStorage;
-                        dragstartImg.id = idStorage;
-                        dragstart.id = `squareForm${idStorage}`;
+                    var downloadLinkDropAfter = document.getElementById(`downloadLink${drop.id}`);
+                    downloadLinkDropAfter.href = dragstart.src;
 
-                    });
+                    var downloadLinkDragAfter = document.getElementById(`downloadLink${dragstart.id}`);
+                    downloadLinkDragAfter.href = drop.src;
 
+                    console.log('event - now', event)
+
+                    document.querySelectorAll('.square-form').forEach((e) => {
+                        console.log('e', e) //nextElementSibling
+                        if ( dropCont === e) {
+                            console.log('dropCont === e')
+                            moveElement(e)
+                        }
+                        // console.log('e - next', e.nextElementSibling)
+                    })
+
+                    // Function to move the element to the right within the imageGallery
+                    function moveElement(element) {
+                        const nextSibling = element.nextElementSibling;
+                        console.log('nextSibling', nextSibling);
+                        if (nextSibling) {
+                            element.parentNode.insertBefore(nextSibling, element);
+                        }
+
+                        const prevSibling = element.previousElementSibling;
+                        console.log('prevSibling', prevSibling);
+                        if (prevSibling) {
+                            element.parentNode.insertBefore(element, prevSibling);
+                        }
+                    }
+
+                });
                 // END OF DRAG AND DROP LOGIC INSIDE IMAGE GALLERY
 
-                // imageCont.appendChild(closeUp);
                 imageCont.appendChild(imageElem);
                 imageGallery.appendChild(imageCont);
             })
