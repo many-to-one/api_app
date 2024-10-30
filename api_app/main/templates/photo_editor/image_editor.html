@@ -394,44 +394,81 @@
 
 
                 // DRAG AND DROP LOGIC INSIDE IMAGE GALLERY
-                imageElem.addEventListener('dragstart', (event) => { 
-                    dragstart = imageElem;  
-                    console.log('dragstart on start', dragstart)     
-                });
+                const gallery = document.getElementById('imageGallery');
+                let dragstart = null;
 
-                imageElem.addEventListener('click', (event) => { 
-                    console.log('imageElem click on start', imageElem)           
+                imageElem.addEventListener('dragstart', (event) => { 
+                    dragstart = document.getElementById(`squareForm${imageElem.id}`);
+                    // dragstart = imageElem;  
+                    console.log('dragstart on start', dragstart)     
                 });
 
                 imageElem.addEventListener('dragover', (event) => {
                     event.preventDefault();
                 });
 
-
                 imageElem.addEventListener('drop', (event) => {
                     event.preventDefault();
-                    const dropCont = document.getElementById(`squareForm${imageElem.id}`);
-                    moveElementsToRight(dropCont)
+                    let dropTarget = document.getElementById(`squareForm${event.target.id}`);
+                    // console.log('drop on start', dropTarget);
+                    let dropIndex = Array.from(gallery.children).indexOf(dropTarget);
+                    // let dragIndex = Array.from(gallery.children).indexOf(dragstart);
+                    console.log('drop on start indexOf', Array.from(gallery.children).indexOf(dropTarget));
+                    // console.log('drag indexOf', Array.from(gallery.children).indexOf(dragIndex));
 
-                    // Function to shift all elements to the right of the target element
-                    function moveElementsToRight(targetElement) {
-                        let nextSibling = targetElement.nextElementSibling;
-                        console.log('nextSibling', nextSibling);
-                        
-                        const followingSibling = nextSibling.nextElementSibling;
-                        console.log('followingSibling', followingSibling);
-                            
-                        // Swap the position of the current sibling with the following sibling
-                        if (followingSibling) {
-                            nextSibling.parentNode.insertBefore(followingSibling, nextSibling);
-                        }
+                    let elements = Array.from(gallery.querySelectorAll('.square-form'));
+                    elements.slice(dropIndex).forEach((e) => { 
+                        gallery.insertBefore(dropTarget, e.nextSibling) 
+                    });
+                    // event.target.style.opacity = "";
 
-                        // Move to the next element to the right
-                        nextSibling = followingSibling;
+                    // // Ensure the drop target is an image element
+                    // while (dropTarget.tagName !== 'IMG' && dropTarget !== gallery) {
+                    // dropTarget = dropTarget.parentElement;
+                    // }
 
-                    }
+                    // if (dropTarget !== gallery && dropTarget !== dragstart) {
+                    // const draggedIndex = Array.from(gallery.children).indexOf(dragstart);
+                    // console.log('draggedIndex', draggedIndex);
+                    // const targetIndex = Array.from(gallery.children).indexOf(dropTarget);
+                    // console.log('targetIndex', targetIndex);
+
+                    // if (draggedIndex < targetIndex) {
+                    //     gallery.insertBefore(dragstart, dropTarget.nextSibling);
+                    // } else {
+                    //     gallery.insertBefore(dragstart, dropTarget);
+                    // }
+                    // }
+
+                
+
+                // imageElem.addEventListener('dragstart', (event) => { 
+                //     dragstart = imageElem;  
+                //     console.log('dragstart on start', dragstart)     
+                // });
 
 
+                // imageElem.addEventListener('dragover', (event) => {
+                //     event.preventDefault();
+                // });
+
+
+                // imageElem.addEventListener('drop', (event) => {
+                //     event.preventDefault();
+                //     // const dropCont = document.getElementById(`squareForm${imageElem.id}`);
+                //     // console.log('dropCont', dropCont);
+
+                //     const gallery = document.getElementById('imageGallery'); 
+                //     const draggedIndex = Array.from(gallery.children).indexOf(dragstart); 
+                //     const targetIndex = Array.from(gallery.children).indexOf(event.target); 
+                //     if (draggedIndex < targetIndex) { 
+                //         gallery.insertBefore(dragstart, event.target.nextSibling); 
+                //     } else { 
+                //         gallery.insertBefore(dragstart, event.target); 
+                //     }
+
+
+                // ******************************************************
 
                 // imageElem.addEventListener('drop', (event) => {
 
