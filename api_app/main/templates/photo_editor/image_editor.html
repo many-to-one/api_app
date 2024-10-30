@@ -822,24 +822,26 @@
         }
 
         function horizontalTurn() {
-            const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
+            const imgElementCont_x = document.getElementById('resizable' + activeImage);
+            console.log('imgElementCont_x', imgElementCont_x.style.transform)
             
             // Toggle the mirror effect
-            if (imgElement.style.transform === 'scaleX(-1)') {
-                imgElement.style.transform = ''; // Reset to normal
+            if (imgElementCont_x.style.transform === 'scaleX(-1)') {
+                imgElementCont_x.style.transform = '';
             } else {
-                imgElement.style.transform = 'scaleX(-1)'; // Mirror horizontally
+                imgElementCont_x.style.transform = 'scaleX(-1)'; // Mirror horizontally
             }
         }
 
         function verticalFlip() {
-            const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
+            const imgElementCont_y = document.getElementById('resizable' + activeImage);
+            console.log('imgElementCont_y', imgElementCont_y.style.transform)
 
             // Toggle vertical mirror effect
-            if (imgElement.style.transform === 'scaleY(-1)') {
-                imgElement.style.transform = ''; // Reset to normal
+            if (imgElementCont_y.style.transform === 'scaleY(-1)') {
+                imgElementCont_y.style.transform = ''; // Reset to normal
             } else {
-                imgElement.style.transform = 'scaleY(-1)'; // Mirror vertically
+                imgElementCont_y.style.transform = 'scaleY(-1)'; // Mirror vertically
             }
         }
 
@@ -2053,7 +2055,7 @@
             console.log('resizableContainers', resizableContainers)
             resizableContainers.forEach(container => {
                 const img = container.querySelector('img');
-                // console.log('save loop container', container)
+                // console.log('container', container.querySelector('img'))
 
                 // Centering uploaded image event without moving it
                 const defaultLeft = (container.parentElement.offsetWidth - container.offsetWidth) / 2;
@@ -2063,11 +2065,31 @@
 
                 // Finding the angle position of the image
                 const rotationData = container.style.transform; //parseFloat(container.style.transform)
+                const rotationDataStyle = container.style
+                // console.log('rotationDataStyle', rotationDataStyle);
                 const rotationArray = rotationData.match(/rotate\(([-\d.]+)deg\)/);
                 var rotationAngle = 0;
-                console.log('rotationArray', rotationArray)
+                // console.log('rotationArray', rotationArray);
                 if ( rotationArray !== null ) {
                     rotationAngle = parseFloat(rotationArray[1]) || 0;
+                }
+
+                // Finding the Scale(X and Y) position of the image
+                const containerImg = container.querySelector('img');
+                const scaleXData = container.style.transform; //parseFloat(container.style.transform)
+                // console.log('scaleXData', scaleXData);
+                const isFlippedHorizontally = scaleXData.includes("scaleX(-1)");
+                if (isFlippedHorizontally === "scaleX(-1)") {
+                    containerImg.style.transform = 'scaleX(-1)';
+                } else {
+                    containerImg.style.transform = 'scaleX(1)'
+                }
+                
+                const isFlippedVertically = scaleXData.includes("scaleY(-1)");
+                if (isFlippedVertically === "scaleY(-1)") {
+                    containerImg.style.transform = 'scaleY(-1)';
+                } else {
+                    containerImg.style.transform = 'scaleY(1)'
                 }
 
                 // Create a new image object to ensure it's loaded properly
@@ -2110,6 +2132,9 @@
                     // Move the context origin to the center of the image to rotate around its center
                     ctx.translate(drawX + scaledWidth / 2, drawY + scaledHeight / 2);
                     ctx.rotate(rotationAngle * Math.PI / 180);
+
+                    // Flip horizontally or vertically if detected
+                    ctx.scale(isFlippedHorizontally ? -1 : 1, isFlippedVertically ? -1 : 1);
 
                     // Draw the image centered on the translated origin
                     ctx.drawImage(imgElement, -scaledWidth / 2, -scaledHeight / 2, scaledWidth, scaledHeight);
@@ -2240,11 +2265,30 @@
 
                     // Finding the angle position of the image
                     const rotationData = container.style.transform; //parseFloat(container.style.transform)
+                    console.log('rotationData transform', rotationData)
                     const rotationArray = rotationData.match(/rotate\(([-\d.]+)deg\)/);
                     var rotationAngle = 0;
                     console.log('rotationArray', rotationArray)
                     if ( rotationArray !== null ) {
                         rotationAngle = parseFloat(rotationArray[1]) || 0;
+                    }
+
+                    // Finding the Scale(X and Y) position of the image
+                    const containerImg = container.querySelector('img');
+                    const scaleXData = container.style.transform; //parseFloat(container.style.transform)
+                    // console.log('scaleXData', scaleXData);
+                    const isFlippedHorizontally = scaleXData.includes("scaleX(-1)");
+                    if (isFlippedHorizontally === "scaleX(-1)") {
+                        containerImg.style.transform = 'scaleX(-1)';
+                    } else {
+                        containerImg.style.transform = 'scaleX(1)'
+                    }
+                    
+                    const isFlippedVertically = scaleXData.includes("scaleY(-1)");
+                    if (isFlippedVertically === "scaleY(-1)") {
+                        containerImg.style.transform = 'scaleY(-1)';
+                    } else {
+                        containerImg.style.transform = 'scaleY(1)'
                     }
 
                     // Create a new image object to ensure it's loaded properly
@@ -2287,6 +2331,9 @@
                         // Move the context origin to the center of the image to rotate around its center
                         ctx.translate(drawX + scaledWidth / 2, drawY + scaledHeight / 2);
                         ctx.rotate(rotationAngle * Math.PI / 180);
+
+                        // Flip horizontally or vertically if detected
+                        ctx.scale(isFlippedHorizontally ? -1 : 1, isFlippedVertically ? -1 : 1);
 
                         // Draw the image centered on the translated origin
                         ctx.drawImage(imgElement, -scaledWidth / 2, -scaledHeight / 2, scaledWidth, scaledHeight);
