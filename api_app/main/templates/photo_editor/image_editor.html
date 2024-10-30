@@ -409,50 +409,75 @@
 
 
                 imageElem.addEventListener('drop', (event) => {
-
                     event.preventDefault();
-                    drop = imageElem; 
-                    const dropCont = document.getElementById(`squareForm${imageElem.id}`)
+                    const dropCont = document.getElementById(`squareForm${imageElem.id}`);
+                    moveElementsToRight(dropCont)
 
-                    srcStorage = drop.src
-                    idStorage = drop.id
-
-                    drop.src = dragstart.src;
-                    drop.id = dragstart.id;
-                    dragstart.src = srcStorage;
-                    dragstart.id = idStorage;
-
-                    var downloadLinkDropAfter = document.getElementById(`downloadLink${drop.id}`);
-                    downloadLinkDropAfter.href = dragstart.src;
-
-                    var downloadLinkDragAfter = document.getElementById(`downloadLink${dragstart.id}`);
-                    downloadLinkDragAfter.href = drop.src;
-
-                    console.log('event - now', event)
-
-                    document.querySelectorAll('.square-form').forEach((e) => {
-                        console.log('e', e) //nextElementSibling
-                        if ( dropCont === e) {
-                            console.log('dropCont === e')
-                            moveElement(e)
-                        }
-                        // console.log('e - next', e.nextElementSibling)
-                    })
-
-                    // Function to move the element to the right within the imageGallery
-                    function moveElement(element) {
-                        const nextSibling = element.nextElementSibling;
+                    // Function to shift all elements to the right of the target element
+                    function moveElementsToRight(targetElement) {
+                        let nextSibling = targetElement.nextElementSibling;
                         console.log('nextSibling', nextSibling);
-                        if (nextSibling) {
-                            element.parentNode.insertBefore(nextSibling, element);
+                        
+                        const followingSibling = nextSibling.nextElementSibling;
+                        console.log('followingSibling', followingSibling);
+                            
+                        // Swap the position of the current sibling with the following sibling
+                        if (followingSibling) {
+                            nextSibling.parentNode.insertBefore(followingSibling, nextSibling);
                         }
 
-                        const prevSibling = element.previousElementSibling;
-                        console.log('prevSibling', prevSibling);
-                        if (prevSibling) {
-                            element.parentNode.insertBefore(element, prevSibling);
-                        }
+                        // Move to the next element to the right
+                        nextSibling = followingSibling;
+
                     }
+
+
+
+                // imageElem.addEventListener('drop', (event) => {
+
+                //     event.preventDefault();
+                //     drop = imageElem; 
+                //     const dropCont = document.getElementById(`squareForm${imageElem.id}`)
+
+                //     // srcStorage = drop.src
+                //     // idStorage = drop.id
+
+                //     // drop.src = dragstart.src;
+                //     // drop.id = dragstart.id;
+                //     // dragstart.src = srcStorage;
+                //     // dragstart.id = idStorage;
+
+                //     // var downloadLinkDropAfter = document.getElementById(`downloadLink${drop.id}`);
+                //     // downloadLinkDropAfter.href = dragstart.src;
+
+                //     // var downloadLinkDragAfter = document.getElementById(`downloadLink${dragstart.id}`);
+                //     // downloadLinkDragAfter.href = drop.src;
+
+                //     // console.log('event - now', event)
+
+                //     document.querySelectorAll('.square-form').forEach((e) => {
+                //         console.log('e', e) //nextElementSibling
+                //         if ( dropCont === e) {
+                //             console.log('dropCont === e')
+                //             moveElement(e)
+                //         }
+                //         // console.log('e - next', e.nextElementSibling)
+                //     })
+
+                //     // Function to move the element to the right within the imageGallery
+                //     function moveElement(element) {
+                //         const nextSibling = element.nextElementSibling;
+                //         console.log('nextSibling', nextSibling);
+                //         if (nextSibling) {
+                //             element.parentNode.insertBefore(nextSibling, element);
+                //         }
+
+                //         // const prevSibling = element.previousElementSibling;
+                //         // console.log('prevSibling', prevSibling);
+                //         // if (prevSibling) {
+                //         //     element.parentNode.insertBefore(element, prevSibling);
+                //         // }
+                //     }
 
                 });
                 // END OF DRAG AND DROP LOGIC INSIDE IMAGE GALLERY
