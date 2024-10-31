@@ -174,6 +174,7 @@
 
         </div>
 
+
         <div class="input-group mb-3 w-75">
           <input type="search" class="form-control" placeholder="Wpisz nazwę produktu..." id="searchInput" onkeyup="searchOffers()">
           <button class="btn btn-outline-secondary h-100" type="button" id="button-addon2" onclick="editOfferGallery()">Zapisz</button>
@@ -322,6 +323,7 @@
         const thumbnailArea = document.getElementById('thumbnailArea');
         let dragstart = null;
         let drop = null;
+        let startMouseX = null;
 
 
         // PUT IMAGE INSIDE IMAGE GALLERY LOGIC
@@ -394,132 +396,35 @@
 
 
                 // DRAG AND DROP LOGIC INSIDE IMAGE GALLERY
-                const gallery = document.getElementById('imageGallery');
-                let dragstart = null;
+                let gallery = document.getElementById('imageGallery');
+                // let dragstart = null;
 
                 imageElem.addEventListener('dragstart', (event) => { 
+
+                    console.log("dragstart clientX", event.clientX);
+
                     dragstart = document.getElementById(`squareForm${imageElem.id}`);
-                    // dragstart = imageElem;  
-                    console.log('dragstart on start', dragstart)     
+                    let dragIndex = Array.from(gallery.children).indexOf(dragstart);  
+
+                    startMouseX = event.clientX; // Current X position of the mouse
+
                 });
 
                 imageElem.addEventListener('dragover', (event) => {
                     event.preventDefault();
-                });
 
-                imageElem.addEventListener('drop', (event) => {
-                    // console.log('dragstart on drop', dragstart) 
-                    event.preventDefault();
-                    let dropTarget = document.getElementById(`squareForm${event.target.id}`);
-                    // console.log('drop on start', dropTarget);
-                    let dropIndex = Array.from(gallery.children).indexOf(dropTarget);
-                    // let dragIndex = Array.from(gallery.children).indexOf(dragstart);
-                    console.log('drop on start indexOf', Array.from(gallery.children).indexOf(dropTarget));
-                    // console.log('drag dragIndex', Array.from(gallery.children).indexOf(dragIndex));
+                    console.log("dragover clientX", event.clientX);
 
-                    let elements = Array.from(gallery.querySelectorAll('.square-form'));
-                    elements.slice(dropIndex).forEach((e) => { 
-                        console.log('e', e)
-                        gallery.insertBefore(dropTarget, e.nextSibling) 
-                    });
-                    // gallery.insertBefore(gallery.children[1], gallery.children[2])
-                    console.log('elements', elements)
-                    // event.target.style.opacity = "";
-
-                    // // Ensure the drop target is an image element
-                    // while (dropTarget.tagName !== 'IMG' && dropTarget !== gallery) {
-                    // dropTarget = dropTarget.parentElement;
-                    // }
-
-                    // if (dropTarget !== gallery && dropTarget !== dragstart) {
-                    // const draggedIndex = Array.from(gallery.children).indexOf(dragstart);
-                    // console.log('draggedIndex', draggedIndex);
-                    // const targetIndex = Array.from(gallery.children).indexOf(dropTarget);
-                    // console.log('targetIndex', targetIndex);
-
-                    // if (draggedIndex < targetIndex) {
-                    //     gallery.insertBefore(dragstart, dropTarget.nextSibling);
-                    // } else {
-                    //     gallery.insertBefore(dragstart, dropTarget);
-                    // }
-                    // }
-
-                
-
-                // imageElem.addEventListener('dragstart', (event) => { 
-                //     dragstart = imageElem;  
-                //     console.log('dragstart on start', dragstart)     
-                // });
-
-
-                // imageElem.addEventListener('dragover', (event) => {
-                //     event.preventDefault();
-                // });
-
-
-                // imageElem.addEventListener('drop', (event) => {
-                //     event.preventDefault();
-                //     // const dropCont = document.getElementById(`squareForm${imageElem.id}`);
-                //     // console.log('dropCont', dropCont);
-
-                //     const gallery = document.getElementById('imageGallery'); 
-                //     const draggedIndex = Array.from(gallery.children).indexOf(dragstart); 
-                //     const targetIndex = Array.from(gallery.children).indexOf(event.target); 
-                //     if (draggedIndex < targetIndex) { 
-                //         gallery.insertBefore(dragstart, event.target.nextSibling); 
-                //     } else { 
-                //         gallery.insertBefore(dragstart, event.target); 
-                //     }
-
-
-                // ******************************************************
-
-                // imageElem.addEventListener('drop', (event) => {
-
-                //     event.preventDefault();
-                //     drop = imageElem; 
-                //     const dropCont = document.getElementById(`squareForm${imageElem.id}`)
-
-                //     // srcStorage = drop.src
-                //     // idStorage = drop.id
-
-                //     // drop.src = dragstart.src;
-                //     // drop.id = dragstart.id;
-                //     // dragstart.src = srcStorage;
-                //     // dragstart.id = idStorage;
-
-                //     // var downloadLinkDropAfter = document.getElementById(`downloadLink${drop.id}`);
-                //     // downloadLinkDropAfter.href = dragstart.src;
-
-                //     // var downloadLinkDragAfter = document.getElementById(`downloadLink${dragstart.id}`);
-                //     // downloadLinkDragAfter.href = drop.src;
-
-                //     // console.log('event - now', event)
-
-                //     document.querySelectorAll('.square-form').forEach((e) => {
-                //         console.log('e', e) //nextElementSibling
-                //         if ( dropCont === e) {
-                //             console.log('dropCont === e')
-                //             moveElement(e)
-                //         }
-                //         // console.log('e - next', e.nextElementSibling)
-                //     })
-
-                //     // Function to move the element to the right within the imageGallery
-                //     function moveElement(element) {
-                //         const nextSibling = element.nextElementSibling;
-                //         console.log('nextSibling', nextSibling);
-                //         if (nextSibling) {
-                //             element.parentNode.insertBefore(nextSibling, element);
-                //         }
-
-                //         // const prevSibling = element.previousElementSibling;
-                //         // console.log('prevSibling', prevSibling);
-                //         // if (prevSibling) {
-                //         //     element.parentNode.insertBefore(element, prevSibling);
-                //         // }
-                //     }
-
+                    let drogIndex = Array.from(gallery.children).indexOf(event.target);
+                    let drogTarget = document.getElementById(`squareForm${event.target.id}`);
+                    let dragIndex = Array.from(gallery.children).indexOf(drogTarget);
+                    // console.log('drogIndex - dragIndex', drogIndex, dragIndex)
+                    if ( startMouseX > event.clientX ) {
+                        imageGallery.insertBefore(dragstart, drogTarget);
+                    } else {
+                        imageGallery.insertBefore(dragstart, drogTarget.nextSibling);
+                    }
+                    
                 });
                 // END OF DRAG AND DROP LOGIC INSIDE IMAGE GALLERY
 
