@@ -408,18 +408,22 @@
                 });
 
                 imageElem.addEventListener('drop', (event) => {
+                    // console.log('dragstart on drop', dragstart) 
                     event.preventDefault();
                     let dropTarget = document.getElementById(`squareForm${event.target.id}`);
                     // console.log('drop on start', dropTarget);
                     let dropIndex = Array.from(gallery.children).indexOf(dropTarget);
                     // let dragIndex = Array.from(gallery.children).indexOf(dragstart);
                     console.log('drop on start indexOf', Array.from(gallery.children).indexOf(dropTarget));
-                    // console.log('drag indexOf', Array.from(gallery.children).indexOf(dragIndex));
+                    // console.log('drag dragIndex', Array.from(gallery.children).indexOf(dragIndex));
 
                     let elements = Array.from(gallery.querySelectorAll('.square-form'));
                     elements.slice(dropIndex).forEach((e) => { 
+                        console.log('e', e)
                         gallery.insertBefore(dropTarget, e.nextSibling) 
                     });
+                    // gallery.insertBefore(gallery.children[1], gallery.children[2])
+                    console.log('elements', elements)
                     // event.target.style.opacity = "";
 
                     // // Ensure the drop target is an image element
