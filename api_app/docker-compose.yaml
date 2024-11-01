@@ -7,8 +7,9 @@ services:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGPORT: ${DB_PORT}
     ports:
-      - "5432:5432"
+      - "5434:5434"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -23,12 +24,12 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: sellior_backend
-    command: sh -c "uvicorn api_app.asgi:application --reload --host 0.0.0.0 --port 8000"
+    command: sh -c "uvicorn api_app.asgi:application --reload --host 0.0.0.0 --port 8004"
     restart: always
     volumes:
       - .:/app
     ports:
-      - "8000:8000"
+      - "8004:8004"
     env_file:
       - .env
 
