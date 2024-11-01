@@ -1,5 +1,6 @@
 import base64
 import os
+import uuid
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.core.files.storage import default_storage
@@ -126,50 +127,24 @@ def remove_bg(request):
 
     return JsonResponse({'success': False, 'error': 'Image processing failed'})
 
+from django.core.files.base import ContentFile
+# @csrf_exempt
+def mirror_image(request):
+    if request.method == "POST":
+        try:
+            img_data = request.FILES.get("image")  # Retrieve image file from FormData
+            if not img_data:
+                return JsonResponse({"error": "No image file provided"}, status=400)
 
-async def mirror_image(request):
+            # Generate a unique file name and save it
+            file_name = f"{uuid.uuid4()}.jpeg"  # Use the correct extension based on image format
+            file_path = default_storage.save(f"{file_name}", ContentFile(img_data.read()))
 
-    if request.method == 'POST':
-        # Check if the image is part of the request
-        if not request.FILES:
-            return JsonResponse({"error": "Please provide an image."}, status=400)
+            # Return the full URL of the saved image
+            image_url = request.build_absolute_uri(f"/media/{file_name}")
+            return JsonResponse({"image_url": image_url}, status=201)
 
-        image_file = request.FILES['image']
-        print('********* mirror_image **********', image_file)
-        original_image = Image.open(image_file)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
 
-        # Flip the image vertically
-        flipped_image = original_image.transpose(Image.FLIP_TOP_BOTTOM)
-
-        # Get dimensions of the original image
-        width, height = original_image.size
-
-        # Create a new blank image with the combined height
-        combined_image = Image.new('RGBA', (width, height * 2))
-
-        # Paste the original image on the top
-        combined_image.paste(original_image, (0, 0))
-
-        # Paste the flipped image on the bottom
-        combined_image.paste(flipped_image, (0, height))
-        combined_image.show()
-
-        # Save the combined image to a BytesIO object
-        buffer = BytesIO()
-        combined_image.save(buffer, format="PNG")
-        buffer.seek(0)
-        
-        # Encode the image as base64
-        image_base64 = base64.b64encode(buffer.read()).decode('utf-8')
-
-        # Construct the base64 string to be used in the frontend
-        image_data_url = f"data:image/png;base64,{image_base64}"
-
-        return JsonResponse({
-            'success': True, 
-            'imgName': f'{image_file}',  # Using name for clarity
-            'image_data_url': image_data_url,
-            'range': 5,  # Example static value
-        })
-    else:
-        return JsonResponse({"error": "Invalid method."}, status=405)
+    return JsonResponse({"error": "Invalid request method"}, status=405)

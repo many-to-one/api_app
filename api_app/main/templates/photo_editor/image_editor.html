@@ -52,7 +52,11 @@
             <img id="duplicateImg" onclick="duplicateImg()" style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="25" alt="">
             <img id="duplicateImg" onclick="showShadowContainer()" style="cursor: pointer;" src="{% static 'icons/options.svg' %}" width="25" alt="">
             <!-- <img style="cursor: pointer;" onclick=" isDraw__()" src="{% static 'icons/close.svg' %}" width="25" alt=""> -->
-            <img style="cursor: pointer;" onclick=" removeBackGround()" src="{% static 'icons/rembg.svg' %}" width="25" alt="">
+             <!-- Spinner -->
+            <div class="d-flex justify-content-center">
+                <div id="spinner2" class="spinner-border" role="status"></div>
+                <img id="rembgId" style="cursor: pointer;" onclick=" removeBackGround()" src="{% static 'icons/rembg.svg' %}" width="25" alt="">
+            </div>
             <img style="cursor: pointer;" onclick="deleteImg()" src="{% static 'icons/close.svg' %}" width="25" alt="">
         </div>
 
@@ -118,12 +122,6 @@
 
 
         <div id="thumbnailArea" class="d-flex justify-content-center align-items-center">
-            <!-- Spinner -->
-            <div class="d-flex justify-content-center">
-                <div class="spinner-border" role="status" id="spinner2">
-                <span class="visually-hidden">Loading...</span>
-                </div>
-            </div>
             <canvas class="resizable" id="selectionCanvas" width="300" height="300" style="display: none;"></canvas>
             <svg xmlns="http://www.w3.org/2000/svg" width="50" fill="currentColor" class="bi bi-images" viewBox="0 0 16 16" opacity="0.2">
               <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
@@ -343,6 +341,7 @@
                 imageBGName = `outputImageBG${nameCounter}.${imgType}`;
                 nameCounter ++;
                 imageElem.id = imageBGName;
+                imageElem.className = 'imageSrc';
                 imageElem.draggable = true;
 
                 imageCont.id = `squareForm${imageBGName}`;
@@ -400,8 +399,9 @@
                 // let dragstart = null;
 
                 imageElem.addEventListener('dragstart', (event) => { 
+                    event.preventDefault();
 
-                    console.log("dragstart clientX", event.clientX);
+                    // console.log("dragstart clientX", event.clientX);
 
                     dragstart = document.getElementById(`squareForm${imageElem.id}`);
                     let dragIndex = Array.from(gallery.children).indexOf(dragstart);  
@@ -410,10 +410,11 @@
 
                 });
 
-                imageElem.addEventListener('dragover', (event) => {
+
+                imageElem.addEventListener('mouseup', (event) => {
                     event.preventDefault();
 
-                    console.log("dragover clientX", event.clientX);
+                    // console.log("dragover clientX", event.clientX);
 
                     let drogIndex = Array.from(gallery.children).indexOf(event.target);
                     let drogTarget = document.getElementById(`squareForm${event.target.id}`);
@@ -471,24 +472,123 @@
             const imgElement = document.getElementsByClassName('imgElement_' + activeImage)[0];
             putImg([imgElement.src]);
         }
-        
 
-        function editOfferGallery() {
+
+        async function editOfferGallery() {
             const images = imageGallery.querySelectorAll('.square-form');
             imagesArray = []
 
-            images.forEach((imgContainer) => {
-                const imgElement = imgContainer.querySelector('img'); // Get the img element inside each square-form
-
-                if (imgElement && imgElement.src) { // Check if imgElement exists and has a src
-                    // console.log('imageGallery img src:', imgElement.src);
-                    imagesArray.push(imgElement.src); // Add src to imagesArray if not null
-                } 
+            images.forEach((elem) => {
+                var im = elem.getElementsByClassName('imageSrc')[0]; 
+                
+                if ( im && im.src ) {
+                    if ( im.src.startsWith('data:image/')) {
+                        const imgLink = createLink(im.src)
+                        imagesArray.push(imgLink);
+                    } else {
+                        imagesArray.push(im.src);
+                    }
+                }
             });
 
-            console.log('imageGallery imagesArray:', imagesArray);
+            console.log('imagesArray:', imagesArray);
 
         }
+
+
+        // // Function to convert a base64 image to a Blob and generate a `blob:` URL
+        // function createBlobUrl(base64Image) {
+        //     // Decode the base64 string to binary data
+        //     const byteString = atob(base64Image.split(',')[1]);  // Remove the `data:image/...;base64,` part
+        //     const mimeType = base64Image.split(',')[0].split(':')[1].split(';')[0];  // Extract MIME type
+
+        //     // Create a typed array to hold the binary data
+        //     const arrayBuffer = new Uint8Array(byteString.length);
+        //     for (let i = 0; i < byteString.length; i++) {
+        //         arrayBuffer[i] = byteString.charCodeAt(i);
+        //     }
+
+        //     // Create a blob from the typed array
+        //     const blob = new Blob([arrayBuffer], { type: mimeType });
+
+        //     // Generate a `blob:` URL for the Blob
+        //     const blobUrl = URL.createObjectURL(blob);
+        //     return blobUrl;
+        // }
+
+
+        async function createLink(img) {
+
+            const compressedImg = await reEncodeImage(img);
+
+            try {
+                const formData = new FormData();
+                formData.append("image", compressedImg);
+
+                const response = await axios.post("/mirror_image/", formData, {
+                    headers: {
+                        "X-CSRFToken": csrfToken,
+                        "Content-Type": "multipart/form-data",
+                    },
+                });
+                console.log("Image URL from server:", response.data.image_url);
+                return response.data.image_url;
+            } catch (error) {
+                console.error("Error uploading image:", error);
+            }
+        }
+
+
+        async function reEncodeImage(base64Img) {
+
+            // let maxWidth = 2560;
+            // let maxHeight = 2560;
+            const imgBlob = await dataURLToBlob(base64Img);
+
+            return new Promise((resolve) => {
+                // Convert the base64 to a Blob
+                // const imgBlob = dataURLToBlob(base64Img);
+                const img = new Image();
+                img.src = URL.createObjectURL(imgBlob);
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // Set canvas dimensions based on the desired maximum width and height
+                    canvas.width = img.width; //Math.min(img.width, maxWidth);
+                    canvas.height = img.height; //Math.min(img.height, maxHeight);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    let quality = 1.0;
+                    let outputBlob;
+
+                    do {
+                    const dataUrl = canvas.toDataURL(`image/jpeg`, quality);
+                    outputBlob = dataURLToBlob(dataUrl);
+                    quality -= 0.1;
+                    } while (outputBlob.size > 500 * 1024 && quality > 0.1);
+
+                    // Return the final compressed Blob or Data URL
+                    resolve(outputBlob);
+                }
+            });
+        }
+
+
+        // Helper function to convert a Data URL to a Blob
+        async function dataURLToBlob(dataUrl) {
+            const [header, base64String] = dataUrl.split(',');
+            const binary = atob(base64String);
+            const array = [];
+
+            for (let i = 0; i < binary.length; i++) {
+                array.push(binary.charCodeAt(i));
+            }
+            return new Blob([new Uint8Array(array)], { type: header.split(':')[1].split(';')[0] });
+        }
+
+
+        
     
 
         const csrfToken = document.getElementById('csrf-token').getAttribute('data-token');
@@ -1334,8 +1434,10 @@
 
         function removeBackGround() {
 
-            console.log('removeBackGround imgToRemove', imageBGName)
-            imgToRemove = document.getElementById(`resizable${imageBGName}`)
+            console.log('removeBackGround imgToRemove', imageBGName);
+            const rembgId = document.getElementById('rembgId');
+            rembgId.style.display = 'none';
+            imgToRemove = document.getElementById(`resizable${imageBGName}`);
             imgToRemove.remove();
             spinner2.style.display = 'block';
 
@@ -1343,7 +1445,7 @@
             // var squareInGallery = document.getElementById(imageBGName);
 
             var image = document.getElementById(imageBGName);
-            console.log('removeBackGround', image)
+            console.log('removeBackGround', image);
 
             // Extract base64 string from image.src
             const base64Data = image.src.split(',')[1]; // Split to get the base64 part
@@ -1366,6 +1468,7 @@
                 })
                 .then(response => {
                     spinner2.style.display = 'none';
+                    rembgId.style.display = 'block';
                     if (response.data.success) {
                         imageName = response.data.imgName;
                         imagURL = response.data.image_data_url;
@@ -2229,14 +2332,14 @@
             }
 
                 function dataURLToBlob(dataURL) {
-                const byteString = atob(dataURL.split(',')[1]);
-                const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
-                const ab = new ArrayBuffer(byteString.length);
-                const ia = new Uint8Array(ab);
-                for (let i = 0; i < byteString.length; i++) {
-                    ia[i] = byteString.charCodeAt(i);
-                }
-                return new Blob([ab], { type: mimeString });
+                    const byteString = atob(dataURL.split(',')[1]);
+                    const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+                    const ab = new ArrayBuffer(byteString.length);
+                    const ia = new Uint8Array(ab);
+                    for (let i = 0; i < byteString.length; i++) {
+                        ia[i] = byteString.charCodeAt(i);
+                    }
+                    return new Blob([ab], { type: mimeString });
                 }
 
 
