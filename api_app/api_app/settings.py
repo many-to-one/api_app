@@ -33,7 +33,7 @@ DEBUG = os.getenv('DEBUG')
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
 
-ALLOWED_HOSTS = ['45.141.3.185']
+ALLOWED_HOSTS = ['45.141.3.185', 'sellior.pl', 'www.sellior.pl']
 
 
 # Application definition
@@ -147,11 +147,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-    # "/var/www/static/",
-]
+STATIC_URL = '/staticfiles/'
+#STATICFILES_DIRS = [
+#    BASE_DIR / "static",
+#    # "/var/www/static/",
+#]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles', )
 
 

@@ -2,6 +2,11 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from .models import CustomUser
 from django.contrib.auth import authenticate, login, logout
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+HOSTNAME = os.getenv('HOSTNAME')
 
 
 def register(request):
@@ -33,7 +38,9 @@ def register(request):
         except Exception as e:
             pass
 
-    return render(request, 'register.html')
+    context = {"hostname": HOSTNAME}
+	
+    return render(request, 'register.html', context)
 
 
 def login_user(request):

@@ -16,7 +16,7 @@
 </style>
 <body>
     <h1>Registration page</h1>
-    <div class="container">
+    <div class="container" id="hostName" value="{{ hostname }}">
         <div id="success"></div>
         <form id="registerForm">
             {% csrf_token %}
@@ -42,6 +42,10 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
     <script>
+
+	const hostname = document.getElementById("hostname").getAttribute("value");
+	console.log("hostname", hostname)
+
         document.getElementById('registerForm').addEventListener('submit', function(event) {
         event.preventDefault(); // Prevent the default form submission
 
@@ -66,7 +70,7 @@
 
         document.getElementById('okButton').addEventListener('click', function() {
             // Redirect to the home page
-            window.location.href = 'http://127.0.0.1:8000/'; 
+            window.location.href = `${hostname}`; 
         });
     </script>
 </body>
