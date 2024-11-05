@@ -33,7 +33,7 @@ DEBUG = os.getenv('DEBUG')
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
 
-ALLOWED_HOSTS = ['45.141.3.185', 'sellior.pl', 'www.sellior.pl']
+ALLOWED_HOSTS = ['45.141.3.185', 'sellior.pl', 'www.sellior.pl', '127.0.0.1', '0.0.0.0', 'localhost']
 
 
 # Application definition

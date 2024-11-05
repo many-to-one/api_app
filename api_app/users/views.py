@@ -39,6 +39,7 @@ def register(request):
             pass
 
     context = {"hostname": HOSTNAME}
+    # print('**************** HOSTNAME ****************', HOSTNAME)
 	
     return render(request, 'register.html', context)
 
@@ -65,8 +66,11 @@ def login_user(request):
         else:
             # User authentication failed, return an error message
             return JsonResponse({'error': 'Invalid credentials'}, status=400)
+        
+    context = {"hostname": HOSTNAME}
+    print('**************** HOSTNAME login ****************', HOSTNAME)
 
-    return render(request, 'login.html')
+    return render(request, 'login.html', context)
 
 
 def logout_user(request):

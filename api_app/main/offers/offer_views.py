@@ -9,6 +9,12 @@ from ..utils import *
 from ..models import *
 from ..api_service import sync_service
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+HOSTNAME = os.getenv('HOSTNAME')
+
 
 async def return_async_offer(request, secret, id):
 
@@ -127,7 +133,7 @@ def get_shipping_rates(request, name):
 
 
 # GET ALL OFFERS
-def get_all_offers(request, name):
+def get_all_offers(request, name): 
 
     shipping_rates = get_shipping_rates(request, name)
     aftersale_services = get_aftersale_services(request, name)
@@ -145,6 +151,7 @@ def get_all_offers(request, name):
         'name': name,
         'shipping_rates': shipping_rates,
         'aftersale_services': aftersale_services,
+        "hostname": HOSTNAME,
     }
 
     return render(request, 'offers/get_all_offers.html', context)

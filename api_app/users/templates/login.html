@@ -16,7 +16,7 @@
 </style>
 <body>
     <h1>Login page +</h1>
-    <div class="container">
+    <div class="container" id="hostName" data-set="{{ hostname }}">
         <form id="loginForm">
             {% csrf_token %}
             <label for="Email">Email</label>
@@ -35,6 +35,10 @@
     <!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
     <script>
+
+        const hostname = document.getElementById("hostName").getAttribute("data-set");
+        console.log("hostname", hostname);
+
         document.getElementById('loginForm').addEventListener('submit', function(event) {
         event.preventDefault(); // Prevent the default form submission
 
@@ -48,7 +52,7 @@
             .then(function(response) {
                 console.log(response.data.message);
                 
-                window.location.href = 'http://127.0.0.1:8000/'; 
+                window.location.href = `${hostname}`; 
             })
             .catch(function(error) {
                 console.error(error);

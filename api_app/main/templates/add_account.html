@@ -13,7 +13,7 @@
 <body>
     <!-- <div class="accounts__cont"> -->
         <h1>Dodaj Konto</h1>
-    <div class="accounts__cont">
+    <div class="accounts__cont" id="hostName" data-set="{{ hostname }}">
         <!-- <div id="success"></div> -->
         <form id="registerForm">
             {% csrf_token %}
@@ -34,6 +34,10 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
     <script>
+
+        const hostname = document.getElementById("hostName").getAttribute("data-set");
+        console.log("hostname", hostname);
+
         document.getElementById('registerForm').addEventListener('submit', function(event) {
         event.preventDefault(); // Prevent the default form submission
 
@@ -49,7 +53,7 @@
                 document.getElementById('okButton').style.display = 'block';
                 document.getElementById('registerForm').style.display = 'none';
                 if (response.data.message == 'success'){
-                    window.location.href = `http://127.0.0.1:8000/success/${response.data.text}`;
+                    window.location.href = `${hostname}/success/${response.data.text}`;
 
                 }
         
@@ -60,11 +64,6 @@
             });
         });
 
-
-        // document.getElementById('okButton').addEventListener('click', function() {
-        //     // Redirect to the home page
-        //     window.location.href = 'http://127.0.0.1:8000/add_account'; 
-        // });
     </script>
 
 </body>

@@ -9,6 +9,12 @@ from dotenv import load_dotenv
 load_dotenv()
 from .models import *
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+HOSTNAME = os.getenv('HOSTNAME')
+
 REDIRECT_URI = os.getenv('REDIRECT_URI')      # wprowadź redirect_uri
 AUTH_URL = os.getenv('AUTH_URL')
 TOKEN_URL = os.getenv('TOKEN_URL')
@@ -34,7 +40,7 @@ def get_new_authorization_code(request, name):
     print('******************* name ***********************', secret.CLIENT_ID, account)
     # return HttpResponse('name', name)
 
-    REDIRECT_URI_ =f' http://localhost:8000/get_new_code/{name}&promt=confirm'  
+    REDIRECT_URI_ = f'{HOSTNAME}/get_new_code/{name}&promt=confirm'  
 
     try: 
         # user = get_user(request)
@@ -144,7 +150,7 @@ def get_refresh_token(request, authorization_code):
         secret = Secret.objects.get(account=account)
 
         try:
-            data = {'grant_type': 'authorization_code', 'code': authorization_code, 'redirect_uri': 'http://localhost:8000/get_code'}
+            data = {'grant_type': 'authorization_code', 'code': authorization_code, 'redirect_uri': f'{HOSTNAME}/get_code'}
             access_token_response = requests.post(TOKEN_URL, data=data, verify=False,
                                                 allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
             print("RESPONSE ******* get_refresh_token ******* :", access_token_response)
@@ -187,11 +193,12 @@ def get_refresh_token(request, authorization_code):
 ############################################################################ POST NEW PRODUCT ###################################################
 #################################################################################################################################################
 
+# Example?
 def post_product(request):
 
     # account = Allegro.objects.get(user=request.user)
     # secret = Secret.objects.get(account=account)
-    token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiIxMDY5NzQ5NzgiLCJzY29wZSI6WyJhbGxlZ3JvOmFwaTpvcmRlcnM6cmVhZCIsImFsbGVncm86YXBpOmZ1bGZpbGxtZW50OnJlYWQiLCJhbGxlZ3JvOmFwaTpwcm9maWxlOndyaXRlIiwiYWxsZWdybzphcGk6c2FsZTpvZmZlcnM6d3JpdGUiLCJhbGxlZ3JvOmFwaTpmdWxmaWxsbWVudDp3cml0ZSIsImFsbGVncm86YXBpOmJpbGxpbmc6cmVhZCIsImFsbGVncm86YXBpOmNhbXBhaWducyIsImFsbGVncm86YXBpOmRpc3B1dGVzIiwiYWxsZWdybzphcGk6c2FsZTpvZmZlcnM6cmVhZCIsImFsbGVncm86YXBpOmJpZHMiLCJhbGxlZ3JvOmFwaTpzaGlwbWVudHM6d3JpdGUiLCJhbGxlZ3JvOmFwaTpvcmRlcnM6d3JpdGUiLCJhbGxlZ3JvOmFwaTphZHMiLCJhbGxlZ3JvOmFwaTpwYXltZW50czp3cml0ZSIsImFsbGVncm86YXBpOnNhbGU6c2V0dGluZ3M6d3JpdGUiLCJhbGxlZ3JvOmFwaTpwcm9maWxlOnJlYWQiLCJhbGxlZ3JvOmFwaTpyYXRpbmdzIiwiYWxsZWdybzphcGk6c2FsZTpzZXR0aW5nczpyZWFkIiwiYWxsZWdybzphcGk6cGF5bWVudHM6cmVhZCIsImFsbGVncm86YXBpOnNoaXBtZW50czpyZWFkIiwiYWxsZWdybzphcGk6bWVzc2FnaW5nIl0sImFsbGVncm9fYXBpIjp0cnVlLCJpc3MiOiJodHRwczovL2FsbGVncm8ucGwuYWxsZWdyb3NhbmRib3gucGwiLCJleHAiOjE3MTI3NzE0OTAsImp0aSI6IjE2MzYxYmMyLTA1Y2MtNGM3OC1hNmY4LWQ5MTJlZjA5MWU2MyIsImNsaWVudF9pZCI6IjBhMTU2NjVmNjI1MjQwMmVhNGVlN2ZiZjU3ZTk4YjlhIn0.Ie44lhvsqJPL_4JkAtV0IVQ8KOpau4j5mDit_kIgduXWb7hnEUT9yZXvSPEjkGvjbSvBXyV0sNVvpur4MmxR0TZBn4TY0i7lr0eDc8C8Fw1SHULsTEwuKZSWbQ7HRvLUp6yMRIfcZRI__RlFE39Z2tQrhfCQSF-bJWqpEgoIMHNi0AfQMU1la-Uz_AXO-aabHFGFUuH-JD-bZWSTM3cpZdjW3VN1nD-A-S261kAYy4DEQO512UN67Q7sjmEuUsoqKbq8JXQoigH8szPSDWamNi83MwwaG_Zz5atJ_z19euiPDEuyHkKXedgki0vXGWeKuI_lGS-sEbdSZJGPhX6JWXMQTtKuYjRjMy7vMYcZaDx7pNnXNo8BskqGgOdNoyhdOik0yGK7UhnP_z7yLmQpgFxegiXShhIg_ouXNWzj4GMcN8BYfOomiLqR0_trFWqeko6uUNagBUqunrIlnwiVmpPfL888DHehAZd8XDkFuWzBASD029IPULxIyBBUOJvOWj7QBis2fH6lMNbUem4-RYyaOE9DcYuymkKdp8QGIzMAlocV2uegqiQaUweaxoDRnE2jjYFRfRd65bwOh-8kgMCUI23kCQR24KZImsUJ_vh1xxXhIq-7SR7fBvUWyEeQ2UHkLIYefh9ucKgWut3ZrWJukfYYogIMtP78kIa8h68'
+    token = 'example'
     
     url = f'https://api.allegro.pl.allegrosandbox.pl/sale/product-offers'
 

@@ -3,6 +3,12 @@ from django.shortcuts import render, redirect
 from ..models import *
 from ..utils import *
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+HOSTNAME = os.getenv('HOSTNAME')
+
 
 def add_account(request):
 
@@ -39,4 +45,8 @@ def add_account(request):
             except Exception as e:
                 pass
 
-        return render(request, 'add_account.html')
+        context = {
+            "hostname": HOSTNAME,
+        }
+
+        return render(request, 'add_account.html', context)
