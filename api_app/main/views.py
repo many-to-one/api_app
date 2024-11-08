@@ -57,7 +57,8 @@ def get_new_authorization_code(request, name):
 def get_new_code(request, name):
     # if request.user.is_authenticated:
     context = {
-        'name': name
+        'name': name,
+        'hostname': HOSTNAME,
     }
     return render(request, 'get_new_code.html', context)
 
