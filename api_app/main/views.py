@@ -72,7 +72,7 @@ def get_authorization_code(request):
 
     if request.user.is_authenticated:
 
-        REDIRECT_URI_ =' http://localhost:8000/get_code'  
+        REDIRECT_URI_ = f'{HOSTNAME}/get_code'  
 
         try: 
 
@@ -123,7 +123,7 @@ def get_access_token(request, authorization_code, name):
         print('************SECRETS************', secret.CLIENT_ID)
 
         try:
-            data = {'grant_type': 'authorization_code', 'code': authorization_code, 'redirect_uri': f'http://localhost:8000/get_new_code/{name}'}
+            data = {'grant_type': 'authorization_code', 'code': authorization_code, 'redirect_uri': f'{HOSTNAME}/get_new_code/{name}'}
             access_token_response = requests.post(TOKEN_URL, data=data, verify=True,
                                                 allow_redirects=True, auth=(secret.CLIENT_ID, secret.CLIENT_SECRET))
             print("RESPONSE CONTENT:", access_token_response.text)

@@ -2,14 +2,16 @@ import base64
 import os
 import uuid
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from django.core.files.storage import default_storage
 from ..api_service import sync_service
-from rembg import remove
+from rembg import remove, new_session
 from PIL import Image
 from io import BytesIO
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+import io
+
 
 # def remove_background(request):
 #     if request.method == 'POST' and 'image' in request.FILES:
@@ -72,13 +74,69 @@ def remove_background(request):
     }
     return render(request, 'photo_editor/image_editor.html', context)
 
+# Set the model globally
+session = new_session(model_name='u2netp')
+
+#@require_POST
+#def remove_bg(request):
+#    if request.method == "POST":
+#        print('################## remove bg POST body #################', request)
+#        image = request.FILES.get("image")
+#        threshold = request.POST['threshold']
+#        print('--------------- request ---------------', image)
+        
+#        if image:
+            # Process the image
+#            input_image = Image.open(image)
+
+#            if threshold == '0':
+#                output_image = remove(input_image, session=session)
+#                print('--------------- threshold == 0 ---------------', threshold)
+#            else:
+#                print('--------------- threshold != 0 ---------------', threshold)
+#                output_image = remove(
+#                    input_image,
+                    # alpha_matting=True,
+#                    alpha_matting_foreground_threshold=f'{threshold}',
+#                    post_process_mask=True,
+                    # alpha_matting_background_threshold=100,
+                    # alpha_matting_erode_structure_size=5,
+                    # alpha_matting_erode_size=11,
+                    # alpha_matting_base_size=1000,
+#                )
+
+            # Get bounding box of the object
+#            bbox = output_image.getbbox()
+#            if bbox:
+                # Crop the image to the bounding box
+#                output_image = output_image.crop(bbox)
+            
+            # Save the processed image to an in-memory bytes buffer
+#            buffer = BytesIO()
+#            output_image.save(buffer, format="PNG")
+#            buffer.seek(0)
+            
+            # Encode the image as base64
+#            image_base64 = base64.b64encode(buffer.read()).decode('utf-8')
+
+            # Construct the base64 string to be used in the frontend
+#            image_data_url = f"data:image/png;base64,{image_base64}"
+#            print('************* SUCCESS ***************', f'{image}')
+#            return JsonResponse({
+#                    'success': True, 
+#                    'imgName': f'{image}',
+#                    'image_data_url': image_data_url,
+#                    'range': 5, #range(5),
+#                })
+
+#    return JsonResponse({'success': False, 'error': 'Image processing failed'})
+
 
 @require_POST
 def remove_bg(request):
     if request.method == "POST":
-        print('################## remove bg POST body #################', request)
         image = request.FILES.get("image")
-        threshold = request.POST['threshold']
+        threshold = request.POST.get('threshold', '0')
         print('--------------- request ---------------', image)
         
         if image:
@@ -86,19 +144,15 @@ def remove_bg(request):
             input_image = Image.open(image)
 
             if threshold == '0':
-                output_image = remove(input_image)
+                output_image = remove(input_image, session=session)
                 print('--------------- threshold == 0 ---------------', threshold)
             else:
                 print('--------------- threshold != 0 ---------------', threshold)
                 output_image = remove(
                     input_image,
-                    # alpha_matting=True,
-                    alpha_matting_foreground_threshold=f'{threshold}',
+                    alpha_matting_foreground_threshold=int(threshold),  # Ensure threshold is an integer
                     post_process_mask=True,
-                    # alpha_matting_background_threshold=100,
-                    # alpha_matting_erode_structure_size=5,
-                    # alpha_matting_erode_size=11,
-                    # alpha_matting_base_size=1000,
+                    session=session
                 )
 
             # Get bounding box of the object
@@ -108,24 +162,24 @@ def remove_bg(request):
                 output_image = output_image.crop(bbox)
             
             # Save the processed image to an in-memory bytes buffer
-            buffer = BytesIO()
+            buffer = io.BytesIO()
             output_image.save(buffer, format="PNG")
             buffer.seek(0)
             
-            # Encode the image as base64
-            image_base64 = base64.b64encode(buffer.read()).decode('utf-8')
+            # Stream the image in chunks
+            def stream_image():
+                while True:
+                    chunk = buffer.read(8192)
+                    if not chunk:
+                        break
+                    yield chunk
 
-            # Construct the base64 string to be used in the frontend
-            image_data_url = f"data:image/png;base64,{image_base64}"
-            
-            return JsonResponse({
-                    'success': True, 
-                    'imgName': f'{image}',
-                    'image_data_url': image_data_url,
-                    'range': 5, #range(5),
-                })
+            response = StreamingHttpResponse(stream_image(), content_type="image/png")
+            response['Content-Disposition'] = 'attachment; filename="processed_image.png"'
+            return response
 
     return JsonResponse({'success': False, 'error': 'Image processing failed'})
+
 
 from django.core.files.base import ContentFile
 # @csrf_exempt

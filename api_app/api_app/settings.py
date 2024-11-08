@@ -35,6 +35,7 @@ DEBUG = os.getenv('DEBUG')
 
 ALLOWED_HOSTS = ['45.141.3.185', 'sellior.pl', 'www.sellior.pl', '127.0.0.1', '0.0.0.0', 'localhost']
 CSRF_TRUSTED_ORIGINS = ['https://sellior.pl', 'https://www.sellior.pl']
+DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400  # 25 MB
 
 # Application definition
 

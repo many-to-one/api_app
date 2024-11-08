@@ -26,7 +26,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: sellior_backend
-    command: sh -c "uvicorn api_app.asgi:application --reload --host 0.0.0.0 --port 8004"
+    command: sh -c "uvicorn api_app.asgi:application --host 0.0.0.0 --port 8004 --workers 2"
     restart: always
     volumes:
       - .:/app
