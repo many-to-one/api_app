@@ -1432,6 +1432,120 @@
         });
 
 
+        async function compressImage(base64Data, maxSizeKB) {
+            const img = new Image();
+            img.src = `data:image/png;base64,${base64Data}`;
+            
+            return new Promise((resolve) => {
+                img.onload = () => {
+                    const canvas = document.createElement("canvas");
+                    // Set canvas dimensions to match the original image
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    
+                    const ctx = canvas.getContext("2d");
+                    ctx.fillStyle = "white"; // Set background to white
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    // Compress the image by adjusting quality
+                    let quality = 0.9;
+                    let compressedDataUrl;
+                    let dataSize = 0;  // Declare dataSize outside of the loop to track the size correctly
+
+                    do {
+                        compressedDataUrl = canvas.toDataURL("image/jpeg", quality);
+                        dataSize = Math.ceil((compressedDataUrl.length * 3) / 4 / 1024); // Convert to KB
+                        quality -= 0.1;
+
+                        // Log the size of the image data at each quality step
+                        console.log(`Current size: ${dataSize} KB (quality: ${quality.toFixed(2)})`);
+                    } while (dataSize > maxSizeKB && quality > 0.1); // Continue until within size limit or quality is too low
+
+                    // Log the final size of the compressed image
+                    console.log(`Final compressed size: ${dataSize} KB`);
+
+                    // Convert the data URL to a Blob and resolve
+                    fetch(compressedDataUrl)
+                        .then(res => res.blob())
+                        .then(resolve);
+                };
+            });
+        }
+
+
+        function cropImg (imagURL) {
+
+            // Create an Image object
+            const img = new Image();
+            img.src = imagURL;
+
+            img.onload = () => {
+                // Create a canvas to crop the image
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Set canvas size to image's natural width and height
+                canvas.width = img.width;
+                canvas.height = img.height;
+
+                // Draw the image onto the canvas
+                ctx.drawImage(img, 0, 0);
+
+                // Get image data from the canvas
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+
+                let left = null, right = null, top = null, bottom = null;
+
+                // Find the bounding box by checking non-transparent pixels (alpha > 0)
+                for (let y = 0; y < canvas.height; y++) {
+                    for (let x = 0; x < canvas.width; x++) {
+                        const alpha = data[(y * canvas.width + x) * 4 + 3]; // Alpha channel
+                        if (alpha > 0) {
+                            if (left === null || x < left) left = x;
+                            if (right === null || x > right) right = x;
+                            if (top === null || y < top) top = y;
+                            if (bottom === null || y > bottom) bottom = y;
+                        }
+                    }
+                }
+
+                // If bounding box is found, crop the image
+                if (left !== null && right !== null && top !== null && bottom !== null) {
+                    const width = right - left;
+                    const height = bottom - top;
+
+                    // Create a new canvas to hold the cropped image
+                    const croppedCanvas = document.createElement('canvas');
+                    const croppedCtx = croppedCanvas.getContext('2d');
+                    croppedCanvas.width = width;
+                    croppedCanvas.height = height;
+
+                    // Draw the cropped image onto the new canvas
+                    croppedCtx.drawImage(img, left, top, width, height, 0, 0, width, height);
+
+                    // Get the cropped image data URL
+                    const croppedImageDataUrl = croppedCanvas.toDataURL('image/png');
+
+                    // Update the image on the page with the cropped image
+                    const imgInGallery = document.getElementById(imageBGName);
+                    imgInGallery.src = croppedImageDataUrl;
+                    imgInGallery.style.width = '150px';
+                    imgInGallery.style.height = 'auto';
+
+                    // Optionally, you can now send the cropped image back to the backend or display it as needed.
+                    // console.log('Cropped image URL:', croppedImageDataUrl);
+                    return croppedImageDataUrl;
+
+                } else {
+                    alert('No visible content found to crop.');
+                }
+            };
+
+        }
+
+
         function removeBackGround() {
 
             console.log('removeBackGround imgToRemove', imageBGName);
@@ -1495,7 +1609,8 @@
                     console.error('Error:', error);
                     alert('An error occurred. Please try again.');
                 });
-        }
+            }
+
 
 
 
