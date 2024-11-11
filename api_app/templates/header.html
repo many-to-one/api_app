@@ -11,88 +11,124 @@
 </head>
 <body>
     <header>
-        <nav>
-            <ul>
-                <li><a href="{% url 'index' %}">Home</a></li>
-                <li class="dropdown">
-                    <span>Oferty</span>
-                    <div class="dropdown-content">
-                        {% for name in accounts  %}
-                        <a href="{% url 'get_all_offers' name %}">{{ name }}</a>
-                        {% endfor %}
-                    </div>
+        <a class="sellior_" href="{% url 'index' %}">SELLIOR</a>
+
+        <li class="dropdown">
+            <span>Konto</span>
+            <ul class="dropdown-menu" aria-labelledby="defaultDropdown">
+                {% for name in accounts  %}
+                    <li id="accountName" value="{{ name }}"><a class="dropdown-item">{{ name }}</a></li>
+                {% endfor %}
+              </ul>
+        </li>
+
+        {% if request.user.is_authenticated %}
+            <li class="position-absolute top-1 end-0">
+                <a class="sellior_" href="{% url 'logout_user' %}">
+                    <img src="{% static 'icons/logout.svg' %}" width="25" class="sellior pe-1 text-ligh">
+                </a>
+            </li>
+        {% else %}
+            <li class="ms-auto p-2">
+                <a class="sellior_" href="{% url 'login_user' %}">
+                    <img src="{% static 'icons/login.svg' %}" width="25" class="sellior pe-1" style="color: white;">
+                </a>
+            </li>
+        {% endif %}
+
+        <!-- <nav id="naviNav"> -->
+
+            <div class="navi" id="naviNav">
+
+                <li id="offersId" class="d-flex gap-2 m-3" value="offers" data="get_all_offers">
+                    <img src="{% static 'icons/offers.svg' %}" width="25" style="color: white;">
+                    <a class="sellior" id="offersLink" href="{% url 'get_all_offers' 'PLACEHOLDER' %}">Oferty</a> 
                 </li>
 
-                <li class="dropdown">
-                    <span>Zamówienia</span>
-                    <div class="dropdown-content">
-                        {% for name in accounts  %}
-                        <a href="{% url 'get_orders' name 'all' 'all' 'all' 'all' 'all' %}">{{ name }}</a>
-                        {% endfor %}
-                    </div>
+                <li id="ordersId" class="d-flex gap-2 m-3" value="orders" data="get_orders">
+                    <img src="{% static 'icons/orders_.svg' %}" width="25" style="color: white;">
+                    <a class="sellior" id="ordersLink" href="{% url 'get_orders' 'PLACEHOLDER' 'all' 'all' 'all' 'all' 'all' %}">Zamówienia</a>
                 </li>
 
-                <li class="dropdown">
-                    <span>Zwroty</span>
-                    <div class="dropdown-content">
-                        {% for name in accounts  %}
-                        <a href="{% url 'get_returns' name %}">{{ name }}</a>
-                        {% endfor %}
-                    </div>
+                <li id="returnsId" class="d-flex gap-2 m-3">
+                    <img src="{% static 'icons/returns.svg' %}" width="25" style="color: white;">
+                    <a class="sellior" id="returnsLink" href="{% url 'get_returns' 'PLACEHOLDER' %}">Zwroty</a>
                 </li>
 
-                <li class="dropdown">
-                    <span>Adres Wysyłki</span>
-                    <div class="dropdown-content">
-                        {% for name in accounts  %}
-                        <a href="{% url 'get_address' name %}">{{ name }}</a>
-                        <!-- <a href="{% url 'offers_listing' name %}">{{ name }}</a> -->
-                        {% endfor %}
-                    </div>
-                </li>
-                <li class="dropdown">
-                    <span>Oferty Plus</span>
-                    <div class="dropdown-content">
-                        {% for name in accounts  %}
-                        <a href="{% url 'offers_listing' name %}">{{ name }}</a>
-                        {% endfor %}
-                    </div>
-                </li>
-                <li class="dropdown">
-                    <span>Allegro Kod</span>
-                    <div class="dropdown-content">
-                        {% for name in accounts  %}
-                        <a href="{% url 'get_new_authorization_code' name %}">{{ name }}</a>
-                        {% endfor %}
-                    </div>
-                </li>
-                <li class="dropdown">
-                    <span>Centrum Wiadomości</span>
-                    <div class="dropdown-content">
-                        {% for name in accounts  %}
-                        <a href="{% url 'all_messages' name %}">{{ name }}</a>
-                        {% endfor %}
-                    </div>
+                <li class="d-flex gap-2 m-3">
+                    <img src="{% static 'icons/address.svg' %}" width="25" style="color: white;">
+                    <a class="sellior" id="addressLink" href="{% url 'get_address' 'PLACEHOLDER' %}">Adres Wysyłki</a>
                 </li>
 
-                <li class="dropdown">
-                    <span>Narzędzia pracy</span>
-                    <div class="dropdown-content">
-                        <a href="{% url 'photo_editor' %}">Wytnij tło</a>
-                        <a href="{% url 'pdf_creator' %}">PDF</a>
-                    </div>
+                <li class="d-flex gap-2 m-3">
+                    <img src="{% static 'icons/offers_plus.svg' %}" width="25" style="color: white;">
+                    <a class="sellior" id="addressLink" href="{% url 'offers_listing' 'PLACEHOLDER' %}">Oferty Plus</a>
                 </li>
 
-                <li><a href="{% url 'add_account' %}">Dodaj Konto</a></li>
-                <li><a href="{% url 'ebay_token' %}">Ebay</a></li>
-                {% if request.user.is_authenticated %}
-                    <li><a href="{% url 'logout_user' %}">Wyloguj</a></li>
-                {% else %}
-                    <li><a href="{% url 'login_user' %}">Zaloguj</a></li>
-                {% endif %}
-            </ul>
-        </nav>
+                <li id="menuId" class="d-flex gap-2 m-3">
+                    <img src="{% static 'icons/token.svg' %}" width="25" style="color: white;">
+                    <a class="sellior" id="addressLink" href="{% url 'get_new_authorization_code' 'PLACEHOLDER' %}">Allegro Kod</a>
+                </li>
+
+                <li id="menuId" class="d-flex gap-2 m-3">
+                    <img src="{% static 'icons/mess.svg' %}" width="25" style="color: white;">
+                    <a class="sellior" id="addressLink" href="{% url 'get_new_authorization_code' 'PLACEHOLDER' %}">Centrum Wiadomości</a>
+                </li>
+
+                <li class="d-flex gap-2 m-3">
+                    <img src="{% static 'icons/img_edit.svg' %}" width="25" style="color: white;">
+                    <a class="sellior" href="{% url 'photo_editor' %}">Wytnij tło</a>
+                </li>
+
+                <li class="d-flex gap-2 m-3">
+                    <img src="{% static 'icons/edit_pdf.svg' %}" width="25" style="color: white;">
+                    <a class="sellior" href="{% url 'pdf_creator' %}">PDF</a>
+                </li>
+
+                <li class="d-flex gap-2 m-3">
+                    <img src="{% static 'icons/add_acc.svg' %}" width="25" style="color: white;">
+                    <a class="sellior" href="{% url 'add_account' %}">Dodaj Konto</a>
+                </li>
+                <!-- <li><a class="sellior" href="{% url 'ebay_token' %}">Ebay</a></li> -->
+
+            </div>
+        <!-- </nav> -->
     </header>
+
+    <script>
+
+        const accountName = document.getElementById('accountName');
+        const nameValue = accountName.getAttribute('value');
+        const offersLink = document.getElementById('offersLink');
+        const ordersLink = document.getElementById('ordersLink');
+        console.log('nameValue before click', nameValue)
+
+        offersLink.addEventListener('click', () => {
+            console.log('nameValue', nameValue)
+            offersLink.href = offersLink.href.replace('PLACEHOLDER', nameValue);
+        });
+
+        ordersLink.addEventListener('click', () => {
+            console.log('nameValue', nameValue)
+            ordersLink.href = ordersLink.href.replace('PLACEHOLDER', nameValue);
+        });
+
+        const navi = document.getElementById('naviNav');
+        const sellior = document.querySelectorAll('.sellior');
+        navi.addEventListener('mouseenter', () => {
+            navi.style.width = '200px';
+            sellior.forEach(element => {
+                element.style.display = 'block';
+            });
+        })
+        navi.addEventListener('mouseleave', () => {
+            navi.style.width = '60px';
+            sellior.forEach(element => {
+                element.style.display = 'none';
+            });
+        })
+
+    </script>
     
 </body>
 </html>

@@ -11,6 +11,13 @@ header {
     z-index: 1000;
 }
 
+.navi {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin-bottom: 25px;
+}
+
 nav ul {
     list-style-type: none;
     margin: 0;

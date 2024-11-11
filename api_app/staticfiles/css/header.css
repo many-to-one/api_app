@@ -11,6 +11,33 @@ header {
     z-index: 1000;
 }
 
+.sellior_ {
+    list-style-type: none;
+    color: #fff; 
+    text-decoration: none;
+}
+
+.sellior {
+  display: none;
+  list-style-type: none;
+  color: #fff; 
+  text-decoration: none;
+}
+
+#accountsAllegro {
+  margin-top: 20px;
+}
+
+.navi {
+    display: flex;
+    flex-direction: column;
+    height: 90vh;
+    width: 60px;
+    margin-top: 120vh;
+    margin-left: -160px;
+    background-color: var(--header);
+}
+
 nav ul {
     list-style-type: none;
     margin: 0;
@@ -41,6 +68,10 @@ nav ul li a {
   .dropdown span {
     color: #f1f1f1;
   }
+
+  .dropdown-menu {
+    display: none !important;
+  }
   
   /* Dropdown Content (Hidden by Default) */
   .dropdown-content {
@@ -48,14 +79,19 @@ nav ul li a {
     position: absolute;
     background-color: var(--header);
     min-width: 160px;
-    margin-top: 10px;
+    /* margin-top: 10px; */
+    margin-left: 150px;
     /* box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); */
     z-index: 1;
   }
   
   /* Show the dropdown menu on hover */
-  .dropdown:hover .dropdown-content {
+  .dropdown:hover .dropdown-content{
     display: block;
+  }
+
+  .dropdown:hover .dropdown-menu{
+    display: block !important;
   }
   
   /* Dropdown Links */
