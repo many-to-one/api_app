@@ -479,6 +479,7 @@ def edit_offer_patch(request, id):
     currency = data.get('currency')
     status = data.get('status')
     title = data.get('title')
+    photos = data.get('photos')
     name = data.get('name')
 
     patch_data = {
@@ -509,6 +510,11 @@ def edit_offer_patch(request, id):
             "publication": {
                 "status": status,
             }
+        }
+
+    if photos:
+        patch_data = {
+            "images": photos
         }
 
     print('############# patch_data #############', patch_data)

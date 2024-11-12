@@ -23,6 +23,11 @@
 
     <div class="offers__cont" id="of_cont">
 
+        <div id="messageBox" class="message-box" style="display: none; text-align: center;">
+            <span id="messageText"></span>
+            <button id="closeButton" class="close-button" onclick="closeMessage()">&times;</button>
+        </div>
+
         <div class="container_editor">
             <div class="square-form">
                 <form id="imageForm" method="POST" enctype="multipart/form-data">
@@ -208,6 +213,28 @@
 
     <script>
 
+        // USER MESSAGES
+        function showMessage(message, status) {
+            const messageBox = document.getElementById('messageBox');
+            const messageText = document.getElementById('messageText');
+            messageText.textContent = message;
+            messageBox.style.display = 'block';  
+            if ( status === 200 ) {
+                messageBox.style.backgroundColor = 'green';
+            } else if ( status === 300 ) {
+                messageBox.style.backgroundColor = 'blue';
+            } else {
+                messageBox.style.backgroundColor = 'red';
+            }
+
+            setTimeout(closeMessage, 3000);
+        }
+
+        function closeMessage() {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.style.display = 'none';  // Hide the message box
+        }
+
         // Function to get CSRF token from cookie
         function getCookie(name) {
             var cookieValue = null;
@@ -265,11 +292,12 @@
                 });
         }
 
-
+        let __offerId = null;
 
         // Function to get images of serched offer
         function getImg(offerId) {
 
+            __offerId = offerId;
             var csrftoken = getCookie('csrftoken');
             var nameId = document.getElementById('name');
             var name = nameId.getAttribute('value')
@@ -486,13 +514,46 @@
                         const imgLink = createLink(im.src)
                         imagesArray.push(imgLink);
                     } else {
-                        imagesArray.push(im.src);
+                        // imagesArray.push(im.src);
+                        imagesArray.push(Promise.resolve(im.src));
                     }
                 }
             });
 
-            console.log('imagesArray:', imagesArray);
+            const resolvedLinks = await Promise.all(imagesArray);
+            console.log('Resolved imagesArray:', resolvedLinks);
 
+            const status = await editPhotos(resolvedLinks);
+            console.log('message-message:', status);
+
+            if (status === 200) {
+                showMessage('Zdjęcia dodane poprawnie', 200);
+            } else {
+                showMessage('Coś poszło nie tak...', 500);
+            }
+
+        }
+
+        async function editPhotos( resolvedLinks ) {
+
+            var csrftoken = getCookie('csrftoken');
+            var nameId = document.getElementById('name');
+            var name = nameId.getAttribute('value')
+
+            return axios.patch('/edit_offer_patch/' + __offerId + '/', { photos: resolvedLinks, name: name }, {
+            headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            })
+            .then(function(response) {
+                console.log('editPhotos, response', response.data)
+                return response.data.status
+            })
+            .catch(function(error) {
+                // Handle error
+                console.error('Error updating images:', error);
+                return response.data.status
+            });
         }
 
 
