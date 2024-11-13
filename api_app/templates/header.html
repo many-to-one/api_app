@@ -13,14 +13,20 @@
     <header>
         <a class="sellior_" href="{% url 'index' %}">SELLIOR</a>
 
-        <li class="dropdown">
+        <!-- <li class="dropdown">
             <span>Konto</span>
             <ul class="dropdown-menu" aria-labelledby="defaultDropdown">
                 {% for name in accounts  %}
                     <li id="accountName" value="{{ name }}"><a class="dropdown-item">{{ name }}</a></li>
                 {% endfor %}
               </ul>
-        </li>
+        </li> -->
+
+        <select class="edit_acc account_select order" id="status_select">
+            {% for name in accounts  %}
+                <option id="accountName" value="{{ name }}">{{ name }}</option>
+            {% endfor %}
+        </select>
 
         {% if request.user.is_authenticated %}
             <li class="position-absolute top-1 end-0">
@@ -55,39 +61,39 @@
                     <a class="sellior" id="returnsLink" href="{% url 'get_returns' 'PLACEHOLDER' %}">Zwroty</a>
                 </li>
 
-                <li class="d-flex gap-3 m-3">
+                <li id="addressId" class="d-flex gap-3 m-3">
                     <img src="{% static 'icons/address.svg' %}" width="25" style="color: white;">
                     <a class="sellior" id="addressLink" href="{% url 'get_address' 'PLACEHOLDER' %}">Adres Wysyłki</a>
                 </li>
 
-                <li class="d-flex gap-3 m-3">
+                <li id="analiticId" class="d-flex gap-3 m-3">
                     <img src="{% static 'icons/offers_plus.svg' %}" width="25" style="color: white;">
-                    <a class="sellior" id="addressLink" href="{% url 'offers_listing' 'PLACEHOLDER' %}">Oferty Plus</a>
+                    <a class="sellior" id="analiticLink" href="{% url 'offers_listing' 'PLACEHOLDER' %}">Oferty Plus</a>
                 </li>
 
-                <li id="menuId" class="d-flex gap-3 m-3">
+                <li id="allegroTokenId" id="menuId" class="d-flex gap-3 m-3">
                     <img src="{% static 'icons/token.svg' %}" width="25" style="color: white;">
-                    <a class="sellior" id="addressLink" href="{% url 'get_new_authorization_code' 'PLACEHOLDER' %}">Allegro Kod</a>
+                    <a class="sellior" id="allegroTokenLink" href="{% url 'get_new_authorization_code' 'PLACEHOLDER' %}">Allegro Kod</a>
                 </li>
 
-                <li id="menuId" class="d-flex gap-3 m-3">
+                <li id="messageId" class="d-flex gap-3 m-3">
                     <img src="{% static 'icons/mess.svg' %}" width="25" style="color: white;">
-                    <a class="sellior" id="addressLink" href="{% url 'get_new_authorization_code' 'PLACEHOLDER' %}">Centrum Wiadomości</a>
+                    <a class="sellior" id="messageLink" href="{% url 'all_messages' 'PLACEHOLDER' %}">Centrum Wiadomości</a>
                 </li>
 
-                <li class="d-flex gap-3 m-3">
+                <li id="photoEditorId" class="d-flex gap-3 m-3">
                     <img src="{% static 'icons/img_edit.svg' %}" width="25" style="color: white;">
-                    <a class="sellior" href="{% url 'photo_editor' %}">Wytnij tło</a>
+                    <a class="sellior" id="photoEditorLink" href="{% url 'photo_editor' %}">Wytnij tło</a>
                 </li>
 
-                <li class="d-flex gap-3 m-3">
+                <li id="pdfEditorId" class="d-flex gap-3 m-3">
                     <img src="{% static 'icons/edit_pdf.svg' %}" width="25" style="color: white;">
-                    <a class="sellior" href="{% url 'pdf_creator' %}">PDF</a>
+                    <a class="sellior" id="pdfEditorLink" href="{% url 'pdf_creator' %}">PDF</a>
                 </li>
 
-                <li class="d-flex gap-3 m-3">
+                <li id="addAllegroAccId" class="d-flex gap-3 m-3">
                     <img src="{% static 'icons/add_acc.svg' %}" width="25" style="color: white;">
-                    <a class="sellior" href="{% url 'add_account' %}">Dodaj Konto</a>
+                    <a class="sellior" id="addAllegroAccLink" href="{% url 'add_account' %}">Dodaj Konto</a>
                 </li>
                 <!-- <li><a class="sellior" href="{% url 'ebay_token' %}">Ebay</a></li> -->
 
@@ -101,6 +107,14 @@
         const nameValue = accountName.getAttribute('value');
         const offersLink = document.getElementById('offersLink');
         const ordersLink = document.getElementById('ordersLink');
+        const returnsLink = document.getElementById('returnsLink');
+        const addressLink = document.getElementById('addressLink');
+        const analiticLink = document.getElementById('analiticLink');
+        const allegroTokenLink = document.getElementById('allegroTokenLink');
+        const messageLink = document.getElementById('messageLink');
+        const photoEditorLink = document.getElementById('photoEditorLink');
+        const pdfEditorLink = document.getElementById('pdfEditorLink');
+        const addAllegroAccLink = document.getElementById('addAllegroAccLink');
         console.log('nameValue before click', nameValue)
 
         offersLink.addEventListener('click', () => {
@@ -111,6 +125,46 @@
         ordersLink.addEventListener('click', () => {
             console.log('nameValue', nameValue)
             ordersLink.href = ordersLink.href.replace('PLACEHOLDER', nameValue);
+        });
+
+        returnsLink.addEventListener('click', () => {
+            console.log('nameValue', nameValue)
+            returnsLink.href = returnsLink.href.replace('PLACEHOLDER', nameValue);
+        });
+
+        addressLink.addEventListener('click', () => {
+            console.log('nameValue', nameValue)
+            addressLink.href = addressLink.href.replace('PLACEHOLDER', nameValue);
+        });
+
+        analiticLink.addEventListener('click', () => {
+            console.log('nameValue', nameValue)
+            analiticLink.href = analiticLink.href.replace('PLACEHOLDER', nameValue);
+        });
+
+        allegroTokenLink.addEventListener('click', () => {
+            console.log('nameValue', nameValue)
+            allegroTokenLink.href = allegroTokenLink.href.replace('PLACEHOLDER', nameValue);
+        });
+
+        messageLink.addEventListener('click', () => {
+            console.log('nameValue', nameValue)
+            messageLink.href = messageLink.href.replace('PLACEHOLDER', nameValue);
+        });
+
+        photoEditorLink.addEventListener('click', () => {
+            console.log('nameValue', nameValue)
+            photoEditorLink.href = photoEditorLink.href.replace('PLACEHOLDER', nameValue);
+        });
+
+        pdfEditorLink.addEventListener('click', () => {
+            console.log('nameValue', nameValue)
+            pdfEditorLink.href = pdfEditorLink.href.replace('PLACEHOLDER', nameValue);
+        });
+
+        addAllegroAccLink.addEventListener('click', () => {
+            console.log('nameValue', nameValue)
+            addAllegroAccLink.href = addAllegroAccLink.href.replace('PLACEHOLDER', nameValue);
         });
 
         const navi = document.getElementById('naviNav');
