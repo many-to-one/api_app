@@ -1,7 +1,7 @@
 services:
 
   db:
-    image: postgres:15
+    image: postgres:17
     container_name: postgres_sellior
     environment:
       POSTGRES_DB: ${DB_NAME}

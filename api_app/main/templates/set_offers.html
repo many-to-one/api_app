@@ -102,7 +102,7 @@
                 </div>
 
                 {% for set in sets %}
-                {% if set.1.0.id == offer.id %}
+                {% if set.1.1.id == offer.id %}
 
                 <div class="set__offers__line" data-title="{{ offer.name }}" data-id="{{ offer.external.id }}" id="oneSet_{{ set.0.set_id }}">
                     <div class="conto">
@@ -135,7 +135,7 @@
                             <div class="conto__row bg-primary-subtle" id="offerSetMain_{{ offer.id }}">
                                 <img id="offerOneImg_{{ set.0.set_id }}" class="set__photo" src="{{offer.primaryImage.url}}" alt="">
                                 <p id="offerOneName_{{ set.0.set_id }}" class="set__name">{{ offer.name }}</p>
-                                {% for s in set.1|slice:":1" %}
+                                {% for s in set.1|slice:"1:" %}
                                     {% for of in result.offers %}
                                         {% if s.id == of.id %}
                                             <input style="width: 20px;" id="disc__piece_{{ offer.id }}" value="{{ s.requiredQuantity }}" type="text" onchange="setCount('{{ offer.id }}')">
@@ -150,7 +150,7 @@
                             <hr>
                             
                                 <!-- <p class="set__name">tutaj: {{ set.0.set_id }}</p> -->
-                                {% for s in set.1|slice:"1:" %}
+                                {% for s in set.1|slice:":1" %}
                                     {% for of in result.offers %}
                                         {% if s.id == of.id %}
                                             <div class="conto__row inSet" data-set="{{ of.id }}" id="offerSet_{{ set.0.set_id }}">
