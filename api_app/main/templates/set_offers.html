@@ -560,6 +560,7 @@
             var sumValue = null;
 
             var mainOfferPrice = document.getElementById('mainSetOfferPrice_' + offerId).getAttribute('data-set');
+            console.log('main_offer', offerId);
             console.log('submitCopySet setContainer', setContainer);
             console.log('setContainer lendth', setContainer.length);
 
@@ -567,13 +568,24 @@
 
                 console.log('setContainer.length === 2 +')
 
-                // GET SUM OF COPIED SET OFFER(S) WITH THE NEW MAIN OFFER
-                setContainer[setContainer.length - 1][1].slice(1).forEach(of => {
-                    var setOffersPrice = document.getElementById('mainSetOfferPrice_' + of['id']).getAttribute('data-set');
-                    console.log('setOffersPrice', setOffersPrice)
-                    sumValue += parseFloat(setOffersPrice)
-                    console.log('sumValue in data', sumValue)
+                // TEST // GET SUM OF COPIED SET OFFER(S) WITH THE NEW MAIN OFFER
+                setContainer[setContainer.length - 1][1].forEach(of => {
+                    if ( of.entryPoint !== true ) {
+                        var setOffersPrice = document.getElementById('mainSetOfferPrice_' + of['id']).getAttribute('data-set');
+                        console.log('setOffersPrice', setOffersPrice)
+                        sumValue += parseFloat(setOffersPrice)
+                        console.log('sumValue in data', sumValue)
+                    }
+                    console.log('of inside setContainer', of)
                 })
+
+                // // GET SUM OF COPIED SET OFFER(S) WITH THE NEW MAIN OFFER
+                // setContainer[setContainer.length - 1][1].slice(1).forEach(of => {
+                //     var setOffersPrice = document.getElementById('mainSetOfferPrice_' + of['id']).getAttribute('data-set');
+                //     console.log('setOffersPrice', setOffersPrice)
+                //     sumValue += parseFloat(setOffersPrice)
+                //     console.log('sumValue in data', sumValue)
+                // })
 
                 setContainer[setContainer.length - 1]['main_offer_price'] = sumValue;
 
@@ -666,6 +678,7 @@
 
             // const jsonStringifyData = prepareCopySetData(data, resp.result[0]);
             // // console.log('dataJSON', jsonStringifyData);
+            console.log('offersContainer', offersContainer);
 
             var SetOffersContainer = document.getElementById('SetOffersContainer');
             // console.log('resp.result[0].offers', resp.result[0].offers[0].id)

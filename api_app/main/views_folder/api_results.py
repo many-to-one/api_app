@@ -359,15 +359,15 @@ async def prepare_post_copy_offers(request, secret, offers, amount, main_offer):
 async def post_copy_offers(request, secret, offers, amount, main_offer):
 
     print('############ offers offers ##############', offers)
-    offers[0]['id'] = f'{main_offer}'
-    # print('############ post_copy_offers offers[0] ##############', offers[0]['id'])
+    offers[1]['id'] = f'{main_offer}'
+    print('############ offers after add main offer ##############', offers[::-1])
     # print(' #########  amount post_cpy_offers ##########', amount)
     # print(' ######### type amount post_copy_offers ##########', type(amount))
 
     try:
         async with httpx.AsyncClient() as client:
             url = "https://api.allegro.pl.allegrosandbox.pl/sale/bundles" 
-            # headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
+            # headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"} 
             headers = {
                 'Authorization': f'Bearer {secret.access_token}',
                 'Accept': 'application/vnd.allegro.public.v1+json',
@@ -379,17 +379,17 @@ async def post_copy_offers(request, secret, offers, amount, main_offer):
             print('############ OFFERS ##############', offers)
             if amount == '0.00':
                 data = {
-                    "offers": offers,
+                    "offers": offers[::-1], # after changeds in allegro api
                     "discounts": []
                 }
             elif amount['discount'] == '0.00':
                 data = {
-                    "offers": offers,
+                    "offers": offers[::-1], # after changeds in allegro api
                     "discounts": []
                 }
             else:
                 data = {
-                    "offers": offers,
+                    "offers": offers[::-1], # after changeds in allegro api
                     "discounts": [                    
                         {
                         "marketplace": {              
