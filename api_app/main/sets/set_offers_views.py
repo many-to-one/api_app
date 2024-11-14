@@ -22,25 +22,28 @@ def set_offers(request, name):
     sets = sync_service.Offers(name)
     all_sets = sets.get_(request, url, debug_name)
 
-    # all_sets = get_all_sets_api(request, name)
     print("############### all_sets ##################", all_sets)
 
+
     offers = []
-    for set_item in all_sets['bundles']: #[0]['promotions']:
-        offer = set_item['offers'] #['offerCriteria'][0]['offers']
-        # discount = set_item['discounts'][0]['amount'] #['benefits'][0]['specification']['value']['amount']
+    for set_item in all_sets['bundles']: 
+        offer = set_item['offers'] 
         discount = 0
         if 'discounts' in set_item and len(set_item['discounts']) > 0:
             discount = set_item['discounts'][0]['amount']
         sum_ = 0
+
+        # LOGIC THAT MAKE 'entryPoint=True' EVERYTIME IN THE END
+        # TO MAKE CORRECT IMPLEMENTATION IN FRONTEND
+        if offer[0]['entryPoint'] == True:
+            offer[0], offer[1] = offer[1], offer[0]
+        # END OF THIS LOGIC
+
         for f in offer:
             for of in result['offers']:
                 if of['id'] == f['id']:
-                    # print("############### of ++ ##################", of['sellingMode']['price']['amount'])
                     sum_ += float(of['sellingMode']['price']['amount']) * f['requiredQuantity']
-                    # print("############### offer price * quantity ++ ##################", float(of['sellingMode']['price']['amount']) * f['quantity'])
-                    # quantity
-            # print("############### sum_ ##################", sum_  )
+
         price_after = sum_ - float(discount)
         discount_percentage = (float(discount) / sum_) * 100
         offers.append(

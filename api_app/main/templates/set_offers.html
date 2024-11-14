@@ -526,15 +526,18 @@
             var offerSetM_ = document.getElementById('offerSetMain_' + offerId);
             var offerSetMQuant = document.getElementById('disc__piece_' + offerId)
 
-            var countArray = [
-                {id: offerId, requiredQuantity: offerSetMQuant.value, entryPoint: true}
-            ]
+            var countArray = []
+
+            console.log('copySet_a countArray before', countArray)
 
             var setOffers = document.querySelectorAll(`#offerSet_${setId}`);
             for (set of setOffers) {
+                console.log('copySet_a set', set)
                 var requiredQuantity_ = document.getElementById('disc__piece_' + set.dataset['set'])
                 countArray.push({id: set.dataset['set'], requiredQuantity: requiredQuantity_.value, entryPoint: false})
-            }
+            };
+
+            countArray.push({id: offerId, requiredQuantity: offerSetMQuant.value, entryPoint: true});
 
             dataToSendArr = [
                     {set_id: setId},
@@ -546,6 +549,8 @@
                     {name: name},
                     {copy_type: copyValue}
             ];
+
+            console.log('copySet_a dataToSendArr', dataToSendArr)
 
             setContainer.push(dataToSendArr);
             showMessage('Zestaw został skopiowany do schowka', 200);
@@ -560,6 +565,8 @@
             var sumValue = null;
 
             var mainOfferPrice = document.getElementById('mainSetOfferPrice_' + offerId).getAttribute('data-set');
+            sumValue = parseFloat(mainOfferPrice);
+            console.log('submitCopySet sumValue before', sumValue)
             console.log('main_offer', offerId);
             console.log('submitCopySet setContainer', setContainer);
             console.log('setContainer lendth', setContainer.length);
@@ -578,14 +585,6 @@
                     }
                     console.log('of inside setContainer', of)
                 })
-
-                // // GET SUM OF COPIED SET OFFER(S) WITH THE NEW MAIN OFFER
-                // setContainer[setContainer.length - 1][1].slice(1).forEach(of => {
-                //     var setOffersPrice = document.getElementById('mainSetOfferPrice_' + of['id']).getAttribute('data-set');
-                //     console.log('setOffersPrice', setOffersPrice)
-                //     sumValue += parseFloat(setOffersPrice)
-                //     console.log('sumValue in data', sumValue)
-                // })
 
                 setContainer[setContainer.length - 1]['main_offer_price'] = sumValue;
 
@@ -751,16 +750,16 @@
                                 </div>
                                 <div 
                                     class="add__set set__tooltip" 
-                                    onclick="copySet_a('${resp.result[0]['id']}', 'copy_percentage', '${offerId}')"
+                                    onclick="copySet_a('${resp.result[0]['id']}', 'copy_money', '${offerId}')"
                                 >
-                                    <img style="cursor: pointer;" src="{% static 'icons/copy_percentage.png' %}" width="26" alt="">
+                                    <img style="cursor: pointer;" src="{% static 'icons/copy_money.png' %}" width="26" alt="">
                                     <span class="tooltip__text">Kopiuj zestaw</span>
                                 </div>
                                 <div 
                                     class="add__set set__tooltip" 
-                                    onclick="copySet_a('${resp.result[0]['id']}', 'copy_money', '${offerId}')"
+                                    onclick="copySet_a('${resp.result[0]['id']}', 'copy_percentage', '${offerId}')"
                                 >
-                                    <img style="cursor: pointer;" src="{% static 'icons/copy_money.png' %}" width="26" alt="">
+                                    <img style="cursor: pointer;" src="{% static 'icons/copy_percentage.png' %}" width="26" alt="">
                                     <span class="tooltip__text">Kopiuj zestaw</span>
                                 </div>
                             </div>
