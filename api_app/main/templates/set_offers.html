@@ -902,15 +902,15 @@
             var offerSetM_ = document.getElementById('offerSetMain_' + offerId);
             var offerSetMQuant = document.getElementById('disc__piece_' + offerId)
 
-            var countArray = [
-                {id: offerId, requiredQuantity: offerSetMQuant.value, entryPoint: true}
-            ]
+            var countArray = []
 
             var setOffers = document.querySelectorAll(`#offerSet_${setId}`);
             for (set of setOffers) {
                 var requiredQuantity_ = document.getElementById('disc__piece_' + set.dataset['set'])
                 countArray.push({id: set.dataset['set'], requiredQuantity: requiredQuantity_.value, entryPoint: false})
             }
+
+            countArray.push({id: offerId, requiredQuantity: offerSetMQuant.value, entryPoint: true})
 
             dataToSendArr = [
                     {set_id: setId},
@@ -978,7 +978,7 @@
                     copy_type: con[7]['copy_type']
                 };
 
-                // console.log('copyGroupCont data in loop', data);
+                console.log('submitGroupCopySet copyGroupCont data in loop', data);
 
                 await addCopyOffers (data, offerId);
             }
@@ -992,8 +992,9 @@
             for (set of setMainContainer) {
                 
                 for (s of set) {
+                    console.log('deleteGroupSet s', s);
                     for (off of s.slice(1, 2)) {
-                        for (id of off.slice(0, 1)) {
+                        for (id of off.slice(1, 2)) {
                             console.log('deleteGroupSet loop set', id);
                             if ( id['id'] === offerId ) {
                                 console.log('deleteGroupSet === set', s[0]['set_id']);

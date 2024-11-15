@@ -67,71 +67,7 @@ def set_offers(request, name):
 
     return render(request, 'set_offers.html', context)
 
-        # try:
-        #     url = "https://api.allegro.pl.allegrosandbox.pl/sale/offers" 
-        #     headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-        #     product_result = requests.get(url, headers=headers, verify=True)
-        #     result = product_result.json()
-        #     if 'error' in result:
-        #         error_code = result['error']
-        #         if error_code == 'invalid_token':
-        #             # print('ERROR RESULT @@@@@@@@@', error_code)
-        #             try:
-        #                 # Refresh the token
-        #                 new_token = get_next_token(request, secret.refresh_token, name)
-        #                 # Retry fetching orders with the new token
-        #                 return set_offers(request, name)
-        #             except Exception as e:
-        #                 print('Exception @@@@@@@@@', e)
-        #                 context = {'name': name}
-        #                 return render(request, 'invalid_token.html', context)
-        #     # print("############### set_offers *** ##################", result)
 
-        #     all_sets = get_all_sets_api(request, name)
-        #     print("############### all_sets ++ ##################", all_sets)
-            # offers = []
-            # for set_item in all_sets[0]['promotions']:
-            #     offer = set_item['offerCriteria'][0]['offers']
-            #     discount = set_item['benefits'][0]['specification']['value']['amount']
-            #     sum_ = 0
-            #     for f in offer:
-            #         for of in result['offers']:
-            #             if of['id'] == f['id']:
-            #                 # print("############### of ++ ##################", of['sellingMode']['price']['amount'])
-            #                 sum_ += float(of['sellingMode']['price']['amount']) * f['quantity']
-            #                 # print("############### offer price * quantity ++ ##################", float(of['sellingMode']['price']['amount']) * f['quantity'])
-            #                 # quantity
-            #         # print("############### sum_ ##################", sum_  )
-            #     price_after = sum_ - float(discount)
-            #     discount_percentage = (float(discount) / sum_) * 100
-            #     offers.append(
-            #             [
-            #                 {'set_id': set_item['id']}, 
-            #                 offer, 
-            #                 {'price': "{:.2f}".format(float(sum_))}, 
-            #                 {'discount': "{:.2f}".format(float(discount))}, 
-            #                 {'price_after': "{:.2f}".format(float(price_after))},
-            #                 {'discount_percentage': "{:.2f}".format(float(discount_percentage))}
-            #             ]
-            #         )
-
-            # print("############### offers ##################", offers  )
-
-            # context = {
-            #     'result': result,
-            #     'name': name,
-            #     'sets': offers[::-1], #all_sets[0]['promotions'],
-            # }
-
-            # return render(request, 'set_offers_test.html', context)
-    #     except requests.exceptions.HTTPError as err:
-    #         raise SystemExit(err)
-
-    # else:
-    #     return redirect('login_user')
-
-
-    
 
 def set_add(request, name, offer_id):
     result = get_all_offers_api(request, name)

@@ -405,6 +405,9 @@ async def post_copy_offers(request, secret, offers, amount, main_offer):
             result = product_result.json()
             print('post_copy_offers @@@@@@@@@', result)
 
+            if result['offers'][0]['entryPoint'] == False:
+                result['offers'][0], result['offers'][1] = result['offers'][1], result['offers'][0]
+
             return result
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
