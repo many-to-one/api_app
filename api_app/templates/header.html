@@ -171,12 +171,14 @@
         const sellior = document.querySelectorAll('.sellior');
         navi.addEventListener('mouseenter', () => {
             navi.style.width = '200px';
+            navi.style.boxShadow = 'rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px'; //#30
             sellior.forEach(element => {
                 element.style.display = 'block';
             });
         })
         navi.addEventListener('mouseleave', () => {
             navi.style.width = '60px';
+            navi.style.boxShadow = 'none';
             sellior.forEach(element => {
                 element.style.display = 'none';
             });

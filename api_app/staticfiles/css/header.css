@@ -49,6 +49,8 @@ header {
     margin-top: 120vh;
     margin-left: -78px;
     background-color: var(--header);
+    /* box-shadow: rgba(0, 0, 0, 0.16) 10px 0px 10px, rgba(0, 0, 0, 0.16) 10px 0px 10px; */
+    /* box-shadow: rgba(136, 165, 191, 0.48) 6px 2px 16px 0px, rgba(255, 255, 255, 0.8) -6px -2px 16px 0px; */
 }
 
 nav ul {
