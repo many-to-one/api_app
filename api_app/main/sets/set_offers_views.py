@@ -36,7 +36,11 @@ def set_offers(request, name):
         # LOGIC THAT MAKE 'entryPoint=True' EVERYTIME IN THE END
         # TO MAKE CORRECT IMPLEMENTATION IN FRONTEND
         if offer[0]['entryPoint'] == True:
-            offer[0], offer[1] = offer[1], offer[0]
+            if len(offer) > 2:
+                offer[0], offer[1], offer[2] = offer[1], offer[2], offer[0]
+            else:
+                offer[0], offer[1] = offer[1], offer[0]
+
         # END OF THIS LOGIC
 
         for f in offer:

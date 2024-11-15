@@ -31,13 +31,13 @@
     color: #bbb; /* Change color on hover */
 }
 
-
 .set__offers__cont {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     padding: 10px;
     gap: 40px;
+    margin-left: 5vw
 }
 
 .set__row {

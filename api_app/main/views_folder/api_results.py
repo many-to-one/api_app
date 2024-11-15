@@ -359,7 +359,12 @@ async def prepare_post_copy_offers(request, secret, offers, amount, main_offer):
 async def post_copy_offers(request, secret, offers, amount, main_offer):
 
     print('############ offers offers ##############', offers)
-    offers[1]['id'] = f'{main_offer}'
+    if len(offers) > 2:
+        offers[-1]['id'] = f'{main_offer}'
+        print('############ offers after add main offer > 2 ##############', offers[::-1])
+    else:
+        offers[1]['id'] = f'{main_offer}'
+        offers = offers[::-1]
     print('############ offers after add main offer ##############', offers[::-1])
     # print(' #########  amount post_cpy_offers ##########', amount)
     # print(' ######### type amount post_copy_offers ##########', type(amount))
@@ -379,17 +384,17 @@ async def post_copy_offers(request, secret, offers, amount, main_offer):
             print('############ OFFERS ##############', offers)
             if amount == '0.00':
                 data = {
-                    "offers": offers[::-1], # after changeds in allegro api
+                    "offers": offers, # after changeds in allegro api
                     "discounts": []
                 }
             elif amount['discount'] == '0.00':
                 data = {
-                    "offers": offers[::-1], # after changeds in allegro api
+                    "offers": offers, # after changeds in allegro api
                     "discounts": []
                 }
             else:
                 data = {
-                    "offers": offers[::-1], # after changeds in allegro api
+                    "offers": offers, # after changeds in allegro api
                     "discounts": [                    
                         {
                         "marketplace": {              
@@ -405,8 +410,8 @@ async def post_copy_offers(request, secret, offers, amount, main_offer):
             result = product_result.json()
             print('post_copy_offers @@@@@@@@@', result)
 
-            if result['offers'][0]['entryPoint'] == False:
-                result['offers'][0], result['offers'][1] = result['offers'][1], result['offers'][0]
+            # if result['offers'][0]['entryPoint'] == False:
+            #     result['offers'][0], result['offers'][1] = result['offers'][1], result['offers'][0]
 
             return result
     except requests.exceptions.HTTPError as err:
