@@ -100,33 +100,13 @@ def get_shipping_rates(request, name):
 
     if request.user.is_authenticated:
 
-        secret = Secret.objects.get(account__name=name)
-
         try:
             url = "sale/shipping-rates" 
             debug_name = 'get_all_offers 126'
-
             offers = sync_service.Offers(name)
             result = offers.get_(request, url, debug_name)
-            # headers = {'Authorization': f'Bearer {secret.access_token}', 'Accept': "application/vnd.allegro.public.v1+json"}
-            # product_result = requests.get(url, headers=headers, verify=True)
-            # result = product_result.json()
-            # # print('******* product_result ********', result)
-            # if 'error' in result:
-            #     error_code = result['error']
-            #     if error_code == 'invalid_token':
-            #         # print('ERROR RESULT @@@@@@@@@', error_code)
-            #         try:
-            #             # Refresh the token
-            #             new_token = get_next_token(request, secret.refresh_token, name)
-            #             # Retry fetching orders with the new token
-            #             return get_all_offers(request, name)
-            #         except Exception as e:
-            #             print('Exception @@@@@@@@@', e)
-            #             context = {'name': name}
-            #             return render(request, 'invalid_token.html', context)
-            # print('RESULT - shipping_rates - @@@@@@@@@', json.dumps(result, indent=4))
             return result
+        
         except Exception as e:
             return HttpResponse({e})
 
@@ -144,7 +124,7 @@ def get_all_offers(request, name):
     offers = sync_service.Offers(name)
     result = offers.get_(request, url, debug_name)
 
-    print(' @@@@@@@@@ - get_all_offers - @@@@@@@@@ ', json.dumps(result, indent=4))
+    # print(' @@@@@@@@@ - get_all_offers - @@@@@@@@@ ', json.dumps(result, indent=4))
 
     context = {
         'result': result,  
@@ -279,11 +259,11 @@ def post_new_offer(request, id):
             result = product_result.json()
             # Headers of the response
             # print(" ************* Headers of the response: *************", product_result.headers)
-            # print('RESULT @@@@@@@@@', result)
+            print(' @@@@@@@@@ GET OFFER DESCR BEFORE POST @@@@@@@@@ ', result)
             if 'errors' in result:
                 # Handle errors in the response
                 errors = result['errors']
-                print(f"************ ERROR MESSAGE IN ERRORS ************ {errors}")
+                # print(f"************ ERROR MESSAGE IN ERRORS ************ {errors}")
                 for error in errors:
                     code = error.get('code')
                     message = error.get('message')
@@ -306,11 +286,11 @@ def post_new_offer(request, id):
             # }
             # post_data = json.dumps(result, indent=4)
             if len(ean) == 13:
-                post_product_from_lister(request, secret, ean, result)
+                resonse = post_product_from_lister(request, secret, ean, result)
                 return JsonResponse(
                 {
                     'message': 'Success',
-                    # 'context': context,
+                    'context': resonse,
                 }, 
                 status=200,
             )
@@ -348,10 +328,13 @@ def post_product_from_lister(request, secret, ean, post_data):
         # print('************** name **************', name)
         category = post_data.get("category")
         # print('************** category **************', category["id"])
+        images = post_data.get("images")
+        print('************** images **************', images)
+        print('************** images[0] **************', images[0])
 
-        for product in post_data['productSet']:
-            product['product']['name'] = name
-            product['product']['images'] = ['https://inoxtrade.com.pl/AfterBuy/ats/1.jpg']
+        # for product in post_data['productSet']:
+        #     product['product']['name'] = name
+        #     product['product']['images'] = [f'{images[0]}'] #['https://inoxtrade.com.pl/AfterBuy/ats/1.jpg']
 
         for product in post_data['productSet']:
             product['product']['category'] = category
@@ -362,7 +345,7 @@ def post_product_from_lister(request, secret, ean, post_data):
                     print('************** EAN EAN EAN **************', 'TAK', i['values'])
         external = post_data.get("external")
         # print('************** external **************', external)
-        images = post_data.get("images")
+        # images = post_data.get("images")
         # print('************** images **************', images)
         description = post_data.get("description")
         # print('************** description **************', description)
@@ -376,9 +359,9 @@ def post_product_from_lister(request, secret, ean, post_data):
         # print('************** payments **************', payments)
         taxSettings = post_data.get("taxSettings")
         # print('************** taxSettings **************', taxSettings)
-        if "discounts" in post_data:
-            discounts = post_data["discounts"]
-            discounts["name"] = "Hurtowy min"
+        # if "discounts" in post_data:
+        #     discounts = post_data["discounts"]
+        #     discounts["name"] = "Hurtowy min"
             # print('************** discounts **************', discounts)
         if "messageToSellerSettings" in post_data:
             messageToSellerSettings = post_data["messageToSellerSettings"]
@@ -387,9 +370,9 @@ def post_product_from_lister(request, secret, ean, post_data):
             # print('************** messageToSellerSettings **************', messageToSellerSettings)
         if "afterSalesServices" in post_data:
             afterSalesServices = post_data["afterSalesServices"]
-            afterSalesServices["name"] = get_aftersale_services(request, secret_name) #"Standard"
-            del afterSalesServices["impliedWarranty"]["id"]
-            del afterSalesServices["returnPolicy"]["id"]
+            # afterSalesServices["name"] = get_aftersale_services(request, secret_name) #"Standard"
+            # del afterSalesServices["impliedWarranty"]["id"]
+            # del afterSalesServices["returnPolicy"]["id"]
             # print('************** afterSalesServices **************', afterSalesServices)
 
         # print('************** POST DATA **************', json.dumps(post_data, indent=4))
@@ -399,11 +382,11 @@ def post_product_from_lister(request, secret, ean, post_data):
         'productSet': [{'product': 
                         {
                             'name': name,
-                            'images': ['https://inoxtrade.com.pl/AfterBuy/ats/1.jpg'],
+                            'images': [f'{images[0]}'], #['https://inoxtrade.com.pl/AfterBuy/ats/1.jpg'],
                             'parameters': 
                             post_data["productSet"][0]["product"]["parameters"]
                         }, 
-                            'responsiblePerson': None
+                            'responsiblePerson': post_data["productSet"][0]["responsiblePerson"]
                         }],
 
         'external': external,  #delayedX czas wydłużenia wystawienia
@@ -416,12 +399,8 @@ def post_product_from_lister(request, secret, ean, post_data):
         'payments': payments,
         "taxSettings": taxSettings,
         'delivery': delivery_info,
-        'afterSalesServices': afterSalesServices,
-        "discounts": {
-            "wholesalePriceList": {
-                "name": "Hurtowy min"
-            }
-        },
+        'afterSalesServices': post_data["afterSalesServices"],
+        "discounts": post_data["discounts"],
         "messageToSellerSettings": messageToSellerSettings,
     }
         
@@ -429,7 +408,7 @@ def post_product_from_lister(request, secret, ean, post_data):
         debug_name = 'post_product_from_lister 310'
 
         offers = sync_service.Offers(secret_name)
-        offers.post_(request, url, data, debug_name)
+        return offers.post_(request, url, data, debug_name)
 
 
 

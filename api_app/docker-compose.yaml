@@ -1,7 +1,7 @@
 services:
 
   db:
-    image: postgres:15
+    image: postgres:17
     container_name: postgres_sellior
     environment:
       POSTGRES_DB: ${DB_NAME}
@@ -41,7 +41,7 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8004"]
+      test: ["CMD", "curl", "-f", "http://localhost:8004", ">", "/dev/null", "2>&1"]
       start_period: 300s
       interval: 10s
       timeout: 5s

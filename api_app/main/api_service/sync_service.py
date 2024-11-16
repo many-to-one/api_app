@@ -146,7 +146,7 @@ class Offers:
                         print('Exception @@@@@@@@@', e)
                         context = {'name': context['name']}
                         return render(request, 'invalid_token.html', context)
-            # print(f'@@@@@@@@@ sync_get RESULT for {debug_name} @@@@@@@@@', json.dumps(result, indent=4))
+            print(f'@@@@@@@@@ sync_get RESULT for {debug_name} @@@@@@@@@', json.dumps(result, indent=4))
             print(f'@@@@@@@@@ sync_get HEADERS for {debug_name} @@@@@@@@@', json_result.headers)
 
             result['status_code'] = json_result.status_code

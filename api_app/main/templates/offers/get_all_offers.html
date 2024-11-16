@@ -673,6 +673,18 @@
                         if(response.data.message == 'Success') {
                             loadPst.style.display = 'none';
                             pstIcon.style.display = 'flex';
+                            if ( response.data.context.status_code === 422 ) {
+                                showMessage(
+                                    response.data.context.errors[0].message,
+                                    422
+                                )
+                            } else {
+                                showMessage(
+                                    'Wystawiłeś nową oferte, odśwież stronę by ją zobaczyć',
+                                    // response.data.context.errors[0].message,
+                                    200
+                                )
+                            }
                             // var context = response.data.context
                             console.log('Success post_new_offer')
                             // window.location.reload();

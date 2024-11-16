@@ -29,6 +29,73 @@
     /* margin-top: 10vh; */
 }
 
+.date_o_from {
+    position: absolute;
+    left: 25%;
+    width: 100px;
+}
+
+.date_o_from_label {
+    position: absolute;
+    left: 23%;
+}
+
+.date_o_to {
+    position: absolute;
+    left: 34%;
+    width: 100px;
+}
+
+.date_o_to_label {
+    position: absolute;
+    left: 32%;
+}
+
+/* Styling for the date input */
+input.date_o_from, input.date_o_to {
+    appearance: none; /* Removes default browser styles */
+    border: none;
+    background-color: #f7f7f7; /* Light gray background */
+    border-radius: 8px; /* Smooth corners */
+    padding: 6px 16px; /* Comfortable padding */
+    font-family: 'Poppins', sans-serif; /* Modern font */
+    font-size: 16px; /* Readable font size */
+    color: #333; /* Text color */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    outline: none; /* Removes focus border */
+    transition: all 0.3s ease; /* Smooth hover and focus effects */
+    cursor: pointer;
+}
+
+input.date_o_from:hover {
+    background-color: #eaeaea; /* Slightly darker background */
+}
+
+/* input.date_o_from:focus {
+    background-color: #fff; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border: 2px solid #3f51b5; 
+    color: #3f51b5; 
+} */
+
+/* Additional styles for better aesthetics */
+input.date_o_from::-webkit-calendar-picker-indicator {
+    filter: invert(0.5); /* Subtle change for calendar icon */
+    cursor: pointer;
+}
+
+input.date_o_to:hover {
+    background-color: #eaeaea; /* Slightly darker background */
+}
+
+/* Additional styles for better aesthetics */
+input.date_o_to::-webkit-calendar-picker-indicator {
+    filter: invert(0.5); /* Subtle change for calendar icon */
+    cursor: pointer;
+}
+
+
+
 .all_orders__line {
     display: flex;
     justify-content: space-between;
@@ -148,29 +215,6 @@
     color: var(--black);
 }
 
-.date_o_from {
-    position: absolute;
-    left: 25%;
-    width: 100px;
-}
-
-.date_o_from_label {
-    position: absolute;
-    top: 5%;
-    left: 25%;
-}
-
-.date_o_to {
-    position: absolute;
-    left: 33%;
-    width: 100px;
-}
-
-.date_o_to_label {
-    position: absolute;
-    top: 5%;
-    left: 33%;
-}
 
 .name_ord {
     display: flex;
@@ -223,12 +267,41 @@
 
 .client_o {
     position: absolute;
-    left: 50%;
+    left: 45%;
     font-style: bold;
-    width: 200px;
-    height: 30px;
-    background-color: var(--bg_color);
+    width: 250px;
+    height: 37px;
+    /* background-color: var(--bg_color);
+    border: none; */
+    appearance: none; /* Removes default browser styles */
     border: none;
+    background-color: #f7f7f7; /* Light gray background */
+    border-radius: 8px; /* Smooth corners */
+    padding: 6px 16px; /* Comfortable padding */
+    font-family: 'Poppins', sans-serif; /* Modern font */
+    font-size: 16px; /* Readable font size */
+    color: #333; /* Text color */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    outline: none; /* Removes focus border */
+    transition: all 0.3s ease; /* Smooth hover and focus effects */
+    cursor: pointer;
+}
+
+.client_o:hover {
+    background-color: #eaeaea; /* Slightly darker background */
+}
+
+.client_o:focus {
+    background-color: #fff; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    /* #3f51b5 */
+    border: 2px solid var(--header); 
+    color: var(--header); 
+}
+
+.client_o::-webkit-calendar-picker-indicator {
+    filter: invert(0.5); /* Subtle change for calendar icon */
+    cursor: pointer;
 }
 
 .shipment_o {

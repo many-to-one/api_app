@@ -346,13 +346,32 @@
 }
 
 .var_select {
-    width: 100px;
-    height: 30px;
-    border: none;
+    width: 120px;
+    height: 37px;
+    /* border: none;
     background-color: var(--bg_color);
-    /* border: 1px solid black;
-    border-radius: 10px; */
-    padding: 2px;
+    padding: 2px; */
+    appearance: none; /* Removes default browser styles */
+    border: none;
+    background-color: #f7f7f7; /* Light gray background */
+    border-radius: 8px; /* Smooth corners */
+    padding: 6px 16px; /* Comfortable padding */
+    font-family: 'Poppins', sans-serif; /* Modern font */
+    font-size: 16px; /* Readable font size */
+    color: #333; /* Text color */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    outline: none; /* Removes focus border */
+    transition: all 0.3s ease; /* Smooth hover and focus effects */
+    cursor: pointer;
+}
+
+.var_select:hover {
+    background-color: #eaeaea; /* Slightly darker background */
+}
+
+.var_select::-webkit-calendar-picker-indicator {
+    filter: invert(0.5); /* Subtle change for calendar icon */
+    cursor: pointer;
 }
 
 .shipment {
