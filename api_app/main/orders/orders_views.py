@@ -874,43 +874,43 @@ async def change_status_async(secret, option, order_id):
     
 
 
-def change_status(request, id, name, status):
+# def change_status(request, id, name, status):
 
-    if request.user.is_authenticated:
+#     if request.user.is_authenticated:
 
-        secret = Secret.objects.get(account__name=name)
-        # ids = request.GET.getlist('ids')
-        # encoded_offers = ','.join(ids)
-        # print('********************** change_status ids ****************************', ids)
+#         secret = Secret.objects.get(account__name=name)
+#         # ids = request.GET.getlist('ids')
+#         # encoded_offers = ','.join(ids)
+#         # print('********************** change_status ids ****************************', ids)
 
-        try:
-            url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}/fulfillment"
-            headers = {
-            'Authorization': f'Bearer {secret.access_token}',
-            'Accept': 'application/vnd.allegro.public.v1+json',
-            'Content-Type': 'application/vnd.allegro.public.v1+json'
-        }
+#         try:
+#             url = f"https://api.allegro.pl.allegrosandbox.pl/order/checkout-forms/{id}/fulfillment"
+#             headers = {
+#             'Authorization': f'Bearer {secret.access_token}',
+#             'Accept': 'application/vnd.allegro.public.v1+json',
+#             'Content-Type': 'application/vnd.allegro.public.v1+json'
+#         }
 
-            data = {
-                    "status": str(status),
-                    "shipmentSummary": {
-                    "lineItemsSent": "SOME"
-                    }
-                }
+#             data = {
+#                     "status": str(status),
+#                     "shipmentSummary": {
+#                     "lineItemsSent": "SOME"
+#                     }
+#                 }
 
-            response = requests.put(url, headers=headers, json=data)
-            print('*********** change_status ***********', id, name, status)
-            print('*********** change_status ***********', response)
+#             response = requests.put(url, headers=headers, json=data)
+#             print('*********** change_status ***********', id, name, status)
+#             print('*********** change_status ***********', response)
 
-            return JsonResponse(
-                    {
-                        'message': 'Stock updated successfully',
-                        'newStatus': status,
-                    }, 
-                    status=200,
-                )
-        except requests.exceptions.HTTPError as err:
-            raise SystemExit(err)
+#             return JsonResponse(
+#                     {
+#                         'message': 'Stock updated successfully',
+#                         'newStatus': status,
+#                     }, 
+#                     status=200,
+#                 )
+#         except requests.exceptions.HTTPError as err:
+#             raise SystemExit(err)
         
 
 def order_status(request, name):

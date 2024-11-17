@@ -28,21 +28,20 @@
             {% endfor %}
         </select>
 
-        {% if request.user.is_authenticated %}
-            <li class="position-absolute top-1 end-0">
+        <!-- {% if request.user.is_authenticated %}
+            <li class="ms-auto p-2 bd-highlight">
                 <a class="sellior_" href="{% url 'logout_user' %}">
                     <img src="{% static 'icons/logout.svg' %}" width="25" class="sellior pe-1 text-ligh">
                 </a>
             </li>
         {% else %}
-            <li class="ms-auto p-2">
+            <li class="ms-auto p-2 bd-highlight">
                 <a class="sellior_" href="{% url 'login_user' %}">
                     <img src="{% static 'icons/login.svg' %}" width="25" class="sellior pe-1" style="color: white;">
                 </a>
             </li>
-        {% endif %}
+        {% endif %} -->
 
-        <!-- <nav id="naviNav"> -->
 
             <div class="navi" id="naviNav">
 
@@ -76,10 +75,10 @@
                     <a class="sellior" id="allegroTokenLink" href="{% url 'get_new_authorization_code' 'PLACEHOLDER' %}">Allegro Kod</a>
                 </li>
 
-                <li id="messageId" class="d-flex gap-3 m-3">
+                <!-- <li id="messageId" class="d-flex gap-3 m-3">
                     <img src="{% static 'icons/mess.svg' %}" width="25" style="color: white;">
-                    <a class="sellior" id="messageLink" href="{% url 'all_messages' 'PLACEHOLDER' %}">Centrum Wiadomości</a>
-                </li>
+                    <a class="sellior" id="messageLink" href="{% url 'all_messages' 'PLACEHOLDER' %}">Wiadomości</a>
+                </li> -->
 
                 <li id="photoEditorId" class="d-flex gap-3 m-3">
                     <img src="{% static 'icons/img_edit.svg' %}" width="25" style="color: white;">
@@ -96,6 +95,13 @@
                     <a class="sellior" id="addAllegroAccLink" href="{% url 'add_account' %}">Dodaj Konto</a>
                 </li>
                 <!-- <li><a class="sellior" href="{% url 'ebay_token' %}">Ebay</a></li> -->
+                
+                {% if request.user.is_authenticated %}  
+                    <li class="d-flex gap-3 m-3">
+                        <img src="{% static 'icons/logout.svg' %}" width="25" style="color: white;">
+                        <a class="sellior" id="addAllegroAccLink" href="{% url 'logout_user' %}">Wyloguj</a>
+                    </li>
+                {% endif %}
 
             </div>
         <!-- </nav> -->
@@ -147,10 +153,10 @@
             allegroTokenLink.href = allegroTokenLink.href.replace('PLACEHOLDER', nameValue);
         });
 
-        messageLink.addEventListener('click', () => {
-            console.log('nameValue', nameValue)
-            messageLink.href = messageLink.href.replace('PLACEHOLDER', nameValue);
-        });
+        // messageLink.addEventListener('click', () => {
+        //     console.log('nameValue', nameValue)
+        //     messageLink.href = messageLink.href.replace('PLACEHOLDER', nameValue);
+        // });
 
         photoEditorLink.addEventListener('click', () => {
             console.log('nameValue', nameValue)
@@ -170,6 +176,8 @@
         const navi = document.getElementById('naviNav');
         const sellior = document.querySelectorAll('.sellior');
         navi.addEventListener('mouseenter', () => {
+            console.log('mouseenter')
+            navi.style.overflowY = 'auto';
             navi.style.width = '200px';
             navi.style.boxShadow = 'rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px'; //#30
             sellior.forEach(element => {
@@ -177,8 +185,10 @@
             });
         })
         navi.addEventListener('mouseleave', () => {
+            console.log('mouseenter')
+            navi.style.overflowY = 'none';
             navi.style.width = '60px';
-            navi.style.boxShadow = 'none';
+            navi.style.boxShadow = 'hidden';
             sellior.forEach(element => {
                 element.style.display = 'none';
             });

@@ -34,7 +34,7 @@ urlpatterns = [
     path('get_orders/<str:name>/<str:delivery>/<str:status>/<str:client>/<str:fromDate>/<str:toDate>/', orders_views.get_orders, name='get_orders'),
     # path('get_orders_by_client/<str:name>/<str:delivery>/<str:status>/<str:client>/', orders_views_test.get_orders_by_client, name='get_orders_by_client'),
     path('get_order_details/<uuid:id>/<str:name>/', orders_views.get_order_details, name='get_order_details'),
-    path('change_status/<str:id>/<str:name>/<str:status>/', orders_views.change_status, name='change_status'),
+    # path('change_status/<str:id>/<str:name>/<str:status>/', orders_views.change_status, name='change_status'),
     path('run_option/<str:name>/<str:option>/', orders_views.run_option, name='run_option'),
     path('order_status/<str:name>/', orders_views.order_status, name='order_status'),
 

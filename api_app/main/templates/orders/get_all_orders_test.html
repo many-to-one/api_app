@@ -170,11 +170,11 @@
                     <p class="shipment">{{ order.delivery.method.name }}</p>
                     <!-- WYSŁANE -->
                     <select class="account_select order" id="status_select_{{ order.id }}">
-                        <option id="status_{{ order.id }}" value="SENT" {% if order.fulfillment.status == 'SENT' %} selected {% endif %}>WYSŁANE</option> 
-                        <option id="status_{{ order.id }}" value="READY_FOR_PROCESSING" {% if order.fulfillment.status == 'NEW' %} selected {% endif %}>NOWE</option> 
-                        <option id="status_{{ order.id }}" value="READY_FOR_SHIPMENT" {% if order.fulfillment.status == 'READY_FOR_SHIPMENT' %} selected {% endif %}>W REALIZACJI</option>
-                        <option id="status_{{ order.id }}" value="CANCELLED" {% if order.fulfillment.status == 'CANCELLED' %} selected {% endif %}>ANULOWANE</option>
-                        <option id="status_{{ order.id }}" value="PICKED_UP" {% if order.fulfillment.status == 'PICKED_UP' %} selected {% endif %}>DOSTARCZONE</option>
+                        <option id="SENT{{ order.id }}" value="SENT" {% if order.fulfillment.status == 'SENT' %} selected {% endif %}>WYSŁANE</option> 
+                        <option id="READY_FOR_PROCESSING{{ order.id }}" value="READY_FOR_PROCESSING" {% if order.fulfillment.status == 'NEW' %} selected {% endif %}>NOWE</option> 
+                        <option id="READY_FOR_SHIPMENT{{ order.id }}" value="READY_FOR_SHIPMENT" {% if order.fulfillment.status == 'READY_FOR_SHIPMENT' %} selected {% endif %}>W REALIZACJI</option>
+                        <option id="CANCELLED{{ order.id }}" value="CANCELLED" {% if order.fulfillment.status == 'CANCELLED' %} selected {% endif %}>ANULOWANE</option>
+                        <option id="PICKED_UP{{ order.id }}" value="PICKED_UP" {% if order.fulfillment.status == 'PICKED_UP' %} selected {% endif %}>DOSTARCZONE</option>
                     </select>
 
                     <img class="icon edit" id="edit_{{ order.id }}" onclick="updateOrderStatus('{{ order.id }}', 'status_select_{{ order.id }}', '{{ order.delivery.method.name }}')" src="{% static 'icons/edit2.png' %}" alt="">
@@ -324,25 +324,9 @@
 
             console.log('Selected deliveryMethod_:', deliveryMethod_);
 
-            // Make an AJAX request to update the stock value
-            // axios.put('/change_status/' + offerId + '/' + name + '/' + selectedStatus + '/' + deliveryMethod_ + '/',)
-            axios.put(`/change_status/${offerId}/${name}/${selectedStatus}/`)
+            var __offer = [offerId]
 
-                .then(function(response) {
-                    console.log('status', response.data.newStatus)
-                    if(response.status == 200) {
-                        document.getElementById('load_'+ offerId).style.display = 'none';
-                        load.style.display = 'none';
-                        edit.style.display = 'block';
-                        document.getElementById('status_' + offerId).value = response.data.newValue;
-                        console.log('Success offerId', offerId)
-                    }
-                })
-                .catch(function(error) {
-                    // Handle error
-                    console.error('Error updating stock:', error);
-                    console.log('Success offerId', offerId)
-                });
+            var res = changeOrderStatus(name, selectedStatus, __offer)
         }
 
 
@@ -367,10 +351,6 @@
                 if (checkbox.checked) {
                     console.log('checkbox =>', checkbox.value)
                     checkedItems.push(checkbox.dataset.orderData);
-                    // const load = document.getElementById('load_'+ offerId)
-                    // const edit = document.getElementById('edit_' + offerId);
-                    // load.style.display = 'block';
-                    // edit.style.display = 'none';
                 }
             });
 
@@ -381,7 +361,19 @@
                 pdfFV()
             } else {
                 // Make an AJAX request to update the stock value
-                axios.put(`/run_option/${name}/${dataOptionValue}/?ids=` + checkedItems,
+                changeOrderStatus(name, dataOptionValue, checkedItems)
+                }
+            }
+
+        
+        function changeOrderStatus(name, dataOptionValue, checkedItems) {
+
+            checkedItems.forEach((offerId) => {
+                document.getElementById('load_'+ offerId).style.display = 'block';
+                document.getElementById('edit_'+ offerId).style.display = 'none';
+            })
+
+            axios.put(`/run_option/${name}/${dataOptionValue}/?ids=` + checkedItems,
                     {
                         headers: { 'Cache-Control': 'no-cache' }
                     }
@@ -394,30 +386,25 @@
                                 wait.style.display = 'none';
 
                                 response.data.orders.forEach(function(id) {
-                                const offerId = id; // Assuming order object has an 'id' property
-                                console.log('offerId', offerId)
-                                // document.getElementById('status_' + offerId).value = response.data.newStatus;
+                                    const offerId = id; 
+                                    // console.log('offerId', offerId)
 
-                                // if (response.data.newStatus) {
-                                //     document.getElementById('status_' + offerId).value = response.data.newStatus;
-                                // }
-                                var url = `/order_status/${name}/`;
-                                window.location.href = url
+                                    if (response.data.newStatus) {
+                                        document.getElementById(response.data.newStatus + offerId).value = response.data.newStatus;
+                                        document.getElementById(response.data.newStatus + offerId).selected = true;
+                                        document.getElementById('load_'+ offerId).style.display = 'none';
+                                        document.getElementById('edit_'+ offerId).style.display = 'block';
+                                    }
                                 });
-
-
-                            console.log('status', response.status)
                     
                         }
                     })
                     .catch(function(error) {
                         // Handle error
                         console.error('Error updating stock:', error);
+                        return false;
                     });
-                }
-            }
-
-
+        }
 
 
         function allLabels() {

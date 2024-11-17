@@ -266,13 +266,12 @@ input.date_o_to::-webkit-calendar-picker-indicator {
 }
 
 .client_o {
-    position: absolute;
-    left: 45%;
+    /* position: absolute;
+    left: 45%; */
+    margin: 0 auto;
     font-style: bold;
     width: 250px;
     height: 37px;
-    /* background-color: var(--bg_color);
-    border: none; */
     appearance: none; /* Removes default browser styles */
     border: none;
     background-color: #f7f7f7; /* Light gray background */
@@ -288,13 +287,16 @@ input.date_o_to::-webkit-calendar-picker-indicator {
 }
 
 .client_o:hover {
+    margin: 0 auto;
+    width: 300px;
     background-color: #eaeaea; /* Slightly darker background */
 }
 
 .client_o:focus {
     background-color: #fff; 
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    /* #3f51b5 */
+    margin: 0 auto;
+    width: 300px;
     border: 2px solid var(--header); 
     color: var(--header); 
 }

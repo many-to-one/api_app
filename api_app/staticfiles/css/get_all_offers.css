@@ -287,11 +287,13 @@
     border: none;
 }
 
-/* .title_input {
-    width: 20vw;
+.title_input {
+    width: 40vw;
     height: 20px;
-    border: none;
-} */
+    background-color: #fff; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border: 2px solid var(--header); 
+}
 
 .stock {
     width: 25px;

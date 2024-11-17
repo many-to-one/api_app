@@ -1,12 +1,17 @@
 .cont {
     display: flex;
     flex-direction: column;
-    background-color: aqua;
-    width: 100%;
+    align-items: center;
+    background-color: var(--header);
+    width: 50%;
     height: auto;
+    margin: 0 auto;
+    color: white;
 }
 
 .cont p {
     text-align: center;
     width: 60%;
+    text-decoration: none;
+    color: rgb(218 220 223);
 }
