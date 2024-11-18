@@ -2,10 +2,10 @@
     display: grid;
     grid-template-columns: 20% 20% 20% 20% 20%;
     grid-template-rows: 20% 20% 20% 20% 20%;
-    width: 96%;
+    width: 90%;
     height: 100vh;
     gap: 10px;
-    margin: 5px;
+    margin: 0 auto;
     margin-top: 10vh;
   }
 

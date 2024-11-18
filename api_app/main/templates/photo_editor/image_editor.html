@@ -28,23 +28,6 @@
             <button id="closeButton" class="close-button" onclick="closeMessage()">&times;</button>
         </div>
 
-        <div class="container_editor">
-            <div class="square-form">
-                <form id="imageForm" method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <input type="file" name="image" id="image" required style="display:none;">
-                    <button type="button" id="triggerFileInput">+</button>
-                </form>
-                <!-- Spinner -->
-                <div class="d-flex justify-content-center">
-                    <div class="spinner-border" role="status" id="spinner">
-                    <span class="visually-hidden">Loading...</span>
-                    </div>
-                </div>
-            </div>
-            <!-- Placeholder for the processed image -->
-            <div id="result"></div>
-        </div>
 
         <label for="customRange2" class="form-label">Granica maski</label>
         <!-- Display the range value -->
@@ -869,6 +852,21 @@
                     clearImageDataInside(points);
                 }
             });
+
+
+            function deleteSelection() {
+
+                const { x, y, width, height } = selection;
+                ctx.clearRect(x, y, width, height);
+
+                // Redraw image outside the selection area
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.putImageData(imageData, 0, 0);
+
+                selection = null;
+
+            }
 
             // Function to clear the image data inside the drawn shape
             function clearImageDataInside(points) {

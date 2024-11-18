@@ -59,7 +59,18 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'api_app.middleware.LoginMiddleware',
 ]
+
+LOGIN_URL = '/users/login_user/'
+LOGOUT_REDIRECT_URL = '/users/login_user/'
+
+SECURE_SSL_REDIRECT = True
+CSRF_COOKIE_SECURE = True
+
+SESSION_COOKIE_SECURE = True  # Use secure cookies over HTTPS
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # End session on browser close
+SESSION_COOKIE_AGE = 1800  # Session expires after 30 minutes of inactivity
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 

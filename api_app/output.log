@@ -537114,3 +537114,4380 @@ DEBUG:httpcore.connection:close.complete
 DEBUG:httpcore.connection:close.complete
 DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
 DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /sale/offers HTTP/1.1" 200 25238
+DEBUG:root:{
+    "items": {
+        "promoted": [
+            {
+                "id": "7776058500",
+                "name": "Pojazd Mercedes-Benz SLS AMG Black Series",
+                "seller": {
+                    "id": "94497570",
+                    "login": "wkraj3",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": true,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "3.99",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/110e29/34532f804243b19cb67eff54127c/Pojazd-Mercedes-Benz-SLS-AMG-Black-Series"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.00",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 1
+                },
+                "category": {
+                    "id": "86355"
+                }
+            },
+            {
+                "id": "7776018343",
+                "name": "Puzzle kreatywne 63 elementy - Robot Lab",
+                "seller": {
+                    "id": "94608967",
+                    "login": "CodzienneZakupy",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": true,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "0.00",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11e5e8/390fe4eb452a8d28d82c6222ef65/Puzzle-kreatywne-63-elementy-Robot-Lab"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "65.00",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 999
+                },
+                "category": {
+                    "id": "257813"
+                }
+            },
+            {
+                "id": "7775951776",
+                "name": "Zestaw kosmetyk\u00f3w Atelier Glamour Kolorowe w\u0142osy",
+                "seller": {
+                    "id": "106864599",
+                    "login": "sanbox_innrosa2",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": true,
+                    "bold": true,
+                    "highlight": true
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "9.99",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/117507/64f4d42943239be65e51ba212e60/Zestaw-kosmetykow-Atelier-Glamour-Kolorowe-wlosy"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "23.00",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 117
+                },
+                "category": {
+                    "id": "93663"
+                }
+            },
+            {
+                "id": "7775927056",
+                "name": "Panda - kopia Bartek",
+                "seller": {
+                    "id": "44098607",
+                    "login": "MLFuturiti",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": true,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "6.99",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/116884/26e6bbc44e159518c43c9bab2e30/Panda-kopia-Bartek"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "123.00",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 104
+                },
+                "category": {
+                    "id": "322039"
+                }
+            },
+            {
+                "id": "7775903126",
+                "name": "Tablet graficzny do rysowania znikopis rysik 12'' TEST",
+                "seller": {
+                    "id": "104769837",
+                    "login": "cmpVerIHope",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": true,
+                    "bold": true,
+                    "highlight": true
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "0.00",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/116062/554c33ad4aa898ec3b6157b20683/Tablet-graficzny-do-rysowania-znikopis-rysik-12-TEST"
+                    },
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/1111a7/3d6649af45b1ab051e73e6d5119d/Tablet-graficzny-do-rysowania-znikopis-rysik-12-TEST-EAN-GTIN-5903039704985"
+                    },
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/112801/5344189a411fbca32b670958ab6f/Tablet-graficzny-do-rysowania-znikopis-rysik-12-TEST-Marka-inna"
+                    },
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11f665/97a0c1154958829e8cba17844cc8/Tablet-graficzny-do-rysowania-znikopis-rysik-12-TEST-Wiek-dziecka-2-m"
+                    },
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/113f37/cea0b4614037acf3be2bb91addef/Tablet-graficzny-do-rysowania-znikopis-rysik-12-TEST-Waga-produktu-z-opakowaniem-jednostkowym-21-kg"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "5535.00",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 22
+                },
+                "category": {
+                    "id": "94135"
+                }
+            },
+            {
+                "id": "7775903116",
+                "name": "Tablet graficzny do rysowania znikopis rysik 12'' TEST",
+                "seller": {
+                    "id": "104769837",
+                    "login": "cmpVerIHope",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": true,
+                    "bold": true,
+                    "highlight": true
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "0.00",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/116062/554c33ad4aa898ec3b6157b20683/Tablet-graficzny-do-rysowania-znikopis-rysik-12-TEST"
+                    },
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/1111a7/3d6649af45b1ab051e73e6d5119d/Tablet-graficzny-do-rysowania-znikopis-rysik-12-TEST-EAN-GTIN-5903039704985"
+                    },
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/112801/5344189a411fbca32b670958ab6f/Tablet-graficzny-do-rysowania-znikopis-rysik-12-TEST-Marka-inna"
+                    },
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11f665/97a0c1154958829e8cba17844cc8/Tablet-graficzny-do-rysowania-znikopis-rysik-12-TEST-Wiek-dziecka-2-m"
+                    },
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/113f37/cea0b4614037acf3be2bb91addef/Tablet-graficzny-do-rysowania-znikopis-rysik-12-TEST-Waga-produktu-z-opakowaniem-jednostkowym-21-kg"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "5535.00",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 22
+                },
+                "category": {
+                    "id": "94135"
+                }
+            },
+            {
+                "id": "7775903081",
+                "name": "Tablet graficzny do rysowania znikopis rysik 12''",
+                "seller": {
+                    "id": "104769837",
+                    "login": "cmpVerIHope",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": true,
+                    "bold": true,
+                    "highlight": true
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "0.00",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/116062/554c33ad4aa898ec3b6157b20683/Tablet-graficzny-do-rysowania-znikopis-rysik-12"
+                    },
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/1111a7/3d6649af45b1ab051e73e6d5119d/Tablet-graficzny-do-rysowania-znikopis-rysik-12-EAN-GTIN-5903039704985"
+                    },
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/112801/5344189a411fbca32b670958ab6f/Tablet-graficzny-do-rysowania-znikopis-rysik-12-Marka-inna"
+                    },
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11f665/97a0c1154958829e8cba17844cc8/Tablet-graficzny-do-rysowania-znikopis-rysik-12-Wiek-dziecka-2-m"
+                    },
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/113f37/cea0b4614037acf3be2bb91addef/Tablet-graficzny-do-rysowania-znikopis-rysik-12-Waga-produktu-z-opakowaniem-jednostkowym-21-kg"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "5535.00",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 22
+                },
+                "category": {
+                    "id": "94135"
+                }
+            },
+            {
+                "id": "7775897519",
+                "name": "Pojazd Mercedes-Benz SLS AMG Black Series",
+                "seller": {
+                    "id": "94497570",
+                    "login": "wkraj3",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": true,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "3.99",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/110e29/34532f804243b19cb67eff54127c/Pojazd-Mercedes-Benz-SLS-AMG-Black-Series"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "46.13",
+                        "currency": "PLN"
+                    },
+                    "popularity": 1,
+                    "popularityRange": "[1-5]"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 40184
+                },
+                "category": {
+                    "id": "86355"
+                }
+            },
+            {
+                "id": "7773663681",
+                "name": "Kuropatwa krwista z ekologicznej hodowli",
+                "seller": {
+                    "id": "107087917",
+                    "login": "testowyjohndoe",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": true,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": true,
+                    "lowestPrice": {
+                        "amount": "0.00",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/119f1b/8553b7144bdeae63a0e38eb55542/Kuropatwa-krwista-z-ekologicznej-hodowli"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "59.99",
+                        "currency": "PLN"
+                    },
+                    "popularity": 1,
+                    "popularityRange": "[1-5]"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 111
+                },
+                "category": {
+                    "id": "124322"
+                }
+            }
+        ],
+        "regular": [
+            {
+                "id": "7776106599",
+                "name": "Monkey rename2",
+                "seller": {
+                    "id": "44098607",
+                    "login": "MLFuturiti",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "6.99",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11d163/5fa5e6134de1ab89cf893865162c/Monkey-rename2"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "135.30",
+                        "currency": "PLN"
+                    },
+                    "popularity": 1,
+                    "popularityRange": "[1-5]"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 19
+                },
+                "category": {
+                    "id": "322039"
+                }
+            },
+            {
+                "id": "7776106569",
+                "name": "Monkey rename",
+                "seller": {
+                    "id": "44098607",
+                    "login": "MLFuturiti",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "6.99",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11193f/0ee91be14687864ecfa220e0fe8e/Monkey-rename"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "135.30",
+                        "currency": "PLN"
+                    },
+                    "popularity": 1,
+                    "popularityRange": "[1-5]"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 19
+                },
+                "category": {
+                    "id": "322039"
+                }
+            },
+            {
+                "id": "7776105447",
+                "name": "Monkey3",
+                "seller": {
+                    "id": "44098607",
+                    "login": "MLFuturiti",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "6.99",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/118ccb/1842e9e24d219cadc08b97018d5d/Monkey3"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "135.30",
+                        "currency": "PLN"
+                    },
+                    "popularity": 1,
+                    "popularityRange": "[1-5]"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 18
+                },
+                "category": {
+                    "id": "322039"
+                }
+            },
+            {
+                "id": "7776105446",
+                "name": "Monkey4",
+                "seller": {
+                    "id": "44098607",
+                    "login": "MLFuturiti",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "6.99",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/118f76/46728f6d495d92216f9d550cdf24/Monkey4"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "135.30",
+                        "currency": "PLN"
+                    },
+                    "popularity": 1,
+                    "popularityRange": "[1-5]"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 18
+                },
+                "category": {
+                    "id": "322039"
+                }
+            },
+            {
+                "id": "7776102726",
+                "name": "1-testy - 1111",
+                "seller": {
+                    "id": "44172130",
+                    "login": "mrooczek",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "0.50",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/116de5/f6dd4f7a4b4c96c5de949e44d233/1-testy-1111"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "10.00",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 1
+                },
+                "category": {
+                    "id": "257813"
+                },
+                "publication": {
+                    "endingAt": "2024-11-21T07:59:54.000Z"
+                }
+            },
+            {
+                "id": "7776087938",
+                "name": "Ciastolina Kreatywny Zestaw Kolorowa Masa Plastyczna z Foremkami DINOZAUR",
+                "seller": {
+                    "id": "106930590",
+                    "login": "retset",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "3.99",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/110d27/8be5b8964f6ebb64f8c4815a9b8c/Ciastolina-Kreatywny-Zestaw-Kolorowa-Masa-Plastyczna-z-Foremkami-DINOZAUR"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "119.00",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 100
+                },
+                "category": {
+                    "id": "123948"
+                }
+            },
+            {
+                "id": "7776087934",
+                "name": "Gra Zr\u0119czno\u015bciowa Towarzyska PO\u0141AWIACZ S\u0141ODYCZY Cukierk\u00f3w Zabawa dla Dzieci",
+                "seller": {
+                    "id": "106930590",
+                    "login": "retset",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "3.99",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/114cf4/dd216bb64fdcb5fece8c113de1b0/Gra-Zrecznosciowa-Towarzyska-POLAWIACZ-SLODYCZY-Cukierkow-Zabawa-dla-Dzieci"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "321.00",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 100
+                },
+                "category": {
+                    "id": "19498"
+                }
+            },
+            {
+                "id": "7776087898",
+                "name": "GRA PLANSZOWA NA REFLEKS dla dzieci Logiczna DOPASUJ KOLOR I KLOCKI Karty",
+                "seller": {
+                    "id": "106930590",
+                    "login": "retset",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "3.99",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11564f/4f4f3d8747faa932d2c6a7dac086/GRA-PLANSZOWA-NA-REFLEKS-dla-dzieci-Logiczna-DOPASUJ-KOLOR-I-KLOCKI-Karty"
+                    },
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/112e96/bf9748854e66a5690273492b0a3a/GRA-PLANSZOWA-NA-REFLEKS-dla-dzieci-Logiczna-DOPASUJ-KOLOR-I-KLOCKI-Karty-EAN-GTIN-5904659174257"
+                    },
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/112024/cab9e155425aa53fa47ef7a87087/GRA-PLANSZOWA-NA-REFLEKS-dla-dzieci-Logiczna-DOPASUJ-KOLOR-I-KLOCKI-Karty-Kod-producenta-5236"
+                    },
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/117355/ec4e01204a3f8dc16d04660af2ff/GRA-PLANSZOWA-NA-REFLEKS-dla-dzieci-Logiczna-DOPASUJ-KOLOR-I-KLOCKI-Karty-Marka-ChRLD"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "47.00",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 119
+                },
+                "category": {
+                    "id": "19498"
+                }
+            },
+            {
+                "id": "7776077862",
+                "name": "Giraffe test signature 1",
+                "seller": {
+                    "id": "44098607",
+                    "login": "MLFuturiti",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "6.99",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/114c6d/e5f6c70348d5853f06e7e167ea60/Giraffe-test-signature-1"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "123.00",
+                        "currency": "PLN"
+                    },
+                    "popularity": 1,
+                    "popularityRange": "[1-5]"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 19
+                },
+                "category": {
+                    "id": "322039"
+                }
+            },
+            {
+                "id": "7776076678",
+                "name": "LEGO Minifigurka hp519 Harry Potter",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11adf7/2ef9e4b34954a23b9e47cb15b853/LEGO-Minifigurka-hp519-Harry-Potter"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "23.99",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 3
+                },
+                "category": {
+                    "id": "93209"
+                }
+            },
+            {
+                "id": "7776076677",
+                "name": "2x LEGO 22888 Plate, Round Half 4 x 8",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11edeb/1e5d6ff6477aad64b79e92bb2549/2x-LEGO-22888-Plate-Round-Half-4-x-8"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.29",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "SET",
+                    "available": 1
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776076676",
+                "name": "4x LEGO 10247 Plate, Modified 2 x 2 with Pin Hole",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11c920/3630104f43b6b8b0508970a3b729/4x-LEGO-10247-Plate-Modified-2-x-2-with-Pin-Hole"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.00",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "SET",
+                    "available": 1
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776076675",
+                "name": "4x LEGO 3003 Brick 2 x 2",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11e371/73c028c844dab56220aedc295a7c/4x-LEGO-3003-Brick-2-x-2"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.09",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "SET",
+                    "available": 45
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776076674",
+                "name": "LEGO 3039 Slope 45 2 x 2",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11abfa/22aacb7b42bf8ce77aee8ce8e3f4/LEGO-3039-Slope-45-2-x-2"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.00",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 1
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776076673",
+                "name": "4x LEGO 3003 Brick 2 x 2",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/111e28/eebb1c514670adc840d3e1d63776/4x-LEGO-3003-Brick-2-x-2"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.19",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "SET",
+                    "available": 19
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776076672",
+                "name": "2x LEGO 51266 Glass for Window 1 x 3 x 3 Flat Front",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/1185d6/30f6b1b64ea0ae91a7f7c3efbc0a/2x-LEGO-51266-Glass-for-Window-1-x-3-x-3-Flat-Front"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.09",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "SET",
+                    "available": 4
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776076671",
+                "name": "2x LEGO 3005 Brick 1 x 1",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/116163/aad5eaa848919b2ca67967d5aa18/2x-LEGO-3005-Brick-1-x-1"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.00",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "SET",
+                    "available": 1
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776076670",
+                "name": "2x LEGO 60592 Window 1 x 2 x 2 Flat Front",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/110acc/20e5886e464ab7b113dc10bc93d1/2x-LEGO-60592-Window-1-x-2-x-2-Flat-Front"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.49",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "SET",
+                    "available": 13
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776076669",
+                "name": "3x LEGO 11211 Brick, Modified 1 x 2 with Studs on 1 Side",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/116ce8/cb068f554fc8822377cfc0db11e8/3x-LEGO-11211-Brick-Modified-1-x-2-with-Studs-on-1-Side"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.39",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "SET",
+                    "available": 1
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776076668",
+                "name": "LEGO Minifigurka drm012 Nightmare King",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/117e6d/49f88e8d45d8a10be4d109f0b043/LEGO-Minifigurka-drm012-Nightmare-King"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "55.99",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 3
+                },
+                "category": {
+                    "id": "93209"
+                }
+            },
+            {
+                "id": "7776076667",
+                "name": "3x LEGO 65128 Container, Box Vidiyo Window",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/114e40/dd5fe0be450e8d871cd56370f7a7/3x-LEGO-65128-Container-Box-Vidiyo-Window"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.19",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "SET",
+                    "available": 9
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776076666",
+                "name": "LEGO 67810 Slope, Curved 2 x 2 x 1 1/3 Corner Round with Recessed Stud",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/117a04/36ab06ae4ec99c71c3b738be3a3f/LEGO-67810-Slope-Curved-2-x-2-x-1-1-3-Corner-Round-with-Recessed-Stud"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.19",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 8
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776076665",
+                "name": "LEGO Minifigurka drm042 Grimspawn",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/1129e3/733543b84ba4b6561448d9a67431/LEGO-Minifigurka-drm042-Grimspawn"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "13.69",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 4
+                },
+                "category": {
+                    "id": "93209"
+                }
+            },
+            {
+                "id": "7776076664",
+                "name": "LEGO Minifigurka sw1329 Clone ARC Trooper Fives, 501st Legion (Phase 2)",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/116e1e/9be78aeb4af8b606eaa48f389c78/LEGO-Minifigurka-sw1329-Clone-ARC-Trooper-Fives-501st-Legion-Phase-2"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "94.99",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 4
+                },
+                "category": {
+                    "id": "93209"
+                }
+            },
+            {
+                "id": "7776076663",
+                "name": "LEGO Minifigurka coldnd-10 The Lady of Pain, Dungeons and Dragons",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/118522/11119472462bacca6c97849a3fe3/LEGO-Minifigurka-coldnd-10-The-Lady-of-Pain-Dungeons-and-Dragons"
+                    },
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11d40b/e1de617747ef82b540560ae81e16/LEGO-Minifigurka-coldnd-10-The-Lady-of-Pain-Dungeons-and-Dragons-Marka-LEGO"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "22.99",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 3
+                },
+                "category": {
+                    "id": "93209"
+                }
+            },
+            {
+                "id": "7776076662",
+                "name": "LEGO 75387stk01 Naklejki dla zestawu 75387",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/112ae5/0f332693487fae4662d7e3d7aa8e/LEGO-75387stk01-Naklejki-dla-zestawu-75387"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "2.39",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 6
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776076661",
+                "name": "LEGO 65249 Technic, Axle 2L with Pin without Friction Ridges",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11309f/4b99dec0408897444f73a68818aa/LEGO-65249-Technic-Axle-2L-with-Pin-without-Friction-Ridges"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.39",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 6
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072070",
+                "name": "LEGO 76424stk01 Naklejki dla zestawu 76424",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11409d/3b8c642044a08418e05e6893e5de/LEGO-76424stk01-Naklejki-dla-zestawu-76424"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "2.89",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 4
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072069",
+                "name": "LEGO 71796pls01 Plastic Arkusz for Set 71796",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11efa0/f622e2bc47da975188212996e591/LEGO-71796pls01-Plastic-Arkusz-for-Set-71796"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "6.29",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 3
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072068",
+                "name": "LEGO 30657stk01 Naklejki dla zestawu 30657",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/1154a4/87d17228402b99e8749c9817d45e/LEGO-30657stk01-Naklejki-dla-zestawu-30657"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.39",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 17
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072067",
+                "name": "LEGO 76960stk01 Naklejki dla zestawu 76960",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/114211/158712e9420d81b256940db4a747/LEGO-76960stk01-Naklejki-dla-zestawu-76960"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "2.69",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 3
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072066",
+                "name": "LEGO 60362stk01 Naklejki dla zestawu 60362",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/113f40/69bab9124bfebec133226460786a/LEGO-60362stk01-Naklejki-dla-zestawu-60362"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "2.99",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 3
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072065",
+                "name": "LEGO 75346stk01 Naklejki dla zestawu 75346",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11553b/9762ec97499ea11fe8c66199a285/LEGO-75346stk01-Naklejki-dla-zestawu-75346"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "2.09",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 3
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072064",
+                "name": "LEGO 76265stk01 Naklejki dla zestawu 76265",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11a5bc/2d4a85714f7aa09439799a508d97/LEGO-76265stk01-Naklejki-dla-zestawu-76265"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.59",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 1
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072063",
+                "name": "LEGO 71790stk01 Naklejki dla zestawu 71790",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11b5bb/893b911a491093ce2c6785578ecc/LEGO-71790stk01-Naklejki-dla-zestawu-71790"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.49",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 2
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072062",
+                "name": "LEGO 71796stk01 Naklejki dla zestawu 71796",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/110254/400d080947149dee22279e23a912/LEGO-71796stk01-Naklejki-dla-zestawu-71796"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "3.49",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 3
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072061",
+                "name": "LEGO 75571stk01 Naklejki dla zestawu 75571",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11b18b/8639cbf3449a93bff6f8ccab7bae/LEGO-75571stk01-Naklejki-dla-zestawu-75571"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.09",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 3
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072060",
+                "name": "LEGO 41737stk01 Naklejki dla zestawu 41737",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11a72f/f13eccf340cfac8c82631d4cd4b3/LEGO-41737stk01-Naklejki-dla-zestawu-41737"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "4.99",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 2
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072058",
+                "name": "LEGO 76248stk02 Naklejki dla zestawu 76248, Arkusz 2",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11d6cc/7ddeedfb4357a8239cd2f1af8300/LEGO-76248stk02-Naklejki-dla-zestawu-76248-Arkusz-2"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "5.29",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 3
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072057",
+                "name": "LEGO 60363stk01 Naklejki dla zestawu 60363",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11627b/e1a274464f14a591e5a998a10aec/LEGO-60363stk01-Naklejki-dla-zestawu-60363"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "3.79",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 1
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072055",
+                "name": "LEGO 71791stk01 Naklejki dla zestawu 71791",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/119ac8/ef5cbe804275a695a852337c656d/LEGO-71791stk01-Naklejki-dla-zestawu-71791"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.79",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 2
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072054",
+                "name": "LEGO 43215stk02 Naklejki dla zestawu 43215, Arkusz 2",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11ad7a/3821993f487187f52df58cdd5ffb/LEGO-43215stk02-Naklejki-dla-zestawu-43215-Arkusz-2"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "2.39",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 2
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072053",
+                "name": "LEGO 71457stk01 Naklejki dla zestawu 71457",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11b7b6/3941ce5d4bb5b7370ecfe1c44d1a/LEGO-71457stk01-Naklejki-dla-zestawu-71457"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "6.79",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 3
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072052",
+                "name": "LEGO 76213stk01 Naklejki dla zestawu 76213",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11619a/c4a78b2f40bb8116d2fba6c03128/LEGO-76213stk01-Naklejki-dla-zestawu-76213"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.39",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 1
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072051",
+                "name": "LEGO 76261stk01 Naklejki dla zestawu 76261",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/115ab8/6c5712654725b4d75a6d74f28f83/LEGO-76261stk01-Naklejki-dla-zestawu-76261"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "3.09",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 1
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072050",
+                "name": "LEGO 76918stk02 Naklejki dla zestawu 76918, Arkusz 2",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/115afb/bbfc311445c79fe967477670d8db/LEGO-76918stk02-Naklejki-dla-zestawu-76918-Arkusz-2"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "5.89",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 4
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072049",
+                "name": "LEGO 40634stk01 Naklejki dla zestawu 40634",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/1128fe/80dffa1d41e09a008cb0af222490/LEGO-40634stk01-Naklejki-dla-zestawu-40634"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "7.19",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 2
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072048",
+                "name": "LEGO 71745stk01 Naklejki dla zestawu 71745",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/11ee9e/f9449e1344a7ba4b10c89688bdaf/LEGO-71745stk01-Naklejki-dla-zestawu-71745"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "1.19",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 1
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072047",
+                "name": "LEGO 76388stk02 Naklejki dla zestawu 76388, Arkusz 2",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/1161c6/51a0f5234d1fb26943bedb7005a0/LEGO-76388stk02-Naklejki-dla-zestawu-76388-Arkusz-2"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "4.79",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 1
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072046",
+                "name": "LEGO 71476stk01 Naklejki dla zestawu 71476",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/111318/242ae9ba49c8a4c2968348192290/LEGO-71476stk01-Naklejki-dla-zestawu-71476"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "2.89",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 3
+                },
+                "category": {
+                    "id": "305685"
+                }
+            },
+            {
+                "id": "7776072045",
+                "name": "LEGO 60364stk01 Naklejki dla zestawu 60364",
+                "seller": {
+                    "id": "106029544",
+                    "login": "Klocki_Inaczej",
+                    "company": true,
+                    "superSeller": false
+                },
+                "promotion": {
+                    "emphasized": false,
+                    "bold": false,
+                    "highlight": false
+                },
+                "delivery": {
+                    "availableForFree": false,
+                    "lowestPrice": {
+                        "amount": "10.95",
+                        "currency": "PLN"
+                    }
+                },
+                "images": [
+                    {
+                        "url": "https://a.allegroimg.allegrosandbox.pl/original/112560/2ad6f5244bf0a2605822a5db6248/LEGO-60364stk01-Naklejki-dla-zestawu-60364"
+                    }
+                ],
+                "sellingMode": {
+                    "format": "BUY_NOW",
+                    "price": {
+                        "amount": "5.29",
+                        "currency": "PLN"
+                    },
+                    "popularity": 0,
+                    "popularityRange": "0"
+                },
+                "stock": {
+                    "unit": "UNIT",
+                    "available": 1
+                },
+                "category": {
+                    "id": "305685"
+                }
+            }
+        ]
+    },
+    "searchMeta": {
+        "availableCount": 600,
+        "totalCount": 6755,
+        "fallback": false
+    },
+    "categories": {
+        "subcategories": [
+            {
+                "id": "11820",
+                "name": "Dla niemowl\u0105t",
+                "count": 3
+            },
+            {
+                "id": "11821",
+                "name": "Edukacyjne",
+                "count": 24
+            },
+            {
+                "id": "322030",
+                "name": "Figurki",
+                "count": 5
+            },
+            {
+                "id": "323046",
+                "name": "Gry towarzyskie",
+                "count": 10
+            },
+            {
+                "id": "11823",
+                "name": "Klocki",
+                "count": 6575
+            },
+            {
+                "id": "11825",
+                "name": "Lalki i akcesoria",
+                "count": 14
+            },
+            {
+                "id": "93679",
+                "name": "Majsterkowanie",
+                "count": 27
+            },
+            {
+                "id": "11837",
+                "name": "Maskotki",
+                "count": 14
+            },
+            {
+                "id": "93564",
+                "name": "Militarne",
+                "count": 3
+            },
+            {
+                "id": "11819",
+                "name": "Plastyczne",
+                "count": 7
+            },
+            {
+                "id": "11840",
+                "name": "Puzzle",
+                "count": 17
+            },
+            {
+                "id": "86352",
+                "name": "Samochody i pojazdy",
+                "count": 8
+            },
+            {
+                "id": "312425",
+                "name": "Zabawki elektroniczne",
+                "count": 1
+            },
+            {
+                "id": "11841",
+                "name": "Zdalnie sterowane",
+                "count": 7
+            },
+            {
+                "id": "319060",
+                "name": "Zabawki zr\u0119czno\u015bciowe",
+                "count": 39
+            },
+            {
+                "id": "11842",
+                "name": "Pozosta\u0142e",
+                "count": 1
+            }
+        ],
+        "path": [
+            {
+                "id": "954b95b6-43cf-4104-8354-dea4d9b10ddf",
+                "name": "Allegro"
+            },
+            {
+                "id": "11763",
+                "name": "Dziecko"
+            },
+            {
+                "id": "11818",
+                "name": "Zabawki"
+            }
+        ]
+    },
+    "filters": [
+        {
+            "id": "option",
+            "type": "MULTI",
+            "name": "oferta ma",
+            "values": [
+                {
+                    "value": "SMART",
+                    "name": "Allegro Smart!",
+                    "selected": false
+                },
+                {
+                    "value": "FREE_SHIPPING",
+                    "name": "darmowa dostawa",
+                    "selected": false
+                },
+                {
+                    "value": "FREE_RETURN",
+                    "name": "darmowy zwrot",
+                    "selected": false
+                },
+                {
+                    "value": "VAT_INVOICE",
+                    "name": "faktura VAT",
+                    "selected": false
+                },
+                {
+                    "value": "VAT_MARGIN_INVOICE",
+                    "name": "faktura VAT-mar\u017ca",
+                    "selected": false
+                },
+                {
+                    "value": "INVOICE_WITHOUT_VAT",
+                    "name": "faktura bez VAT",
+                    "selected": false
+                },
+                {
+                    "value": "COINS",
+                    "name": "Monety Allegro",
+                    "selected": false
+                },
+                {
+                    "value": "COUPONS",
+                    "name": "Kupony",
+                    "selected": false
+                },
+                {
+                    "value": "BRAND_ZONE",
+                    "name": "Strefa Marek",
+                    "selected": false
+                },
+                {
+                    "value": "SUPERSELLER",
+                    "name": "Super Sprzedawca",
+                    "selected": false
+                },
+                {
+                    "value": "CHARITY",
+                    "name": "Allegro Charytatywni",
+                    "selected": false
+                }
+            ]
+        },
+        {
+            "id": "parameter.3475",
+            "type": "MULTI",
+            "name": "Wiek dziecka",
+            "values": [
+                {
+                    "value": "3475_1",
+                    "name": "0 +",
+                    "count": 3,
+                    "selected": false
+                },
+                {
+                    "value": "3475_218953",
+                    "name": "1 m +",
+                    "count": 11,
+                    "selected": false
+                },
+                {
+                    "value": "3475_218957",
+                    "name": "2 m +",
+                    "count": 5,
+                    "selected": false
+                },
+                {
+                    "value": "3475_24",
+                    "name": "6 m +",
+                    "count": 1,
+                    "selected": false
+                },
+                {
+                    "value": "3475_30",
+                    "name": "12 m +",
+                    "count": 2,
+                    "selected": false
+                },
+                {
+                    "value": "3475_35",
+                    "name": "18 m +",
+                    "count": 1,
+                    "selected": false
+                },
+                {
+                    "value": "3475_40",
+                    "name": "2 lata +",
+                    "count": 5,
+                    "selected": false
+                },
+                {
+                    "value": "3475_45",
+                    "name": "3 lata +",
+                    "count": 120,
+                    "selected": false
+                },
+                {
+                    "value": "3475_50",
+                    "name": "4 lata +",
+                    "count": 241,
+                    "selected": false
+                },
+                {
+                    "value": "3475_60",
+                    "name": "6 lat +",
+                    "count": 27,
+                    "selected": false
+                },
+                {
+                    "value": "3475_70",
+                    "name": "8 lat +",
+                    "count": 6,
+                    "selected": false
+                },
+                {
+                    "value": "3475_75",
+                    "name": "9 lat +",
+                    "count": 3,
+                    "selected": false
+                },
+                {
+                    "value": "3475_80",
+                    "name": "10 lat +",
+                    "count": 1,
+                    "selected": false
+                },
+                {
+                    "value": "3475_90",
+                    "name": "12 lat +",
+                    "count": 4,
+                    "selected": false
+                },
+                {
+                    "value": "3475_14",
+                    "name": "3 m +",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "3475_218961",
+                    "name": "4 m +",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "3475_218965",
+                    "name": "5 m +",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "3475_28",
+                    "name": "9 m +",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "3475_219069",
+                    "name": "10 m +",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "3475_416389",
+                    "name": "16 m +",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "3475_55",
+                    "name": "5 lat +",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "3475_65",
+                    "name": "7 lat +",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "3475_85",
+                    "name": "11 lat +",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "3475_95",
+                    "name": "13 lat +",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "3475_100",
+                    "name": "14 lat +",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "3475_275945",
+                    "name": "15 lat +",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "3475_275949",
+                    "name": "16 lat +",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "3475_556893",
+                    "name": "18 lat +",
+                    "count": 0,
+                    "selected": false
+                }
+            ]
+        },
+        {
+            "id": "shippingFromPoland",
+            "type": "MULTI",
+            "name": "Dostawa z Polski",
+            "values": [
+                {
+                    "value": "1",
+                    "name": "tak",
+                    "count": 6748,
+                    "selected": false
+                }
+            ]
+        },
+        {
+            "id": "parameter.11323",
+            "type": "MULTI",
+            "name": "Stan",
+            "values": [
+                {
+                    "value": "11323_1",
+                    "name": "nowe",
+                    "count": 6755,
+                    "selected": true
+                },
+                {
+                    "value": "11323_2",
+                    "name": "u\u017cywane",
+                    "count": 33,
+                    "selected": false
+                },
+                {
+                    "value": "11323_246514",
+                    "name": "nowe z defektem",
+                    "count": 1,
+                    "selected": false
+                },
+                {
+                    "value": "11323_238062",
+                    "name": "uszkodzone",
+                    "count": 1,
+                    "selected": false
+                },
+                {
+                    "value": "11323_238066",
+                    "name": "po zwrocie",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "11323_246466",
+                    "name": "bie\u017cnikowane",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "11323_1223453",
+                    "name": "Na cz\u0119\u015bci",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "11323_238070",
+                    "name": "niepe\u0142ny komplet",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "11323_1223462",
+                    "name": "Niepe\u0142ny zestaw",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "11323_246510",
+                    "name": "nowe bez metki",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "11323_238058",
+                    "name": "powystawowe",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "11323_246462",
+                    "name": "regenerowane",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "11323_246534",
+                    "name": "odnowione przez producenta",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "11323_246538",
+                    "name": "odnowione przez sprzedawc\u0119",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "11323_253798",
+                    "name": "do renowacji",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "11323_253802",
+                    "name": "po renowacji",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "11323_253806",
+                    "name": "niewymagaja\u0328ce renowacji",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "11323_852680",
+                    "name": "Z demonta\u017cu (demo)",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "11323_1223635",
+                    "name": "Po demonta\u017cu",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "11323_1223636",
+                    "name": "przepakowane",
+                    "count": 0,
+                    "selected": false
+                }
+            ]
+        },
+        {
+            "id": "sellingMode.format",
+            "type": "MULTI",
+            "name": "Rodzaj oferty",
+            "values": [
+                {
+                    "value": "BUY_NOW",
+                    "name": "kup teraz",
+                    "count": 6755,
+                    "selected": false
+                },
+                {
+                    "value": "AUCTION",
+                    "name": "licytacje",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "ADVERTISEMENT",
+                    "name": "og\u0142oszenia",
+                    "count": 0,
+                    "selected": false
+                }
+            ]
+        },
+        {
+            "id": "price",
+            "type": "NUMERIC",
+            "name": "Cena",
+            "values": [
+                {
+                    "idSuffix": ".from",
+                    "name": "od",
+                    "selected": false
+                },
+                {
+                    "idSuffix": ".to",
+                    "name": "do",
+                    "selected": false
+                }
+            ],
+            "minValue": 0,
+            "maxValue": 1000000000,
+            "unit": "z\u0142"
+        },
+        {
+            "id": "deliveryMethod",
+            "type": "MULTI",
+            "name": "Sposoby dostawy",
+            "values": [
+                {
+                    "value": "5c555ge0580hy26nn2f77456",
+                    "name": "Allegro One Box",
+                    "selected": false
+                },
+                {
+                    "value": "5d777ju0670rt26gg2f99234",
+                    "name": "Allegro One Punkt",
+                    "selected": false
+                },
+                {
+                    "value": "5b445fa0580ce26bb2f99602",
+                    "name": "Kurier",
+                    "selected": false
+                },
+                {
+                    "value": "5ie9queigeKoi1OofahN8tee",
+                    "name": "Allegro MiniPrzesy\u0142ka",
+                    "selected": false
+                },
+                {
+                    "value": "5b445fe6580ce26bb2f9960a",
+                    "name": "Paczkomaty InPost",
+                    "selected": false
+                },
+                {
+                    "value": "5b44606c580ce26bb2f99617",
+                    "name": "Dostawa za granic\u0119",
+                    "selected": false
+                },
+                {
+                    "value": "5b446004580ce26bb2f9960c",
+                    "name": "Odbi\u00f3r w punkcie",
+                    "selected": false
+                },
+                {
+                    "value": "5b446013580ce26bb2f9960e",
+                    "name": "List",
+                    "selected": false
+                },
+                {
+                    "value": "5b446031580ce26bb2f99610",
+                    "name": "Paczka pocztowa",
+                    "selected": false
+                },
+                {
+                    "value": "5b446044580ce26bb2f99612",
+                    "name": "Odbi\u00f3r osobisty",
+                    "selected": false
+                },
+                {
+                    "value": "5b44605c580ce26bb2f99614",
+                    "name": "Przesy\u0142ka elektroniczna",
+                    "selected": false
+                }
+            ]
+        },
+        {
+            "id": "location.city",
+            "type": "TEXT",
+            "name": "Miejscowo\u015b\u0107",
+            "values": [
+                {
+                    "name": "Miejscowo\u015b\u0107",
+                    "selected": false
+                }
+            ]
+        },
+        {
+            "id": "location.province",
+            "type": "SINGLE",
+            "name": "Wojew\u00f3dztwo",
+            "values": [
+                {
+                    "value": "DOLNOSLASKIE",
+                    "name": "z dolno\u015bl\u0105skiego",
+                    "selected": false
+                },
+                {
+                    "value": "KUJAWSKO_POMORSKIE",
+                    "name": "z kujawsko-pomorskiego",
+                    "selected": false
+                },
+                {
+                    "value": "LUBELSKIE",
+                    "name": "z lubelskiego",
+                    "selected": false
+                },
+                {
+                    "value": "LUBUSKIE",
+                    "name": "z lubuskiego",
+                    "selected": false
+                },
+                {
+                    "value": "LODZKIE",
+                    "name": "z \u0142\u00f3dzkiego",
+                    "selected": false
+                },
+                {
+                    "value": "MALOPOLSKIE",
+                    "name": "z ma\u0142opolskiego",
+                    "selected": false
+                },
+                {
+                    "value": "MAZOWIECKIE",
+                    "name": "z mazowieckiego",
+                    "selected": false
+                },
+                {
+                    "value": "OPOLSKIE",
+                    "name": "z opolskiego",
+                    "selected": false
+                },
+                {
+                    "value": "PODKARPACKIE",
+                    "name": "z podkarpackiego",
+                    "selected": false
+                },
+                {
+                    "value": "PODLASKIE",
+                    "name": "z podlaskiego",
+                    "selected": false
+                },
+                {
+                    "value": "POMORSKIE",
+                    "name": "z pomorskiego",
+                    "selected": false
+                },
+                {
+                    "value": "SLASKIE",
+                    "name": "ze \u015bl\u0105skiego",
+                    "selected": false
+                },
+                {
+                    "value": "SWIETOKRZYSKIE",
+                    "name": "ze \u015bwi\u0119tokrzyskiego",
+                    "selected": false
+                },
+                {
+                    "value": "WARMINSKO_MAZURSKIE",
+                    "name": "z warmi\u0144sko-mazurskiego",
+                    "selected": false
+                },
+                {
+                    "value": "WIELKOPOLSKIE",
+                    "name": "z wielkopolskiego",
+                    "selected": false
+                },
+                {
+                    "value": "ZACHODNIOPOMORSKIE",
+                    "name": "z zachodniopomorskiego",
+                    "selected": false
+                }
+            ]
+        },
+        {
+            "id": "parameter.127812",
+            "type": "MULTI",
+            "name": "Marka",
+            "values": [
+                {
+                    "value": "127812_1681706",
+                    "name": "bez marki",
+                    "count": 4,
+                    "selected": false
+                },
+                {
+                    "value": "127812_506829",
+                    "name": "2Pionki",
+                    "count": 3,
+                    "selected": false
+                },
+                {
+                    "value": "127812_344093",
+                    "name": "4M",
+                    "count": 4,
+                    "selected": false
+                },
+                {
+                    "value": "127812_3",
+                    "name": "Baby Born",
+                    "count": 5,
+                    "selected": false
+                },
+                {
+                    "value": "127812_208329",
+                    "name": "Carrera",
+                    "count": 1,
+                    "selected": false
+                },
+                {
+                    "value": "127812_829458",
+                    "name": "ChRLD",
+                    "count": 29,
+                    "selected": false
+                },
+                {
+                    "value": "127812_350041",
+                    "name": "CzuCzu",
+                    "count": 2,
+                    "selected": false
+                },
+                {
+                    "value": "127812_763082",
+                    "name": "DK",
+                    "count": 55,
+                    "selected": false
+                },
+                {
+                    "value": "127812_208345",
+                    "name": "Dromader",
+                    "count": 3,
+                    "selected": false
+                },
+                {
+                    "value": "127812_53",
+                    "name": "Epee",
+                    "count": 1,
+                    "selected": false
+                },
+                {
+                    "value": "127812_220077",
+                    "name": "Funko Pop!",
+                    "count": 1,
+                    "selected": false
+                },
+                {
+                    "value": "127812_593585",
+                    "name": "Jada Toys",
+                    "count": 1,
+                    "selected": false
+                },
+                {
+                    "value": "127812_506813",
+                    "name": "Jawa",
+                    "count": 5,
+                    "selected": false
+                },
+                {
+                    "value": "127812_208681",
+                    "name": "LEGO",
+                    "count": 6574,
+                    "selected": false
+                },
+                {
+                    "value": "127812_208321",
+                    "name": "Lena",
+                    "count": 4,
+                    "selected": false
+                },
+                {
+                    "value": "127812_526973",
+                    "name": "NORIMPEX",
+                    "count": 1,
+                    "selected": false
+                },
+                {
+                    "value": "127812_1799198",
+                    "name": "Play & fun",
+                    "count": 1,
+                    "selected": false
+                },
+                {
+                    "value": "127812_54",
+                    "name": "Ravensburger",
+                    "count": 7,
+                    "selected": false
+                },
+                {
+                    "value": "127812_505713",
+                    "name": "Rebel",
+                    "count": 2,
+                    "selected": false
+                },
+                {
+                    "value": "127812_33",
+                    "name": "Schleich",
+                    "count": 1,
+                    "selected": false
+                },
+                {
+                    "value": "127812_56",
+                    "name": "Siku",
+                    "count": 3,
+                    "selected": false
+                },
+                {
+                    "value": "127812_208369",
+                    "name": "Spin Master",
+                    "count": 2,
+                    "selected": false
+                },
+                {
+                    "value": "127812_207993",
+                    "name": "Trefl",
+                    "count": 1,
+                    "selected": false
+                },
+                {
+                    "value": "127812_792641",
+                    "name": "Tulilo",
+                    "count": 8,
+                    "selected": false
+                },
+                {
+                    "value": "127812_502405",
+                    "name": "Ty",
+                    "count": 11,
+                    "selected": false
+                },
+                {
+                    "value": "127812_759598",
+                    "name": "Wilga",
+                    "count": 5,
+                    "selected": false
+                },
+                {
+                    "value": "127812_24",
+                    "name": "inna",
+                    "count": 8,
+                    "selected": false
+                },
+                {
+                    "value": "127812_1895873",
+                    "name": "100",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "127812_544333",
+                    "name": "3Doodler",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "127812_1799199",
+                    "name": "S ART",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "127812_507521",
+                    "name": "Top Bright",
+                    "count": 0,
+                    "selected": false
+                }
+            ]
+        },
+        {
+            "id": "parameter.127768",
+            "type": "MULTI",
+            "name": "Bohater",
+            "values": [
+                {
+                    "value": "127768_525229",
+                    "name": "Aladyn",
+                    "count": 2,
+                    "selected": false
+                },
+                {
+                    "value": "127768_72",
+                    "name": "brak",
+                    "count": 94,
+                    "selected": false
+                },
+                {
+                    "value": "127768_73",
+                    "name": "Cars",
+                    "count": 1,
+                    "selected": false
+                },
+                {
+                    "value": "127768_1016572",
+                    "name": "Inni bohaterowie Disney",
+                    "count": 1,
+                    "selected": false
+                },
+                {
+                    "value": "127768_87",
+                    "name": "Psi Patrol",
+                    "count": 5,
+                    "selected": false
+                },
+                {
+                    "value": "127768_57",
+                    "name": "Star Wars",
+                    "count": 1,
+                    "selected": false
+                },
+                {
+                    "value": "127768_2",
+                    "name": "AC Milan",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "127768_71",
+                    "name": "Inny",
+                    "count": 0,
+                    "selected": false
+                }
+            ]
+        },
+        {
+            "id": "parameter.127789",
+            "type": "MULTI",
+            "name": "P\u0142e\u0107",
+            "values": [
+                {
+                    "value": "127789_1",
+                    "name": "ch\u0142opcy",
+                    "count": 118,
+                    "selected": false
+                },
+                {
+                    "value": "127789_2",
+                    "name": "dziewczynki",
+                    "count": 108,
+                    "selected": false
+                },
+                {
+                    "value": "127789_1783656",
+                    "name": "unisex",
+                    "count": 0,
+                    "selected": false
+                }
+            ]
+        },
+        {
+            "id": "parameter.18136",
+            "type": "MULTI",
+            "name": "Materia\u0142",
+            "values": [
+                {
+                    "value": "18136_1",
+                    "name": "drewno",
+                    "count": 5,
+                    "selected": false
+                },
+                {
+                    "value": "18136_32",
+                    "name": "karton",
+                    "count": 20,
+                    "selected": false
+                },
+                {
+                    "value": "18136_8",
+                    "name": "metal",
+                    "count": 4,
+                    "selected": false
+                },
+                {
+                    "value": "18136_16",
+                    "name": "papier",
+                    "count": 9,
+                    "selected": false
+                },
+                {
+                    "value": "18136_4",
+                    "name": "plastik",
+                    "count": 104,
+                    "selected": false
+                },
+                {
+                    "value": "18136_2",
+                    "name": "tkanina",
+                    "count": 13,
+                    "selected": false
+                },
+                {
+                    "value": "18136_128",
+                    "name": "inny",
+                    "count": 12,
+                    "selected": false
+                },
+                {
+                    "value": "18136_4096",
+                    "name": "guma",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "18136_1044654",
+                    "name": "kauczuk",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "18136_2048",
+                    "name": "korek",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "18136_64",
+                    "name": "pianka",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "18136_256",
+                    "name": "p\u0142yta MDF",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "18136_839326",
+                    "name": "szk\u0142o",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "18136_1025146",
+                    "name": "sznurek",
+                    "count": 0,
+                    "selected": false
+                }
+            ]
+        },
+        {
+            "id": "parameter.18137",
+            "type": "MULTI",
+            "name": "Certyfikaty, opinie, atesty",
+            "values": [
+                {
+                    "value": "18137_8",
+                    "name": "CE",
+                    "count": 6666,
+                    "selected": false
+                },
+                {
+                    "value": "18137_16",
+                    "name": "EN 71",
+                    "count": 54,
+                    "selected": false
+                },
+                {
+                    "value": "18137_4",
+                    "name": "FSC",
+                    "count": 5,
+                    "selected": false
+                },
+                {
+                    "value": "18137_1190253",
+                    "name": "WE",
+                    "count": 4,
+                    "selected": false
+                },
+                {
+                    "value": "18137_1190254",
+                    "name": "Fair Trade",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "18137_1190255",
+                    "name": "GOTS  (Global Organic Textile Standard)",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "18137_1",
+                    "name": "Instytut Matki i Dziecka",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "18137_32",
+                    "name": "LGA",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "18137_1190256",
+                    "name": "PEFC",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "18137_1190257",
+                    "name": "Safe Toys",
+                    "count": 0,
+                    "selected": false
+                },
+                {
+                    "value": "18137_1190252",
+                    "name": "TUV",
+                    "count": 0,
+                    "selected": false
+                }
+            ]
+        }
+    ],
+    "sort": [
+        {
+            "value": "-relevance",
+            "name": "trafno\u015b\u0107",
+            "order": "najwi\u0119ksza",
+            "selected": true
+        },
+        {
+            "value": "+price",
+            "name": "cena",
+            "order": "od najni\u017cszej",
+            "selected": false
+        },
+        {
+            "value": "-price",
+            "name": "cena",
+            "order": "od najwy\u017cszej",
+            "selected": false
+        },
+        {
+            "value": "+withDeliveryPrice",
+            "name": "cena z dostaw\u0105",
+            "order": "od najni\u017cszej",
+            "selected": false
+        },
+        {
+            "value": "-withDeliveryPrice",
+            "name": "cena z dostaw\u0105",
+            "order": "od najwy\u017cszej",
+            "selected": false
+        },
+        {
+            "value": "+endTime",
+            "name": "czas do ko\u0144ca",
+            "order": "najmniej",
+            "selected": false
+        },
+        {
+            "value": "-startTime",
+            "name": "czas dodania",
+            "order": "najnowsze",
+            "selected": false
+        }
+    ]
+}
+DEBUG:asyncio:Using selector: EpollSelector
+DEBUG:httpx:load_ssl_context verify=True cert=None trust_env=True http2=False
+DEBUG:httpx:load_verify_locations cafile='/usr/local/lib/python3.12/site-packages/certifi/cacert.pem'
+DEBUG:httpcore.connection:connect_tcp.started host='api.allegro.pl.allegrosandbox.pl' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c528b30>
+DEBUG:httpcore.connection:start_tls.started ssl_context=<ssl.SSLContext object at 0x7fe07c525ad0> server_hostname='api.allegro.pl.allegrosandbox.pl' timeout=5.0
+DEBUG:httpcore.connection:start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c4ba9c0>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'content-encoding', b'gzip'), (b'trace-id', b'9b43cd60612614d3'), (b'date', b'Mon, 18 Nov 2024 17:28:17 GMT'), (b'content-type', b'application/vnd.allegro.public.v1+json; charset=UTF-8'), (b'transfer-encoding', b'chunked'), (b'strict-transport-security', b'max-age=15552000'), (b'x-content-type-options', b'nosniff')])
+INFO:httpx:HTTP Request: GET https://api.allegro.pl.allegrosandbox.pl/sale/categories "HTTP/1.1 200 OK"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.connection:close.started
+DEBUG:httpcore.connection:close.complete
+DEBUG:httpx:load_ssl_context verify=True cert=None trust_env=True http2=False
+DEBUG:httpx:load_verify_locations cafile='/usr/local/lib/python3.12/site-packages/certifi/cacert.pem'
+DEBUG:httpx:load_ssl_context verify=True cert=None trust_env=True http2=False
+DEBUG:httpx:load_verify_locations cafile='/usr/local/lib/python3.12/site-packages/certifi/cacert.pem'
+DEBUG:httpx:load_ssl_context verify=True cert=None trust_env=True http2=False
+DEBUG:httpx:load_verify_locations cafile='/usr/local/lib/python3.12/site-packages/certifi/cacert.pem'
+DEBUG:httpx:load_ssl_context verify=True cert=None trust_env=True http2=False
+DEBUG:httpx:load_verify_locations cafile='/usr/local/lib/python3.12/site-packages/certifi/cacert.pem'
+DEBUG:httpx:load_ssl_context verify=True cert=None trust_env=True http2=False
+DEBUG:httpx:load_verify_locations cafile='/usr/local/lib/python3.12/site-packages/certifi/cacert.pem'
+DEBUG:httpx:load_ssl_context verify=True cert=None trust_env=True http2=False
+DEBUG:httpx:load_verify_locations cafile='/usr/local/lib/python3.12/site-packages/certifi/cacert.pem'
+DEBUG:httpx:load_ssl_context verify=True cert=None trust_env=True http2=False
+DEBUG:httpx:load_verify_locations cafile='/usr/local/lib/python3.12/site-packages/certifi/cacert.pem'
+DEBUG:httpx:load_ssl_context verify=True cert=None trust_env=True http2=False
+DEBUG:httpx:load_verify_locations cafile='/usr/local/lib/python3.12/site-packages/certifi/cacert.pem'
+DEBUG:httpx:load_ssl_context verify=True cert=None trust_env=True http2=False
+DEBUG:httpx:load_verify_locations cafile='/usr/local/lib/python3.12/site-packages/certifi/cacert.pem'
+DEBUG:httpx:load_ssl_context verify=True cert=None trust_env=True http2=False
+DEBUG:httpx:load_verify_locations cafile='/usr/local/lib/python3.12/site-packages/certifi/cacert.pem'
+DEBUG:httpx:load_ssl_context verify=True cert=None trust_env=True http2=False
+DEBUG:httpx:load_verify_locations cafile='/usr/local/lib/python3.12/site-packages/certifi/cacert.pem'
+DEBUG:httpx:load_ssl_context verify=True cert=None trust_env=True http2=False
+DEBUG:httpx:load_verify_locations cafile='/usr/local/lib/python3.12/site-packages/certifi/cacert.pem'
+DEBUG:httpx:load_ssl_context verify=True cert=None trust_env=True http2=False
+DEBUG:httpx:load_verify_locations cafile='/usr/local/lib/python3.12/site-packages/certifi/cacert.pem'
+DEBUG:httpcore.connection:connect_tcp.started host='api.allegro.pl.allegrosandbox.pl' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.started host='api.allegro.pl.allegrosandbox.pl' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.started host='api.allegro.pl.allegrosandbox.pl' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.started host='api.allegro.pl.allegrosandbox.pl' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.started host='api.allegro.pl.allegrosandbox.pl' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.started host='api.allegro.pl.allegrosandbox.pl' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.started host='api.allegro.pl.allegrosandbox.pl' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.started host='api.allegro.pl.allegrosandbox.pl' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.started host='api.allegro.pl.allegrosandbox.pl' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.started host='api.allegro.pl.allegrosandbox.pl' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.started host='api.allegro.pl.allegrosandbox.pl' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.started host='api.allegro.pl.allegrosandbox.pl' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.started host='api.allegro.pl.allegrosandbox.pl' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe08013a540>
+DEBUG:httpcore.connection:start_tls.started ssl_context=<ssl.SSLContext object at 0x7fe07c526850> server_hostname='api.allegro.pl.allegrosandbox.pl' timeout=5.0
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c4b84d0>
+DEBUG:httpcore.connection:start_tls.started ssl_context=<ssl.SSLContext object at 0x7fe07c526f50> server_hostname='api.allegro.pl.allegrosandbox.pl' timeout=5.0
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c45de20>
+DEBUG:httpcore.connection:start_tls.started ssl_context=<ssl.SSLContext object at 0x7fe07c5262d0> server_hostname='api.allegro.pl.allegrosandbox.pl' timeout=5.0
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe08020bf50>
+DEBUG:httpcore.connection:start_tls.started ssl_context=<ssl.SSLContext object at 0x7fe07c54c4d0> server_hostname='api.allegro.pl.allegrosandbox.pl' timeout=5.0
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c4b8320>
+DEBUG:httpcore.connection:start_tls.started ssl_context=<ssl.SSLContext object at 0x7fe07c54c0d0> server_hostname='api.allegro.pl.allegrosandbox.pl' timeout=5.0
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c64a2d0>
+DEBUG:httpcore.connection:start_tls.started ssl_context=<ssl.SSLContext object at 0x7fe07c54cdd0> server_hostname='api.allegro.pl.allegrosandbox.pl' timeout=5.0
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c62ddc0>
+DEBUG:httpcore.connection:start_tls.started ssl_context=<ssl.SSLContext object at 0x7fe07c527950> server_hostname='api.allegro.pl.allegrosandbox.pl' timeout=5.0
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe0800b7260>
+DEBUG:httpcore.connection:start_tls.started ssl_context=<ssl.SSLContext object at 0x7fe07c527cd0> server_hostname='api.allegro.pl.allegrosandbox.pl' timeout=5.0
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c4a0f20>
+DEBUG:httpcore.connection:start_tls.started ssl_context=<ssl.SSLContext object at 0x7fe07c525dd0> server_hostname='api.allegro.pl.allegrosandbox.pl' timeout=5.0
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c64a5a0>
+DEBUG:httpcore.connection:start_tls.started ssl_context=<ssl.SSLContext object at 0x7fe07c526b50> server_hostname='api.allegro.pl.allegrosandbox.pl' timeout=5.0
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c6484d0>
+DEBUG:httpcore.connection:start_tls.started ssl_context=<ssl.SSLContext object at 0x7fe07c54c950> server_hostname='api.allegro.pl.allegrosandbox.pl' timeout=5.0
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c4b91c0>
+DEBUG:httpcore.connection:start_tls.started ssl_context=<ssl.SSLContext object at 0x7fe07c463050> server_hostname='api.allegro.pl.allegrosandbox.pl' timeout=5.0
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c648ad0>
+DEBUG:httpcore.connection:start_tls.started ssl_context=<ssl.SSLContext object at 0x7fe07c527350> server_hostname='api.allegro.pl.allegrosandbox.pl' timeout=5.0
+DEBUG:httpcore.connection:start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c52a4b0>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.connection:start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c529730>
+DEBUG:httpcore.connection:start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe080209760>
+DEBUG:httpcore.connection:start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c52ba40>
+DEBUG:httpcore.connection:start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c64a3f0>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.connection:start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c4ba5d0>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.connection:start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c528890>
+DEBUG:httpcore.connection:start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c528770>
+DEBUG:httpcore.connection:start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c6481d0>
+DEBUG:httpcore.connection:start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c4b89e0>
+DEBUG:httpcore.connection:start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c52afc0>
+DEBUG:httpcore.connection:start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe07c52bb00>
+DEBUG:httpcore.connection:start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7fe0800b7470>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'content-encoding', b'gzip'), (b'trace-id', b'7a1b66884b4c3565'), (b'date', b'Mon, 18 Nov 2024 17:28:18 GMT'), (b'content-type', b'application/vnd.allegro.public.v1+json; charset=UTF-8'), (b'transfer-encoding', b'chunked'), (b'strict-transport-security', b'max-age=15552000'), (b'x-content-type-options', b'nosniff')])
+INFO:httpx:HTTP Request: GET https://api.allegro.pl.allegrosandbox.pl/sale/categories/?parent.id=5 "HTTP/1.1 200 OK"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.connection:close.started
+DEBUG:httpcore.connection:close.complete
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'content-encoding', b'gzip'), (b'trace-id', b'fb98c4a3f1cb3cf4'), (b'date', b'Mon, 18 Nov 2024 17:28:18 GMT'), (b'content-type', b'application/vnd.allegro.public.v1+json; charset=UTF-8'), (b'transfer-encoding', b'chunked'), (b'strict-transport-security', b'max-age=15552000'), (b'x-content-type-options', b'nosniff')])
+INFO:httpx:HTTP Request: GET https://api.allegro.pl.allegrosandbox.pl/sale/categories/?parent.id=20782 "HTTP/1.1 200 OK"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'content-encoding', b'gzip'), (b'trace-id', b'f8809e0ec93a912b'), (b'date', b'Mon, 18 Nov 2024 17:28:18 GMT'), (b'content-type', b'application/vnd.allegro.public.v1+json; charset=UTF-8'), (b'transfer-encoding', b'chunked'), (b'strict-transport-security', b'max-age=15552000'), (b'x-content-type-options', b'nosniff')])
+INFO:httpx:HTTP Request: GET https://api.allegro.pl.allegrosandbox.pl/sale/categories/?parent.id=a408e75a-cede-4587-8526-54e9be600d9f "HTTP/1.1 200 OK"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.connection:close.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.connection:close.started
+DEBUG:httpcore.connection:close.complete
+DEBUG:httpcore.connection:close.complete
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'content-encoding', b'gzip'), (b'trace-id', b'e0190db44dfd228'), (b'date', b'Mon, 18 Nov 2024 17:28:18 GMT'), (b'content-type', b'application/vnd.allegro.public.v1+json; charset=UTF-8'), (b'transfer-encoding', b'chunked'), (b'strict-transport-security', b'max-age=15552000'), (b'x-content-type-options', b'nosniff')])
+INFO:httpx:HTTP Request: GET https://api.allegro.pl.allegrosandbox.pl/sale/categories/?parent.id=42540aec-367a-4e5e-b411-17c09b08e41f "HTTP/1.1 200 OK"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'content-encoding', b'gzip'), (b'trace-id', b'9cd3fbc3efb0b6c0'), (b'date', b'Mon, 18 Nov 2024 17:28:18 GMT'), (b'content-type', b'application/vnd.allegro.public.v1+json; charset=UTF-8'), (b'transfer-encoding', b'chunked'), (b'strict-transport-security', b'max-age=15552000'), (b'x-content-type-options', b'nosniff')])
+INFO:httpx:HTTP Request: GET https://api.allegro.pl.allegrosandbox.pl/sale/categories/?parent.id=3919 "HTTP/1.1 200 OK"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.connection:close.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.connection:close.started
+DEBUG:httpcore.connection:close.complete
+DEBUG:httpcore.connection:close.complete
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'content-encoding', b'gzip'), (b'trace-id', b'87d177336589cc08'), (b'date', b'Mon, 18 Nov 2024 17:28:18 GMT'), (b'content-type', b'application/vnd.allegro.public.v1+json; charset=UTF-8'), (b'transfer-encoding', b'chunked'), (b'strict-transport-security', b'max-age=15552000'), (b'x-content-type-options', b'nosniff')])
+INFO:httpx:HTTP Request: GET https://api.allegro.pl.allegrosandbox.pl/sale/categories/?parent.id=1429 "HTTP/1.1 200 OK"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.connection:close.started
+DEBUG:httpcore.connection:close.complete
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'content-encoding', b'gzip'), (b'trace-id', b'3a7b31d4d6fb3fd9'), (b'date', b'Mon, 18 Nov 2024 17:28:18 GMT'), (b'content-type', b'application/vnd.allegro.public.v1+json; charset=UTF-8'), (b'transfer-encoding', b'chunked'), (b'strict-transport-security', b'max-age=15552000'), (b'x-content-type-options', b'nosniff')])
+INFO:httpx:HTTP Request: GET https://api.allegro.pl.allegrosandbox.pl/sale/categories/?parent.id=121882 "HTTP/1.1 200 OK"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.connection:close.started
+DEBUG:httpcore.connection:close.complete
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'content-encoding', b'gzip'), (b'trace-id', b'd3ef65050e6fc92f'), (b'date', b'Mon, 18 Nov 2024 17:28:18 GMT'), (b'content-type', b'application/vnd.allegro.public.v1+json; charset=UTF-8'), (b'transfer-encoding', b'chunked'), (b'strict-transport-security', b'max-age=15552000'), (b'x-content-type-options', b'nosniff')])
+INFO:httpx:HTTP Request: GET https://api.allegro.pl.allegrosandbox.pl/sale/categories/?parent.id=3 "HTTP/1.1 200 OK"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'content-encoding', b'gzip'), (b'trace-id', b'308f060b59d97d27'), (b'date', b'Mon, 18 Nov 2024 17:28:18 GMT'), (b'content-type', b'application/vnd.allegro.public.v1+json; charset=UTF-8'), (b'transfer-encoding', b'chunked'), (b'strict-transport-security', b'max-age=15552000'), (b'x-content-type-options', b'nosniff')])
+INFO:httpx:HTTP Request: GET https://api.allegro.pl.allegrosandbox.pl/sale/categories/?parent.id=258832 "HTTP/1.1 200 OK"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.connection:close.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.connection:close.started
+DEBUG:httpcore.connection:close.complete
+DEBUG:httpcore.connection:close.complete
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'content-encoding', b'gzip'), (b'trace-id', b'176e78aa71b3011c'), (b'date', b'Mon, 18 Nov 2024 17:28:18 GMT'), (b'content-type', b'application/vnd.allegro.public.v1+json; charset=UTF-8'), (b'transfer-encoding', b'chunked'), (b'strict-transport-security', b'max-age=15552000'), (b'x-content-type-options', b'nosniff')])
+INFO:httpx:HTTP Request: GET https://api.allegro.pl.allegrosandbox.pl/sale/categories/?parent.id=4bd97d96-f0ff-46cb-a52c-2992bd972bb1 "HTTP/1.1 200 OK"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'content-encoding', b'gzip'), (b'trace-id', b'6a44d5470f98b320'), (b'date', b'Mon, 18 Nov 2024 17:28:18 GMT'), (b'content-type', b'application/vnd.allegro.public.v1+json; charset=UTF-8'), (b'transfer-encoding', b'chunked'), (b'strict-transport-security', b'max-age=15552000'), (b'x-content-type-options', b'nosniff')])
+INFO:httpx:HTTP Request: GET https://api.allegro.pl.allegrosandbox.pl/sale/categories/?parent.id=38d588fd-7e9c-4c42-a4ae-6831775eca45 "HTTP/1.1 200 OK"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'content-encoding', b'gzip'), (b'trace-id', b'61a859993b25a4f'), (b'date', b'Mon, 18 Nov 2024 17:28:18 GMT'), (b'content-type', b'application/vnd.allegro.public.v1+json; charset=UTF-8'), (b'transfer-encoding', b'chunked'), (b'strict-transport-security', b'max-age=15552000'), (b'x-content-type-options', b'nosniff')])
+INFO:httpx:HTTP Request: GET https://api.allegro.pl.allegrosandbox.pl/sale/categories/?parent.id=ea5b98dd-4b6f-4bd0-8c80-22c2629132d0 "HTTP/1.1 200 OK"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'content-encoding', b'gzip'), (b'trace-id', b'b3f2d1028b1e5bbd'), (b'date', b'Mon, 18 Nov 2024 17:28:18 GMT'), (b'content-type', b'application/vnd.allegro.public.v1+json; charset=UTF-8'), (b'transfer-encoding', b'chunked'), (b'strict-transport-security', b'max-age=15552000'), (b'x-content-type-options', b'nosniff')])
+INFO:httpx:HTTP Request: GET https://api.allegro.pl.allegrosandbox.pl/sale/categories/?parent.id=11763 "HTTP/1.1 200 OK"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.connection:close.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.connection:close.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.connection:close.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.connection:close.started
+DEBUG:httpcore.connection:close.complete
+DEBUG:httpcore.connection:close.complete
+DEBUG:httpcore.connection:close.complete
+DEBUG:httpcore.connection:close.complete
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=82595&limit=60 HTTP/1.1" 200 4435
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=82595&limit=60&offset=0 HTTP/1.1" 200 4435
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=82595&limit=60&offset=60 HTTP/1.1" 200 2742
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=82595&limit=60&offset=120 HTTP/1.1" 200 1834
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=316558&limit=60 HTTP/1.1" 200 2226
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=316558&limit=60&offset=0 HTTP/1.1" 200 2226
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=316558&limit=60&offset=60 HTTP/1.1" 200 1851
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=11763&limit=60 HTTP/1.1" 422 358
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=11763&limit=60&offset=0 HTTP/1.1" 422 358
+ERROR:django.request:Internal Server Error: /offers_listing_response/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/app/main/views_folder/offers_listing.py", line 137, in offers_listing_response
+    if not result['items']['regular']:
+           ~~~~~~^^^^^^^^^
+KeyError: 'items'
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=11818&limit=60 HTTP/1.1" 200 8315
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=11818&limit=60&offset=0 HTTP/1.1" 200 8315
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=11818&limit=60&offset=60 HTTP/1.1" 200 7822
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=11818&limit=60&offset=120 HTTP/1.1" 200 8168
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=11818&limit=60&offset=180 HTTP/1.1" 200 7909
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=11818&limit=60&offset=240 HTTP/1.1" 200 8509
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=11818&limit=60&offset=300 HTTP/1.1" 200 8498
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=11818&limit=60&offset=360 HTTP/1.1" 200 8374
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=11818&limit=60&offset=420 HTTP/1.1" 200 8429
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=11818&limit=60&offset=480 HTTP/1.1" 200 7875
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=11818&limit=60&offset=540 HTTP/1.1" 200 8007
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=11837&limit=60 HTTP/1.1" 200 3800
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=11837&limit=60&offset=0 HTTP/1.1" 200 3800
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=11837&limit=60&offset=60 HTTP/1.1" 200 2537
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=11763&limit=60 HTTP/1.1" 422 358
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=11763&limit=60&offset=0 HTTP/1.1" 422 358
+ERROR:django.request:Internal Server Error: /offers_listing_response/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/app/main/views_folder/offers_listing.py", line 137, in offers_listing_response
+    if not result['items']['regular']:
+           ~~~~~~^^^^^^^^^
+KeyError: 'items'
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60 HTTP/1.1" 200 6227
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=0 HTTP/1.1" 200 6227
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=60 HTTP/1.1" 200 6108
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=120 HTTP/1.1" 200 5929
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=180 HTTP/1.1" 200 8056
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=240 HTTP/1.1" 200 5733
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=300 HTTP/1.1" 200 7607
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=360 HTTP/1.1" 200 8017
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60 HTTP/1.1" 200 6227
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=420 HTTP/1.1" 200 5126
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=0 HTTP/1.1" 200 6227
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=60 HTTP/1.1" 200 6108
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=480 HTTP/1.1" 200 5132
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=120 HTTP/1.1" 200 5929
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=540 HTTP/1.1" 200 7378
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=180 HTTP/1.1" 200 8056
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=240 HTTP/1.1" 200 5733
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=300 HTTP/1.1" 200 7607
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=360 HTTP/1.1" 200 8017
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=420 HTTP/1.1" 200 5126
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=480 HTTP/1.1" 200 5132
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=540 HTTP/1.1" 200 7378
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60 HTTP/1.1" 200 6700
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=0 HTTP/1.1" 200 6700
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=60 HTTP/1.1" 200 4344
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=120 HTTP/1.1" 200 4461
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=180 HTTP/1.1" 200 4385
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=240 HTTP/1.1" 200 4942
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=300 HTTP/1.1" 200 5264
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=360 HTTP/1.1" 200 5133
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=420 HTTP/1.1" 200 4951
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=480 HTTP/1.1" 200 5079
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=540 HTTP/1.1" 200 5114
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60 HTTP/1.1" 200 6700
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=0 HTTP/1.1" 200 6700
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=60 HTTP/1.1" 200 4344
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=120 HTTP/1.1" 200 4461
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=180 HTTP/1.1" 200 4385
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=240 HTTP/1.1" 200 4942
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=300 HTTP/1.1" 200 5264
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=360 HTTP/1.1" 200 5133
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=420 HTTP/1.1" 200 4951
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=480 HTTP/1.1" 200 5079
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=540 HTTP/1.1" 200 5114
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=124263&limit=60 HTTP/1.1" 200 4703
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=124263&limit=60&offset=0 HTTP/1.1" 200 4703
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=124263&limit=60&offset=60 HTTP/1.1" 200 4164
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=76003&limit=60 HTTP/1.1" 200 3647
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=76003&limit=60&offset=0 HTTP/1.1" 200 3647
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=76003&limit=60&offset=60 HTTP/1.1" 200 3174
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=76008&limit=60 HTTP/1.1" 200 5921
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=76008&limit=60&offset=0 HTTP/1.1" 200 5921
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=76008&limit=60&offset=60 HTTP/1.1" 200 4911
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=76008&limit=60&offset=120 HTTP/1.1" 200 4886
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=76008&limit=60&offset=180 HTTP/1.1" 200 5221
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=76008&limit=60&offset=240 HTTP/1.1" 200 5650
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=76008&limit=60&offset=300 HTTP/1.1" 200 5667
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=76008&limit=60&offset=360 HTTP/1.1" 200 5570
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=76008&limit=60&offset=420 HTTP/1.1" 200 5478
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=76008&limit=60&offset=480 HTTP/1.1" 200 5614
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=76008&limit=60&offset=540 HTTP/1.1" 200 5512
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60 HTTP/1.1" 200 6700
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=0 HTTP/1.1" 200 6700
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=60 HTTP/1.1" 200 4344
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=120 HTTP/1.1" 200 4461
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=180 HTTP/1.1" 200 4385
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=240 HTTP/1.1" 200 4942
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=300 HTTP/1.1" 200 5264
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=360 HTTP/1.1" 200 5133
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=420 HTTP/1.1" 200 4951
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=480 HTTP/1.1" 200 5079
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=75993&limit=60&offset=540 HTTP/1.1" 200 5114
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=112112&limit=60 HTTP/1.1" 200 4102
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=112112&limit=60&offset=0 HTTP/1.1" 200 4102
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=112112&limit=60&offset=60 HTTP/1.1" 200 3681
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60 HTTP/1.1" 200 6249
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=0 HTTP/1.1" 200 6249
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=60 HTTP/1.1" 200 5990
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=120 HTTP/1.1" 200 6025
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=180 HTTP/1.1" 200 7978
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=240 HTTP/1.1" 200 6169
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=300 HTTP/1.1" 200 7634
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=360 HTTP/1.1" 200 8167
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=420 HTTP/1.1" 200 5246
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=480 HTTP/1.1" 200 5015
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=1454&limit=60&offset=540 HTTP/1.1" 200 7562
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=ea5b98dd-4b6f-4bd0-8c80-22c2629132d0&limit=60 HTTP/1.1" 422 358
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /offers/listing/?category.id=ea5b98dd-4b6f-4bd0-8c80-22c2629132d0&limit=60&offset=0 HTTP/1.1" 422 358
+ERROR:django.request:Internal Server Error: /offers_listing_response/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/app/main/views_folder/offers_listing.py", line 137, in offers_listing_response
+    if not result['items']['regular']:
+           ~~~~~~^^^^^^^^^
+KeyError: 'items'
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl.allegrosandbox.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl.allegrosandbox.pl:443 "GET /sale/offers HTTP/1.1" 200 25550
