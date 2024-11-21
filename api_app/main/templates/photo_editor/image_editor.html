@@ -28,6 +28,24 @@
             <button id="closeButton" class="close-button" onclick="closeMessage()">&times;</button>
         </div>
 
+        <div class="container_editor">
+            <div class="square-form">
+                <form id="imageForm" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="file" name="image" id="image" required style="display:none;">
+                    <button type="button" id="triggerFileInput">+</button>
+                </form>
+                <!-- Spinner -->
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status" id="spinner">
+                    <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Placeholder for the processed image -->
+            <div id="result"></div>
+        </div>
+
 
         <label for="customRange2" class="form-label">Granica maski</label>
         <!-- Display the range value -->
@@ -327,6 +345,7 @@
         var imageGallery = document.getElementById('imageGallery');
         imageGallery.style.width = '100%';
         imageGallery.style.height = 'auto';
+        const rembgId = document.getElementById('rembgId');
         const spinner = document.getElementById('spinner');
         const spinner2 = document.getElementById('spinner2');
         const thumbnailArea = document.getElementById('thumbnailArea');
@@ -1466,6 +1485,8 @@
                     spinner.style.display = 'none';
                     if (response.data.success) {
 
+                        console.log('%%%% remove_bg resp %%%%', response.data)
+
                         imageName = response.data.imgName;
                         imagURL = response.data.image_data_url
 
@@ -1605,10 +1626,45 @@
         }
 
 
+
+        function getRembgStatus(imgInGallery, imageName, imageURLId) {
+
+            const result =  axios(`/get_rembg_status/${imageURLId}`)
+                .then(response => {
+                    if (response.data.status === 'SUCCESS') {
+                        spinner2.style.display = 'none';
+                        rembgId.style.display = 'block';
+                        console.log('Image processed:', result);
+                        // Reset sliders and other settings
+                        document.getElementById('brightnessSlider').value = 1;
+                        document.getElementById('redSlider').value = 1;
+                        document.getElementById('greenSlider').value = 1;
+                        document.getElementById('blueSlider').value = 1;
+                        document.getElementById('contrastSlider').value = 0;
+                        originalImageData = null;
+                        imgInGallery.src = null;
+                        imgInGallery.src = response.data.image_data_url;
+                        imgInGallery.style.width = '150px';
+                        imgInGallery.style.height = 'auto';
+                        console.log('imgInGallery', imgInGallery)
+                        workWithImage(imageName, response.data.image_data_url);
+                    } else {
+                        console.log('Task status:', response.data.status);
+                        // getRembgStatus(imgInGallery, imageName, imageURLId)
+                            setTimeout(() => 
+                                getRembgStatus(imgInGallery, imageName, imageURLId)
+                            , 1000)
+
+                    }
+                });
+
+        }
+
+
         function removeBackGround() {
 
             console.log('removeBackGround imgToRemove', imageBGName);
-            const rembgId = document.getElementById('rembgId');
+            // const rembgId = document.getElementById('rembgId');
             rembgId.style.display = 'none';
             imgToRemove = document.getElementById(`resizable${imageBGName}`);
             imgToRemove.remove();
@@ -1640,25 +1696,20 @@
                     });
                 })
                 .then(response => {
-                    spinner2.style.display = 'none';
-                    rembgId.style.display = 'block';
+                    // spinner2.style.display = 'none';
+                    // rembgId.style.display = 'block';
                     if (response.data.success) {
-                        imageName = response.data.imgName;
-                        imagURL = response.data.image_data_url;
 
-                        // Reset sliders and other settings
-                        document.getElementById('brightnessSlider').value = 1;
-                        document.getElementById('redSlider').value = 1;
-                        document.getElementById('greenSlider').value = 1;
-                        document.getElementById('blueSlider').value = 1;
-                        document.getElementById('contrastSlider').value = 0;
-                        originalImageData = null;
-                        imgInGallery.src = null;
-                        imgInGallery.src = imagURL;
-                        imgInGallery.style.width = '150px';
-                        imgInGallery.style.height = 'auto';
-                        console.log('imgInGallery', imgInGallery)
-                        workWithImage(imageName, imagURL);
+                        console.log('%%%% - remove_bg resp - %%%%', response.data)
+
+                        imageName = response.data.imgName;
+                        const imageURLId = response.data.image_data_url;
+
+                        imagURL = getRembgStatus(imgInGallery, imageName, imageURLId); 
+
+                        // if ( imagURL !== 'SUCCESS' ) {
+                        //     imagURL = getRembgStatus(imgInGallery, imageName, imageURLId); 
+                        // }
                     } else {
                         alert('Failed to process the image.');
                     }
@@ -2142,7 +2193,7 @@
                             rotationHandle.style.left = '-10px';
                             rotationHandle.style.transform = 'translateX(-50%)';
                             rotationHandle.style.cursor = 'grab';
-                            rotationHandle.style.backgroundImage = 'url(/static/icons/rotate_in.svg)';
+                            rotationHandle.style.backgroundImage = 'url(/staticfiles/icons/rotate_in.svg)';
                             rotationHandle.style.width = '15px';
                             rotationHandle.style.height = '15px';
                             resizableContainer.appendChild(rotationHandle);

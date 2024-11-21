@@ -101,6 +101,7 @@ urlpatterns = [
     # PHOTO EDITOR
     path('photo_editor/', photo_editor.remove_background, name='photo_editor'),
     path('remove_bg/', photo_editor.remove_bg, name='remove_bg'), 
+    path('get_rembg_status/<str:id>', photo_editor.get_rembg_status, name='get_rembg_status'), 
     path('mirror_image/', photo_editor.mirror_image, name='mirror_image'), 
 
     # PDF CREATOR

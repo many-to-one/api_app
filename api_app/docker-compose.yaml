@@ -1,7 +1,7 @@
 services:
 
   db:
-    image: postgres:15
+    image: postgres:17
     container_name: postgres_sellior
     environment:
       POSTGRES_DB: ${DB_NAME}
@@ -26,7 +26,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: sellior_backend
-    command: sh -c "uvicorn api_app.asgi:application --host 0.0.0.0 --port 8004 --workers 2"
+    command: sh -c "uvicorn api_app.asgi:application --host 0.0.0.0 --port 8004"
     restart: always
     volumes:
       - .:/app
@@ -46,6 +46,42 @@ services:
     #   interval: 10s
     #   timeout: 5s
     #   retries: 5
+
+
+  redis:
+    image: redis:7.4.1
+    container_name: redis_sellior
+    restart: always
+    networks:
+      - web-net
+
+  celery:
+    build: .
+    container_name: celery_sellior
+    command: celery -A api_app.celery worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - web
+      - redis
+    networks:
+      - web-net
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+  celery-beat:
+    build: .
+    container_name: celery_beat_sellior
+    command: celery -A api_app.celery beat --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+    networks:
+      - web-net
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
 
 
 
