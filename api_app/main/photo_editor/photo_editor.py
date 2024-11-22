@@ -60,7 +60,7 @@ def remove_bg(request):
             # Trigger Celery task
             task = process_image.delay(image_data, threshold)
 
-            print('************** TASK ID ****************', task.id)
+            print('************** threshold ****************', threshold)
 
             if task:
                 return JsonResponse({
@@ -76,15 +76,6 @@ def remove_bg(request):
                     'image_data_url': task.id,
                     'range': 5, #range(5),
                 })
-
-
-            # # Return task ID to the client
-            # return JsonResponse({
-            #         'success': True, 
-            #         'imgName': f'{image}',
-            #         'image_data_url': task,
-            #         'range': 5, #range(5),
-            #     })
 
     return JsonResponse({'success': False, 'error': 'Image processing failed'})
 

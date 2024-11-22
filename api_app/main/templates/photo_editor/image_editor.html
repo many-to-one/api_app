@@ -29,28 +29,37 @@
         </div>
 
         <div class="container_editor">
-            <div class="square-form">
+            <!-- <div class="square-form">
                 <form id="imageForm" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="file" name="image" id="image" required style="display:none;">
                     <button type="button" id="triggerFileInput">+</button>
                 </form>
-                <!-- Spinner -->
                 <div class="d-flex justify-content-center">
                     <div class="spinner-border" role="status" id="spinner">
                     <span class="visually-hidden">Loading...</span>
                     </div>
                 </div>
-            </div>
+            </div> -->
             <!-- Placeholder for the processed image -->
             <div id="result"></div>
         </div>
 
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progress-bar">
+                <span id="proccess_text">Przetwarzam...</span>
+            </div>
+          </div>
+          
 
-        <label for="customRange2" class="form-label">Granica maski</label>
+        <!-- DISPLAY IS NONE FOR NOW - VPS USING CPU AND IT WILL BE TAKE TOO LONG TIME FOR PROCCESSING WITH THIS VALUE MAMIPULATION -->
+
+        <label style="display: none;" for="customRange2" class="form-label">Granica maski</label>
         <!-- Display the range value -->
-        <p id="rangeValueDisplay">0</p>
-        <input type="range" class="form-range" min="0" max="255" id="threshold" onchange="getRangeValue()">
+        <p style="display: none;" id="rangeValueDisplay">0</p>
+        <input style="display: none;" type="range" class="form-range" min="0" max="255" id="threshold" onchange="getRangeValue()">
+
+        <!-- END DISPLAY NONE FOR RANGE VALUE LOGIC -->
 
         <div id="navProImg" class="d-flex justify-content-between">
             <img style="cursor: pointer;" src="{% static 'icons/rotate.svg' %}" width="25" alt="">
@@ -158,7 +167,7 @@
                  <span class="tooltip__text" style="margin-left: 160px;">Pobierz obraz</span>
               </div>
         </div>
-        <button id="addToGallery" style="margin: 20px;" type="button" class="btn btn-primary">Dodaj do Galerii</button>
+        <button id="addToGallery" style="margin: 20px;" type="button" class="buttonDownloadImage">Dodaj do Galerii</button>
 
         <canvas id="combinedCanvas" style="display:none;"></canvas> <!-- Hidden Canvas for combining images -->
 
@@ -672,6 +681,8 @@
         const contrastSlider = document.getElementById('contrastSlider');
 
         const curveIcon = document.getElementById('curve');
+        const progressContainer = document.getElementById('progressContainer')
+        let progress = null;
         let draggedImage = null;
         let isActiveImage = false;
         let imageName = null;
@@ -1626,14 +1637,20 @@
         }
 
 
+        function updateProgressBar(percentage) {
+            const progressBar = document.getElementById("progress-bar");
+            progressBar.style.width = percentage + "%";
+        }
+
 
         function getRembgStatus(imgInGallery, imageName, imageURLId) {
 
             const result =  axios(`/get_rembg_status/${imageURLId}`)
                 .then(response => {
                     if (response.data.status === 'SUCCESS') {
-                        spinner2.style.display = 'none';
-                        rembgId.style.display = 'block';
+                        progressContainer.style.display = 'none';
+                        // spinner2.style.display = 'none';
+                        // rembgId.style.display = 'block';
                         console.log('Image processed:', result);
                         // Reset sliders and other settings
                         document.getElementById('brightnessSlider').value = 1;
@@ -1647,13 +1664,17 @@
                         imgInGallery.style.width = '150px';
                         imgInGallery.style.height = 'auto';
                         console.log('imgInGallery', imgInGallery)
+                        progress = 0;
                         workWithImage(imageName, response.data.image_data_url);
                     } else {
                         console.log('Task status:', response.data.status);
                         // getRembgStatus(imgInGallery, imageName, imageURLId)
-                            setTimeout(() => 
-                                getRembgStatus(imgInGallery, imageName, imageURLId)
-                            , 1000)
+                        setTimeout(() => 
+                            getRembgStatus(imgInGallery, imageName, imageURLId)
+                        , 1000)
+                        progress += 25;
+                        console.log('progress %:', progress);
+                        updateProgressBar(progress);
 
                     }
                 });
@@ -1665,10 +1686,11 @@
 
             console.log('removeBackGround imgToRemove', imageBGName);
             // const rembgId = document.getElementById('rembgId');
-            rembgId.style.display = 'none';
+            progressContainer.style.display = 'block';
+            // rembgId.style.display = 'none';
             imgToRemove = document.getElementById(`resizable${imageBGName}`);
             imgToRemove.remove();
-            spinner2.style.display = 'block';
+            // spinner2.style.display = 'block';
 
             var imgInGallery = document.getElementById(imageBGName);
             // var squareInGallery = document.getElementById(imageBGName);
@@ -1686,7 +1708,7 @@
                     // Create a FormData object
                     const formData = new FormData();
                     formData.append('image', blob, `resizable${imageBGName}`); // You can specify a filename `${imgToRemove}.png`
-                    formData.append('threshold', threshold_.value);
+                    formData.append('threshold', 0); //threshold_.value - comment for now
 
                     // Send the POST request
                     return axios.post("{% url 'remove_bg' %}", formData, {
