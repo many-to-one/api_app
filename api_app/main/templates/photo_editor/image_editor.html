@@ -29,12 +29,15 @@
         </div>
 
         <div class="container_editor">
+           
             <div class="square-form" style="display:none;">
+
                 <form id="imageForm" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="file" name="image" id="image" required style="display:none;">
                     <button type="button" id="triggerFileInput">+</button>
                 </form>
+                <!-- Spinner -->
                 <div class="d-flex justify-content-center">
                     <div class="spinner-border" role="status" id="spinner">
                     <span class="visually-hidden">Loading...</span>
@@ -66,13 +69,14 @@
             <img id="brightness" onclick="showProcContainer()" style="cursor: pointer;" src="{% static 'icons/curve.svg' %}" width="25" alt="">
             <img id="duplicateImg" onclick="duplicateImg()" style="cursor: pointer;" src="{% static 'icons/copy.svg' %}" width="25" alt="">
             <img id="duplicateImg" onclick="showShadowContainer()" style="cursor: pointer;" src="{% static 'icons/options.svg' %}" width="25" alt="">
-            <!-- <img style="cursor: pointer;" onclick=" isDraw__()" src="{% static 'icons/close.svg' %}" width="25" alt=""> -->
+            <img style="cursor: pointer;" onclick=" isDraw__()" src="{% static 'icons/scissors.svg' %}" width="25" alt="">
              <!-- Spinner -->
             <div class="d-flex justify-content-center">
                 <div id="spinner2" class="spinner-border" role="status"></div>
                 <img id="rembgId" style="cursor: pointer;" onclick=" removeBackGround()" src="{% static 'icons/rembg.svg' %}" width="25" alt="">
             </div>
             <img style="cursor: pointer;" onclick="deleteImg()" src="{% static 'icons/close.svg' %}" width="25" alt="">
+            <i class="bi bi-scissors"></i>
         </div>
 
         <!-- TEST BRIGHTNESS CONTAINER 1 -->
@@ -867,6 +871,7 @@
                 ctx.strokeStyle = 'red';
                 ctx.lineWidth = 2;
                 ctx.stroke();
+
             }
 
             // Function to check if the shape is closed
@@ -883,12 +888,11 @@
                 }
             });
 
-
+            selection = null;
             function deleteSelection() {
 
+                // console.log('POINTS', points)
                 const { x, y, width, height } = selection;
-                ctx.clearRect(x, y, width, height);
-
                 // Redraw image outside the selection area
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -897,6 +901,7 @@
                 selection = null;
 
             }
+
 
             // Function to clear the image data inside the drawn shape
             function clearImageDataInside(points) {
@@ -947,6 +952,7 @@
                     // }
 
                     // console.log('imageData.after', data)
+                    console.log('img.naturalWidth', img.naturalWidth)
 
                     // Loop over the image pixels within the bounding box
                     for (let y = minY; y <= maxY; y++) {
@@ -954,9 +960,9 @@
                             // Check if the point is inside the drawn polygon
                             if (isPointInPolygon(points, x, y)) {
                                 // const index = (y * canvas.width + x) * 4;
-                                const index = (y * img.naturalWidth + x) * 4;
+                                const index = (y * (img.naturalWidth) + x) * 4;
                                 console.log('index', Math.round(index))
-                                console.log('data[index + 3]', data[Math.round(index) + 3])
+                                console.log('data[index + 3]', data[Math.round(index) + 4])
                                 data[Math.round(index) + 3] = 0; // Alpha channel
                                 // Set the alpha channel to 0 (transparent)
                                 // data[index + 3] = 0; // Alpha channel
