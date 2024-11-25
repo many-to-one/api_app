@@ -1,0 +1,29 @@
+.pdf_container_editor {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 25px;
+    height: 10vh;
+    width: 100vw;
+    margin-top: 10vh;
+}
+
+#PDFArea {
+    width: 800px;
+    height: 1127px;
+    border: 2px dashed #ddd;
+    position: relative;
+    overflow: hidden; /* Hide overflowing images */
+    background-color: white;
+}
+
+#PDFArea img {
+    position: absolute;
+    cursor: grab;
+}
+
+#PDFArea img.draggable-image {
+    width: 800px; /* Adjust size visually */
+    /* max-height: 150px; Adjust size visually */
+    position: absolute;
+}
