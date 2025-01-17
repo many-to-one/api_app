@@ -1,7 +1,7 @@
 services:
 
   db:
-    image: postgres:15
+    image: postgres:latest
     container_name: postgres_sellior
     environment:
       POSTGRES_DB: ${DB_NAME}
@@ -26,7 +26,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: sellior_backend
-    command: sh -c "uvicorn api_app.asgi:application --host 0.0.0.0 --port 8004"
+    command: sh -c "uvicorn api_app.asgi:application --host 0.0.0.0 --port 8004 --reload"
     restart: always
     volumes:
       - .:/app
@@ -40,12 +40,12 @@ services:
       - "8004"
     env_file:
       - .env
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:8004",]
-    #   start_period: 300s
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 5
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004",]
+      start_period: 300s
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 
   redis:

@@ -22,7 +22,7 @@
               </ul>
         </li> -->
 
-        <select class="edit_acc account_select order">
+        <select class="edit_acc account_select order" id="accountNameForLogin">
             {% for name in accounts  %}
                 <option id="accountName" value="{{ name }}">{{ name }}</option>
             {% endfor %}
@@ -109,8 +109,26 @@
 
     <script>
 
-        const accountName = document.getElementById('accountName');
-        const nameValue = accountName.getAttribute('value');
+        let nameValue;
+        const accountNameForLogin = document.getElementById('accountNameForLogin');
+            if (accountNameForLogin.options.length === 0) {
+                console.log("No accounts found.");
+                nameValue = 'no-accounts';
+            } else {
+                console.log(`User has ${accountNameForLogin.options.length} accounts.`);
+                const selectedOption = accountNameForLogin.options[accountNameForLogin.selectedIndex];
+                nameValue = selectedOption.value;
+                console.log("nameValue: ", nameValue);
+                // window.location.reload()
+            }
+
+        accountNameForLogin.addEventListener('change', (e) => {
+            nameValue = e.target.value;
+            console.log("nameValue change: ", nameValue);
+        });
+
+
+        const accountName = document.getElementById('accountName');        
         const offersLink = document.getElementById('offersLink');
         const ordersLink = document.getElementById('ordersLink');
         const returnsLink = document.getElementById('returnsLink');
@@ -123,34 +141,64 @@
         const addAllegroAccLink = document.getElementById('addAllegroAccLink');
         console.log('nameValue before click', nameValue)
 
-        offersLink.addEventListener('click', () => {
-            console.log('nameValue', nameValue)
-            offersLink.href = offersLink.href.replace('PLACEHOLDER', nameValue);
+        offersLink.addEventListener('click', (event) => {
+            console.log('nameValue', nameValue);
+            
+            if (nameValue === 'no-accounts') {
+                event.preventDefault();  // Prevent the default navigation to stop it from happening
+                window.location.href = "{% url 'add_account' %}"; 
+            } else {
+                offersLink.href = offersLink.href.replace('PLACEHOLDER', nameValue);
+            }
         });
 
-        ordersLink.addEventListener('click', () => {
-            console.log('nameValue', nameValue)
-            ordersLink.href = ordersLink.href.replace('PLACEHOLDER', nameValue);
+        ordersLink.addEventListener('click', (event) => {
+            if (nameValue === 'no-accounts') {
+                event.preventDefault();
+                window.location.href = "{% url 'add_account' %}";
+            } else {
+                ordersLink.href = ordersLink.href.replace('PLACEHOLDER', nameValue);
+            }
         });
 
-        returnsLink.addEventListener('click', () => {
+        returnsLink.addEventListener('click', (event) => {
             console.log('nameValue', nameValue)
-            returnsLink.href = returnsLink.href.replace('PLACEHOLDER', nameValue);
+            if (nameValue === 'no-accounts') {
+                event.preventDefault();
+                window.location.href = "{% url 'add_account' %}";
+            } else {
+                returnsLink.href = returnsLink.href.replace('PLACEHOLDER', nameValue);
+            }
         });
 
-        addressLink.addEventListener('click', () => {
+        addressLink.addEventListener('click', (event) => {
             console.log('nameValue', nameValue)
-            addressLink.href = addressLink.href.replace('PLACEHOLDER', nameValue);
+            if (nameValue === 'no-accounts') {
+                event.preventDefault();
+                window.location.href = "{% url 'add_account' %}";
+            } else {
+                addressLink.href = addressLink.href.replace('PLACEHOLDER', nameValue);
+            }
         });
 
-        analiticLink.addEventListener('click', () => {
+        analiticLink.addEventListener('click', (event) => {
             console.log('nameValue', nameValue)
-            analiticLink.href = analiticLink.href.replace('PLACEHOLDER', nameValue);
+            if (nameValue === 'no-accounts') {
+                event.preventDefault();
+                window.location.href = "{% url 'add_account' %}";
+            } else {
+                analiticLink.href = analiticLink.href.replace('PLACEHOLDER', nameValue);
+            };
         });
 
-        allegroTokenLink.addEventListener('click', () => {
+        allegroTokenLink.addEventListener('click', (event) => {
             console.log('nameValue', nameValue)
-            allegroTokenLink.href = allegroTokenLink.href.replace('PLACEHOLDER', nameValue);
+            if (nameValue === 'no-accounts') {
+                event.preventDefault();
+                window.location.href = "{% url 'add_account' %}";
+            } else {
+                allegroTokenLink.href = allegroTokenLink.href.replace('PLACEHOLDER', nameValue);
+            };
         });
 
         // messageLink.addEventListener('click', () => {
@@ -158,19 +206,34 @@
         //     messageLink.href = messageLink.href.replace('PLACEHOLDER', nameValue);
         // });
 
-        photoEditorLink.addEventListener('click', () => {
+        photoEditorLink.addEventListener('click', (event) => {
             console.log('nameValue', nameValue)
-            photoEditorLink.href = photoEditorLink.href.replace('PLACEHOLDER', nameValue);
+            if (nameValue === 'no-accounts') {
+                event.preventDefault();
+                window.location.href = "{% url 'add_account' %}";
+            } else {
+                photoEditorLink.href = photoEditorLink.href.replace('PLACEHOLDER', nameValue);
+            };
         });
 
-        pdfEditorLink.addEventListener('click', () => {
+        pdfEditorLink.addEventListener('click', (event) => {
             console.log('nameValue', nameValue)
-            pdfEditorLink.href = pdfEditorLink.href.replace('PLACEHOLDER', nameValue);
+            if (nameValue === 'no-accounts') {
+                event.preventDefault();
+                window.location.href = "{% url 'add_account' %}";
+            } else {
+                pdfEditorLink.href = pdfEditorLink.href.replace('PLACEHOLDER', nameValue);
+            };
         });
 
-        addAllegroAccLink.addEventListener('click', () => {
+        addAllegroAccLink.addEventListener('click', (event) => {
             console.log('nameValue', nameValue)
-            addAllegroAccLink.href = addAllegroAccLink.href.replace('PLACEHOLDER', nameValue);
+            if (nameValue === 'no-accounts') {
+                event.preventDefault();
+                window.location.href = "{% url 'add_account' %}";
+            } else {
+                addAllegroAccLink.href = addAllegroAccLink.href.replace('PLACEHOLDER', nameValue);
+            };
         });
 
         const navi = document.getElementById('naviNav');

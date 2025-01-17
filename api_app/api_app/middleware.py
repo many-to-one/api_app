@@ -8,7 +8,11 @@ class LoginMiddleware:
 
     def __call__(self, request):
         # print('LoginMiddleware - request', request.user)
-        excluded_urls = [settings.LOGIN_URL, reverse('login_user')]  # Add other URLs to exclude
+        excluded_urls = [
+            settings.LOGIN_URL, 
+            reverse('login_user'),
+            reverse('register'),
+            ]  # Add other URLs to exclude
         if not request.user.is_authenticated and request.path not in excluded_urls:
             return redirect(settings.LOGIN_URL)
         return self.get_response(request)
