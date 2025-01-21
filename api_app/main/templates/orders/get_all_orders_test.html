@@ -23,13 +23,19 @@
         <div class="offers__cont" id="of_cont">
 >
                 <div class="list__header_orders">
-                    <p class="print">{{ name }}</p>
+                    <p class="print">{{ selected_name }}</p>
+                    <select class="account_select order" id="accountNameForLogin_">
+                        <option selected value="{{ selected_name }}">Wybierz konto</option>
+                        {% for name in accounts  %}
+                            <option id="accountName" value="{{ name }}" >{{ name }}</option>
+                        {% endfor %}
+                    </select>
                     <input class="check_o labels" type="button" id="check-all-button">
                     <!-- <p class="name_o" onclick="allLabels()"  id="getName" value="{{ name }}">DRK</p> -->
                     <!-- <p class="fv_o" onclick="pdfFV()">FV</p> -->
                     <select class="name_o var_select order" id="option_select" onchange="bulkUpdateOrderStatus()">
                         <option selected value=" ">Wybierz...</option>
-                        <option data-option="print" id="getName" value="{{ name }}">Drukuj Etykiety</option>
+                        <option data-option="print" id="getName" value="{{ selected_name }}">Drukuj Etykiety</option>
                         <option data-option="FV">Generuj Faktury</option>
                         <option data-option="READY_FOR_SHIPMENT">W REALIZACJI</option>
                         <option data-option="CANCELLED">ANULOWANE</option>
@@ -100,7 +106,7 @@
                 </div>
 
                 <div class="list__header_orders_media">
-                    <p class="print" onclick="allLabels()"  id="getName" value="{{ name }}">{{ name }}</p>
+                    <p class="print" onclick="allLabels()"  id="getName" value="{{ selected_name }}">{{ selected_name }}</p>
                     <input class="check_o labels" type="button" id="check-all-button">
 
                     <select class="shipment_o account_select order" id="delivery_select">
@@ -140,14 +146,14 @@
                         name="selected_items" 
                         data-fulfillment-status="{{ order.fulfillment.status }}"
                         data-order-data="{{ order.id }}"
-                        value="{{ order.id }}:{{ name }}:{{ order.delivery.method.name }}:{{ order.lineItems.0.offer.id }}@"
+                        value="{{ order.id }}:{{ selected_name }}:{{ order.delivery.method.name }}:{{ order.lineItems.0.offer.id }}@"
                         
                     >
                     <div class="order">
                         {% for item in order.lineItems %}
                             <div class="lineItems" data-boughtat="{{ item.boughtAt }}">
                                 <div class="name_ord">
-                                    <a href="{% url 'get_order_details' order.id name %}">{{ item.offer.name }}</a>
+                                    <a href="{% url 'get_order_details' order.id selected_name %}">{{ item.offer.name }}</a>
                                     {% with date=item.boughtAt|slice:":10" time=item.boughtAt|slice:"11:16" %}
                                         <div class="ord_line">
                                             <p>{{ order.marketplace.id }}</p>
@@ -156,7 +162,7 @@
                                     {% endwith %}
                                 </div>
                                 <!-- <p class="account" id="name_{{ order.id }}" value="{{ name }}">{{ name }}</p> Konto -->
-                                <div class="skuCosts" id="name_{{ order.id }}" value="{{ name }}">
+                                <div class="skuCosts" id="name_{{ order.id }}" value="{{ selected_name }}">
                                     <p class="sku">{{ item.offer.external.id }}</p>
                                     <p class="stock">{{ item.quantity }}</p>
                                 </div>
@@ -210,6 +216,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
 
     <script>
+
+        document.getElementById('accountNameForLogin_').addEventListener('change', function() {
+            var account = this.value;
+            console.log('ONCHANGE NAME', account)
+
+            var url = `/get_orders/${account}/all/all/all/all/all`
+            window.location.href = url;
+        });
 
         document.addEventListener('DOMContentLoaded', (event) => {
             var defaultOption = "all";  // Set your default option value here

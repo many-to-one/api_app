@@ -189,7 +189,7 @@ def get_orders(request, name, delivery, status, client, fromDate, toDate):
 
         context = {
             'all_results': paginated_results, #sorted_results = sorted(all_results["checkoutForms"], key=lambda x: x["payment"]["finishedAt"])
-            "name": name,
+            "selected_name": name,
             # "deliveryMethods": all_delivery_methods,
         }
         # print('*********************** len all_results **********************', len(paginated_results))

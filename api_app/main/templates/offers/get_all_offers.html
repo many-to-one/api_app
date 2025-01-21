@@ -41,7 +41,13 @@
         </div> -->
 
         <div class="list__header_orders" id="hostName" data-set="{{ hostname }}">
-            <p class="print" id="name" value="{{ name }}">{{name}}</p>
+            <p class="print" id="name" value="{{ selected_name }}">{{selected_name}}</p>
+            <select class="account_select order" id="accountNameForLogin_">
+                <option selected value="{{ selected_name }}">Wybierz konto</option>
+                {% for name in accounts  %}
+                    <option id="accountName" value="{{ name }}" >{{ name }}</option>
+                {% endfor %}
+            </select>
             <input class="check_o labels" type="button" id="check-all-button">
             <select class="edit_h var_select order" id="status_select" onchange="bulkEdit()">
                 <option selected disabled value=" ">Edytuj...</option>
@@ -231,6 +237,16 @@
             }
             return cookieValue;
         }
+
+
+
+        document.getElementById('accountNameForLogin_').addEventListener('change', function() {
+            var account = this.value;
+            console.log('ONCHANGE NAME', account)
+
+            var url = `/get_all_offers/${account}/`
+            window.location.href = url;
+        });
 
 
 

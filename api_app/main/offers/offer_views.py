@@ -128,7 +128,7 @@ def get_all_offers(request, name):
 
     context = {
         'result': result,  
-        'name': name,
+        'selected_name': name,
         'shipping_rates': shipping_rates,
         'aftersale_services': aftersale_services,
         "hostname": HOSTNAME,
@@ -485,6 +485,7 @@ def edit_offer_patch(request, id):
         }
 
     if status:
+        print('############# patch_data status #############', status)
         patch_data = {
             "publication": {
                 "status": status,

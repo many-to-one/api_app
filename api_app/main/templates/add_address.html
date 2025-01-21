@@ -11,6 +11,16 @@
 
 {% block content %}
 <body>
+
+    <div class="list__header_orders" id="hostName" data-set="{{ hostname }}">
+        <p class="print" id="name" value="{{ name }}">{{name}}</p>
+        <select class="account_select order" id="accountNameForLogin_">
+            <option selected value="{{ name }}">Wybierz konto</option>
+            {% for name in accounts  %}
+                <option id="accountName" value="{{ name }}" >{{ name }}</option>
+            {% endfor %}
+        </select>
+    </div>
     
     {% if addresses %}
         {% for address in addresses %}
@@ -92,6 +102,15 @@
             allAddresses.style.display = 'none'
             addressForm.style.display = 'flex';
         }
+
+        document.getElementById('accountNameForLogin_').addEventListener('change', function() {
+            var account = this.value;
+            console.log('ONCHANGE NAME', account)
+
+            var url = `/add_address/${account}/`
+            window.location.href = url;
+        });
+
     </script>
 
     <script>

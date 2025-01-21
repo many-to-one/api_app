@@ -24,7 +24,7 @@
 
         <select class="edit_acc account_select order" id="accountNameForLogin">
             {% for name in accounts  %}
-                <option id="accountName" value="{{ name }}">{{ name }}</option>
+                <option id="accountName" value="{{ name }}" onclick="testClick('{{name}}')">{{ name }}</option>
             {% endfor %}
         </select>
 
@@ -108,6 +108,10 @@
     </header>
 
     <script>
+
+        function testClick(name) {
+            console.log('testClick', name)
+        }
 
         let nameValue;
         const accountNameForLogin = document.getElementById('accountNameForLogin');
