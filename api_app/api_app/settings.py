@@ -179,6 +179,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-cache-key',
+    }
+}
+
+
 # Celery settings
 CELERY_BROKER_URL = 'redis://redis:6379/0' # TO RUN REDIS ON WINDOWS LOCALY #https://github.com/MSOpenTech/redis/releases/download/win-3.2.100/Redis-x64-3.2.100.zip 
 CELERY_RESULT_BACKEND = 'redis://redis:6379/0'

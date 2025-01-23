@@ -3,6 +3,7 @@ import io
 import json, requests
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
+from django.core.cache import cache
 
 from ..views_folder.api_results import get_all_offers_api
 from ..utils import *
