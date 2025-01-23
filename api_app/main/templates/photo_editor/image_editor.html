@@ -1690,17 +1690,16 @@
 
         function removeBackGround() {
 
-            progress = 0;
-                    const interval = setInterval(() => {
-                        progress += 25; // Increment progress
-                        updateProgressBar(progress); // Update the progress bar
-                        console.log('progress %:', progress);
-
-                        // Stop when progress reaches 100%
-                        if (progress >= 100) {
-                            clearInterval(interval);
-                        }
-                    }, 1000); 
+            // progress = 0;
+            // const interval = setInterval(() => {
+            //     progress += 25; // Increment progress
+            //     updateProgressBar(progress); // Update the progress bar
+            //     console.log('progress %:', progress)
+            //     // Stop when progress reaches 100%
+            //     if (progress >= 100) {
+            //         clearInterval(interval);
+            //     }
+            // }, 1000); 
 
             console.log('removeBackGround imgToRemove', imageBGName);
             // const rembgId = document.getElementById('rembgId');
@@ -1745,26 +1744,13 @@
                         imageName = response.data.imgName;
                         const imageURLId = response.data.image_data_url;
 
-                        progressContainer.style.display = 'none';
+                        // progressContainer.style.display = 'none';
                         // spinner2.style.display = 'none';
                         // rembgId.style.display = 'block';
                         console.log('Image processed:', result);
                         // Reset sliders and other settings
-                        document.getElementById('brightnessSlider').value = 1;
-                        document.getElementById('redSlider').value = 1;
-                        document.getElementById('greenSlider').value = 1;
-                        document.getElementById('blueSlider').value = 1;
-                        document.getElementById('contrastSlider').value = 0;
-                        originalImageData = null;
-                        imgInGallery.src = null;
-                        imgInGallery.src = response.data.image_data_url;
-                        imgInGallery.style.width = '150px';
-                        imgInGallery.style.height = 'auto';
-                        console.log('imgInGallery', imgInGallery)
-                        progress = 0;
-                        workWithImage(imageName, response.data.image_data_url);
 
-                        // imagURL = getRembgStatus(imgInGallery, imageName, imageURLId); 
+                        imagURL = getRembgStatus(imgInGallery, imageName, imageURLId); 
 
                         // if ( imagURL !== 'SUCCESS' ) {
                         //     imagURL = getRembgStatus(imgInGallery, imageName, imageURLId); 

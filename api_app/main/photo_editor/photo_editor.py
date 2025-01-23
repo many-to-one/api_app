@@ -47,37 +47,37 @@ MAX_SIZE_KB = 500  # Target size in KB
 TARGET_BYTES = MAX_SIZE_KB * 1024  # Convert to bytes
 
 
-# @require_POST
-# def remove_bg(request):
-#     if request.method == "POST":
-#         image = request.FILES.get("image")
-#         threshold = request.POST['threshold']
+@require_POST
+def remove_bg(request):
+    if request.method == "POST":
+        image = request.FILES.get("image")
+        threshold = request.POST['threshold']
         
-#         if image:
-#             # Read image data as bytes
-#             image_data = image.read()
+        if image:
+            # Read image data as bytes
+            image_data = image.read()
             
-#             # Trigger Celery task
-#             task = process_image.delay(image_data, threshold)
+            # Trigger Celery task
+            task = process_image.delay(image_data, threshold)
 
-#             print('************** threshold ****************', threshold)
+            print('************** threshold ****************', threshold)
 
-#             if task:
-#                 return JsonResponse({
-#                     'success': True, 
-#                     'imgName': f'{image}',
-#                     'image_data_url': task.id,
-#                     'range': 5, #range(5),
-#                 })
-#             else:
-#                 return JsonResponse({
-#                     'success': False, 
-#                     'imgName': f'{image}',
-#                     'image_data_url': task.id,
-#                     'range': 5, #range(5),
-#                 })
+            if task:
+                return JsonResponse({
+                    'success': True, 
+                    'imgName': f'{image}',
+                    'image_data_url': task.id,
+                    'range': 5, #range(5),
+                })
+            else:
+                return JsonResponse({
+                    'success': False, 
+                    'imgName': f'{image}',
+                    'image_data_url': task.id,
+                    'range': 5, #range(5),
+                })
 
-#     return JsonResponse({'success': False, 'error': 'Image processing failed'})
+    return JsonResponse({'success': False, 'error': 'Image processing failed'})
 
 def get_rembg_status(request, id):
     task = AsyncResult(id)
@@ -96,77 +96,77 @@ def get_rembg_status(request, id):
 
     return JsonResponse({'status': 'UNKNOWN', 'image_data_url': 'Unknown task state'})
 
-@require_POST
-def remove_bg(request):
-    if request.method == "POST":
-        print('################## remove bg POST body #################', request)
-        image = request.FILES.get("image")
-        threshold = request.POST['threshold']
-        print('--------------- request ---------------', image)
+# @require_POST
+# def remove_bg(request):
+#     if request.method == "POST":
+#         print('################## remove bg POST body #################', request)
+#         image = request.FILES.get("image")
+#         threshold = request.POST['threshold']
+#         print('--------------- request ---------------', image)
         
-        if image:
-             # Process the image
-            input_image_ = Image.open(image)
-            # Check image size and format
-            width, height = input_image_.size  # Dimensions (width, height)
-            format = input_image_.format       # Format (e.g., 'JPEG', 'PNG')
-            file_size_kb = image.size / 1024  # File size in KB
+#         if image:
+#              # Process the image
+#             input_image_ = Image.open(image)
+#             # Check image size and format
+#             width, height = input_image_.size  # Dimensions (width, height)
+#             format = input_image_.format       # Format (e.g., 'JPEG', 'PNG')
+#             file_size_kb = image.size / 1024  # File size in KB
 
-            new_width = width // 2
-            new_height = height // 2
-            input_image = input_image_.resize((new_width, new_height))
+#             new_width = width // 2
+#             new_height = height // 2
+#             input_image = input_image_.resize((new_width, new_height))
 
-            print(f'Image dimensions: {width}x{height}')
-            print(f'Image format: {format}')
-            print(f'Image file size: {file_size_kb:.2f} KB')
+#             print(f'Image dimensions: {width}x{height}')
+#             print(f'Image format: {format}')
+#             print(f'Image file size: {file_size_kb:.2f} KB')
 
-            if threshold == '0':
-                # output_image = remove(input_image, session=session)
-                output_image = remove(input_image)
-                print('--------------- threshold == 0 ---------------', threshold)
-            else:
-                print('--------------- threshold != 0 ---------------', threshold)
-                output_image = remove(
-                    input_image,
-                     alpha_matting=True,
-                    alpha_matting_foreground_threshold=f'{threshold}',
-                    post_process_mask=True,
-                     alpha_matting_background_threshold=100,
-                     alpha_matting_erode_structure_size=5,
-                     alpha_matting_erode_size=11,
-                     alpha_matting_base_size=1000,
-                )
+#             if threshold == '0':
+#                 # output_image = remove(input_image, session=session)
+#                 output_image = remove(input_image)
+#                 print('--------------- threshold == 0 ---------------', threshold)
+#             else:
+#                 print('--------------- threshold != 0 ---------------', threshold)
+#                 output_image = remove(
+#                     input_image,
+#                      alpha_matting=True,
+#                     alpha_matting_foreground_threshold=f'{threshold}',
+#                     post_process_mask=True,
+#                      alpha_matting_background_threshold=100,
+#                      alpha_matting_erode_structure_size=5,
+#                      alpha_matting_erode_size=11,
+#                      alpha_matting_base_size=1000,
+#                 )
 
-            # Get bounding box of the object
-            bbox = output_image.getbbox()
-            if bbox:
-                 # Crop the image to the bounding box
-                output_image = output_image.crop(bbox)
+#             # Get bounding box of the object
+#             bbox = output_image.getbbox()
+#             if bbox:
+#                  # Crop the image to the bounding box
+#                 output_image = output_image.crop(bbox)
             
-            # Save the processed image to an in-memory bytes buffer
-            buffer = io.BytesIO()
-            output_image.save(buffer, format="PNG")
-            buffer.seek(0)
+#             # Save the processed image to an in-memory bytes buffer
+#             buffer = io.BytesIO()
+#             output_image.save(buffer, format="PNG")
+#             buffer.seek(0)
 
-            # Encode the image as base64
-            image_base64 = base64.b64encode(buffer.read()).decode('utf-8')
+#             # Encode the image as base64
+#             image_base64 = base64.b64encode(buffer.read()).decode('utf-8')
 
-            # Construct the base64 string to be used in the frontend
-            image_data_url = f"data:image/png;base64,{image_base64}"
+#             # Construct the base64 string to be used in the frontend
+#             image_data_url = f"data:image/png;base64,{image_base64}"
 
-            # Calculate the size of image_data_url in bytes
-            image_data_url_size = sys.getsizeof(image_data_url)
+#             # Calculate the size of image_data_url in bytes
+#             image_data_url_size = sys.getsizeof(image_data_url)
 
-            # print('************* SUCCESS ***************', image_data_url)
-            print(f'Size of image_data_url: {image_data_url_size} bytes')
-            return JsonResponse({
-                    'success': True, 
-                    'imgName': f'{image}',
-                    'image_data_url': image_data_url,
-                    'range': 5, #range(5),
-                })
+#             # print('************* SUCCESS ***************', image_data_url)
+#             print(f'Size of image_data_url: {image_data_url_size} bytes')
+#             return JsonResponse({
+#                     'success': True, 
+#                     'imgName': f'{image}',
+#                     'image_data_url': image_data_url,
+#                     'range': 5, #range(5),
+#                 })
 
-    return JsonResponse({'success': False, 'error': 'Image processing failed'})
+#     return JsonResponse({'success': False, 'error': 'Image processing failed'})
 
 
 
